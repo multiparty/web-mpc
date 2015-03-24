@@ -1,0 +1,39 @@
+<html>
+<head>
+	<title>Random Mask Generator</title>
+
+	<script type="text/javascript" src="script/jquery-1.11.2.js"></script>
+    <script type="text/javascript" src="script/underscore.js"></script>
+	<script type="text/javascript" src="script/handsontable/dist/handsontable.full.js"></script>
+	<script type="text/javascript" src="script/jszip/dist/jszip.js"></script>
+	<script type="text/javascript" src="script/filesaver.js"></script>
+	<script type="text/javascript" src="script/generateMasks.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.css">
+	<link rel="stylesheet" media="screen" href="script/handsontable/dist/handsontable.full.css">
+</head>
+<body>
+	<div class="container">
+		<div class="page-header">
+            <h1>Random Mask Generator</h1>
+        </div>
+        <h2>List the companies involved</h2>
+        <button name="dl">Download Masks and Key</button>
+        <br><br>
+        <div id="table"></div>
+        <script type="text/javascript">
+        $(document).ready(function() {
+            $.ajax({
+                type: "GET",
+                url: "keys.txt",
+                dataType: "text",
+                success: function(data) {
+                	var keys = data.trim().split(/\r\n|\n/);
+                	initTable(keys,'table','dl');
+                }
+             });
+        });
+        </script>
+    </div>
+</body>
+</html>
