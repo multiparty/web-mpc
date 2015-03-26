@@ -1,0 +1,79 @@
+<html>
+<head>
+	<title>Data Unmasker</title>
+    <script type="text/javascript" src="script/jquery-1.11.2.js"></script>
+    <script type="text/javascript" src="script/underscore.js"></script>
+    <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.css">
+    <style type="text/css">
+        pre {
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+	<div class="container">
+		<div class="page-header">
+            <h1>Aggregate Data Unmasker</h1>
+        </div>
+
+        <h3>Upload Mask KEY</h3>
+        <input type=file id="maskKey"/>
+
+        <br>
+        <br>
+
+        <h3>Upload Masked, Aggregated DATA</h3>
+        <input type=file id="maskData"/>
+
+        <br>
+        <br>
+
+        <button id="unmask">Unmask Data</button>
+
+        <br><br>
+        <pre id="result"></pre>
+        <script type="text/javascript">
+
+        $('#unmask').on('click', function() {
+            var maskKey = $('#maskKey').get(0),
+                maskData = $('#maskData').get(0),
+                keyReader = new FileReader(),
+                dataReader = new FileReader();
+            if(maskKey.files.length && maskData.files.length)
+            {
+                keyReader.readAsText(maskKey.files[0]);
+                dataReader.readAsText(maskData.files[0]);
+                $(keyReader).on('load', function(e){
+                    var jsonkey = JSON && JSON.parse(e.target.result) 
+                            || $.parseJSON(e.target.result);
+                    $(dataReader).on('load',function(e2){
+
+                        var jsondata = JSON && JSON.parse(e2.target.result) 
+                            || $.parseJSON(e2.target.result),
+
+                            result = {};
+
+                        for(var k in jsonkey)
+                        {
+                            if(jsondata.hasOwnProperty(k))
+                            {
+                                result[k] = jsondata[k] - jsonkey[k]
+                            }
+                        }
+
+                        var resultStr = JSON.stringify(result, null, 4);
+
+                        document.getElementById('result').innerHTML = resultStr;
+                    });
+                });
+            }
+            else
+            {
+                alert("Please upload both files before continuing");
+            }
+        });
+
+        </script>
+    </div>
+</body>
+</html>
