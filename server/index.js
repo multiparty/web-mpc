@@ -19,8 +19,9 @@ app.use(body_parser.json());
 // for parsing multipart/form-data
 app.use(multer());
 
-// serve static files in /public
-app.use(express.static(__dirname + '/public'));
+// serve static files in designated folders
+app.use(express.static(__dirname + '/../client'));
+app.use(express.static(__dirname + '/../'));
 
 // an example of mongoose code
 /*
@@ -40,7 +41,7 @@ var Aggregate = mongoose.model('Aggregate', { sum: Number, date: Number });
 
 
 // protocol for accepting new data
-app.post('/submit.html', function (req, res) {
+app.post('/submit', function (req, res) {
     console.dir('Incoming data...');
 
     // verify that the json follows the schema as the data in the 
@@ -70,8 +71,8 @@ app.post('/submit.html', function (req, res) {
         }
 
         // add date to the data
+        to_update.date = Date.now();
         var new_data = new Aggregate(to_update);
-        new_data.date = Date.now();
 
         // Save the data
         new_data.save(function (err) {
