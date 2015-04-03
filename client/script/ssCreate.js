@@ -12,6 +12,8 @@ function makeTable(sheet, divId) {
         hot = new Handsontable(document.getElementById(divId), {
           rowHeaders: rowHeaders,
           colHeaders: colHeaders,
+          maxRows: rowHeaders.length,
+          maxCols: colHeaders.length,
           columns: _.map(colHeaders, 
             function(header) {
                 var is_whole = function(x,callback){
@@ -48,25 +50,30 @@ function makeTable(sheet, divId) {
 }
 
 //initializes the submit button with all instances of Handsontable
-function initiate_button(instances,button,url,mask) {
+function initiate_button(instances,button,url,session,email,publickey) {
     Handsontable.Dom.addEvent(document.body, 'click', function (e) {
 
       var element = e.target || e.srcElement,
           retObj = {};
 
-      if (element.nodeName == "BUTTON" && element.name == button) {
-        var input = $('#'+mask).get(0);
-        if(input.files.length == 0){
-            alert("Mask not uploaded:\nplease provide the mask file provided previously");
-            return;
-        }
-        var reader = new FileReader();
-        reader.readAsText(input.files[0]);
-        $(reader).on('load', function(maskfile) {
-
-            var maskObj = JSON && JSON.parse(maskfile.target.result) 
-                            || $.parseJSON(maskfile.target.result);
-
+        if (element.nodeName == "BUTTON" && element.name == button) {
+            waitingDialog.show('Loading Data',{dialogSize: 'sm', progressType: 'warning'});
+            var sessionstr = $('#'+session).val().trim();
+            var emailstr = $('#'+email).val().trim();
+            
+            if(!sessionstr.match(/[0-9]{7}/)){
+                alert("invalid session number: must be 7 digit number");
+                waitingDialog.hide();
+                return;
+            }
+            
+            if(!emailstr.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/)){
+                alert("Did not type a correct email address");
+                waitingDialog.hide();
+                return;
+            }
+        
+          
             for(var key in instances){
                 var jsonData = _.object(instances[key].rowHeaders, 
                             _.map(instances[key].table.getData(), function(row){
@@ -95,24 +102,46 @@ function initiate_button(instances,button,url,mask) {
                 retObj[key] = jsonData;
             }
             if(verified){
-                var flat = flattenObj(retObj);
+                var flat = flattenObj(retObj),
+                    maskObj = genMask(_.keys(flat)),
+                    encryptedMask = encryptWithKey(maskObj,publickey);
                 console.log('data: ', flat);
-                for(var k in flat)
-                {
+
+                for(var k in flat){
                     flat[k] += maskObj[k];
                 }
-                console.log('obfusData: ', flat);
-                $.post(url, flat)
-                .done(function(){
-                    //window.location.replace("success.html");
-                })
-                .fail(function(){
-                    alert("Failed to Submit data");
+                console.log('masked data: ', flat);
+                console.log('encrypted mask: ', encryptedMask);
+
+                var sendData = {
+                    data: flat, 
+                    mask: encryptedMask, 
+                    user: emailstr, 
+                    session: sessionstr
+                };
+                
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: sendData,
+                    //dataType: 'json',
+                    contentType: 'application/x-www-form-urlencoded',
+                    success: function(data){
+                        waitingDialog.hide();
+                        //window.location.href = "success.html";
+                        alert("Submited data");
+                        console.log('returned: ', data);
+                    },
+                    error: function(){
+                        waitingDialog.hide();
+                        alert("Failed to Submit data");
+                    }
                 });
             }
-            else
+            else{
+                waitingDialog.hide();
                 alert("Invalid Spreadsheet:\nplease ensure all fields are filled out");
-        });
+            }
       }
     });
 }
@@ -157,4 +186,24 @@ function flattenObj(obj){
     }
     
     return collectObj;
+}
+
+//generates array of random numbers
+function secureRandom(size){
+    var array = new Uint32Array(size);
+    window.crypto.getRandomValues(array);
+    return array;
+}
+
+//creates random mask
+function genMask(keys){
+    return _.object(keys, secureRandom(keys.length));
+}
+
+function encryptWithKey(obj, key)
+{
+    var jsencrypt = new JSEncrypt();
+    jsencrypt.setPublicKey(key);
+
+    return _.mapObject(obj, function(x,k){return jsencrypt.encrypt(x)});
 }

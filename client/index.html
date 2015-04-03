@@ -8,8 +8,12 @@ Author: Eric Dunton
 	<script type="text/javascript" src="script/jquery-1.11.2.js"></script>
     <script type="text/javascript" src="script/underscore.js"></script>
 	<script type="text/javascript" src="script/handsontable/dist/handsontable.full.js"></script>
+    <script type="text/javascript" src="script/jsencrypt.js"></script>
+    <script type="text/javascript" src="style/bootstrap/js/bootstrap.js"></script>
+    <script type="text/javascript" src="script/waitingDialog.js"></script>
     <script type="text/javascript" src="script/ssCreate.js"></script>
-    <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="style/bootstrap/v3/css/bootstrap-theme.min.css">
 	<link rel="stylesheet" media="screen" href="script/handsontable/dist/handsontable.full.css">
     <style type="text/css">
     .handsontable col.rowHeader {
@@ -28,10 +32,12 @@ Author: Eric Dunton
 <body>
     <div id="body_wrap">
         <div class="page-header">
-            <h1>Workforce Survey  <small>Boston Women's Workforce Council</small></h1>
+            <h1>Workforced Survey  <small>Boston Women's Workforce Council</small></h1>
         </div>
-        <h3>Please upload the mask file provided for your company</h3>
-        <input type=file id="mask"/>
+        <h3>Enter Session Key</h3>
+        <input type="text" id="sess"/>
+        <h3>Email Address to track participation</h3>
+        <input type=text id="emailf"/>
         <h3>Female Workforce</h3>
         <div id="females"></div>
         <h3>Male Workforce</h3>
@@ -41,16 +47,23 @@ Author: Eric Dunton
         <br>
     	<script type="text/javascript">
         $(document).ready(function() {
-            $.ajax({
-                type: "GET",
-                url: "default2.csv",
-                dataType: "text",
-                success: function(data) {
-                    var f = makeTable(processData(data), 'females'),
-                        m = makeTable(processData(data), 'males');
-                    initiate_button({Female: f, Male: m}, "dump", "./test.php", 'mask');
-                }
-             });
+            $.when(
+                $.ajax({
+                    type: "GET",
+                    url: "http://localhost:5555/csv.html",
+                    dataType: "text"
+                }),
+                $.ajax({
+                    type: "GET",
+                    url: "http://localhost:5555/publickey.html",
+                    dataType: "text"
+                })
+            ).done(function(data, pubkey){
+                var f = makeTable(processData(data[0]), 'females'),
+                    m = makeTable(processData(data[0]), 'males');
+                initiate_button({Female: f, Male: m}, "dump", "http://localhost:5555/submit.html", 
+                                'sess','emailf',pubkey[0]);
+            });
         });
     	</script>
     </div>

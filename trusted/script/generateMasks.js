@@ -1,3 +1,8 @@
+/*
+ * Boiler plate for trusted server mask generation
+ * Author: Eric Dunton 
+ */
+
 //generates array of random numbers
 function secureRandom(size){
     var array = new Uint32Array(size);
@@ -5,10 +10,12 @@ function secureRandom(size){
     return array;
 }
 
+//creates random mask
 function genMask(keys){
 	return _.object(keys, secureRandom(keys.length));
 }
 
+//adds the masks together to produce key
 function addToAgg(agg,mask){
 	for(var k in mask){
 		agg[k] += mask[k]
@@ -16,7 +23,10 @@ function addToAgg(agg,mask){
 	return agg;
 }
 
+// creates table to generate numbers
 function initTable(keys,divId,button){
+
+	//initiate handson table
 	var companies = new Handsontable(document.getElementById(divId), {
     	minSpareRows: 60,
     	columns: ['company'],
@@ -24,6 +34,7 @@ function initTable(keys,divId,button){
     	colHeaders: ['Company Names']
     });
 
+	//define actions of download button 
     Handsontable.Dom.addEvent(document.body, 'click', function (e) {
     	var element = e.target || e.srcElement;
     	if (element.nodeName == "BUTTON" && element.name == button) {

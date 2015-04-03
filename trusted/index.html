@@ -1,39 +1,53 @@
 <html>
 <head>
-	<title>Random Mask Generator</title>
+	<title>Trusted Party Secure Session Creator</title>
 
 	<script type="text/javascript" src="script/jquery-1.11.2.js"></script>
     <script type="text/javascript" src="script/underscore.js"></script>
 	<script type="text/javascript" src="script/handsontable/dist/handsontable.full.js"></script>
-	<script type="text/javascript" src="script/jszip/dist/jszip.js"></script>
 	<script type="text/javascript" src="script/filesaver.js"></script>
-	<script type="text/javascript" src="script/generateMasks.js"></script>
+    <script type="text/javascript" src="script/jsencrypt.js"></script>
+	<script type="text/javascript" src="script/generateSession.js"></script>
 
     <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.css">
 	<link rel="stylesheet" media="screen" href="script/handsontable/dist/handsontable.full.css">
+    <style>
+        #infoDiv {
+            visibility: hidden;
+        }
+    </style>
 </head>
 <body>
 	<div class="container">
 		<div class="page-header">
-            <h1>Random Mask Generator</h1>
+            <h1>Trusted Party Secure Session Creator</h1>
         </div>
-        <h2>List the companies involved</h2>
-        <button name="dl">Download Masks and Key</button>
-        <br><br>
-        <div id="table"></div>
-        <script type="text/javascript">
-        $(document).ready(function() {
-            $.ajax({
-                type: "GET",
-                url: "keys.txt",
-                dataType: "text",
-                success: function(data) {
-                	var keys = data.trim().split(/\r\n|\n/);
-                	initTable(keys,'table','dl');
-                }
-             });
-        });
-        </script>
+        <div>
+            <h2>Instructions</h2>
+            <p>
+                After generating a secure session, please keep the private key file named <b>Session_#######_private_key.pem</b>.
+                All secured data will be lost if the private key is lost. Also, do NOT share your private key. After clicking the 
+                "Generate Session" button, email the <b>Session Key</b> to all participants. Once the data is collected from the 
+                participants, with your private key, continue to the next step: <a href="#">Collect Data</a>
+            </p>
+        </div>
+        <br>
+        <button class="btn btn-primary btn-lg" id="Generate" 
+                onclick="generateSession('infoDiv','sessionID','pubkeyID','privkeyID','linkID')">
+            Generate Session
+        </button>
+        <div id="infoDiv">
+            <h3><a id="linkID" href="session_data.html"></a></h3>
+            <br>
+            <h3>Session Key: Please Email to Participants</h3>
+            <pre id="sessionID"></pre>
+            <br>
+            <h3>Public Key</h3>
+            <pre id="pubkeyID"></pre>
+            <br>
+            <h3>Private Key: DO NOT SHARE!!!!</h3>
+            <pre id="privkeyID"></pre>
+        </div>
     </div>
 </body>
 </html>
