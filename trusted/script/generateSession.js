@@ -2,7 +2,7 @@ function generateSession(hiddenDiv, sessionID, pubID, privID, linkID){
     
     document.getElementById(hiddenDiv).style.visibility = "visible";
     var rndSess = Math.floor((Math.random() * 8999999) + 1000000),
-        jsen = new JSEncrypt({default_key_size: 512});
+        jsen = new JSEncrypt();
     document.getElementById(sessionID).innerHTML = rndSess;
     document.getElementById(pubID).innerHTML = "Loading...";
     document.getElementById(privID).innerHTML = "Loading... (Remember: Do not share this)";
@@ -15,9 +15,9 @@ function generateSession(hiddenDiv, sessionID, pubID, privID, linkID){
         
         $.ajax({
             type: "POST",
-            url: "http://localhost:5555/create_session.html",
+            url: "/create_session",
             dataType: "json",
-            data: { SessionId: rndSess, PublicKey: pubKey},
+            data: { session: rndSess, publickey: pubKey},
             success: function(a,b){
                 document.getElementById(privID).innerHTML = priKey;
                 document.getElementById(pubID).innerHTML = pubKey;
@@ -41,7 +41,7 @@ function generateTable(tableBody,sessionID,status,timestamp,counter){
     var date = Date.now();
     $.ajax({
         type: "POST",
-        url:"http://localhost:5555/get_data.html",
+        url:"/get_data",
         data: {session: sessionID, lastFetch: timestamp},
         dataType: "json",
         error: function(){

@@ -4,7 +4,12 @@
     <script type="text/javascript" src="script/jquery-1.11.2.js"></script>
     <script type="text/javascript" src="script/underscore.js"></script>
     <script type="text/javascript" src="script/jsencrypt.js"></script>
+    <script type="text/javascript" src="style/bootstrap/js/bootstrap.js"></script>
+    <script src="script/spin.min.js"></script>
+    <script src="script/ladda.min.js"></script>
+    <script type="text/javascript" src="script/unmask.js"></script>
     <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="style/ladda-themeless.min.css">
     <style type="text/css">
         pre {
             text-align: left;
@@ -26,7 +31,9 @@
         <br>
         <br>
 
-        <button id="unmask" class="btn btn-primary">Unmask Data</button>
+        <button id="unmask" class="btn btn-primary ladda-button" data-style="zoom-out">
+            <span class="ladda-label">Unmask Data</span>
+        </button>
 
         <br><br>
         <pre id="result"></pre>
@@ -35,17 +42,31 @@
         $('#unmask').on('click', function() {
             var maskKey = $('#maskKey').get(0),
                 sessKey = $('#sessKey').val(),
+                la = Ladda.create(this),
                 keyReader = new FileReader();
             
-            if(maskKey.files.length && maskData.files.length)
+            if(maskKey.files.length)
             {
+                la.start();
                 keyReader.readAsText(maskKey.files[0]);
                 $(keyReader).on('load', function(e){
                     var privkey = e.target.result,
-                        decryptObj = new JSEncrypt();
+                        decryptObj = new JSEncrypt(),
+                        callb = function(success, data){
+                            la.stop();
+                            if(success) $('#result').html(JSON.stringify(data, null, 4));
+                            else $('#result').html(data);
+                        };
                     decryptObj.setPrivateKey(privkey);
                     
-                    $.ajax({});
+                    $.ajax({
+                        type: "POST",
+                        url: "/get_masks",
+                        dataType: "json",
+                        data: {session: parseInt(sessKey)},
+                        success: function(data){ unmask(data,decryptObj,sessKey,callb)},
+                        error: function(){callb(false,"failed to load masks")}
+                    });
                 });
             }
             else
