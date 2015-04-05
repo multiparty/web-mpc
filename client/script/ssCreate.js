@@ -50,13 +50,14 @@ function makeTable(sheet, divId) {
 }
 
 //initializes the submit button with all instances of Handsontable
-function initiate_button(instances,button,url,session,email,publickey) {
+function initiate_button(instances,button,url,session,email) {
     Handsontable.Dom.addEvent(document.body, 'click', function (e) {
 
       var element = e.target || e.srcElement,
           retObj = {};
 
         if (element.nodeName == "BUTTON" && element.name == button) {
+            
             waitingDialog.show('Loading Data',{dialogSize: 'sm', progressType: 'warning'});
             var sessionstr = $('#'+session).val().trim();
             var emailstr = $('#'+email).val().trim();
@@ -72,76 +73,87 @@ function initiate_button(instances,button,url,session,email,publickey) {
                 waitingDialog.hide();
                 return;
             }
-        
-          
-            for(var key in instances){
-                var jsonData = _.object(instances[key].rowHeaders, 
-                            _.map(instances[key].table.getData(), function(row){
-                                return _.omit(
-                                _.object(instances[key].colHeaders,
-                                    _.map(_.values(row), function(x){
-                                        if (_.isString(x) && x.trim() == "") return x;
-                                        if (_.isString(x) && x.trim() == "#") return "#";
-                                        return Number(x);}))
-                                    , function(value, key, object) {return value == "#"})
-                                })),
-                    verAux = function(a){
-                        return _.reduce(a,function(memo,v){return memo && v;},true)
-                    },
-                    verified = true;
-
-                verified = verified && verAux(_.map(_.values(jsonData),
-                                function(val){
-                                    return verAux(
-                                            _.map(_.values(val), 
-                                            function(x){ 
-                                                return _.isNumber(x) && x >= 0 && x % 1 == 0; 
-                                            }));
-                                }
-                                ));
-                retObj[key] = jsonData;
-            }
-            if(verified){
-                var flat = flattenObj(retObj),
-                    maskObj = genMask(_.keys(flat)),
-                    encryptedMask = encryptWithKey(maskObj,publickey);
-                console.log('data: ', flat);
-
-                for(var k in flat){
-                    flat[k] += maskObj[k];
-                }
-                console.log('masked data: ', flat);
-                console.log('encrypted mask: ', encryptedMask);
-
-                var sendData = {
-                    data: flat, 
-                    mask: encryptedMask, 
-                    user: emailstr, 
-                    session: sessionstr
-                };
-                
-                $.ajax({
+            
+            $.ajax({
                     type: "POST",
-                    url: url,
-                    data: sendData,
-                    //dataType: 'json',
-                    contentType: 'application/x-www-form-urlencoded',
-                    success: function(data){
-                        waitingDialog.hide();
-                        //window.location.href = "success.html";
-                        alert("Submited data");
-                        console.log('returned: ', data);
-                    },
-                    error: function(){
-                        waitingDialog.hide();
-                        alert("Failed to Submit data");
+                    url: "/publickey",
+                    data: {session: parseInt(sessionstr)},
+                    dataType: "text"
+                })
+            .done(function(publickey){
+                for(var key in instances){
+                    var jsonData = _.object(instances[key].rowHeaders, 
+                                _.map(instances[key].table.getData(), function(row){
+                                    return _.omit(
+                                    _.object(instances[key].colHeaders,
+                                        _.map(_.values(row), function(x){
+                                            if (_.isString(x) && x.trim() == "") return x;
+                                            if (_.isString(x) && x.trim() == "#") return "#";
+                                            return Number(x);}))
+                                        , function(value, key, object) {return value == "#"})
+                                    })),
+                        verAux = function(a){
+                            return _.reduce(a,function(memo,v){return memo && v;},true)
+                        },
+                        verified = true;
+
+                    verified = verified && verAux(_.map(_.values(jsonData),
+                                    function(val){
+                                        return verAux(
+                                                _.map(_.values(val), 
+                                                function(x){ 
+                                                    return _.isNumber(x) && x >= 0 && x % 1 == 0; 
+                                                }));
+                                    }
+                                    ));
+                    retObj[key] = jsonData;
+                }
+                if(verified){
+                    var flat = flattenObj(retObj),
+                        maskObj = genMask(_.keys(flat)),
+                        encryptedMask = encryptWithKey(maskObj,publickey);
+                    console.log('data: ', flat);
+
+                    for(var k in flat){
+                        flat[k] += maskObj[k];
                     }
-                });
-            }
-            else{
+                    console.log('masked data: ', flat);
+                    console.log('encrypted mask: ', encryptedMask);
+
+                    var sendData = {
+                        data: flat, 
+                        mask: encryptedMask, 
+                        user: emailstr, 
+                        session: parseInt(sessionstr)
+                    };
+
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        data: sendData,
+                        contentType: 'application/x-www-form-urlencoded',
+                        success: function(data){
+                            waitingDialog.hide();
+                            //window.location.href = "success.html";
+                            alert("Submited data");
+                            console.log('returned: ', data);
+                        },
+                        error: function(){
+                            waitingDialog.hide();
+                            alert("Failed to Submit data");
+                        }
+                    });
+                }
+                else{
+                    waitingDialog.hide();
+                    alert("Invalid Spreadsheet:\nplease ensure all fields are filled out");
+                }
+            })
+            .error(function(){
+                alert("Server failure");
                 waitingDialog.hide();
-                alert("Invalid Spreadsheet:\nplease ensure all fields are filled out");
-            }
+                return;
+            }); 
       }
     });
 }
@@ -205,5 +217,5 @@ function encryptWithKey(obj, key)
     var jsencrypt = new JSEncrypt();
     jsencrypt.setPublicKey(key);
 
-    return _.mapObject(obj, function(x,k){return jsencrypt.encrypt(x)});
+    return _.mapObject(obj, function(x,k){return jsencrypt.encrypt(x.toString())});
 }
