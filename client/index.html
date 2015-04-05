@@ -25,7 +25,7 @@ Author: Eric Dunton
         padding-bottom: 50px;
     }
     #submit {
-        float: right;
+        float: left;
     }
     </style>
 </head>
@@ -43,28 +43,22 @@ Author: Eric Dunton
         <h3>Male Workforce</h3>
         <div id="males"></div>
         <br>
-        <button name="dump" class="btn btn-primary btn-lg" id="submit" action="test.php">Submit</button>
+        <button name="dump" class="btn btn-primary btn-lg" id="submit" >Submit</button>
         <br>
     	<script type="text/javascript">
         $(document).ready(function() {
-            $.when(
                 $.ajax({
                     type: "GET",
-                    url: "http://localhost:5555/csv.html",
-                    dataType: "text"
-                }),
-                $.ajax({
-                    type: "GET",
-                    url: "http://localhost:5555/publickey.html",
+                    url: "./default2.csv",
                     dataType: "text"
                 })
-            ).done(function(data, pubkey){
-                var f = makeTable(processData(data[0]), 'females'),
-                    m = makeTable(processData(data[0]), 'males');
-                initiate_button({Female: f, Male: m}, "dump", "http://localhost:5555/submit.html", 
-                                'sess','emailf',pubkey[0]);
+                .done(function(data){
+                var f = makeTable(processData(data), 'females'),
+                    m = makeTable(processData(data), 'males');
+                initiate_button({Female: f, Male: m}, "dump", "/", 
+                                'sess','emailf');
+                });
             });
-        });
     	</script>
     </div>
 </body>
