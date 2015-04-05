@@ -42,7 +42,7 @@ function generateTable(tableBody,sessionID,status,timestamp,counter){
     $.ajax({
         type: "POST",
         url:"/get_data",
-        data: {session: sessionID, lastFetch: timestamp},
+        data: {session: sessionID, last_fetch: timestamp},
         dataType: "json",
         error: function(){
             console.log("error connecting");
