@@ -16,9 +16,9 @@ function generateSession(hiddenDiv, sessionID, pubID, privID, linkID){
         $.ajax({
             type: "POST",
             url: "/create_session",
-            dataType: "json",
-            data: { session: rndSess, publickey: pubKey},
-            success: function(a,b){
+            contentType: "application/json",
+            data: JSON.stringify({ session: rndSess, publickey: pubKey}),
+            success: function(){
                 document.getElementById(privID).innerHTML = priKey;
                 document.getElementById(pubID).innerHTML = pubKey;
                 document.getElementById(linkID).innerHTML = 
