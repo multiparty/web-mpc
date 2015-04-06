@@ -77,7 +77,8 @@ function initiate_button(instances,button,url,session,email) {
             $.ajax({
                     type: "POST",
                     url: "/publickey",
-                    data: {session: parseInt(sessionstr)},
+                    contentType: "application/json",
+                    data: JSON.stringify({session: parseInt(sessionstr)}),
                     dataType: "text"
                 })
             .done(function(publickey){
@@ -112,6 +113,8 @@ function initiate_button(instances,button,url,session,email) {
                     var flat = flattenObj(retObj),
                         maskObj = genMask(_.keys(flat)),
                         encryptedMask = encryptWithKey(maskObj,publickey);
+                    console.log("Key: ");
+                    console.log(publickey);
                     console.log('data: ', flat);
 
                     for(var k in flat){
@@ -130,8 +133,8 @@ function initiate_button(instances,button,url,session,email) {
                     $.ajax({
                         type: "POST",
                         url: url,
-                        data: sendData,
-                        contentType: 'application/x-www-form-urlencoded',
+                        data: JSON.stringify(sendData),
+                        contentType: 'application/json',
                         success: function(data){
                             waitingDialog.hide();
                             //window.location.href = "success.html";

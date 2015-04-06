@@ -62,8 +62,8 @@
                     $.ajax({
                         type: "POST",
                         url: "/get_masks",
-                        dataType: "json",
-                        data: {session: parseInt(sessKey)},
+                        contentType: "application/json",
+                        data: JSON.stringify({session: parseInt(sessKey)}),
                         success: function(data){ unmask(data,decryptObj,sessKey,callb)},
                         error: function(){callb(false,"failed to load masks")}
                     });
