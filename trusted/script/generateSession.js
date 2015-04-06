@@ -42,7 +42,8 @@ function generateTable(tableBody,sessionID,status,timestamp,counter){
     $.ajax({
         type: "POST",
         url:"/get_data",
-        data: {session: sessionID, lastFetch: timestamp},
+        contentType: "application/json",
+        data: JSON.stringify({session: parseInt(sessionID), last_fetch: timestamp}),
         dataType: "json",
         error: function(){
             console.log("error connecting");

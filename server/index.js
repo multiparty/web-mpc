@@ -185,7 +185,8 @@ app.post('/create_session', function (req, res) {
 });
 
 app.post('/get_data', function (req, res) {
-    Aggregate.where({session: req.body.session}).gt('date', req.last_fetch).find(function (err, data) {
+    console.log(req.body);
+    Aggregate.where({session: req.body.session}).gt('date', req.body.last_fetch).find(function (err, data) {
         if (err) {
             console.log(err);
             res.send(err);
@@ -193,7 +194,7 @@ app.post('/get_data', function (req, res) {
             var to_send = {};
 
             for (row in data) {
-                to_send[row.email] = row.date;
+                to_send[data[row].email] = data[row].date;
             }
             res.json(to_send);
         }
