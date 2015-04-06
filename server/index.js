@@ -16,7 +16,7 @@ try {
 
 // model for aggregate data
 var Aggregate = mongoose.model('Aggregate', { _id: String, fields: Object, date: Number, session: Number, email: String });
-var Mask = mongoose.model('Mask', { fields: Object, session: Number })
+var Mask = mongoose.model('Mask', { _id: String, fields: Object, session: Number })
 var PublicKey = mongoose.model('PublicKey', { _id: Number, session: Number,
     pub_key: String});
 var FinalAggregate = mongoose.model('FinalAggregate', {_id: Number, aggregate: Object, date: Number, session: Number});
@@ -29,69 +29,6 @@ app.use(multer());
 
 // serve static files in designated folders
 app.use(express.static(__dirname + '/../client'));
-
-app.post('/unmask', function (req, res) {
-
-    var data = req.data;
-    /*
-    Aggregate.where({'in_progress'}).equals(1)
-             .sort({ data: 'desc'})
-             .findOne( function (err, agg) {
-                 if (err) {
-                     console.log(err);
-                 } else {
-                     console.log("Fetching data");
-
-                     // figure out where json is in post
-                     res.send(agg - req.body);
-                 }
-             });
-    */
-});
-
-
-/*
-app.get('/seed', function (req, res) {
-    var test_key =  new PublicKey({ session: 123, pub_key: "123456\nabcdefg\nhello" });
-    var test_data = test_key.toObject();
-    delete test_data._id;
-
-    PublicKey.update( {_id: test_data.session.toString()}, test_data, {upsert: true}, function (err) {
-        if (err) {
-            console.log(err);
-            res.send(err);
-        } else {
-            res.send("Done");
-        }
-    })
-
-});
-
-app.get('/testing', function (req, res) {
-
-    var test;
-    Aggregate.find({}, function (err, data) {
-        if (err) {
-            console.log(err);
-        }
-        console.log(data);
-        res.send(data);
-    });
-})
-
-app.get('/postit', function (req, res) {
-    var test_data = new Aggregate({ fields: {"a": 1, "b": 2},
-        date: Date.now(), session: 0});
-    test_data.save(function (err) {
-        if (err) {
-            console.log(err);
-        }
-        console.log("finished saving data");
-    });
-
-    res.send("finished");
-})
-*/
 
 app.use(express.static(__dirname + '/../'));
 
@@ -110,6 +47,7 @@ app.post('/', function (req, res) {
         res.status(503).json({error: "All fields must be completed"});
     }
 
+    // only take the fields that are in the template, mask, and data
     var to_add = {};
     for (field in template) {
         if ( template.hasOwnProperty(field) &&
@@ -120,12 +58,15 @@ app.post('/', function (req, res) {
         }
     }
 
+    // save the mask and individual aggregate
     var agg_to_save = new Aggregate({ _id: req.body.user, fields: to_add, date: Date.now(),
         session: req.body.session, email: req.body.user });
 
-    var mask_to_save = new Mask({ fields: req.body.mask,
+    var mask_to_save = new Mask({ _id: req.body.user, fields: req.body.mask,
         session: req.body.session });
 
+    // for both the aggregate and the mask, update the old aggregate
+    // for the company with that email. Update or insert, hence the upsert flag
     Aggregate.update({_id: req.body.user}, agg_to_save.toObject(), {upsert: true}, function (err) {
         if (err) {
             console.log(err);
@@ -133,23 +74,17 @@ app.post('/', function (req, res) {
         } else { }
     })
 
-    /*
-    agg_to_save.save(function (err) {
+    Mask.update({_id: req.body.user}, mask_to_save.toObject(), {upsert: true}, function (err) {
         if (err) {
+            console.log(err);
             res.status(503).json({error: "Unable to save aggregate, please try again"});
-        }
-    });
-*/
-
-    mask_to_save.save(function (err) {
-        if (err) {
-            res.status(404).json({error: "Unable to save your data, please try again"});
-        }
-    });
+        } else { }
+    })
 
     res.send(req.body);
 });
 
+// endpoint for fetching the public key for a specific session
 app.post("/publickey", function (req,res) {
     PublicKey.findOne( {session: req.body.session }, function (err, data) {
         if (err) {
@@ -166,6 +101,7 @@ app.post("/publickey", function (req,res) {
     })
 });
 
+// endpoint for generating and saving the public key
 app.post('/create_session', function (req, res) {
     console.log('Generating session...');
     try {
@@ -173,6 +109,8 @@ app.post('/create_session', function (req, res) {
     } catch (err) {
         res.send(err);
     }
+
+    // update and insert as to not generate different public keys for the same session
     PublicKey.update({_id: req.body.session}, new_key.toObject(), {upsert: true}, function (err) {
         if (err) {
             console.log(err);
@@ -184,8 +122,12 @@ app.post('/create_session', function (req, res) {
 
 });
 
+// endpoint for returning the emails that have submitted already
 app.post('/get_data', function (req, res) {
-    Aggregate.where({session: req.body.session}).gt('date', req.last_fetch).find(function (err, data) {
+    console.log(req.body);
+
+    // find all entries for a specific session and return the email and the time they submitted
+    Aggregate.where({session: req.body.session}).gt('date', req.body.last_fetch).find(function (err, data) {
         if (err) {
             console.log(err);
             res.send(err);
@@ -193,25 +135,37 @@ app.post('/get_data', function (req, res) {
             var to_send = {};
 
             for (row in data) {
-                to_send[row.email] = row.date;
+                to_send[data[row].email] = data[row].date;
             }
             res.json(to_send);
         }
     });
 })
 
+
+// endpoint for getting all of the masks for a specific session
 app.post('/get_masks', function (req, res) {
     Mask.where({session: req.body.session}).find(function (err, data) {
         res.send({ data: JSON.stringify(data) });
     });
 })
 
+// endpoint for fetching the aggregate
+// must pass in the private key to decrypt the masks, as well as the session
+// number for that key
 app.post('/submit_agg', function (req, res) {
     var mask = req.body.data;
-    //console.log(req.body);
+
     console.log("Fetching aggregate");
+
+    // finds all aggreagtes of a specific session
     Aggregate.where({session: req.body.session}).find(function (err, data) {
+
+        // make sure there are enough companies that have submitted.
+        // this ensures anonymity
         if (data.length > 4) {
+
+            // create the aggregate of all of the submitted entries
             var final_data = {};
             for (row in data) {
                 for (field in data[row].fields) {
@@ -222,6 +176,7 @@ app.post('/submit_agg', function (req, res) {
                 }
             }
 
+            // subtract out the random data
             for (field in final_data) {
                 if (mask.hasOwnProperty(field) && final_data.hasOwnProperty(field)) {
                     final_data[field] -= mask[field];
@@ -236,6 +191,8 @@ app.post('/submit_agg', function (req, res) {
             
             console.log('Saving aggregate');
 
+            // save the final aggregate for future reference.
+            // you can build another endpoint to query the finalaggregates collection if you would like
             FinalAggregate.update({_id: req.body.session}, to_save.toObject(), function (err) {
                 if (err) {
                     console.log(err);
