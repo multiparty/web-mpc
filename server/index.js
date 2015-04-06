@@ -245,7 +245,7 @@ app.post('/submit_agg', function (req, res) {
             });
             res.json(final_data);
         } else {
-            res.status(503).json({error: "Too few people have submitted. Please come back later."})
+            res.json({error: "Too few people have submitted. Please come back later."})
         }
 
     });
