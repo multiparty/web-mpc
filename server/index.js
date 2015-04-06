@@ -211,38 +211,42 @@ app.post('/submit_agg', function (req, res) {
     //console.log(req.body);
     console.log("Fetching aggregate");
     Aggregate.where({session: req.body.session}).find(function (err, data) {
-        var final_data = {};
-        for (row in data) {
-            for (field in data[row].fields) {
-                if (final_data[field] == undefined ){
-                    final_data[field] = 0;
-                } 
-                final_data[field] += data[row].fields[field];
+        if (data.length > 4) {
+            var final_data = {};
+            for (row in data) {
+                for (field in data[row].fields) {
+                    if (final_data[field] == undefined ){
+                        final_data[field] = 0;
+                    } 
+                    final_data[field] += data[row].fields[field];
+                }
             }
+
+            for (field in final_data) {
+                if (mask.hasOwnProperty(field) && final_data.hasOwnProperty(field)) {
+                    final_data[field] -= mask[field];
+                }
+            }
+
+            console.log('Final aggregate conputed');
+
+            var new_final = {_id: req.body.session, aggregate: final_data, date: Date.now(), session: req.body.session};
+            var to_save = new FinalAggregate(new_final);
+
+            
+            console.log('Saving aggregate');
+
+            FinalAggregate.update({_id: req.body.session}, to_save.toObject(), function (err) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log('Aggregate saved and sent');
+                }
+            });
+            res.json(final_data);
+        } else {
+            res.status(503).json({error: "Too few people have submitted. Please come back later."})
         }
-
-        for (field in final_data) {
-            if (mask.hasOwnProperty(field) && final_data.hasOwnProperty(field)) {
-                final_data[field] -= mask[field];
-            }
-        }
-
-        console.log('Final aggregate conputed');
-
-        var new_final = {_id: req.body.session, aggregate: final_data, date: Date.now(), session: req.body.session};
-        var to_save = new FinalAggregate(new_final);
-
-        
-        console.log('Saving aggregate');
-
-        FinalAggregate.update({_id: req.body.session}, to_save.toObject(), function (err) {
-            if (err) {
-                console.log(err);
-            } else {
-                console.log('Aggregate saved and sent');
-            }
-        });
-        res.json(final_data);
 
     });
 })
