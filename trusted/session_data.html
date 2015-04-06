@@ -45,8 +45,8 @@
             var val = sessNum === undefined ? document.getElementById('sess').value: sessNum;
             $('#inputform').remove();
             
-            document.getElementById('unmasklink').innerHTML = "Click here to unmask aggregate data";
-            document.getElementById('unmasklink').href = "../umask/index.html?session="+val;
+            document.getElementById('unmasklink').innerHTML = "Click here to unmask aggregate data Session " +val;
+            document.getElementById('unmasklink').href = "../unmask/index.html?session="+val;
             
             generateTable('table', val, 'statusID');
         }
