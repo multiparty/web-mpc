@@ -182,9 +182,9 @@ app.post('/submit_agg', function (req, res) {
             // create the aggregate of all of the submitted entries
             var final_data = aggregator.aggregate(data, true, true);
 
-            // subtract out the random data
+            // subtract out the random data, unless it is a counter field
             for (field in final_data)
-                if (mask.hasOwnProperty(field))
+                if (mask.hasOwnProperty(field) && field.slice(field.length-6, field.length) != '_count')
                     final_data[field] -= mask[field];
 
             console.log('Final aggregate computed.');

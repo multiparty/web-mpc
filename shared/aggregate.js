@@ -6,7 +6,7 @@
  *
  */
 
-var MINIMUM = 2;
+var MINIMUM = 3;
 
 function aggregate(data, includeCounts, db) {
 
