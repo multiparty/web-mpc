@@ -1,3 +1,10 @@
+/***************************************************************
+**
+** template.js
+**
+** Data field names.
+*/
+
 module.exports = {
 	"Female_Executive_Hispanic": 0,
 	"Female_Executive_White": 0,
@@ -29,16 +36,16 @@ module.exports = {
 	"Female_Professional_JobSumComp": 0,
 	"Female_Professional_JobSumPerform": 0,
 	"Female_Professional_JobSumService": 0,
-	"Female_Technitians_Hispanic": 0,
-	"Female_Technitians_White": 0,
-	"Female_Technitians_Black": 0,
-	"Female_Technitians_PacificIslander": 0,
-	"Female_Technitians_Asian": 0,
-	"Female_Technitians_NativeAmerican": 0,
-	"Female_Technitians_Other": 0,
-	"Female_Technitians_JobSumComp": 0,
-	"Female_Technitians_JobSumPerform": 0,
-	"Female_Technitians_JobSumService": 0,
+	"Female_Technicians_Hispanic": 0,
+	"Female_Technicians_White": 0,
+	"Female_Technicians_Black": 0,
+	"Female_Technicians_PacificIslander": 0,
+	"Female_Technicians_Asian": 0,
+	"Female_Technicians_NativeAmerican": 0,
+	"Female_Technicians_Other": 0,
+	"Female_Technicians_JobSumComp": 0,
+	"Female_Technicians_JobSumPerform": 0,
+	"Female_Technicians_JobSumService": 0,
 	"Female_Sales_Hispanic": 0,
 	"Female_Sales_White": 0,
 	"Female_Sales_Black": 0,
@@ -150,16 +157,16 @@ module.exports = {
 	"Male_Professional_JobSumComp": 0,
 	"Male_Professional_JobSumPerform": 0,
 	"Male_Professional_JobSumService": 0,
-	"Male_Technitians_Hispanic": 0,
-	"Male_Technitians_White": 0,
-	"Male_Technitians_Black": 0,
-	"Male_Technitians_PacificIslander": 0,
-	"Male_Technitians_Asian": 0,
-	"Male_Technitians_NativeAmerican": 0,
-	"Male_Technitians_Other": 0,
-	"Male_Technitians_JobSumComp": 0,
-	"Male_Technitians_JobSumPerform": 0,
-	"Male_Technitians_JobSumService": 0,
+	"Male_Technicians_Hispanic": 0,
+	"Male_Technicians_White": 0,
+	"Male_Technicians_Black": 0,
+	"Male_Technicians_PacificIslander": 0,
+	"Male_Technicians_Asian": 0,
+	"Male_Technicians_NativeAmerican": 0,
+	"Male_Technicians_Other": 0,
+	"Male_Technicians_JobSumComp": 0,
+	"Male_Technicians_JobSumPerform": 0,
+	"Male_Technicians_JobSumService": 0,
 	"Male_Sales_Hispanic": 0,
 	"Male_Sales_White": 0,
 	"Male_Sales_Black": 0,
@@ -242,3 +249,5 @@ module.exports = {
 	"Male_RaceSumService_NativeAmerican": 0,
 	"Male_RaceSumService_Other": 0,
 }
+
+/* eof */
