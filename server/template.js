@@ -1,9 +1,10 @@
 /***************************************************************
-**
-** template.js
-**
-** Data field names.
-*/
+ *
+ * server/template.js
+ *
+ * Data field names.
+ *
+ */
 
 module.exports = {
 	"Female_Executive_Hispanic": 0,

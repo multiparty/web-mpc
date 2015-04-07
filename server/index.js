@@ -1,3 +1,16 @@
+/***************************************************************
+ *
+ * server/index.js
+ *
+ * Application server (serves requests and acts as database
+ * front end).
+ *
+ */
+
+/***************************************************************
+** Module definition.
+*/
+
 var express = require('express');
 var app = express();
 var body_parser = require('body-parser');
@@ -215,3 +228,5 @@ app.get(/.*/, function (req, res) {
 
 // start server
 app.listen(port);
+
+/*eof*/

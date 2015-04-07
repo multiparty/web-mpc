@@ -1,3 +1,12 @@
+/***************************************************************
+ *
+ * trusted/script/generateSession.js
+ *
+ * Interface for generating session key and initiating a new
+ * session.
+ *
+ */
+
 function generateSession(hiddenDiv, sessionID, pubID, privID, linkID){
     
     document.getElementById(hiddenDiv).style.visibility = "visible";
@@ -70,3 +79,5 @@ function generateTable(tableBody,sessionID,status,timestamp,counter){
         }
     });
 }
+
+/*eof*/

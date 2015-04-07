@@ -1,6 +1,10 @@
-/*
- * Boiler plate for trusted server mask generation
+/***************************************************************
+ *
+ * trusted/script/generateMasks.js
+ *
+ * Boiler plate for trusted server mask generation.
  * Author: Eric Dunton 
+ *
  */
 
 //generates array of random numbers
@@ -65,3 +69,5 @@ function initTable(keys,divId,button){
     	}
     });
 }
+
+/*eof*/

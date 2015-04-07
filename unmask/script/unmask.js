@@ -1,4 +1,12 @@
-//takes callback(true|false, data)
+/***************************************************************
+ *
+ * unmask/script/unmask.js
+ *
+ * Unmasking interface.
+ *
+ */
+
+ //takes callback(true|false, data)
 function unmask(mOut,decryptObj,session,callback){
     mOut = JSON.parse(mOut.data);
     var maskedData = [];
@@ -41,6 +49,8 @@ function unmask(mOut,decryptObj,session,callback){
             console.log(data);
             callback(true,data);
         },
-        error: function(){callback(false,"submittion to server failed")}
+        error: function(){callback(false,"submission to server failed")}
     });
 }
+
+/*eof*/

@@ -1,8 +1,11 @@
-/*
- * ssCreate.js
+/***************************************************************
+ *
+ * trusted/script/ssCreate.js
+ *
  * Creates a spreadsheet that is obfuscated with Random numbers
  * Dependancies: Handsontable.js, underscore.js, jquery
  * Author: Eric Dunton
+ *
  */
 
 //Creates table from processed CSV table and places it into divId
@@ -32,7 +35,6 @@ function makeTable(sheet, divId) {
           manualColumnResize: true,
           contextMenu: false,
           minSpareRows: 0,
-          contextMenu: true,
           data: sheet["lines"],
           cells: function(row,col,prop) {
             var cellProperties = {},
@@ -157,3 +159,5 @@ function secureRandom(size){
     window.crypto.getRandomValues(array);
     return array;
 }
+
+/*eof*/
