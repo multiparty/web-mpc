@@ -6,8 +6,8 @@
  *
  */
 
- //takes callback(true|false, data)
-function unmask(mOut,decryptObj,session,callback){
+// Takes callback(true|false, data).
+function unmask(mOut, decryptObj, session, callback){
     mOut = JSON.parse(mOut.data);
     var maskedData = [];
 
@@ -17,28 +17,18 @@ function unmask(mOut,decryptObj,session,callback){
     }
 
     console.log(maskedData);
-    var decryptedJson = _.map(maskedData,function(submittion){
-        return _.mapObject(submittion, function(val,key){
+
+    // Decrypt the JSON data.
+    var decryptedJson = _.map(maskedData, function (submission){
+        return _.mapObject(submission, function (val, key){
             return decryptObj.decrypt(val);
         });
     });
 
-    var keys = _.keys(decryptedJson[0]),
-        aggObj = _.object(keys, _.map(_.range(keys.length), 
-    											function (x) { return 0;}));
-    
-    for(var i = 0; i < decryptedJson.length; i++)
-    {
-        for(var key in aggObj)
-        {
-            aggObj[key] += parseInt(decryptedJson[i][key]);
-        }
-    }
-    
+    var aggObj = aggregate(decryptedJson, true);
     session = _.isString(session) ? parseInt(session) : session;
-    
     console.log(aggObj);
-    
+
     $.ajax({
         type: "POST",
         url: "/submit_agg",
@@ -47,7 +37,7 @@ function unmask(mOut,decryptObj,session,callback){
         dataType: "json",
         success: function(data){
             console.log(data);
-            callback(true,data);
+            callback(true, data);
         },
         error: function(){callback(false,"submission to server failed")}
     });

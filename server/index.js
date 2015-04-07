@@ -16,9 +16,10 @@ var app = express();
 var body_parser = require('body-parser');
 var multer = require('multer');
 var mongoose = require('mongoose');
-var template = require('./template')
+var template = require('./template');
+var aggregator = require('../shared/aggregate');
 
-var port = 80
+var port = 80;
 
 try {
     mongoose.connect('mongodb://localhost/aggregate');
@@ -176,33 +177,22 @@ app.post('/submit_agg', function (req, res) {
 
         // make sure there are enough companies that have submitted.
         // this ensures anonymity
-        if (data.length > 4) {
+        if (data.length >= aggregator.MINIMUM) {
 
             // create the aggregate of all of the submitted entries
-            var final_data = {};
-            for (row in data) {
-                for (field in data[row].fields) {
-                    if (final_data[field] == undefined ){
-                        final_data[field] = 0;
-                    } 
-                    final_data[field] += data[row].fields[field];
-                }
-            }
+            var final_data = aggregator.aggregate(data, true, true);
 
             // subtract out the random data
-            for (field in final_data) {
-                if (mask.hasOwnProperty(field) && final_data.hasOwnProperty(field)) {
+            for (field in final_data)
+                if (mask.hasOwnProperty(field))
                     final_data[field] -= mask[field];
-                }
-            }
 
-            console.log('Final aggregate conputed');
+            console.log('Final aggregate computed.');
 
             var new_final = {_id: req.body.session, aggregate: final_data, date: Date.now(), session: req.body.session};
             var to_save = new FinalAggregate(new_final);
 
-            
-            console.log('Saving aggregate');
+            console.log('Saving aggregate.');
 
             // save the final aggregate for future reference.
             // you can build another endpoint to query the finalaggregates collection if you would like
@@ -210,7 +200,7 @@ app.post('/submit_agg', function (req, res) {
                 if (err) {
                     console.log(err);
                 } else {
-                    console.log('Aggregate saved and sent');
+                    console.log('Aggregate saved and sent.');
                 }
             });
             res.json(final_data);

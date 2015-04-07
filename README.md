@@ -21,7 +21,7 @@ baseurl=http://downloads-distro.mongodb.org/repo/redhat/os/x86_64
 gpgcheck=0
 enabled=1" | sudo tee -a /etc/yum.repos.d/mongodb.repo
 
-sudo yum install -y mongodb-org-server mongodb-org-shell mongodb-org-tools
+yum install -y mongodb-org-server mongodb-org-shell mongodb-org-tools
 
 npm install express body-parser mongoose multer
 
@@ -54,22 +54,16 @@ Only the following original modules have been written for this application. All 
 * trusted/keys.txt
 * unmask/index.html
 * unmask/script/unmask.js
+* shared/aggregate.js
 
 The following are third party dependencies included in the source tree (but not automatically installed in the environment).
 
 * trusted/script/filesaver.js
-* client/script/handsontable
-* trusted/script/handsontable
+* shared/handsontable
 * trusted/script/jszip
-* client/script/jquery-1.11.2.js
-* trusted/script/jquery-1.11.2.js
-* unmask/script/jquery-1.11.2.js
-* client/script/jsencrypt.js
-* trusted/script/jsencrypt.js
-* unmask/script/jsencrypt.js
+* shared/jquery-1.11.2.js
+* shared/jsencrypt.js
 * unmask/script/ladda.min.js
 * unmask/script/spin.min.js
-* client/script/underscore.js
-* trusted/script/underscore.js
-* unmask/script/underscore.js
+* shared/underscore.js
 * client/script/waitingDialog.js
