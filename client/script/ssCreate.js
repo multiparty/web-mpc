@@ -135,7 +135,7 @@ function initiate_button(instances,button,url,session,email) {
                     var sendData = {
                         data: flat, 
                         mask: encryptedMask, 
-                        user: emailstr, 
+                        user: CryptoJS.MD5(emailstr).toString(), 
                         session: parseInt(sessionstr)
                     };
 

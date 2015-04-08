@@ -67,6 +67,7 @@ The following are third party dependencies included in the source tree (but not 
 * trusted/script/jszip
 * shared/jquery-1.11.2.js
 * shared/jsencrypt.js
+* shared/md5.js
 * unmask/script/ladda.min.js
 * unmask/script/spin.min.js
 * shared/underscore.js
