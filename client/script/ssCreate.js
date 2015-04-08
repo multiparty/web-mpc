@@ -111,10 +111,17 @@ function initiate_button(instances,button,url,session,email) {
                                     ));
                     retObj[key] = jsonData;
                 }
-                if(verified){
-                    var flat = flattenObj(retObj),
-                        maskObj = genMask(_.keys(flat)),
-                        encryptedMask = encryptWithKey(maskObj,publickey);
+                if (verified){
+                    var flat = flattenObj(retObj);
+                    var maskObj = genMask(_.keys(flat));
+
+                    // Zero-out any mask entries that correspond to zero
+                    // entries in the data.
+                    for (var key in flat)
+                        maskObj[key] = (flat[k] > 0) ? maskObj[key] : 0;
+                    
+                    var encryptedMask = encryptWithKey(maskObj, publickey);
+
                     console.log("Key: ");
                     console.log(publickey);
                     console.log('data: ', flat);
