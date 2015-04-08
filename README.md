@@ -35,6 +35,10 @@ mongod
 
 sudo node index.js
 
+* To ensure the application continues running indefinitely, use:
+
+nohup sudo node index.js > /dev/null 2>&1 &
+
 
 Original modules and third-party dependencies
 ---------------------------------------------

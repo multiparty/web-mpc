@@ -2,7 +2,7 @@
  *
  * client/script/ssCreate.js
  *
- * Creates a spreadsheet that is obfuscated with Random numbers
+ * Creates a spreadsheet that is obfuscated with random numbers.
  * Dependancies: Handsontable.js, underscore.js, jquery
  * Author: Eric Dunton
  *
@@ -163,7 +163,7 @@ function initiate_button(instances,button,url,session,email) {
     });
 }
 
-//Parses CSV file into conveniant format
+// Parses CSV file into convenient format
 function processData(allText) {
     var allTextLines = allText.trim().split(/\r\n|\n/);
     var headers = _.drop(allTextLines[0].split(','));
@@ -186,7 +186,7 @@ function processData(allText) {
     return {"colHeaders":headers,"rowHeaders": rows,"lines":lines};
 }
 
-//creates propertes of a blank cell
+// creates propertes of a blank cell
 function makeBlank(instance, td, row, col, prop, value, cellProperties)
 {
     td.style.color = 'black';
@@ -205,14 +205,14 @@ function flattenObj(obj){
     return collectObj;
 }
 
-//generates array of random numbers
+// generates array of random numbers
 function secureRandom(size){
     var array = new Uint32Array(size);
     window.crypto.getRandomValues(array);
     return array;
 }
 
-//creates random mask
+// creates random mask
 function genMask(keys){
     return _.object(keys, secureRandom(keys.length));
 }
