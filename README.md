@@ -25,7 +25,7 @@ enabled=1" | sudo tee -a /etc/yum.repos.d/mongodb.repo
 
 `yum install -y mongodb-org-server mongodb-org-shell mongodb-org-tools`
 
-* Navigate to the server/ directory and install the NPM dependencies:
+* Navigate to the "server/" directory and install the NPM dependencies:
 
 `npm install`
 
