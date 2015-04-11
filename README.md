@@ -15,11 +15,13 @@ It is expected that this application will operate on an Amazon Web Services EC2 
 
 `yum -y install nodejs npm --enablerepo=epel`
 
-```echo "[MongoDB]
+```
+echo "[MongoDB]
 name=MongoDB Repository
 baseurl=http://downloads-distro.mongodb.org/repo/redhat/os/x86_64
 gpgcheck=0
-enabled=1" | sudo tee -a /etc/yum.repos.d/mongodb.repo```
+enabled=1" | sudo tee -a /etc/yum.repos.d/mongodb.repo
+```
 
 `yum install -y mongodb-org-server mongodb-org-shell mongodb-org-tools`
 
