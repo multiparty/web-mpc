@@ -11,33 +11,33 @@ It is expected that this application will operate on an Amazon Web Services EC2 
 
 * First, install Node.js, MongoDB, and necessary modules:
 
-yum -y update
+`yum -y update`
 
-yum -y install nodejs npm --enablerepo=epel 
+`yum -y install nodejs npm --enablerepo=epel`
 
-  echo "[MongoDB]
+```echo "[MongoDB]
 name=MongoDB Repository
 baseurl=http://downloads-distro.mongodb.org/repo/redhat/os/x86_64
 gpgcheck=0
-enabled=1" | sudo tee -a /etc/yum.repos.d/mongodb.repo
+enabled=1" | sudo tee -a /etc/yum.repos.d/mongodb.repo```
 
-yum install -y mongodb-org-server mongodb-org-shell mongodb-org-tools
+`yum install -y mongodb-org-server mongodb-org-shell mongodb-org-tools`
 
-npm install express body-parser mongoose multer
+`npm install express body-parser mongoose multer`
 
 * Next, set up the database file and start the MongoDB server:
 
-mkdir /data
-mkdir /data/db
-mongod
+`mkdir -p /data/db`
+
+`mongod`
 
 * Finally, retrieve the application files and in the directory "server/" run:
 
-sudo node index.js
+`sudo node index.js`
 
 * To ensure the application continues running indefinitely, use:
 
-nohup sudo node index.js > /dev/null 2>&1 &
+`nohup sudo node index.js > /dev/null 2>&1 &`
 
 
 Original modules and third-party dependencies
