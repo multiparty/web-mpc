@@ -25,7 +25,9 @@ enabled=1" | sudo tee -a /etc/yum.repos.d/mongodb.repo
 
 `yum install -y mongodb-org-server mongodb-org-shell mongodb-org-tools`
 
-`npm install express body-parser mongoose multer`
+* Navigate to the server/ directory and install the NPM dependencies:
+
+`npm install`
 
 * Next, set up the database file and start the MongoDB server:
 
