@@ -147,11 +147,7 @@ function initiate_button(instances,button,url,session,email) {
                         success: function(data){
                             waitingDialog.hide();
                             //window.location.href = "success.html";
-<<<<<<< HEAD
                             alert("Submitted data.");
-=======
-                            alert("Submitted data");
->>>>>>> origin/master
                             console.log('returned: ', data);
                         },
                         error: function(){
