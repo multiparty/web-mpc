@@ -1,6 +1,7 @@
 <html>
 <head>
-	<title>Data Unmasker</title>
+	<title>Trusted Party Data Unmasker</title>
+
     <script type="text/javascript" src="../shared/jquery-1.11.2.js"></script>
     <script type="text/javascript" src="../shared/underscore.js"></script>
     <script type="text/javascript" src="../shared/jsencrypt.js"></script>
@@ -18,65 +19,74 @@
     </style>
 </head>
 <body>
-	<div class="container">
-		<div class="page-header">
-            <h1>Aggregate Data Unmasker</h1>
-        </div>
-        
-        <h4>Input Session Key</h4>
-        <input type=text id="sessKey" placeholder="Session Key"/>
-        
-        <h4>Upload Private Key  <small>(Note this does not upload the key to the network)</small></h4>
-        <input type=file id="maskKey"/>
-
-        <br>
-        <br>
-
-        <button id="unmask" class="btn btn-primary ladda-button" data-style="zoom-out">
-            <span class="ladda-label">Unmask Data</span>
-        </button>
-
-        <br><br>
-        <pre id="result"></pre>
-        <script type="text/javascript">
-
-        $('#unmask').on('click', function() {
-            var maskKey = $('#maskKey').get(0),
-                sessKey = $('#sessKey').val(),
-                la = Ladda.create(this),
-                keyReader = new FileReader();
-            
-            if(maskKey.files.length)
-            {
-                la.start();
-                keyReader.readAsText(maskKey.files[0]);
-                $(keyReader).on('load', function(e){
-                    var privkey = e.target.result,
-                        decryptObj = new JSEncrypt(),
-                        callb = function(success, data){
-                            la.stop();
-                            if(success) $('#result').html(JSON.stringify(data, null, 4));
-                            else $('#result').html(data);
-                        };
-                    decryptObj.setPrivateKey(privkey);
-                    
-                    $.ajax({
-                        type: "POST",
-                        url: "/get_masks",
-                        contentType: "application/json",
-                        data: JSON.stringify({session: parseInt(sessKey)}),
-                        success: function(data){ unmask(data,decryptObj,sessKey,callb)},
-                        error: function(){callb(false,"failed to load masks")}
-                    });
-                });
-            }
-            else
-            {
-                alert("Please upload both files before continuing.");
-            }
-        });
-
-        </script>
+  <div class="container">
+    <div class="page-header">
+      <table width="100%">
+        <tr>
+          <td>
+            <h1>Trusted Party<br/><small>Aggregate Data Unmasker</small></h1>
+          </td>
+          <td align="right">
+            <img src="../shared/seal.png" width="130px"/>&nbsp;&nbsp;
+            <img src="../shared/logo.png" width="130px"/>&nbsp;&nbsp;&nbsp;
+            <img src="../shared/bu.png" width="110px"/>
+          </td>
+        </tr>
+      </table>
     </div>
+
+    <h4>Input Session Key</h4>
+    <input type=text id="sessKey" placeholder="Session Key"/>
+
+    <h4>Upload Private Key  <small>(Note this does not upload the key to the network)</small></h4>
+    <input type=file id="maskKey"/>
+
+    <br/>
+    <br/>
+
+    <button id="unmask" class="btn btn-primary ladda-button" data-style="zoom-out">
+      <span class="ladda-label">Unmask Data</span>
+    </button>
+
+    <br/><br/>
+    <pre id="result"></pre>
+    <script type="text/javascript">
+      $('#unmask').on('click', function() {
+        var maskKey = $('#maskKey').get(0),
+            sessKey = $('#sessKey').val(),
+            la = Ladda.create(this),
+            keyReader = new FileReader();
+            
+        if(maskKey.files.length) {
+          la.start();
+          keyReader.readAsText(maskKey.files[0]);
+          $(keyReader).on('load', function(e){
+            var privkey = e.target.result,
+                decryptObj = new JSEncrypt(),
+                callb =
+                  function(success, data){
+                    la.stop();
+                    if (success)
+                      $('#result').html(JSON.stringify(data, null, 4));
+                    else
+                      $('#result').html(data);
+                  };
+            decryptObj.setPrivateKey(privkey);
+                    
+            $.ajax({
+              type: "POST",
+              url: "/get_masks",
+              contentType: "application/json",
+              data: JSON.stringify({session: parseInt(sessKey)}),
+              success: function(data){ unmask(data,decryptObj,sessKey,callb)},
+              error: function(){callb(false,"failed to load masks")}
+            });
+          });
+        } else {
+          alert("Please upload both files before continuing.");
+        }
+      });
+    </script>
+  </div>
 </body>
 </html>

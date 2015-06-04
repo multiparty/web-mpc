@@ -147,12 +147,12 @@ function initiate_button(instances,button,url,session,email) {
                         success: function(data){
                             waitingDialog.hide();
                             //window.location.href = "success.html";
-                            alert("Submited data");
+                            alert("Submitted data.");
                             console.log('returned: ', data);
                         },
                         error: function(){
                             waitingDialog.hide();
-                            alert("Failed to Submit data");
+                            alert("Failed to submit data.");
                         }
                     });
                 }

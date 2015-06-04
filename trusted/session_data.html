@@ -1,6 +1,6 @@
 <html>
 <head>
-	<title>Trusted Party Secure Session Creator</title>
+	<title>Trusted Party Live Session Tracker</title>
 
 	<script type="text/javascript" src="../shared/jquery-1.11.2.js"></script>
     <script type="text/javascript" src="../shared/underscore.js"></script>
@@ -9,57 +9,68 @@
     <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.css">
 	<link rel="stylesheet" media="screen" href="../shared/handsontable/dist/handsontable.full.css">
     <style>
-        #table {
-            visibility: hidden;
-        }
-        #statusID {
-            visibility: hidden;
-        }
+      #table {
+          visibility: hidden;
+      }
+      #statusID {
+          visibility: hidden;
+      }
     </style>
 </head>
 <body>
-<div class="container">
-    <h2 id="pagetitle">Live Session Tracker</h2>
+  <div class="container">
+    <div class="page-header">
+      <table width="100%">
+        <tr>
+          <td>
+            <h1>Trusted Party<br/><small>Live Session Tracker</small></h1>
+          </td>
+          <td align="right">
+            <img src="../shared/seal.png" width="130px"/>&nbsp;&nbsp;
+            <img src="../shared/logo.png" width="130px"/>&nbsp;&nbsp;&nbsp;
+            <img src="../shared/bu.png" width="110px"/>
+          </td>
+        </tr>
+      </table>
+    </div>
     <form class="form-inline" role="form" id="inputform">
-    <input type="text" id="sess" placeholder="Session Number"/>
-    <button id="submit" type="button" class="btn btn-primary" onclick="genT()" >SUBMIT</button>
+      <input type="text" id="sess" placeholder="Session Number"/>
+      <button id="submit" type="button" class="btn btn-primary" onclick="genT()" >SUBMIT</button>
     </form>
     <div class="alert alert-success" id="statusID">LOADING...</div>
     <div><a id="unmasklink"></a></div>
     <table class="table table-striped" id="table">
-        <thead>
-          <tr>
-            <th>Email</th>
-            <th>Posted</th>
-          </tr>
-        </thead>
-        <tbody id="participants">
-        </tbody>
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Posted</th>
+        </tr>
+      </thead>
+      <tbody id="participants">
+      </tbody>
     </table>
-    
     <script>
-        window.genT = function(sessNum){
-            document.getElementById('table').style.visibility = "visible";
-            document.getElementById('statusID').style.visibility = "visible";
-            var val = sessNum === undefined ? document.getElementById('sess').value: sessNum;
-            $('#inputform').remove();
-            
-            document.getElementById('unmasklink').innerHTML = "Click here to unmask aggregate data Session " +val;
-            document.getElementById('unmasklink').href = "../unmask/index.html?session="+val;
-            
-            generateTable('table', val, 'statusID');
-        }
-        window.getParameterByName = function(name) {
-            name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-            var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-                results = regex.exec(location.search);
-            return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-        }
-        if(getParameterByName('session')){
-            genT(getParameterByName('session'));
-        }
-    </script>
-</div>
+      window.genT = function(sessNum){
+        document.getElementById('table').style.visibility = "visible";
+        document.getElementById('statusID').style.visibility = "visible";
+        var val = sessNum === undefined ? document.getElementById('sess').value: sessNum;
+        $('#inputform').remove();
 
+        document.getElementById('unmasklink').innerHTML = "Click here to unmask aggregate data Session " +val;
+        document.getElementById('unmasklink').href = "../unmask/index.html?session="+val;
+
+        generateTable('table', val, 'statusID');
+      }
+      window.getParameterByName = function(name) {
+        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+            results = regex.exec(location.search);
+        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+      }
+      if(getParameterByName('session')){
+        genT(getParameterByName('session'));
+      }
+    </script>
+  </div>
 </body>
 </html>

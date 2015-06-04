@@ -11,52 +11,53 @@
     <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.css">
 	<link rel="stylesheet" media="screen" href="../shared/handsontable/dist/handsontable.full.css">
     <style>
-        #infoDiv {
-            visibility: hidden;
-        }
+      #infoDiv {
+          visibility: hidden;
+      }
     </style>
 </head>
 <body>
-	<div class="container">
-		<div class="page-header">
-            <table width="100%">
-              <tr>
-                <td>
-                  <h1>Trusted Party<br/><small>Secure Session Creator</small></h1>
-                </td>
-                <td align="right">
-                    <img src="../shared/logo.png" width="150px"/>
-                    <img src="../shared/seal.png" width="150px"/>
-                </td>
-              </tr>
-            </table>
-        </div>
-        <div>
-            <h2>Instructions</h2>
-            <p>
-                After generating a secure session, please keep the private key file named <b>Session_#######_private_key.pem</b>.
-                All secured data will be lost if the private key is lost. Also, do NOT share your private key. After clicking the 
-                "Generate Session" button, email the <b>Session Key</b> to all participants. Once the data is collected from the 
-                participants, with your private key, continue to the next step.
-            </p>
-        </div>
-        <br>
-        <button class="btn btn-primary btn-lg" id="Generate" 
-                onclick="generateSession('infoDiv','sessionID','pubkeyID','privkeyID','linkID')">
-            Generate Session
-        </button>
-        <div id="infoDiv">
-            <h3><a id="linkID" href="session_data.html"></a></h3>
-            <br>
-            <h3>Session Key: Please Email to Participants</h3>
-            <pre id="sessionID"></pre>
-            <br>
-            <h3>Public Key</h3>
-            <pre id="pubkeyID"></pre>
-            <br>
-            <h3>Private Key: DO NOT SHARE!!!!</h3>
-            <pre id="privkeyID"></pre>
-        </div>
+  <div class="container">
+    <div class="page-header">
+      <table width="100%">
+        <tr>
+          <td>
+            <h1>Trusted Party<br/><small>Secure Session Creator</small></h1>
+          </td>
+          <td align="right">
+            <img src="../shared/seal.png" width="130px"/>&nbsp;&nbsp;
+            <img src="../shared/logo.png" width="130px"/>&nbsp;&nbsp;&nbsp;
+            <img src="../shared/bu.png" width="110px"/>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div>
+      <h2>Instructions</h2>
+      <p>
+        After generating a secure session, please keep the private key file named <b>Session_#######_private_key.pem</b>.
+        All secured data will be lost if the private key is lost. Also, do <b>not</b> share your private key. After clicking the 
+        "Generate Session" button, email the <b>Session Key</b> to all participants. Once the data is collected from the 
+        participants, with your private key, continue to the next step.
+      </p>
+    </div>
+    <br/>
+    <button class="btn btn-primary btn-lg" id="Generate" 
+            onclick="generateSession('infoDiv','sessionID','pubkeyID','privkeyID','linkID')">
+      Generate Session
+    </button>
+      <div id="infoDiv">
+        <h3><a id="linkID" href="session_data.html"></a></h3>
+        <br/>
+        <h3>Session Key (please email to participants)</h3>
+        <pre id="sessionID"></pre>
+        <br/>
+        <h3>Public Key</h3>
+        <pre id="pubkeyID"></pre>
+        <br/>
+        <h3>Private Key (do not share)</h3>
+        <pre id="privkeyID"></pre>
+      </div>
     </div>
 </body>
 </html>

@@ -1,10 +1,7 @@
-<!-- 
-Client Side default page
-Author: Eric Dunton
--->
 <html>
 <head>
 	<title>Boston Women's Workforce Council</title>
+
 	<script type="text/javascript" src="../shared/jquery-1.11.2.js"></script>
     <script type="text/javascript" src="../shared/underscore.js"></script>
 	<script type="text/javascript" src="../shared/handsontable/dist/handsontable.full.js"></script>
@@ -17,60 +14,60 @@ Author: Eric Dunton
     <link rel="stylesheet" type="text/css" href="style/bootstrap/v3/css/bootstrap-theme.min.css">
 	<link rel="stylesheet" media="screen" href="../shared/handsontable/dist/handsontable.full.css">
     <style type="text/css">
-    .handsontable col.rowHeader {
+      .handsontable col.rowHeader {
         width: 160px;
-    }
-    #body_wrap {
+      }
+      #body_wrap {
         padding-left: 15%;
         padding-right: 15%;
         padding-bottom: 50px;
-    }
-    #submit {
+      }
+      #submit {
         float: left;
-    }
+      }
     </style>
 </head>
 <body>
-    <div id="body_wrap">
-        <div class="page-header">
-            <table width="100%">
-              <tr>
-                <td>
-                  <h1>Workforce Survey<br/><small>Boston Women's Workforce Council</small></h1>
-                </td>
-                <td align="right">
-                    <img src="../shared/logo.png" width="150px"/>
-                    <img src="../shared/seal.png" width="150px"/>
-                </td>
-              </tr>
-            </table>
-        </div>
-        <h3>Enter Session Key</h3>
-        <input type="text" id="sess"/>
-        <h3>Email Address to track participation</h3>
-        <input type=text id="emailf"/>
-        <h3>Female Workforce</h3>
-        <div id="females"></div>
-        <h3>Male Workforce</h3>
-        <div id="males"></div>
-        <br>
-        <button name="dump" class="btn btn-primary btn-lg" id="submit" >Submit</button>
-        <br>
-    	<script type="text/javascript">
-        $(document).ready(function() {
-                $.ajax({
-                    type: "GET",
-                    url: "./default2.csv",
-                    dataType: "text"
-                })
-                .done(function(data){
-                var f = makeTable(processData(data), 'females'),
-                    m = makeTable(processData(data), 'males');
-                initiate_button({Female: f, Male: m}, "dump", "/", 
-                                'sess','emailf');
-                });
-            });
-    	</script>
+  <div id="body_wrap">
+    <div class="page-header">
+      <table width="100%">
+        <tr>
+          <td>
+            <h1>Workforce Survey<br/><small>Boston Women's Workforce Council</small></h1>
+          </td>
+          <td align="right">
+            <img src="../shared/seal.png" width="130px"/>&nbsp;&nbsp;
+            <img src="../shared/logo.png" width="130px"/>&nbsp;&nbsp;&nbsp;
+            <img src="../shared/bu.png" width="110px"/>
+          </td>
+        </tr>
+      </table>
     </div>
+    <h3>Enter Session Key</h3>
+    <input type="text" id="sess"/>
+    <h3>Email Address to track participation</h3>
+    <input type=text id="emailf"/>
+    <h3>Female Workforce</h3>
+    <div id="females"></div>
+    <h3>Male Workforce</h3>
+    <div id="males"></div>
+    <br/>
+    <button name="dump" class="btn btn-primary btn-lg" id="submit" >Submit</button>
+    <br/>
+    <script type="text/javascript">
+      $(document).ready(function() {
+        $.ajax({
+          type: "GET",
+          url: "./default2.csv",
+          dataType: "text"
+        })
+        .done(function(data){
+          var f = makeTable(processData(data), 'females'),
+              m = makeTable(processData(data), 'males');
+          initiate_button({Female: f, Male: m}, "dump", "/", 'sess','emailf');
+        });
+      });
+    </script>
+  </div>
 </body>
 </html>
