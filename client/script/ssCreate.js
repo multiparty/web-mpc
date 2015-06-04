@@ -22,7 +22,7 @@ function makeTable(sheet, divId) {
                 var is_whole = function(x,callback){
                     if(x >= 0 && x % 1 == 0) callback(true);
                     else {
-                        alert("All cells must have whole number input");
+                        alert("All cells must have whole number inputs.");
                         callback(false);
                     }
                 }
@@ -41,7 +41,7 @@ function makeTable(sheet, divId) {
           cells: function(row,col,prop) {
             var cellProperties = {},
                 inspect = this.instance.getData()[row][prop];
-            if ( inspect === '#'){
+            if (inspect === '#'){
                 cellProperties.readOnly = true;
                 cellProperties.renderer = makeBlank
             }
