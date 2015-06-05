@@ -18,8 +18,8 @@
         width: 200px;
       }
       #body_wrap {
-        padding-left: 15%;
-        padding-right: 15%;
+        padding-left: 8%;
+        padding-right: 8%;
         padding-bottom: 50px;
       }
       #submit {
@@ -30,13 +30,21 @@
       }
       /* Ugly hack to display entry unit without touching the actual data
          This will break if more categories are added! Might not work on all browsers! */
+      .handsontable th {
+        font-size:12px;
+      }
       .ht_clone_left.handsontable tr:nth-child(n+1):nth-child(-n+10) th:first-child span::after {
         content: '#';
         float: right;
         padding-right: 3px;
       }
-      .ht_clone_left.handsontable tr:nth-child(n+11):nth-child(-n+13) th:first-child span::after {
+      .ht_clone_left.handsontable tr:nth-child(n+11):nth-child(-n+12) th:first-child span::after {
         content: '$';
+        float: right;
+        padding-right: 3px;
+      }
+      .ht_clone_left.handsontable tr:nth-child(n+13):nth-child(-n+13) th:first-child span::after {
+        content: 'mos.';
         float: right;
         padding-right: 3px;
       }
