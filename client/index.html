@@ -28,6 +28,18 @@
       .handsontable th:first-child {
         text-align: left;
       }
+      /* Ugly hack to display entry unit without touching the actual data
+         This will break if more categories are added! Might not work on all browsers! */
+      .ht_clone_left.handsontable tr:nth-child(n+1):nth-child(-n+10) th:first-child span::after {
+        content: '#';
+        float: right;
+        padding-right: 3px;
+      }
+      .ht_clone_left.handsontable tr:nth-child(n+11):nth-child(-n+13) th:first-child span::after {
+        content: '$';
+        float: right;
+        padding-right: 3px;
+      }
     </style>
 </head>
 <body>
