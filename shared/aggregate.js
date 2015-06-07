@@ -6,7 +6,7 @@
  *
  */
 
-var MINIMUM = 3;
+var MINIMUM = 0;
 
 function aggregate(data, includeCounts, db) {
 
@@ -40,7 +40,7 @@ function aggregate(data, includeCounts, db) {
         for (var key in counts)
             counts[key] += (convert(fields(data[i])[key]) > 0) ? 1 : 0;
 
-    // Compute the aggregate
+    // Compute the aggregate.
     var agg = {};
     for (var key in fields(data[0]))
         agg[key] = 0;
