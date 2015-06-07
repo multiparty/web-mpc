@@ -39,7 +39,7 @@ function unmask(mOut, decryptObj, session, callback){
             console.log(data);
             callback(true, data);
         },
-        error: function(){callback(false,"submission to server failed")}
+        error: function(){callback(false,"Submission to server failed.")}
     });
 }
 
