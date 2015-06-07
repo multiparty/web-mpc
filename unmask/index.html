@@ -49,6 +49,8 @@
     </button>
 
     <br/><br/>
+    <div id="friendly"></div>
+    <br/>
     <pre id="result"></pre>
     <script type="text/javascript">
       $('#unmask').on('click', function() {
@@ -66,9 +68,36 @@
                 callb =
                   function(success, data){
                     la.stop();
-                    if (success)
+                    if (success) {
+                      var colNames = [
+                              'Hispanic','White','Black','PacificIslander','Asian','NativeAmerican',
+                              'Other','SumAnnCompJob','SumAnnCashPerfJob','SumLenSrvcJob'
+                            ],
+                          rowNames = [
+                              'Executive','MidLevel','Professionals','Technicians','SalesWorkers',
+                              'AdminSupportWorkers','CraftWorkers','Operatives','LaborersAndHelpers',
+                              'ServiceWorkers','SumAnnCompRace','SumAnnCashPerfRace', 'SumLenSrvcRace'
+                            ];
+                      if (!('error' in data)) {
+                        for (var gender in {'Female':null, 'Male':null}) {
+                          var s = '<table cellpadding="5" style="font-size:12px"><tr><td></td>';
+                          for (var c = 0; c < colNames.length; c++)
+                            s += "<td><b>" + colNames[c] + "</b></td>";
+                          s += "</tr>";
+                          for (var r = 0; r < rowNames.length; r++) {
+                            s += "<tr><td><b>" + rowNames[r] + "</b></td>";
+                            for (var c = 0; c < colNames.length; c++) {
+                              var field = gender + '_' + rowNames[r] + '_' + colNames[c];
+                              s += "<td>" + ((field in data) ? data[field] : "") + "</td>";
+                            }
+                            s += "</tr>";
+                          }
+                          s += "</table>";
+                        }
+                        $('#friendly').html(s);
+                      } // if not error
                       $('#result').html(JSON.stringify(data, null, 4));
-                    else
+                    } else
                       $('#result').html(data);
                   };
             decryptObj.setPrivateKey(privkey);
