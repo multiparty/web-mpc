@@ -79,8 +79,9 @@
                               'ServiceWorkers','SumAnnCompRace','SumAnnCashPerfRace', 'SumLenSrvcRace'
                             ];
                       if (!('error' in data)) {
+                        var s = "";
                         for (var gender in {'Female':null, 'Male':null}) {
-                          var s = '<table cellpadding="5" style="font-size:12px"><tr><td></td>';
+                          s += '<table cellpadding="5" style="font-size:12px"><tr><td><i>' + gender + '</i></td>';
                           for (var c = 0; c < colNames.length; c++)
                             s += "<td><b>" + colNames[c] + "</b></td>";
                           s += "</tr>";

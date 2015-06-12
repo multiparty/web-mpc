@@ -118,7 +118,7 @@ function initiate_button(instances,button,url,session,email) {
                     // Zero-out any mask entries that correspond to zero
                     // entries in the data.
                     for (var key in flat)
-                        maskObj[key] = (flat[k] > 0) ? maskObj[key] : 0;
+                        maskObj[key] = (flat[key] > 0) ? maskObj[key] : 0;
                     
                     var encryptedMask = encryptWithKey(maskObj, publickey);
 
