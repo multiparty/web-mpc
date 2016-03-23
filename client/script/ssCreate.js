@@ -40,7 +40,7 @@ function makeTable(sheet, divId) {
           data: sheet["lines"],
           cells: function(row,col,prop) {
             var cellProperties = {},
-                inspect = this.instance.getData()[row][prop];
+                inspect = this.instance.getDataAtCell(row, col);
             if (inspect === '#'){
                 cellProperties.readOnly = true;
                 cellProperties.renderer = makeBlank
