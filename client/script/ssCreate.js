@@ -196,8 +196,8 @@ function processData(allText) {
 // creates propertes of a blank cell
 function makeBlank(instance, td, row, col, prop, value, cellProperties)
 {
-    td.style.color = 'black';
-    td.style.background = 'black';
+    td.style.color = 'grey';
+    td.style.background = 'grey';
 }
 // flatten any object to a 1D object with concatinated keys
 function flattenObj(obj){
@@ -208,7 +208,7 @@ function flattenObj(obj){
         for(var k in ind)
             collectObj[key + (k === ""? "" : "_" + k)] = ind[k];
     }
-    
+
     return collectObj;
 }
 
