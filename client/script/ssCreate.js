@@ -7,43 +7,84 @@
  * Author: Eric Dunton
  *
  */
+allValid = {females: 0, males: 0, checkbox: 0};
 
 //Creates table from processed CSV table and places it into divId
 function makeTable(sheet, divId) {
     var rowHeaders = sheet["rowHeaders"],
         colHeaders = sheet["colHeaders"],
+        $submitButton = $('#submit'),
+        validFields = new Array(sheet['rowHeaders'].length);
+        for (var i = 0; i < validFields.length; i++) {
+            validFields[i] = new Array(sheet['colHeaders'].length);
+        }
+
+
+        $submitButton.prop('disabled', true);
         hot = new Handsontable(document.getElementById(divId), {
           rowHeaders: rowHeaders,
           colHeaders: colHeaders,
           maxRows: rowHeaders.length,
           maxCols: colHeaders.length,
-          columns: _.map(colHeaders, 
+          columns: _.map(colHeaders,
             function(header) {
                 var is_whole = function(x,callback){
-                    if(x >= 0 && x % 1 == 0) callback(true);
-                    else {
-                        alert("All cells must have whole number inputs.");
+                    if (x >= 0 && x % 1 == 0 && x !== '') {
+                            callback(true);
+                    } else {
                         callback(false);
                     }
                 }
                 return {
-                        data: header, 
-                        type: 'numeric', 
+                        data: header,
+                        type: 'numeric',
                         format: '0,0',
                         validator: is_whole,
-                        allowInvalid: false
-                       }; 
+                        allowInvalid: true
+                       };
             }),
           manualColumnResize: true,
           contextMenu: false,
           minSpareRows: 0,
           data: sheet["lines"],
+          afterValidate: function (isValid, value, row, prop, source) {
+              var col = hot.propToCol(prop);
+              if (!isValid) {
+                  validFields[row][col] = 0;
+                  $submitButton.prop('disabled', true);
+                  return;
+              } else {
+                  validFields[row][col] = 1;
+              }
+
+              var invalid = false;
+              for (var i = 0; i < validFields.length; i++) {
+                  for (var j = 0; j < validFields[i].length; j++) {
+                      if (validFields[i][j] === 0 || typeof validFields[i][j] === 'undefined') {
+                          invalid = true;
+                          break;
+                      }
+                  }
+              }
+              if (invalid) {
+                  allValid[divId] = 0;
+                  $submitButton.prop('disabled', true);
+              } else {
+                  allValid[divId] = 1;
+                  if (allValid.females === 1 && allValid.males === 1) {
+                      $submitButton.prop('disabled', false);
+                  }
+              }
+          },
           cells: function(row,col,prop) {
             var cellProperties = {},
                 inspect = this.instance.getDataAtCell(row, col);
-            if (inspect === '#'){
+            if (inspect === '#') {
                 cellProperties.readOnly = true;
-                cellProperties.renderer = makeBlank
+                cellProperties.renderer = makeBlank;
+                if (typeof col !== 'string') {
+                    validFields[row][col] = 1;
+                }
             }
             return cellProperties;
           }
@@ -59,23 +100,23 @@ function initiate_button(instances,button,url,session,email) {
           retObj = {};
 
         if (element.nodeName == "BUTTON" && element.name == button) {
-            
+
             waitingDialog.show('Loading Data',{dialogSize: 'sm', progressType: 'warning'});
             var sessionstr = $('#'+session).val().trim();
             var emailstr = $('#'+email).val().trim();
-            
+
             if(!sessionstr.match(/[0-9]{7}/)){
                 alert("invalid session number: must be 7 digit number");
                 waitingDialog.hide();
                 return;
             }
-            
+
             if(!emailstr.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/)){
                 alert("Did not type a correct email address");
                 waitingDialog.hide();
                 return;
             }
-            
+
             $.ajax({
                     type: "POST",
                     url: "/publickey",
@@ -85,7 +126,7 @@ function initiate_button(instances,button,url,session,email) {
                 })
             .done(function(publickey){
                 for(var key in instances){
-                    var jsonData = _.object(instances[key].rowHeaders, 
+                    var jsonData = _.object(instances[key].rowHeaders,
                                 _.map(instances[key].table.getData(), function(row){
                                     return _.omit(
                                     _.object(instances[key].colHeaders,
@@ -103,9 +144,9 @@ function initiate_button(instances,button,url,session,email) {
                     verified = verified && verAux(_.map(_.values(jsonData),
                                     function(val){
                                         return verAux(
-                                                _.map(_.values(val), 
-                                                function(x){ 
-                                                    return _.isNumber(x) && x >= 0 && x % 1 == 0; 
+                                                _.map(_.values(val),
+                                                function(x){
+                                                    return _.isNumber(x) && x >= 0 && x % 1 == 0;
                                                 }));
                                     }
                                     ));
@@ -119,7 +160,7 @@ function initiate_button(instances,button,url,session,email) {
                     // entries in the data.
                     for (var key in flat)
                         maskObj[key] = (flat[key] > 0) ? maskObj[key] : 0;
-                    
+
                     var encryptedMask = encryptWithKey(maskObj, publickey);
 
                     console.log("Key: ");
@@ -133,9 +174,9 @@ function initiate_button(instances,button,url,session,email) {
                     console.log('encrypted mask: ', encryptedMask);
 
                     var sendData = {
-                        data: flat, 
-                        mask: encryptedMask, 
-                        user: CryptoJS.MD5(emailstr).toString(), 
+                        data: flat,
+                        mask: encryptedMask,
+                        user: CryptoJS.MD5(emailstr).toString(),
                         session: parseInt(sessionstr)
                     };
 
@@ -165,7 +206,7 @@ function initiate_button(instances,button,url,session,email) {
                 alert("Server failure");
                 waitingDialog.hide();
                 return;
-            }); 
+            });
       }
     });
 }
