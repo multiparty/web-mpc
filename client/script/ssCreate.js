@@ -61,6 +61,7 @@ function makeTable(sheet, divId) {
 
               // Enable/disable submit button based on valid data
               if (!isValid) {
+                  allValid[divId] = 0;
                   validFields[row][col] = 0;
                   $submitButton.prop('disabled', true);
                   return;
