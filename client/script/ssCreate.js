@@ -58,6 +58,8 @@ function makeTable(sheet, divId) {
           data: sheet["lines"],
           afterValidate: function (isValid, value, row, prop, source) {
               var col = hot.propToCol(prop);
+
+              // Enable/disable submit button based on valid data
               if (!isValid) {
                   validFields[row][col] = 0;
                   $submitButton.prop('disabled', true);
@@ -88,6 +90,14 @@ function makeTable(sheet, divId) {
           cells: function(row,col,prop) {
             var cellProperties = {},
                 inspect = this.instance.getDataAtCell(row, col);
+            // Detect unusually high employment values
+            if (row < 10 && col < 7) {
+                if (inspect > 10000) {
+                    cellProperties.renderer = outsideRangeRenderer;
+                } else {
+                    cellProperties.renderer = normalRangeRenderer;
+                }
+            }
             if (inspect === '#') {
                 cellProperties.readOnly = true;
                 cellProperties.renderer = makeBlank;
@@ -244,11 +254,21 @@ function processData(allText) {
 }
 
 // creates propertes of a blank cell
-function makeBlank(instance, td, row, col, prop, value, cellProperties)
-{
+function makeBlank(instance, td, row, col, prop, value, cellProperties) {
     td.style.color = 'grey';
     td.style.background = 'grey';
 }
+
+function outsideRangeRenderer(instance, td, row, col, prop, value, cellProperties) {
+    Handsontable.renderers.NumericRenderer.apply(this, arguments);
+    td.style.background = '#f0e68c';
+}
+
+function normalRangeRenderer(instance, td, row, col, prop, value, cellProperties) {
+    Handsontable.renderers.NumericRenderer.apply(this, arguments);
+    td.style.background = '#fff';
+}
+
 // flatten any object to a 1D object with concatinated keys
 function flattenObj(obj){
     if(!_.isObject(obj)) return {"": obj};
