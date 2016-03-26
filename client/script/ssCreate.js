@@ -26,6 +26,15 @@ function makeTable(sheet, divId) {
           colHeaders: colHeaders,
           maxRows: rowHeaders.length,
           maxCols: colHeaders.length,
+          afterSelection: function (row, col, row2, col2) {
+            // Don't allow fill handle for read-only cells, could accidentally mess up document
+            var meta = this.getCellMeta(row2, col2);
+            if (meta.readOnly) {
+                this.updateSettings({fillHandle: false});
+            } else {
+               this.updateSettings({fillHandle: true});
+            }
+          },
           columns: _.map(colHeaders,
             function(header) {
                 var is_whole = function(x,callback){
@@ -34,7 +43,7 @@ function makeTable(sheet, divId) {
                     } else {
                         callback(false);
                     }
-                }
+                };
                 return {
                         data: header,
                         type: 'numeric',
