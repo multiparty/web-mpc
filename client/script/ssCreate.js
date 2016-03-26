@@ -7,7 +7,7 @@
  * Author: Eric Dunton
  *
  */
-allValid = {females: 0, males: 0, checkbox: 0};
+allValid = {females: 0, males: 0, verify: 0};
 
 //Creates table from processed CSV table and places it into divId
 function makeTable(sheet, divId) {
@@ -69,11 +69,12 @@ function makeTable(sheet, divId) {
               }
 
               var invalid = false;
+              outer:
               for (var i = 0; i < validFields.length; i++) {
                   for (var j = 0; j < validFields[i].length; j++) {
                       if (validFields[i][j] === 0 || typeof validFields[i][j] === 'undefined') {
                           invalid = true;
-                          break;
+                          break outer;
                       }
                   }
               }
@@ -82,7 +83,7 @@ function makeTable(sheet, divId) {
                   $submitButton.prop('disabled', true);
               } else {
                   allValid[divId] = 1;
-                  if (allValid.females === 1 && allValid.males === 1) {
+                  if (allValid.females && allValid.males && allValid.verify) {
                       $submitButton.prop('disabled', false);
                   }
               }
@@ -117,6 +118,16 @@ function initiate_button(instances,button,url,session,email) {
 
       var element = e.target || e.srcElement,
           retObj = {};
+
+        // Enable/disable check button
+        if (element.name === 'verify') {
+            allValid.verify = element.checked;
+            if (allValid.females && allValid.males && allValid.verify) {
+                $('#submit').prop('disabled', false);
+            } else {
+                $('#submit').prop('disabled', true);
+            }
+        }
 
         if (element.nodeName == "BUTTON" && element.name == button) {
 
