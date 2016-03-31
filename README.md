@@ -1,6 +1,9 @@
 data-aggregator
 ===============
 
+[![Build Status](https://travis-ci.org/Boston-Women-Work/data-aggregator.svg?branch=master)](https://travis-ci.org/Boston-Women-Work/data-aggregator)
+[![Coverage Status](https://coveralls.io/repos/github/Boston-Women-Work/data-aggregator/badge.svg?branch=angular)](https://coveralls.io/github/Boston-Women-Work/data-aggregator?branch=angular)
+
 Implementation of a data collection and aggregation infrastructure that supports individual data obfuscation.
 
 
@@ -29,6 +32,10 @@ enabled=1" | sudo tee -a /etc/yum.repos.d/mongodb.repo
 
 `npm install`
 
+* Now install the global dependency
+
+`npm install -g forever`
+
 * Next, set up the database file and start the MongoDB server:
 
 `mkdir -p /data/db`
@@ -37,11 +44,7 @@ enabled=1" | sudo tee -a /etc/yum.repos.d/mongodb.repo
 
 * Finally, retrieve the application files and in the directory "server/" run:
 
-`sudo node index.js`
-
-* To ensure the application continues running indefinitely, use:
-
-`nohup sudo node index.js > /dev/null 2>&1 &`
+`sudo forever -l foreverlog.txt -o log.txt -e error.txt start index.js`
 
 
 Original modules and third-party dependencies
