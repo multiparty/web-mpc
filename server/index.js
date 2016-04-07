@@ -214,7 +214,7 @@ app.post('/get_masks', function (req, res) {
 });
 
 // endpoint for fetching the aggregate
-// must pass in the private key to decrypt the masks, as well as the session
+// must pass in the session ID
 // number for that key
 app.post('/submit_agg', function (req, res) {
     var mask = req.body.data;
