@@ -8,9 +8,14 @@
  */
 
 /***************************************************************
-** Module definition.
-*/
+ ** Module definition.
+ */
 
+'use strict';
+
+/* Note: using staging server url, remove .testing() for production
+ Using .testing() will overwrite the debug flag with true */
+var LEX = require('letsencrypt-express');
 var express = require('express');
 var app = express();
 var body_parser = require('body-parser');
@@ -19,7 +24,24 @@ var mongoose = require('mongoose');
 var template = require('./template');
 var aggregator = require('../shared/aggregate');
 
-var port = 80;
+var lex = LEX.create({
+    configDir: require('os').homedir() + '/letsencrypt/etc'
+    , approveRegistration: function (hostname, cb) { // leave `null` to disable automatic registration
+        // Note: this is the place to check your database to get the user associated with this domain
+        if (!/\.100talent\.org$/.test(hostname) && hostname !== '100talent.org') {
+            console.error("bad domain '" + hostname + "', not a subdomain of 100talent.org");
+            cb(null, null);
+        } else {
+            cb(null, {
+                domains: ['100talent.org']
+                , email: 'fjansen@bu.edu'
+                , agreeTos: true
+            });
+        }
+    }
+});
+
+lex.onRequest = app;
 
 try {
     mongoose.connect('mongodb://localhost/aggregate');
@@ -29,10 +51,18 @@ try {
 }
 
 // model for aggregate data
-var Aggregate = mongoose.model('Aggregate', { _id: String, fields: Object, date: Number, session: Number, email: String });
-var Mask = mongoose.model('Mask', { _id: String, fields: Object, session: Number })
-var PublicKey = mongoose.model('PublicKey', { _id: Number, session: Number,
-    pub_key: String});
+var Aggregate = mongoose.model('Aggregate', {
+    _id: String,
+    fields: Object,
+    date: Number,
+    session: Number,
+    email: String
+});
+var Mask = mongoose.model('Mask', {_id: String, fields: Object, session: Number});
+var PublicKey = mongoose.model('PublicKey', {
+    _id: Number, session: Number,
+    pub_key: String
+});
 var FinalAggregate = mongoose.model('FinalAggregate', {_id: Number, aggregate: Object, date: Number, session: Number});
 
 // for parsing application/json
@@ -40,6 +70,19 @@ app.use(body_parser.json());
 
 // for parsing multipart/form-data
 app.use(multer());
+
+// Add a handler to inspect the req.secure flag (see
+// http://expressjs.com/api#req.secure). This allows us
+// to know whether the request was via http or https.
+app.use(function (req, res, next) {
+    if (req.secure) {
+        // request was via https, so do no special handling
+        next();
+    } else {
+        // request was via http, so redirect to https
+        res.redirect('https://' + req.headers.host + req.url);
+    }
+});
 
 // serve static files in designated folders
 app.use(express.static(__dirname + '/../client'));
@@ -50,34 +93,38 @@ app.use(express.static(__dirname + '/../'));
 app.post('/', function (req, res) {
     console.dir('Incoming data...');
 
-    // verify that the json follows the schema as the data in the 
+    // verify that the json follows the schema as the data in the
     // database and is actually json.
 
-    if (  !(req.body.hasOwnProperty("mask") &&
+    if (!(req.body.hasOwnProperty("mask") &&
         req.body.hasOwnProperty("data") &&
         req.body.hasOwnProperty("session") &&
-        req.body.hasOwnProperty("user"))  ) {
+        req.body.hasOwnProperty("user"))) {
 
         res.status(503).json({error: "All fields must be completed"});
     }
 
     // only take the fields that are in the template, mask, and data
     var to_add = {};
-    for (field in template) {
-        if ( template.hasOwnProperty(field) &&
+    for (var field in template) {
+        if (template.hasOwnProperty(field) &&
             req.body.data.hasOwnProperty(field) &&
-            req.body.mask.hasOwnProperty(field) ) {
+            req.body.mask.hasOwnProperty(field)) {
 
             to_add[field] = req.body.data[field];
         }
     }
 
     // save the mask and individual aggregate
-    var agg_to_save = new Aggregate({ _id: req.body.user, fields: to_add, date: Date.now(),
-        session: req.body.session, email: req.body.user });
+    var agg_to_save = new Aggregate({
+        _id: req.body.user, fields: to_add, date: Date.now(),
+        session: req.body.session, email: req.body.user
+    });
 
-    var mask_to_save = new Mask({ _id: req.body.user, fields: req.body.mask,
-        session: req.body.session });
+    var mask_to_save = new Mask({
+        _id: req.body.user, fields: req.body.mask,
+        session: req.body.session
+    });
 
     // for both the aggregate and the mask, update the old aggregate
     // for the company with that email. Update or insert, hence the upsert flag
@@ -85,28 +132,30 @@ app.post('/', function (req, res) {
         if (err) {
             console.log(err);
             res.status(503).json({error: "Unable to save aggregate, please try again"});
-        } else { }
-    })
+        } else {
+        }
+    });
 
     Mask.update({_id: req.body.user}, mask_to_save.toObject(), {upsert: true}, function (err) {
         if (err) {
             console.log(err);
             res.status(503).json({error: "Unable to save aggregate, please try again"});
-        } else { }
-    })
+        } else {
+        }
+    });
 
     res.send(req.body);
 });
 
 // endpoint for fetching the public key for a specific session
-app.post("/publickey", function (req,res) {
-    PublicKey.findOne( {session: req.body.session }, function (err, data) {
+app.post("/publickey", function (req, res) {
+    PublicKey.findOne({session: req.body.session}, function (err, data) {
         if (err) {
             console.log(err);
             res.send(err);
         }
 
-        if (data == null ) {
+        if (data == null) {
             res.json({error: "No key found with the specified session ID"});
         } else {
             res.send(data.pub_key);
@@ -148,21 +197,21 @@ app.post('/get_data', function (req, res) {
         } else {
             var to_send = {};
 
-            for (row in data) {
+            for (var row in data) {
                 to_send[data[row].email] = data[row].date;
             }
             res.json(to_send);
         }
     });
-})
+});
 
 
 // endpoint for getting all of the masks for a specific session
 app.post('/get_masks', function (req, res) {
     Mask.where({session: req.body.session}).find(function (err, data) {
-        res.send({ data: JSON.stringify(data) });
+        res.send({data: JSON.stringify(data)});
     });
-})
+});
 
 // endpoint for fetching the aggregate
 // must pass in the private key to decrypt the masks, as well as the session
@@ -183,8 +232,8 @@ app.post('/submit_agg', function (req, res) {
             var final_data = aggregator.aggregate(data, true, true);
 
             // subtract out the random data, unless it is a counter field
-            for (field in final_data)
-                if (mask.hasOwnProperty(field) && field.slice(field.length-6, field.length) != '_count')
+            for (var field in final_data)
+                if (mask.hasOwnProperty(field) && field.slice(field.length - 6, field.length) != '_count')
                     final_data[field] -= mask[field];
 
             console.log('Final aggregate computed.');
@@ -209,14 +258,16 @@ app.post('/submit_agg', function (req, res) {
         }
 
     });
-})
+});
 
 // if the page isn't found, return 404 error
 app.get(/.*/, function (req, res) {
-    res.status(404).json({ error: 'Page not found' });
+    res.status(404).json({error: 'Page not found'});
 });
 
-// start server
-app.listen(port);
+lex.listen([80], [443], function () {
+    var protocol = ('requestCert' in this) ? 'https' : 'http';
+    console.log("Listening at " + protocol + '://localhost:' + this.address().port);
+});
 
 /*eof*/

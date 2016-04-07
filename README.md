@@ -26,7 +26,7 @@ gpgcheck=0
 enabled=1" | sudo tee -a /etc/yum.repos.d/mongodb.repo
 ```
 
-`yum install -y mongodb-org-server mongodb-org-shell mongodb-org-tools`
+`yum install -y gcc-c++ mongodb-org-server mongodb-org-shell mongodb-org-tools`
 
 * Navigate to the "server/" directory and install the NPM dependencies:
 
@@ -44,7 +44,7 @@ enabled=1" | sudo tee -a /etc/yum.repos.d/mongodb.repo
 
 * Finally, retrieve the application files and in the directory "server/" run:
 
-`sudo forever -l foreverlog.txt -o log.txt -e error.txt start index.js`
+`forever -o log.txt -e error.txt start index.js`
 
 
 Original modules and third-party dependencies
