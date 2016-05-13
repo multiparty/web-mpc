@@ -15,7 +15,7 @@
 
 /* Note: using staging server url, remove .testing() for production
  Using .testing() will overwrite the debug flag with true */
-var LEX = require('letsencrypt-express');
+var LEX = require('letsencrypt-express').testing();
 var express = require('express');
 var app = express();
 var body_parser = require('body-parser');
@@ -106,13 +106,14 @@ app.post('/', function (req, res) {
 
     // only take the fields that are in the template, mask, and data
     var to_add = {};
-    for (var field in template) {
-        if (template.hasOwnProperty(field) &&
-            req.body.data.hasOwnProperty(field) &&
-            req.body.mask.hasOwnProperty(field)) {
-
-            to_add[field] = req.body.data[field];
-        }
+    for (var field in req.body.data) {
+        // if (template.hasOwnProperty(field) &&
+        //     req.body.data.hasOwnProperty(field) &&
+        //     req.body.mask.hasOwnProperty(field)) {
+        //
+        //     to_add[field] = req.body.data[field];
+        // }
+        to_add[field] = req.body.data[field];
     }
 
     // save the mask and individual aggregate

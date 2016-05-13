@@ -1,14 +1,14 @@
-,Hispanic,White,Black,PacificIslander,Asian,NativeAmerican,Other,SumAnnCompJob,SumAnnCashPerfJob,SumLenSrvcJob
-Executive,,,,,,,,,,
-MidLevel,,,,,,,,,,
-Professionals,,,,,,,,,,
-Technicians,,,,,,,,,,
-SalesWorkers,,,,,,,,,,
-AdminSupportWorkers,,,,,,,,,,
-CraftWorkers,,,,,,,,,,
-Operatives,,,,,,,,,,
-LaborersAndHelpers,,,,,,,,,,
-ServiceWorkers,,,,,,,,,,
-SumAnnCompRace,,,,,,,,#,#,#
-SumAnnCashPerfRace,,,,,,,,#,#,#
-SumLenSrvcRace,,,,,,,,#,#,#
+,Hispanic/Latino,White,Black/African American,Native Hawaiian or Pacific Islander,Asian,American Indian/Alaska Native,Two or More Races (Not Hispanic or Latino),Other,Sum Annual Compensation,Sum Annual Cash Performance Pay,Sum Length of Service
+Executive,,,,,,,,,,,
+MidLevel,,,,,,,,,,,
+Professionals,,,,,,,,,,,
+Technicians,,,,,,,,,,,
+Sales Workers,,,,,,,,,,,
+Administrative Support Workers,,,,,,,,,,,
+Craft Workers,,,,,,,,,,,
+Operatives,,,,,,,,,,,
+Laborers And Helpers,,,,,,,,,,,
+Service Workers,,,,,,,,,,,
+SumAnnCompRace,,,,,,,,,#,#,#
+SumAnnCashPerfRace,,,,,,,,,#,#,#
+SumLenSrvcRace,,,,,,,,,#,#,#
