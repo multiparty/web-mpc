@@ -1,6 +1,6 @@
 ,Hispanic/Latino,White,Black/African American,Native Hawaiian or Pacific Islander,Asian,American Indian/Alaska Native,Two or More Races (Not Hispanic or Latino),Other,Sum Annual Compensation,Sum Annual Cash Performance Pay,Sum Length of Service
 Executive,,,,,,,,,,,
-MidLevel,,,,,,,,,,,
+Mid Level,,,,,,,,,,,
 Professionals,,,,,,,,,,,
 Technicians,,,,,,,,,,,
 Sales Workers,,,,,,,,,,,
@@ -9,6 +9,6 @@ Craft Workers,,,,,,,,,,,
 Operatives,,,,,,,,,,,
 Laborers And Helpers,,,,,,,,,,,
 Service Workers,,,,,,,,,,,
-SumAnnCompRace,,,,,,,,,#,#,#
-SumAnnCashPerfRace,,,,,,,,,#,#,#
-SumLenSrvcRace,,,,,,,,,#,#,#
+Sum Annual Compensation,,,,,,,,,#,#,#
+Sum Annual Cash Performance,,,,,,,,,#,#,#
+Sum Length of Service,,,,,,,,,#,#,#
