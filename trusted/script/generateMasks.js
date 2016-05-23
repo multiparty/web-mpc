@@ -9,9 +9,10 @@
 
 //generates array of random numbers
 function secureRandom(size){
-    var array = new Uint32Array(size);
-    window.crypto.getRandomValues(array);
-    return array;
+	var array = new Uint32Array(size);
+	var cryptoObj = window.crypto || window.msCrypto; // IE 11 fix
+	cryptoObj.getRandomValues(array);
+	return array;
 }
 
 //creates random mask
