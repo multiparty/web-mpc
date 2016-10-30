@@ -20,11 +20,11 @@ var lex = require('letsencrypt-express').create({
     server: 'https://acme-v01.api.letsencrypt.org/directory',
     acme: require('le-acme-core').ACME.create(),
     challenge: require('le-challenge-fs').create({
-        webrootPath: '~/letsencrypt.test/var/:hostname'
+        webrootPath: '~/letsencrypt/var/:hostname'
     }),
     store: require('le-store-certbot').create({
-        configDir: '~/letsencrypt.test/etc',
-        webrootPath: '~/letsencrypt.test/var/:hostname'
+        configDir: '~/letsencrypt/etc',
+        webrootPath: '~/letsencrypt/var/:hostname'
     }),
     approveDomains: approveDomains,
     debug: false
