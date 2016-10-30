@@ -13,35 +13,53 @@
 
 'use strict';
 
-/* Note: using staging server url, remove .testing() for production
- Using .testing() will overwrite the debug flag with true */
-var LEX = require('letsencrypt-express');
+/*  Set server to staging for testing
+    Set server to https://acme-v01.api.letsencrypt.org/directory for production
+*/
+var lex = require('letsencrypt-express').create({
+    server: 'https://acme-v01.api.letsencrypt.org/directory',
+    acme: require('le-acme-core').ACME.create(),
+    challenge: require('le-challenge-fs').create({
+        webrootPath: '~/letsencrypt.test/var/:hostname'
+    }),
+    store: require('le-store-certbot').create({
+        configDir: '~/letsencrypt.test/etc',
+        webrootPath: '~/letsencrypt.test/var/:hostname'
+    }),
+    approveDomains: approveDomains,
+    debug: false
+});
+
+// handles acme-challenge and redirects to https
+require('http').createServer(lex.middleware(require('redirect-https')())).listen(80, function () {
+  console.log("Listening for ACME http-01 challenges on", this.address());
+});
+
 var express = require('express');
 var app = express();
 var body_parser = require('body-parser');
-var multer = require('multer');
 var mongoose = require('mongoose');
 var template = require('./template');
 var aggregator = require('../shared/aggregate');
 
-var lex = LEX.create({
-    configDir: require('os').homedir() + '/letsencrypt/etc'
-    , approveRegistration: function (hostname, cb) { // leave `null` to disable automatic registration
-        // Note: this is the place to check your database to get the user associated with this domain
-        if (!/\.100talent\.org$/.test(hostname) && hostname !== '100talent.org') {
-            console.error("bad domain '" + hostname + "', not a subdomain of 100talent.org");
-            cb(null, null);
-        } else {
-            cb(null, {
-                domains: ['100talent.org']
-                , email: 'fjansen@bu.edu'
-                , agreeTos: true
-            });
-        }
-    }
-});
 
-lex.onRequest = app;
+function approveDomains(opts, certs, cb) {
+    if (!/\.100talent\.org$/.test(opts.domain) && opts.domain !== '100talent.org') {
+        console.error("bad domain '" + opts.domain + "', not a subdomain of 100talent.org");
+        cb(null, null);
+        return;
+    }
+
+    if (certs) {
+        opts.domains = certs.altnames;
+    }
+    else {
+        opts.domains = ['100talent.org'];
+        opts.email = 'fjansen@bu.edu';
+        opts.agreeTos = true;
+    }
+    cb(null, { options: opts, certs: certs });
+}
 
 try {
     mongoose.connect('mongodb://localhost/aggregate');
@@ -67,22 +85,6 @@ var FinalAggregate = mongoose.model('FinalAggregate', {_id: Number, aggregate: O
 
 // for parsing application/json
 app.use(body_parser.json());
-
-// for parsing multipart/form-data
-app.use(multer());
-
-// Add a handler to inspect the req.secure flag (see
-// http://expressjs.com/api#req.secure). This allows us
-// to know whether the request was via http or https.
-app.use(function (req, res, next) {
-    if (req.secure) {
-        // request was via https, so do no special handling
-        next();
-    } else {
-        // request was via http, so redirect to https
-        res.redirect('https://' + req.headers.host + req.url);
-    }
-});
 
 // serve static files in designated folders
 app.use(express.static(__dirname + '/../client'));
@@ -265,9 +267,8 @@ app.get(/.*/, function (req, res) {
     res.status(404).json({error: 'Page not found'});
 });
 
-lex.listen([80], [443], function () {
-    var protocol = ('requestCert' in this) ? 'https' : 'http';
-    console.log("Listening at " + protocol + '://localhost:' + this.address().port);
+require('https').createServer(lex.httpsOptions, lex.middleware(app)).listen(443, function () {
+  console.log("Listening for ACME tls-sni-01 challenges and serve app on", this.address());
 });
 
 /*eof*/
