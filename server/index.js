@@ -84,7 +84,7 @@ var PublicKey = mongoose.model('PublicKey', {
 var FinalAggregate = mongoose.model('FinalAggregate', {_id: Number, aggregate: Object, date: Number, session: Number});
 
 // for parsing application/json
-app.use(body_parser.json());
+app.use(body_parser.json({limit: '50mb'}));
 
 // serve static files in designated folders
 app.use(express.static(__dirname + '/../client'));
