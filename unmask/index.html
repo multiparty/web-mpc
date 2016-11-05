@@ -4,7 +4,6 @@
 
     <script type="text/javascript" src="../shared/jquery-1.11.2.js"></script>
     <script type="text/javascript" src="../shared/underscore.js"></script>
-    <script type="text/javascript" src="../shared/jsencrypt.js"></script>
     <script type="text/javascript" src="../shared/aggregate.js"></script>
     <script type="text/javascript" src="style/bootstrap/js/bootstrap.js"></script>
     <script type="text/javascript" src="script/spin.min.js"></script>
@@ -58,13 +57,12 @@
             sessKey = $('#sessKey').val(),
             la = Ladda.create(this),
             keyReader = new FileReader();
-            
+
         if(maskKey.files.length) {
           la.start();
           keyReader.readAsText(maskKey.files[0]);
-          $(keyReader).on('load', function(e){
-            var privkey = e.target.result,
-                decryptObj = new JSEncrypt(),
+          $(keyReader).on('load', function(e) {
+            var privateKey = e.target.result,
                 callb =
                   function(success, data){
                     la.stop();
@@ -94,23 +92,25 @@
                             s += "</tr>";
                           }
                           s += "</table>";
-                        }
+                       }
                         $('#friendly').html(s);
                       } // if not error
                       $('#result').html(JSON.stringify(data, null, 4));
                     } else
                       $('#result').html(data);
                   };
-            decryptObj.setPrivateKey(privkey);
-                    
-            $.ajax({
-              type: "POST",
-              url: "/get_masks",
-              contentType: "application/json",
-              data: JSON.stringify({session: parseInt(sessKey)}),
-              success: function(data){ unmask(data,decryptObj,sessKey,callb)},
-              error: function(){callb(false,"failed to load masks")}
-            });
+              // Remove top and bottom line of pem file
+              privateKey = privateKey.split('\n')[1];
+
+              $.ajax({
+                type: "POST",
+                url: "/get_masks",
+                contentType: "application/json",
+                data: JSON.stringify({session: parseInt(sessKey)}),
+                success: function(data){ unmask(data,privateKey,sessKey,callb)},
+                error: function(){callb(false,"failed to load masks")}
+              });
+
           });
         } else {
           alert("Please upload both files before continuing.");

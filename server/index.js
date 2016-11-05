@@ -232,29 +232,30 @@ app.post('/submit_agg', function (req, res) {
 
             // create the aggregate of all of the submitted entries
             var final_data = aggregator.aggregate(data, true, true);
+            final_data.then(function (value) {
+                // subtract out the random data, unless it is a counter field
+                for (var field in value)
+                    if (mask.hasOwnProperty(field) && field.slice(field.length - 6, field.length) != '_count')
+                        value[field] -= mask[field];
 
-            // subtract out the random data, unless it is a counter field
-            for (var field in final_data)
-                if (mask.hasOwnProperty(field) && field.slice(field.length - 6, field.length) != '_count')
-                    final_data[field] -= mask[field];
+                console.log('Final aggregate computed.');
 
-            console.log('Final aggregate computed.');
+                var new_final = {_id: req.body.session, aggregate: value, date: Date.now(), session: req.body.session};
+                var to_save = new FinalAggregate(new_final);
 
-            var new_final = {_id: req.body.session, aggregate: final_data, date: Date.now(), session: req.body.session};
-            var to_save = new FinalAggregate(new_final);
+                console.log('Saving aggregate.');
 
-            console.log('Saving aggregate.');
-
-            // save the final aggregate for future reference.
-            // you can build another endpoint to query the finalaggregates collection if you would like
-            FinalAggregate.update({_id: req.body.session}, to_save.toObject(), function (err) {
-                if (err) {
-                    console.log(err);
-                } else {
-                    console.log('Aggregate saved and sent.');
-                }
+                // save the final aggregate for future reference.
+                // you can build another endpoint to query the finalaggregates collection if you would like
+                FinalAggregate.update({_id: req.body.session}, to_save.toObject(), function (err) {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        console.log('Aggregate saved and sent.');
+                    }
+                });
+                res.json(value);
             });
-            res.json(final_data);
         } else {
             res.json({'error': "Too few people have submitted. Please come back later."})
         }

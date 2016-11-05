@@ -307,12 +307,15 @@ function genMask(keys){
     return _.object(keys, secureRandom(keys.length));
 }
 
-function encryptWithKey(obj, key)
-{
-    var jsencrypt = new JSEncrypt();
-    jsencrypt.setPublicKey(key);
+function encryptWithKey(obj, key) {
+    var pki = forge.pki;
+    var publicKey = pki.publicKeyFromPem(key);
 
-    return _.mapObject(obj, function(x,k){return jsencrypt.encrypt(x.toString())});
+    return _.mapObject(obj, function(x,k) {
+      return publicKey.encrypt(x.toString(), 'RSA-OAEP', {
+        md: forge.md.sha256.create()
+      })
+    });
 }
 
 /*eof*/
