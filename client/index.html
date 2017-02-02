@@ -1,107 +1,271 @@
+<!doctype html>
 <html>
 <head>
-	<title>Boston Women's Workforce Council</title>
+  <title>Financial Services D&amp;I Scorecard</title>
 
-	<script type="text/javascript" src="../shared/jquery-1.11.2.js"></script>
-    <script type="text/javascript" src="../shared/underscore.js"></script>
-	<script type="text/javascript" src="../shared/handsontable/dist/handsontable.full.js"></script>
-    <script type="text/javascript" src="../shared/forge.min.js"></script>
-    <script type="text/javascript" src="../shared/md5.js"></script>
-    <script type="text/javascript" src="style/bootstrap/js/bootstrap.js"></script>
-    <script type="text/javascript" src="script/waitingDialog.js"></script>
-    <script type="text/javascript" src="script/ssCreate.js"></script>
-    <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="style/bootstrap/v3/css/bootstrap-theme.min.css">
-	<link rel="stylesheet" media="screen" href="../shared/handsontable/dist/handsontable.full.css">
-    <style type="text/css">
-      .handsontable col.rowHeader {
-        width: 200px;
-      }
-      #body_wrap {
-        padding-left: 8%;
-        padding-right: 8%;
-        padding-bottom: 50px;
-      }
-      #submit {
-        float: left;
-      }
-      .handsontable th:first-child {
-        text-align: left;
-        white-space: normal;
-      }
-      /* Ugly hack to display entry unit without touching the actual data
-         This will break if more categories are added! Might not work on all browsers! */
-      .handsontable th {
-        font-size:12px;
-        white-space: pre-line;
-        max-width: 110px;
-        vertical-align: middle;
-      }
-      .ht_clone_left.handsontable tr:nth-child(n+1):nth-child(-n+10) th:first-child span::after {
-        content: '#';
-        float: right;
-        padding-right: 3px;
-      }
-      .ht_clone_left.handsontable tr:nth-child(n+11):nth-child(-n+12) th:first-child span::after {
-        content: '$';
-        float: right;
-        padding-right: 3px;
-      }
-      .ht_clone_left.handsontable tr:nth-child(n+13):nth-child(-n+13) th:first-child span::after {
-        content: 'mos.';
-        float: right;
-        padding-right: 3px;
-      }
-    </style>
+  <script type="text/javascript" src="../shared/jquery-1.11.2.js"></script>
+  <script type="text/javascript" src="../shared/underscore.js"></script>
+  
+  <script src="http://docs.handsontable.com/pro/bower_components/handsontable-pro/dist/handsontable.full.min.js"></script>
+
+  <script type="text/javascript" src="../shared/jsencrypt.js"></script>
+  <script type="text/javascript" src="../shared/md5.js"></script>
+  <script type="text/javascript" src="style/bootstrap/js/bootstrap.js"></script>
+  <script type="text/javascript" src="script/waitingDialog.js"></script>
+  <script type="text/javascript" src="script/ssCreate.js"></script>
+  <link rel="stylesheet" type="text/css" href="http://docs.handsontable.com/pro/bower_components/handsontable-pro/dist/handsontable.full.min.css">
+  <link rel="stylesheet" type="text/css" href="http://handsontable.com/static/css/main.css">
+  <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="style/bootstrap/v3/css/bootstrap-theme.min.css">
+  <style type="text/css">
+    .hidden {
+      display:none;
+    }
+    .handsontable .ht_clone_top,
+    .handsontable .ht_clone_top_left,
+    .handsontable .ht_clone_top_left_corner {
+      transform: initial !important;
+    }
+    .handsontable col.rowHeader {
+      width: 200px !important;
+    }
+    #body_wrap {
+      padding-left: 8%;
+      padding-right: 8%;
+      padding-bottom: 50px;
+    }
+    #submit {
+      float: left;
+    }
+    .handsontable th:first-child {
+      text-align: left;
+      white-space: normal;
+    }
+    .handsontable th {
+      font-size:12px;
+      white-space: pre-line;
+      max-width: 110px;
+      vertical-align: middle;
+    }
+    form label {
+      font-weight: 400 !important;
+      font-size: 1rem !important;
+      color: #444;
+    }
+  </style>
 </head>
 <body>
   <div id="body_wrap">
-    <div class="page-header">
-      <table width="100%">
-        <tr>
-          <td>
-            <h1>Workforce Survey<br/><small>Boston Women's Workforce Council</small></h1>
-          </td>
-          <td align="right">
-            <img src="../shared/seal.png" width="130px"/>&nbsp;&nbsp;
-            <img src="../shared/logo.png" width="130px"/>&nbsp;&nbsp;&nbsp;
-            <img src="../shared/bu.png" width="110px"/>
-          </td>
-        </tr>
-      </table>
+  <div class="page-header">
+    <table width="100%">
+    <tr>
+      <td>
+      <h1>Financial Services D&amp;I Scorecard<br/><small>DRAFT</small></h1>
+      </td>
+      <td align="right">
+      <img src="../shared/bu.png" width="110px"/>
+      </td>
+    </tr>
+    </table>
+  </div>
+  <h3>Enter Session Key</h3>
+  <input autocomplete="off" type="text" id="sess"/>
+  <h3>Email Address to track participation</h3>
+  <input autocomplete="off" type=text id="emailf"/>
+  <h3>Number of Employees (Report employees in only one category)</h3>
+  <div id="main-hot" style=""></div>
+  <br>
+  <form>
+    <div class="checkbox">
+    <label>
+      <input autocomplete="off" type="checkbox" id="verify" name="verify"> All numbers are verified and correct
+    </label>
     </div>
-    <h3>Enter Session Key</h3>
-    <input type="text" id="sess"/>
-    <h3>Email Address to track participation</h3>
-    <input type=text id="emailf"/>
-    <h3>Female Workforce</h3>
-    <div id="females"></div>
-    <h3>Male Workforce</h3>
-    <div id="males"></div>
-    <br/>
+  </form>
+  <div id="directors">
+    <h3>Board of Directors</h3>
     <form>
       <div class="checkbox">
-        <label>
-          <input type="checkbox" id="verify" name="verify"> All numbers are verified and correct
-        </label>
+      <label>
+        <input autocomplete="off" type="checkbox" id="include-directors" name="include-directors"> Provide Board of Directors information
+      </label>
       </div>
     </form>
-    <button name="dump" class="btn btn-primary btn-lg" id="submit" >Submit</button>
-    <br/>
-    <script type="text/javascript">
-      $(document).ready(function() {
-        $.ajax({
-          type: "GET",
-          url: "./default2.csv",
-          dataType: "text"
-        })
-        .done(function(data){
-          var f = makeTable(processData(data), 'females'),
-              m = makeTable(processData(data), 'males');
-          initiate_button({Female: f, Male: m}, "dump", "/", 'sess','emailf');
+    <div id="directors-hot" class="hidden"></div>
+  </div>
+  <div id="additional-questions">
+    <h3>Additional Questions</h3>
+    <form>
+      <div class="checkbox">
+      <label>
+        <input autocomplete="off" type="checkbox" id="include-questions"> Answer additional questions
+      </label>
+      </div>
+    </form>
+    <div id="questions" class="hidden">
+      <form>
+        <label>Does your company hold events to celebrate diversity and inclusion?</label>
+        <div class="radio">
+          <label class="radio-inline"><input autocomplete="off" type="radio" name="optradio">Yes</label>
+        </div>
+        <div class="radio">
+          <label class="radio-inline"><input autocomplete="off" type="radio" name="optradio">No</label>
+        </div>
+      </form>
+      <form>
+        <label>Does your company provide diversity and inclusion education or training for managers, staff or both?</label>
+        <div class="radio">
+          <label><input autocomplete="off" type="radio" name="optradio">Yes</label>
+        </div>
+        <div class="radio">
+          <label><input autocomplete="off" type="radio" name="optradio">No</label>
+        </div>
+      </form>
+      <form>
+        <label>Does your management team meet to discuss your organization's diverse workforce or workplace culture?</label>
+        <div class="radio">
+          <label><input autocomplete="off" type="radio" name="optradio">Yes</label>
+        </div>
+        <div class="radio">
+          <label><input autocomplete="off" type="radio" name="optradio">No</label>
+        </div>
+      </form>
+      <form>
+        <label>Does your CEO engage in or lead discussions on diversity and inclusion with your management team or with other business executives?</label>
+        <div class="radio">
+          <label><input autocomplete="off" type="radio" name="optradio">Yes</label>
+        </div>
+        <div class="radio">
+          <label><input autocomplete="off" type="radio" name="optradio">No</label>
+        </div>
+      </form>
+    </div>
+  </div>
+  <button name="dump" class="btn btn-primary btn-lg" id="submit">Submit</button>
+  <br/>
+  <script type="text/javascript">
+    var validateSum = function(enteredSum, values) {
+      for (var i = 0; i < values.length; i++) {
+        if (isNaN(values[i])) {
+          return false;
+        }
+      }
+      if (isNaN(enteredSum)) {
+        return false;
+      }
+
+      var rowSum = values.map(function (val) {
+        if (!Number.isInteger(val)) {
+          return 0;
+        }
+        else {
+          return val;
+        }
+      }).reduce(function(e1, e2) {
+        return e1 + e2;
+      });
+
+      if (!Number.isInteger(enteredSum)) enteredSum = 0;
+      
+      return rowSum === enteredSum;
+    };
+
+    var constructTable = function (tableConfig) {
+      var hotElement = document.querySelector('#main-hot');
+      var hotSettings = {
+        data: tableConfig.dummyFields,
+        width: 1024,
+        columns: tableConfig.columns,
+        rowHeaders: tableConfig.rowHeaders,
+        nestedHeaders: tableConfig.nestedHeaders,
+        maxRows: tableConfig.totalsRowIdx + 1,
+        maxCols: tableConfig.totalsColIdx + 1,
+        afterValidate: function (isValid, value, row, prop, source) {
+          var isChecked = document.querySelector('#verify').checked;
+          var col = this.propToCol(prop);
+          if (isChecked) {
+            if (col === tableConfig.totalsColumnIdx 
+              && row < tableConfig.totalsRowIdx) {
+              var rowValues = this.getData(row, 0, row, col - 1)[0];
+              return validateSum(value, rowValues);
+            }
+            else if (row === tableConfig.totalsRowIdx 
+              && col !== tableConfig.totalsColumnIdx) {
+              var colValues = this.getData(0, col, 2, col).map(function (val) {
+                return val[0];
+              });
+              return validateSum(value, colValues);
+            }
+            else {
+              // Force revalidation--look at proper way to do this
+              if (source === 'paste' || source === 'edit' || source == null) {
+                this.setDataAtCell(row, tableConfig.totalsColumnIdx, 
+                  this.getDataAtCell(row, tableConfig.totalsColumnIdx));
+                this.setDataAtCell(tableConfig.totalsRowIdx, col, 
+                  this.getDataAtCell(tableConfig.totalsRowIdx, col));
+              }
+            }
+          }
+        }
+      };
+      var hot = new Handsontable(hotElement, hotSettings);
+      var verifyBox = document.querySelector('#verify');
+      Handsontable.Dom.addEvent(verifyBox, 'click', function (event) {
+        hot.validateCells();
+      });
+    };
+
+    $(document).ready(function() {
+      $.ajax({
+        type: "GET",
+        url: "./main.json",
+        dataType: "json"
+      }).done(function (tableConfig) {
+        constructTable(tableConfig);
+      });
+
+      $.ajax({
+        type: "GET",
+        url: "./directors.json",
+        dataType: "json"
+      }).done(function (tableConfig) {
+        var hotElement = document.querySelector('#directors-hot');
+        var hotElementContainer = hotElement.parentNode;
+        var hotSettings = {
+          data: tableConfig.dummyFields,
+          width: 1024,
+          columns: tableConfig.columns,
+          rowHeaders: tableConfig.rowHeaders,
+          nestedHeaders: tableConfig.nestedHeaders
+        };
+        var hot = new Handsontable(hotElement, hotSettings);
+        var toggleBox = document.querySelector('#include-directors');
+        Handsontable.Dom.addEvent(toggleBox, 'click', function (event) {
+          hot.render();
         });
       });
-    </script>
+
+      // TODO: ugly workaround 
+      $("#directors-hot").show();
+      $("#directors-hot").hide();
+      $("#include-directors").click(function() {
+        if ($(this).is(":checked")) {
+          $("#directors-hot").show();
+        } else {
+          $("#directors-hot").hide();
+        }
+      });
+
+      $("#include-questions").click(function() {
+        if ($(this).is(":checked")) {
+          $("#questions").show();
+        } else {
+          $("#questions").hide();
+        }
+      });
+    });
+
+  </script>
   </div>
 </body>
 </html>

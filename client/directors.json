@@ -1,0 +1,50 @@
+{
+    "dummyFields": [
+        {"A":0,"B":0,"C":0,"D":0}
+    ],
+    "columns": [
+        {"data": "A", "type": "numeric"},
+        {"data": "B", "type": "numeric"},
+        {"data": "C", "type": "numeric"},
+        {"data": "D", "type": "numeric"}
+    ],
+    "rowHeaders": [
+        "Board of Directors"
+    ],
+    "nestedHeaders": [
+        [
+            {
+                "label": "Male",
+                "colspan": 2 
+            },
+            {
+                "label": "Female",
+                "colspan": 2 
+            }
+        ],
+        [
+            {
+                "label": "White",
+                "colspan": 1
+            },
+            {
+                "label": "Minority",
+                "colspan": 1
+            },
+            {
+                "label": "White",
+                "colspan": 1
+            },
+            {
+                "label": "Minority",
+                "colspan": 1
+            }
+        ],
+        [
+            "A",
+            "B",
+            "C",
+            "D"
+        ]
+    ]
+}

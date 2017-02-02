@@ -13,11 +13,20 @@
 
 'use strict';
 
+var LEX = require('letsencrypt-express');
+var http = require('http');
+var express = require('express');
+var app = express();
+var body_parser = require('body-parser');
+var mongoose = require('mongoose');
+var template = require('./template');
+var aggregator = require('../shared/aggregate');
+
 /*  Set server to staging for testing
     Set server to https://acme-v01.api.letsencrypt.org/directory for production
 */
-var lex = require('letsencrypt-express').create({
-    server: 'https://acme-v01.api.letsencrypt.org/directory',
+var lex = LEX.create({
+    server: 'staging',
     acme: require('le-acme-core').ACME.create(),
     challenge: require('le-challenge-fs').create({
         webrootPath: '~/letsencrypt/var/:hostname'
@@ -30,18 +39,17 @@ var lex = require('letsencrypt-express').create({
     debug: false
 });
 
-// handles acme-challenge and redirects to https
-require('http').createServer(lex.middleware(require('redirect-https')())).listen(80, function () {
-  console.log("Listening for ACME http-01 challenges on", this.address());
+var server;
+
+// Run on port 8080 without forced https for development
+server = http.createServer(lex.middleware(app)).listen(8080, function () {
+    console.log("Listening for ACME http-01 challenges on", this.address());
 });
 
-var express = require('express');
-var app = express();
-var body_parser = require('body-parser');
-var mongoose = require('mongoose');
-var template = require('./template');
-var aggregator = require('../shared/aggregate');
-
+// handles acme-challenge and redirects to https
+// http.createServer(lex.middleware(require('redirect-https')())).listen(80, function () {
+//     console.log("Listening for ACME http-01 challenges on", this.address());
+// });
 
 function approveDomains(opts, certs, cb) {
     if (!/\.100talent\.org$/.test(opts.domain) && opts.domain !== '100talent.org') {
@@ -268,8 +276,8 @@ app.get(/.*/, function (req, res) {
     res.status(404).json({error: 'Page not found'});
 });
 
-require('https').createServer(lex.httpsOptions, lex.middleware(app)).listen(443, function () {
-  console.log("Listening for ACME tls-sni-01 challenges and serve app on", this.address());
-});
+// require('https').createServer(lex.httpsOptions, lex.middleware(app)).listen(443, function () {
+//   console.log("Listening for ACME tls-sni-01 challenges and serve app on", this.address());
+// });
 
 /*eof*/
