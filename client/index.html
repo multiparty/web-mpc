@@ -144,106 +144,37 @@
   <button name="dump" class="btn btn-primary btn-lg" id="submit">Submit</button>
   <br/>
   <script type="text/javascript">
-    var validateSum = function(enteredSum, values) {
-      for (var i = 0; i < values.length; i++) {
-        if (isNaN(values[i])) {
-          return false;
-        }
-      }
-      if (isNaN(enteredSum)) {
-        return false;
-      }
-
-      var rowSum = values.map(function (val) {
-        if (!Number.isInteger(val)) {
-          return 0;
-        }
-        else {
-          return val;
-        }
-      }).reduce(function(e1, e2) {
-        return e1 + e2;
-      });
-
-      if (!Number.isInteger(enteredSum)) enteredSum = 0;
-      
-      return rowSum === enteredSum;
-    };
-
-    var constructTable = function (tableConfig) {
-      var hotElement = document.querySelector('#main-hot');
-      var hotSettings = {
-        data: tableConfig.dummyFields,
-        width: 1024,
-        columns: tableConfig.columns,
-        rowHeaders: tableConfig.rowHeaders,
-        nestedHeaders: tableConfig.nestedHeaders,
-        maxRows: tableConfig.totalsRowIdx + 1,
-        maxCols: tableConfig.totalsColIdx + 1,
-        afterValidate: function (isValid, value, row, prop, source) {
-          var isChecked = document.querySelector('#verify').checked;
-          var col = this.propToCol(prop);
-          if (isChecked) {
-            if (col === tableConfig.totalsColumnIdx 
-              && row < tableConfig.totalsRowIdx) {
-              var rowValues = this.getData(row, 0, row, col - 1)[0];
-              return validateSum(value, rowValues);
-            }
-            else if (row === tableConfig.totalsRowIdx 
-              && col !== tableConfig.totalsColumnIdx) {
-              var colValues = this.getData(0, col, 2, col).map(function (val) {
-                return val[0];
-              });
-              return validateSum(value, colValues);
-            }
-            else {
-              // Force revalidation--look at proper way to do this
-              if (source === 'paste' || source === 'edit' || source == null) {
-                this.setDataAtCell(row, tableConfig.totalsColumnIdx, 
-                  this.getDataAtCell(row, tableConfig.totalsColumnIdx));
-                this.setDataAtCell(tableConfig.totalsRowIdx, col, 
-                  this.getDataAtCell(tableConfig.totalsRowIdx, col));
-              }
-            }
-          }
-        }
-      };
-      var hot = new Handsontable(hotElement, hotSettings);
-      var verifyBox = document.querySelector('#verify');
-      Handsontable.Dom.addEvent(verifyBox, 'click', function (event) {
-        hot.validateCells();
-      });
-    };
-
+    
     $(document).ready(function() {
+      // Construct main table
       $.ajax({
         type: "GET",
         url: "./main.json",
         dataType: "json"
       }).done(function (tableConfig) {
-        constructTable(tableConfig);
+        makeTable("#main-hot", tableConfig);
       });
 
-      $.ajax({
-        type: "GET",
-        url: "./directors.json",
-        dataType: "json"
-      }).done(function (tableConfig) {
-        var hotElement = document.querySelector('#directors-hot');
-        var hotElementContainer = hotElement.parentNode;
-        var hotSettings = {
-          data: tableConfig.dummyFields,
-          width: 1024,
-          columns: tableConfig.columns,
-          rowHeaders: tableConfig.rowHeaders,
-          nestedHeaders: tableConfig.nestedHeaders
-        };
-        var hot = new Handsontable(hotElement, hotSettings);
-        var toggleBox = document.querySelector('#include-directors');
-        Handsontable.Dom.addEvent(toggleBox, 'click', function (event) {
-          hot.render();
-        });
-      });
+      // $.ajax({
+      //   type: "GET",
+      //   url: "./directors.json",
+      //   dataType: "json"
+      // }).done(function (tableConfig) {
+      //   var hotElement = document.querySelector('#directors-hot');
+      //   var hotElementContainer = hotElement.parentNode;
+      //   var hotSettings = {
+      //     data: tableConfig.dummyFields,
+      //     width: 1024,
+      //     columns: tableConfig.columns,
+      //     rowHeaders: tableConfig.rowHeaders,
+      //     nestedHeaders: tableConfig.nestedHeaders
+      //   };
+      //   var hot = new Handsontable(hotElement, hotSettings);
+      //   var toggleBox = document.querySelector('#include-directors');
+      //   Handsontable.Dom.addEvent(toggleBox, 'click', function (event) {
+      //     hot.render();
+      //   });
+      // });
 
       // TODO: ugly workaround 
       $("#directors-hot").show();
