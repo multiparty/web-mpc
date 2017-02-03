@@ -5,7 +5,7 @@
         {"A":0,"B":0,"C":0,"D":0,"E":0,"F":0,"G":0,"H":0,"I":0,"J":0,"K":0,"L":0,"M":0,"N":0,"O":0},
         {"A":0,"B":0,"C":0,"D":0,"E":0,"F":0,"G":0,"H":0,"I":0,"J":0,"K":0,"L":0,"M":0,"N":0,"O":0},
         {"A":0,"B":0,"C":0,"D":0,"E":0,"F":0,"G":0,"H":0,"I":0,"J":0,"K":0,"L":0,"M":0,"N":0,"O":0},
-        {"A":0,"B":0,"C":0,"D":0,"E":0,"F":0,"G":0,"H":0,"I":0,"J":0,"K":0,"L":0,"M":0}
+        {"A":0,"B":0,"C":0,"D":0,"E":0,"F":0,"G":0,"H":0,"I":0,"J":0,"K":0,"L":0,"M":0,"N":0}
     ],
     "columns": [
         {"data": "A", "type": "numeric"},
@@ -24,8 +24,31 @@
         {"data": "N", "type": "numeric"},
         {"data": "O", "type": "numeric"}
     ],
+    "rowKeys": [
+        "Executive/Senior Level Officials and Managers", 
+        "First/Mid-Level Officials and Managers",
+        "Professionals",
+        "TOTAL Cols"
+    ],
+    "colKeys" : [
+        "Hispanic or Latino Male",
+        "Hispanic or Latino Female",
+        "Not-Hispanic or Latino Male White",
+        "Not-Hispanic or Latino Male Black or African American",
+        "Not-Hispanic or Latino Male Native Hawaiian or Other Parcific Islander",
+        "Not-Hispanic or Latino Male Asian",
+        "Not-Hispanic or Latino Male American Indian or Alaska Native",
+        "Not-Hispanic or Latino Male Two or more races",
+        "Not-Hispanic or Latino Female White",
+        "Not-Hispanic or Latino Female Black or African American",
+        "Not-Hispanic or Latino Female Native Hawaiian or Other Parcific Islander",
+        "Not-Hispanic or Latino Female Asian",
+        "Not-Hispanic or Latino Female American Indian or Alaska Native",
+        "Not-Hispanic or Latino Female Two or more races",
+        "TOTAL Rows"
+    ],
     "rowHeaders": [
-        "Executive/Senior Level Officials and <br> Managers", 
+        "Executive/Senior Level Officials <br> and Managers", 
         "First/Mid-Level Officials and Managers",
         "Professionals",
         "<b>TOTAL</b>"

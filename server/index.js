@@ -124,6 +124,8 @@ app.post('/', function (req, res) {
             to_add[field] = req.body.data[field];
         }
     }
+    console.log(req.body.data);
+    console.log(to_add);
 
     // save the mask and individual aggregate
     var agg_to_save = new Aggregate({
@@ -162,16 +164,15 @@ app.post("/publickey", function (req, res) {
     PublicKey.findOne({session: req.body.session}, function (err, data) {
         if (err) {
             console.log(err);
-            res.send(err);
+            res.status(503).send('Error while fetching key.');
         }
 
         if (data == null) {
-            res.json({error: "No key found with the specified session ID"});
+            res.status(503).json({error: "No key found with the specified session ID"});
         } else {
             res.send(data.pub_key);
         }
-
-    })
+    });
 });
 
 // endpoint for generating and saving the public key
