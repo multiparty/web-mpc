@@ -141,33 +141,26 @@ var initiateButton = function (tableAndKeys, url, session, email) {
     var sessionstr = $('#sess').val().trim();
     var emailstr = $('#emailf').val().trim();
 
-    // if(!sessionstr.match(/[0-9]{7}/)){
-    //   alert("invalid session number: must be 7 digit number");
-    //   waitingDialog.hide();
-    //   return;
-    // }
+    if(!sessionstr.match(/[0-9]{7}/)){
+      alert("invalid session number: must be 7 digit number");
+      waitingDialog.hide();
+      return;
+    }
 
-    // if(!emailstr.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/)){
-    //   alert("Did not type a correct email address");
-    //   waitingDialog.hide();
-    //   return;
-    // }
+    if(!emailstr.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/)){
+      alert("Did not type a correct email address");
+      waitingDialog.hide();
+      return;
+    }
+
+    // TODO: make below chain more robust.
+    // If anything breaks inside the then blocks, it will *not*
+    // be caught and the waiting dialog hangs
 
     // validate table before submitting
     hot.validateCells(function (valid) {
       if (verifyBox.checked && valid) {
         var sessionID = parseInt(sessionstr);
-        // $.ajax({
-        //   type: "POST",
-        //   url: "/publickey",
-        //   contentType: "application/json",
-        //   data: JSON.stringify({session: sessionID}),
-        //   dataType: "text"
-        // }).then(function (publickey) {
-        //   console.log(publickey);
-        // }).fail(function (err) {
-        //   console.log('bad');
-        // });
         $.ajax({
           type: "POST",
           url: "/publickey",
@@ -183,13 +176,13 @@ var initiateButton = function (tableAndKeys, url, session, email) {
           console.log(publickey);
           console.log('data: ', flat);
 
-          for (var k in flat){
+          // TODO: modular addition
+          for (var k in flat) {
             flat[k] += maskObj[k];
           }
           console.log('masked data: ', flat);
           console.log('encrypted mask: ', encryptedMask);
 
-          bar.next(); // <-- error!
           // Instead of submitting email in the clear
           // we will submit a hash
           var md = forge.md.sha1.create();
@@ -208,19 +201,19 @@ var initiateButton = function (tableAndKeys, url, session, email) {
             url: url,
             data: JSON.stringify(sendData),
             contentType: 'application/json'
-          }).then(function (data) {
-            waitingDialog.hide();
-            alert("Submitted data.");
-            console.log('returned: ', data);
           });
-        }, function (error){
-          alert(error.responseText);
+        }).then(function (response) {
+          console.log('reponse: ', response);
+          alert("Submitted data.");
           waitingDialog.hide();
-          return;
-        }).fail(function (error) {
-          alert('bad');
+          return response;
+        }).fail(function (err) {
+          console.log('error:', err);
+          if (err && err.hasOwnProperty('responseText')) {
+            alert(err.responseText);
+          }
+          alert('Error! Please verify submission and try again.');
           waitingDialog.hide();
-          return;
         });
       }
       else {
