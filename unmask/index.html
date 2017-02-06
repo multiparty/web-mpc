@@ -74,44 +74,9 @@
     <br/>
     <pre id="result"></pre>
     <script type="text/javascript">
-      var makeTable = function (divID, tableConfig) {
-        // TODO: check that we can use document.querySelector 
-        var hotElement = document.querySelector(divID);
-        var hotSettings = {
-          width: 1024,
-          columns: tableConfig.columns,
-          rowHeaders: tableConfig.rowHeaders,
-          nestedHeaders: tableConfig.nestedHeaders,
-          maxRows: tableConfig.numRows,
-          maxCols: tableConfig.numCols,
-          readOnly: true
-        };
-        var hot = new Handsontable(hotElement, hotSettings);
-        return hot;
-      };
-
-      var make2DArray = function (numRows, numCols) {
-        var arr = new Array(numRows);
-        for (var i = 0; i < numRows; i++) {
-          arr[i] = new Array(numCols);
-        }
-        return arr;
-      };
-
-      var populateTable = function (table, data, numRows, numCols, rowIdxLookup, colIdxLookup) {
-        var buffer = make2DArray(numRows, numCols);
-        for (var key in data) {
-          var value = data[key],
-              splitKey = key.split('_'),
-              rowIdx = rowIdxLookup[splitKey[0]],
-              colIdx = colIdxLookup[splitKey[1]];
-          console.log(key, splitKey, rowIdx, colIdx, value);
-          buffer[rowIdx][colIdx] = value;
-        }
-        table.loadData(buffer);
-      };
-
-      var hot = null;
+      // This is the handsontable object which will be defined
+      // during the unmasking process.
+      var hot;
       $('#unmask').on('click', function() {
         var maskKey = $('#maskKey').get(0),
             sessKey = $('#sessKey').val(),
@@ -153,23 +118,29 @@
                     if (success) {
                       $.ajax({
                         type: "GET",
-                        url: "./main.json",
-                        dataType: "json"
-                      }).done(function (tableConfig) {
-                        // Check if we have created table already. This prevents
-                        // new copies of the table from being appended to the end
-                        // of the div.
-                        if (hot == null) {
-                          hot = makeTable("#friendly", tableConfig);
-                        }
-                        // Populate table with loaded values.
-                        populateTable(hot, data, tableConfig.numRows, 
-                          tableConfig.numCols, rowIdxLookup, colIdxLookup);
-                        // Display raw data.
-                        $('#result').html(JSON.stringify(data, null, 4));
+                        url: "../shared/templates/main.json",
+                        dataType: "json",
+                        success: function (tableConfig) {
+                          // Check if we have created the table already. This prevents
+                          // new copies of the table from getting appended to the end
+                          // of the containing div.
+                          if (hot == null) {
+                            hot = makeTable("#friendly", tableConfig);
+                          }
+                          // Populate table with loaded values.
+                          populateTable(hot, data, tableConfig.numRows, 
+                            tableConfig.numCols, rowIdxLookup, colIdxLookup);
+                          // Display raw data.
+                          $('#result').html(JSON.stringify(data, null, 4));
+                        },
+                        error: function () {
+                          console.log('Error while retrieving template.');
+                          $('#result').html('Error while retrieving template.');
+                        } 
                       }); 
                     } 
                     else {
+                      console.log(data);
                       $('#result').html(data);
                     }
                   };
@@ -181,7 +152,7 @@
                 url: "/get_masks",
                 contentType: "application/json",
                 data: JSON.stringify({session: parseInt(sessKey)}),
-                success: function(data) {
+                success: function (data) {
                   unmask(data, privateKey, sessKey, callb);
                 },
                 error: function() {

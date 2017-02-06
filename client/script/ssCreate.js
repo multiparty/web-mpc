@@ -40,13 +40,12 @@ var validateSum = function(enteredSum, values) {
 var makeTable = function (divID, tableConfig) {
   var hotElement = document.querySelector(divID);
   var hotSettings = {
-    data: tableConfig.dummyFields,
     width: 1024,
     columns: tableConfig.columns,
     rowHeaders: tableConfig.rowHeaders,
     nestedHeaders: tableConfig.nestedHeaders,
-    maxRows: tableConfig.totalsRowIdx + 1,
-    maxCols: tableConfig.totalsColIdx + 1,
+    maxRows: tableConfig.numRows,
+    maxCols: tableConfig.numCols,
     afterChange: function (changes, source) {
       this.validateCells(function (valid) {
         if (document.querySelector('#verify').checked && valid) {
@@ -60,13 +59,13 @@ var makeTable = function (divID, tableConfig) {
       var isChecked = document.querySelector('#verify').checked,
           col = this.propToCol(prop);
       if (isChecked) {
-        if (col === tableConfig.totalsColumnIdx 
-          && row < tableConfig.totalsRowIdx) {
+        if (col === tableConfig.numCols - 1
+          && row < tableConfig.numRows - 1) {
           var rowValues = this.getData(row, 0, row, col - 1)[0];
           return validateSum(value, rowValues);
         }
-        else if (row === tableConfig.totalsRowIdx 
-          && col !== tableConfig.totalsColumnIdx) {
+        else if (row === tableConfig.numRows - 1 
+          && col !== tableConfig.numCols - 1) {
           var colValues = this.getData(0, col, row - 1, col).map(function (val) {
             return val[0];
           });
@@ -77,8 +76,8 @@ var makeTable = function (divID, tableConfig) {
     cells: function (row, col, prop) {
       var cellProperties = {};
 
-      if (row === tableConfig.totalsRowIdx 
-        && col === tableConfig.totalsColumnIdx) {
+      if (row === tableConfig.numRows - 1 
+        && col === tableConfig.numCols - 1) {
         cellProperties.readOnly = true;
       }
 

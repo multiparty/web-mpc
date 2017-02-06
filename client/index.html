@@ -148,52 +148,13 @@
       // Construct main table
       $.ajax({
         type: "GET",
-        url: "./main.json",
+        url: "../shared/templates/main.json",
         dataType: "json"
       }).done(function (tableConfig) {
         var tableAndKeys = makeTable("#main-hot", tableConfig);
         initiateButton(tableAndKeys, '/', '', '');
       });
 
-      // $.ajax({
-      //   type: "GET",
-      //   url: "./directors.json",
-      //   dataType: "json"
-      // }).done(function (tableConfig) {
-      //   var hotElement = document.querySelector('#directors-hot');
-      //   var hotElementContainer = hotElement.parentNode;
-      //   var hotSettings = {
-      //     data: tableConfig.dummyFields,
-      //     width: 1024,
-      //     columns: tableConfig.columns,
-      //     rowHeaders: tableConfig.rowHeaders,
-      //     nestedHeaders: tableConfig.nestedHeaders
-      //   };
-      //   var hot = new Handsontable(hotElement, hotSettings);
-      //   var toggleBox = document.querySelector('#include-directors');
-      //   Handsontable.Dom.addEvent(toggleBox, 'click', function (event) {
-      //     hot.render();
-      //   });
-      // });
-
-      // TODO: ugly workaround 
-      $("#directors-hot").show();
-      $("#directors-hot").hide();
-      $("#include-directors").click(function() {
-        if ($(this).is(":checked")) {
-          $("#directors-hot").show();
-        } else {
-          $("#directors-hot").hide();
-        }
-      });
-
-      $("#include-questions").click(function() {
-        if ($(this).is(":checked")) {
-          $("#questions").show();
-        } else {
-          $("#questions").hide();
-        }
-      });
     });
 
   </script>

@@ -219,11 +219,18 @@ app.post('/get_data', function (req, res) {
     });
 });
 
-
 // endpoint for getting all of the masks for a specific session
 app.post('/get_masks', function (req, res) {
+    console.log('POST to get_masks.');
+    // console.log(req);
     Mask.where({session: req.body.session}).find(function (err, data) {
-        res.send({data: JSON.stringify(data)});
+        // TODO: double-check js short circuiting
+        if (!data || data.length === 0) {
+            res.status(500).send('No submissions yet. Come back later.');
+        }
+        else {
+            res.send({data: JSON.stringify(data)});
+        }
     });
 });
 
@@ -237,14 +244,14 @@ app.post('/submit_agg', function (req, res) {
 
     // finds all aggreagtes of a specific session
     Aggregate.where({session: req.body.session}).find(function (err, data) {
-
-        // make sure there are enough companies that have submitted.
-        // this ensures anonymity
-        if (data.length >= aggregator.MINIMUM) {
+        console.log(data);
+        // make sure query result is not empty
+        if (data.length >= 1) {
 
             // create the aggregate of all of the submitted entries
             var final_data = aggregator.aggregate(data, false, true);
             final_data.then(function (value) {
+                // TODO: get rid of _count check
                 // subtract out the random data, unless it is a counter field
                 for (var field in value)
                     if (mask.hasOwnProperty(field) && field.slice(field.length - 6, field.length) != '_count')
@@ -267,9 +274,11 @@ app.post('/submit_agg', function (req, res) {
                     }
                 });
                 res.json(value);
+                return;
             });
-        } else {
-            res.json({'error': "Too few people have submitted. Please come back later."})
+        } 
+        else {
+            res.status(500).send("No submissions yet. Please come back later.");
         }
 
     });
