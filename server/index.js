@@ -111,7 +111,8 @@ app.post('/', function (req, res) {
         req.body.hasOwnProperty("session") &&
         req.body.hasOwnProperty("user"))) {
 
-        res.status(503).json({error: "All fields must be completed"});
+        res.status(500).json({error: "All fields must be completed"});
+        return;
     }
 
     // only take the fields that are in the template, mask, and data
@@ -143,7 +144,7 @@ app.post('/', function (req, res) {
     Aggregate.update({_id: req.body.user}, agg_to_save.toObject(), {upsert: true}, function (err) {
         if (err) {
             console.log(err);
-            res.status(503).json({error: "Unable to save aggregate, please try again"});
+            res.status(500).send('Unable to save aggregate, please try again');
         } else {
         }
     });
@@ -151,7 +152,7 @@ app.post('/', function (req, res) {
     Mask.update({_id: req.body.user}, mask_to_save.toObject(), {upsert: true}, function (err) {
         if (err) {
             console.log(err);
-            res.status(503).json({error: "Unable to save aggregate, please try again"});
+            res.status(500).send('Unable to save aggregate, please try again');
         } else {
         }
     });
@@ -159,22 +160,24 @@ app.post('/', function (req, res) {
     res.send(req.body);
 });
 
+// TODO: this should be a GET
 // endpoint for fetching the public key for a specific session
 app.post("/publickey", function (req, res) {
     PublicKey.findOne({session: req.body.session}, function (err, data) {
         if (err) {
             console.log(err);
-            res.status(503).send('Error while fetching key.');
+            res.status(500).send('Error while fetching key.');
         }
 
         if (data == null) {
-            res.status(503).json({error: "No key found with the specified session ID"});
+            res.status(500).send('No key found with the specified session ID');
         } else {
             res.send(data.pub_key);
         }
     });
 });
 
+// TODO: generate session ID server side
 // endpoint for generating and saving the public key
 app.post('/create_session', function (req, res) {
     console.log('Generating session...');
@@ -240,7 +243,7 @@ app.post('/submit_agg', function (req, res) {
         if (data.length >= aggregator.MINIMUM) {
 
             // create the aggregate of all of the submitted entries
-            var final_data = aggregator.aggregate(data, true, true);
+            var final_data = aggregator.aggregate(data, false, true);
             final_data.then(function (value) {
                 // subtract out the random data, unless it is a counter field
                 for (var field in value)
@@ -274,7 +277,7 @@ app.post('/submit_agg', function (req, res) {
 
 // if the page isn't found, return 404 error
 app.get(/.*/, function (req, res) {
-    res.status(404).json({error: 'Page not found'});
+    res.status(404).send('Page not found');
 });
 
 // require('https').createServer(lex.httpsOptions, lex.middleware(app)).listen(443, function () {

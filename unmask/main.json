@@ -1,0 +1,121 @@
+{
+    "numRows": 4,
+    "numCols": 15,
+    "columns": [
+        {"type": "numeric"},
+        {"type": "numeric"},
+        {"type": "numeric"},
+        {"type": "numeric"},
+        {"type": "numeric"},
+        {"type": "numeric"},
+        {"type": "numeric"},
+        {"type": "numeric"},
+        {"type": "numeric"},
+        {"type": "numeric"},
+        {"type": "numeric"},
+        {"type": "numeric"},
+        {"type": "numeric"},
+        {"type": "numeric"},
+        {"type": "numeric"}
+    ],
+    "rowKeys": [
+        "Executive/Senior Level Officials and Managers", 
+        "First/Mid-Level Officials and Managers",
+        "Professionals",
+        "TOTAL Cols"
+    ],
+    "colKeys" : [
+        "Hispanic or Latino Male",
+        "Hispanic or Latino Female",
+        "Not-Hispanic or Latino Male White",
+        "Not-Hispanic or Latino Male Black or African American",
+        "Not-Hispanic or Latino Male Native Hawaiian or Other Parcific Islander",
+        "Not-Hispanic or Latino Male Asian",
+        "Not-Hispanic or Latino Male American Indian or Alaska Native",
+        "Not-Hispanic or Latino Male Two or more races",
+        "Not-Hispanic or Latino Female White",
+        "Not-Hispanic or Latino Female Black or African American",
+        "Not-Hispanic or Latino Female Native Hawaiian or Other Parcific Islander",
+        "Not-Hispanic or Latino Female Asian",
+        "Not-Hispanic or Latino Female American Indian or Alaska Native",
+        "Not-Hispanic or Latino Female Two or more races",
+        "TOTAL Rows"
+    ],
+    "rowHeaders": [
+        "Executive/Senior Level Officials <br> and Managers", 
+        "First/Mid-Level Officials and Managers",
+        "Professionals",
+        "<b>TOTAL</b>"
+    ],
+    "nestedHeaders": [
+        [
+            {
+                "label": "Hispanic or Latino",
+                "colspan": 2
+            },
+            {
+                "label": "Not-Hispanic or Latino",
+                "colspan": 12
+            },
+            {
+                "label": "",
+                "colspan": 1
+            }
+        ],
+        [
+            {
+                "label": "",
+                "colspan": 2
+            },
+            {
+                "label": "Male",
+                "colspan": 6
+            },
+            {
+                "label": "Female",
+                "colspan": 6
+            },
+            {
+                "label": "",
+                "colspan": 1
+            }
+        ],
+        [
+            "Male",
+            "Female",
+            "White",
+            "Black <br> or <br> African <br> American",
+            "Native <br> Hawaiian <br> or <br> Other <br> Parcific <br> Islander",
+            "Asian",
+            "American <br> Indian <br> or <br> Alaska <br> Native",
+            "Two <br> or <br> more <br> races",
+            "White",
+            "Black <br> or <br> African <br> American",
+            "Native <br> Hawaiian <br> or <br> Other <br> Parcific <br> Islander",
+            "Asian",
+            "American <br> Indian <br> or <br> Alaska <br> Native",
+            "Two <br> or <br> more <br> races",
+            {
+                "label": "<b>TOTAL</b> <br> Col A - N",
+                "colspan": 1
+            }
+        ],
+        [
+            "A",
+            "B",
+            "C",
+            "D",
+            "E",
+            "F",
+            "G",
+            "H",
+            "I",
+            "J",
+            "K",
+            "L",
+            "M",
+            "N",
+            "O"
+        ]
+    ]
+}

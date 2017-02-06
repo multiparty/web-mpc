@@ -1,17 +1,39 @@
+<!doctype html>
 <html>
 <head>
 	<title>Trusted Party Data Unmasker</title>
 
-    <script type="text/javascript" src="../shared/jquery-1.11.2.js"></script>
+    <script type="text/javascript" src="../shared/jquery-1.18.0.min.js"></script>
     <script type="text/javascript" src="../shared/underscore.js"></script>
     <script type="text/javascript" src="../shared/aggregate.js"></script>
     <script type="text/javascript" src="style/bootstrap/js/bootstrap.js"></script>
     <script type="text/javascript" src="script/spin.min.js"></script>
     <script type="text/javascript" src="script/ladda.min.js"></script>
     <script type="text/javascript" src="script/unmask.js"></script>
+    <script src="http://docs.handsontable.com/pro/bower_components/handsontable-pro/dist/handsontable.full.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://docs.handsontable.com/pro/bower_components/handsontable-pro/dist/handsontable.full.min.css">
+    <link rel="stylesheet" type="text/css" href="http://handsontable.com/static/css/main.css">
     <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.css">
     <link rel="stylesheet" href="style/ladda-themeless.min.css">
     <style type="text/css">
+        .handsontable .ht_clone_top,
+        .handsontable .ht_clone_top_left,
+        .handsontable .ht_clone_top_left_corner {
+          transform: initial !important;
+        }
+        .handsontable col.rowHeader {
+          width: 200px !important;
+        }
+        .handsontable th:first-child {
+          text-align: left;
+          white-space: normal;
+        }
+        .handsontable th {
+          font-size:12px;
+          white-space: pre-line;
+          max-width: 110px;
+          vertical-align: middle;
+        }
         pre {
             text-align: left;
         }
@@ -52,52 +74,104 @@
     <br/>
     <pre id="result"></pre>
     <script type="text/javascript">
+      var makeTable = function (divID, tableConfig) {
+        // TODO: check that we can use document.querySelector 
+        var hotElement = document.querySelector(divID);
+        var hotSettings = {
+          width: 1024,
+          columns: tableConfig.columns,
+          rowHeaders: tableConfig.rowHeaders,
+          nestedHeaders: tableConfig.nestedHeaders,
+          maxRows: tableConfig.numRows,
+          maxCols: tableConfig.numCols,
+          readOnly: true
+        };
+        var hot = new Handsontable(hotElement, hotSettings);
+        return hot;
+      };
+
+      var make2DArray = function (numRows, numCols) {
+        var arr = new Array(numRows);
+        for (var i = 0; i < numRows; i++) {
+          arr[i] = new Array(numCols);
+        }
+        return arr;
+      };
+
+      var populateTable = function (table, data, numRows, numCols, rowIdxLookup, colIdxLookup) {
+        var buffer = make2DArray(numRows, numCols);
+        for (var key in data) {
+          var value = data[key],
+              splitKey = key.split('_'),
+              rowIdx = rowIdxLookup[splitKey[0]],
+              colIdx = colIdxLookup[splitKey[1]];
+          console.log(key, splitKey, rowIdx, colIdx, value);
+          buffer[rowIdx][colIdx] = value;
+        }
+        table.loadData(buffer);
+      };
+
+      var hot = null;
       $('#unmask').on('click', function() {
         var maskKey = $('#maskKey').get(0),
             sessKey = $('#sessKey').val(),
             la = Ladda.create(this),
             keyReader = new FileReader();
 
-        if(maskKey.files.length) {
+        if (maskKey.files.length) {
           la.start();
           keyReader.readAsText(maskKey.files[0]);
           $(keyReader).on('load', function(e) {
-            var privateKey = e.target.result,
+            // TODO: no need to hard-code. we can generate these from tableConfig.rowKeys/colKeys
+            var rowIdxLookup = {
+                    "Executive/Senior Level Officials and Managers": 0,
+                    "First/Mid-Level Officials and Managers": 1,
+                    "Professionals": 2,
+                    "TOTAL Cols": 3
+                  },
+                colIdxLookup = {
+                    "Hispanic or Latino Male": 0,
+                    "Hispanic or Latino Female": 1,
+                    "Not-Hispanic or Latino Male White": 2,
+                    "Not-Hispanic or Latino Male Black or African American": 3,
+                    "Not-Hispanic or Latino Male Native Hawaiian or Other Parcific Islander": 4,
+                    "Not-Hispanic or Latino Male Asian": 5,
+                    "Not-Hispanic or Latino Male American Indian or Alaska Native": 6,
+                    "Not-Hispanic or Latino Male Two or more races": 7,
+                    "Not-Hispanic or Latino Female White": 8,
+                    "Not-Hispanic or Latino Female Black or African American": 9,
+                    "Not-Hispanic or Latino Female Native Hawaiian or Other Parcific Islander": 10,
+                    "Not-Hispanic or Latino Female Asian": 11,
+                    "Not-Hispanic or Latino Female American Indian or Alaska Native": 12,
+                    "Not-Hispanic or Latino Female Two or more races": 13,
+                    "TOTAL Rows": 14
+                  },
+                privateKey = e.target.result,
                 callb =
-                  function(success, data){
+                  function (success, data) {
                     la.stop();
                     if (success) {
-                      var colNames = [
-                              'Hispanic/Latino','White','Black/African American','Native Hawaiian or Pacific Islander','Asian','American Indian/Alaska Native',
-                              'Two or More Races (Not Hispanic or Latino)', 'Other','Sum Annual Compensation','Sum Annual Cash Performance Pay','Sum Length of Service'
-                            ],
-                          rowNames = [
-                              'Executive','Mid Level','Professionals','Technicians','Sales Workers',
-                              'Administrative Support Workers','Craft Workers','Operatives','Laborers And Helpers',
-                              'Service Workers','Sum Annual Compensation','Sum Annual Cash Performance', 'Sum Length of Service'
-                            ];
-                      if (!('error' in data)) {
-                        var s = "";
-                        for (var gender in {'Female':null, 'Male':null}) {
-                          s += '<table cellpadding="5" style="font-size:12px"><tr><td><i>' + gender + '</i></td>';
-                          for (var c = 0; c < colNames.length; c++)
-                            s += "<td><b>" + colNames[c] + "</b></td>";
-                          s += "</tr>";
-                          for (var r = 0; r < rowNames.length; r++) {
-                            s += "<tr><td><b>" + rowNames[r] + "</b></td>";
-                            for (var c = 0; c < colNames.length; c++) {
-                              var field = gender + '_' + rowNames[r] + '_' + colNames[c];
-                              s += "<td>" + ((field in data) ? data[field] : "") + "</td>";
-                            }
-                            s += "</tr>";
-                          }
-                          s += "</table>";
-                       }
-                        $('#friendly').html(s);
-                      } // if not error
-                      $('#result').html(JSON.stringify(data, null, 4));
-                    } else
+                      $.ajax({
+                        type: "GET",
+                        url: "./main.json",
+                        dataType: "json"
+                      }).done(function (tableConfig) {
+                        // Check if we have created table already. This prevents
+                        // new copies of the table from being appended to the end
+                        // of the div.
+                        if (hot == null) {
+                          hot = makeTable("#friendly", tableConfig);
+                        }
+                        // Populate table with loaded values.
+                        populateTable(hot, data, tableConfig.numRows, 
+                          tableConfig.numCols, rowIdxLookup, colIdxLookup);
+                        // Display raw data.
+                        $('#result').html(JSON.stringify(data, null, 4));
+                      }); 
+                    } 
+                    else {
                       $('#result').html(data);
+                    }
                   };
               // Remove top and bottom line of pem file
               privateKey = privateKey.split('\n')[1];
@@ -107,8 +181,12 @@
                 url: "/get_masks",
                 contentType: "application/json",
                 data: JSON.stringify({session: parseInt(sessKey)}),
-                success: function(data){ unmask(data,privateKey,sessKey,callb)},
-                error: function(){callb(false,"failed to load masks")}
+                success: function(data) {
+                  unmask(data, privateKey, sessKey, callb);
+                },
+                error: function() {
+                  callb(false, "failed to load masks");
+                }
               });
 
           });

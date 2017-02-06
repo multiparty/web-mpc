@@ -99,7 +99,7 @@ var tableToJson = function (hot, tableName, rowKeys, colKeys) {
       var meta = hot.getCellMeta(rowIdx, colIdx),
           rowKey = rowKeys[rowIdx],
           colKey = colKeys[colIdx],
-          key = rowKey + " " + colKey;
+          key = rowKey + "_" + colKey;
 
       // Exclude "dummy" read-only values 
       // (these correspond to the cell at row totals, col totals)
@@ -211,8 +211,9 @@ var initiateButton = function (tableAndKeys, url, session, email) {
           console.log('error:', err);
           if (err && err.hasOwnProperty('responseText')) {
             alert(err.responseText);
+          } else {
+            alert('Error! Please verify submission and try again.');
           }
-          alert('Error! Please verify submission and try again.');
           waitingDialog.hide();
         });
       }

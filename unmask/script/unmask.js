@@ -52,7 +52,7 @@ function unmask(mOut, privateKey, session, callback){
         // Wait for all promises to complete
         Promise.all(flattenArray(decryptedJson))
           .then(function () {
-              var aggObj = aggregate(decryptedJson, true);
+              var aggObj = aggregate(decryptedJson);
               aggObj.then(function (value) {
                 session = _.isString(session) ? parseInt(session) : session;
                 console.log(aggObj);
