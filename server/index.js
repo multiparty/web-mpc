@@ -21,6 +21,7 @@ var body_parser = require('body-parser');
 var mongoose = require('mongoose');
 var template = require('./template');
 var aggregator = require('../shared/aggregate');
+var crypto = require('crypto');
 
 /*  Set server to staging for testing
     Set server to https://acme-v01.api.letsencrypt.org/directory for production
@@ -111,6 +112,7 @@ app.post('/', function (req, res) {
         req.body.hasOwnProperty("session") &&
         req.body.hasOwnProperty("user"))) {
 
+        // TODO: change to send
         res.status(500).json({error: "All fields must be completed"});
         return;
     }
@@ -138,6 +140,9 @@ app.post('/', function (req, res) {
         _id: req.body.user, fields: req.body.mask,
         session: req.body.session
     });
+
+    // TODO: currently if aggregate.update succeeds but Mask.update fails, we're in trouble
+    // below control flow is broken, add returns
 
     // for both the aggregate and the mask, update the old aggregate
     // for the company with that email. Update or insert, hence the upsert flag
@@ -180,22 +185,27 @@ app.post("/publickey", function (req, res) {
 // TODO: generate session ID server side
 // endpoint for generating and saving the public key
 app.post('/create_session', function (req, res) {
-    console.log('Generating session...');
-    try {
-        var new_key = new PublicKey({session: req.body.session, pub_key: req.body.publickey, _id: req.body.session});
-    } catch (err) {
-        res.send(err);
-    }
+    console.log('POST /create_session');
+    var publickey = req.body.publickey;        
+    
+    // TODO: switch to crypto.randomBytes
+    var sessionID = Math.floor((Math.random() * 8999999) + 1000000);
 
-    // update and insert as to not generate different public keys for the same session
-    PublicKey.update({_id: req.body.session}, new_key.toObject(), {upsert: true}, function (err) {
-        if (err) {
-            console.log(err);
-            res.send(err);
-        } else {
-            res.send();
-        }
-    })
+    try {
+        var new_key = new PublicKey({session: sessionID, pub_key: publickey, _id: sessionID});
+        new_key.save(function (err) {
+          if (err) {
+            throw err;
+          } else {
+            console.log('Session generated...');
+          }
+        });
+        res.json({sessionID: sessionID});
+    }
+    catch (err) {
+        console.log(err);
+        res.status(500).send("Error during session creation.");
+    }
 
 });
 

@@ -100,17 +100,17 @@ function flattenArray(data) {
 
 function makeTable(divID, tableConfig) {
   // TODO: check that we can use document.querySelector 
-  var hotElement = document.querySelector(divID);
-  var hotSettings = {
-    width: 1024,
-    columns: tableConfig.columns,
-    rowHeaders: tableConfig.rowHeaders,
-    nestedHeaders: tableConfig.nestedHeaders,
-    maxRows: tableConfig.numRows,
-    maxCols: tableConfig.numCols,
-    readOnly: true
-  };
-  var hot = new Handsontable(hotElement, hotSettings);
+  var hotElement = document.querySelector(divID),
+      hotSettings = {
+          width: 1024,
+          columns: tableConfig.columns,
+          rowHeaders: tableConfig.rowHeaders,
+          nestedHeaders: tableConfig.nestedHeaders,
+          maxRows: tableConfig.numRows,
+          maxCols: tableConfig.numCols,
+          readOnly: true
+        },
+      hot = new Handsontable(hotElement, hotSettings);
   return hot;
 }
 
@@ -122,7 +122,7 @@ function make2DArray(numRows, numCols) {
   return arr;
 }
 
-function populateTable(table, data, numRows, numCols, rowIdxLookup, colIdxLookup) {
+function populateTable(hot, data, numRows, numCols, rowIdxLookup, colIdxLookup) {
   var buffer = make2DArray(numRows, numCols);
   for (var key in data) {
     var value = data[key],
@@ -131,7 +131,7 @@ function populateTable(table, data, numRows, numCols, rowIdxLookup, colIdxLookup
         colIdx = colIdxLookup[splitKey[1]];
     buffer[rowIdx][colIdx] = value;
   }
-  table.loadData(buffer);
+  hot.loadData(buffer);
 }
 
 /*eof*/

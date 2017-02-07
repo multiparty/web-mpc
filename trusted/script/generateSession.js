@@ -10,8 +10,7 @@
 function generateSession(hiddenDiv, sessionID, pubID, privID, linkID) {
 
     document.getElementById(hiddenDiv).style.visibility = "visible";
-    var rndSess = Math.floor((Math.random() * 8999999) + 1000000);
-    document.getElementById(sessionID).innerHTML = rndSess;
+    document.getElementById(sessionID).innerHTML = "Loading...";
     document.getElementById(pubID).innerHTML = "Loading...";
     document.getElementById(privID).innerHTML = "Loading... (Remember: Do not share this)";
     var keyP, privateKey, publicKey;
@@ -45,10 +44,13 @@ function generateSession(hiddenDiv, sessionID, pubID, privID, linkID) {
                 type: "POST",
                 url: "/create_session",
                 contentType: "application/json",
-                data: JSON.stringify({ session: rndSess, publickey: publicKey}),
-                success: function(){
+                data: JSON.stringify({publickey: publicKey}),
+                success: function(resp) {
+                    console.log(resp);
+                    var rndSess = resp.sessionID;
                     document.getElementById(privID).innerHTML = privateKey;
                     document.getElementById(pubID).innerHTML = publicKey;
+                    document.getElementById(sessionID).innerHTML = rndSess;
                     document.getElementById(linkID).innerHTML =
                         "Go To Live Data Page for Session " + rndSess.toString();
                     document.getElementById(linkID).href += "?session=" + rndSess.toString();
