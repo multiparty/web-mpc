@@ -21,6 +21,7 @@ var body_parser = require('body-parser');
 var mongoose = require('mongoose');
 var template = require('./template');
 var aggregator = require('../shared/aggregate');
+var validator = require('../shared/validate')
 var crypto = require('crypto');
 
 /*  Set server to staging for testing
@@ -102,43 +103,77 @@ app.use(express.static(__dirname + '/../'));
 
 // protocol for accepting new data
 app.post('/', function (req, res) {
-    console.dir('Incoming data...');
+    // Old code:
+    // // only take the fields that are in the template, mask, and data
+    // var to_add = {};
+    // for (var field in template) {
+    //     if (template.hasOwnProperty(field) &&
+    //         data.hasOwnProperty(field) &&
+    //         mask.hasOwnProperty(field)) {
 
-    // verify that the json follows the schema as the data in the
-    // database and is actually json.
+    //         to_add[field] = req.body.data[field];
+    //     }
+    // }
+    // console.log(to_add);
 
-    if (!(req.body.hasOwnProperty("mask") &&
-        req.body.hasOwnProperty("data") &&
-        req.body.hasOwnProperty("session") &&
-        req.body.hasOwnProperty("user"))) {
+    console.log('POST /');
+    var expected = {
+        mask: "object",
+        data: "object",
+        session: "number",
+        user: "string"
+    }
 
-        // TODO: change to send
-        res.status(500).json({error: "All fields must be completed"});
+    var body = req.body;
+    // console.log(body);
+
+    if (!validator.validate(body, expected)) {
+        console.log('Validation failed.');
+        res.status(500).send("Missing or invalid fields");
         return;
     }
 
-    // only take the fields that are in the template, mask, and data
-    var to_add = {};
-    for (var field in template) {
-        if (template.hasOwnProperty(field) &&
-            req.body.data.hasOwnProperty(field) &&
-            req.body.mask.hasOwnProperty(field)) {
+    var mask = body.mask,
+        data = body.data,
+        session = body.session,
+        user = body.user;
 
-            to_add[field] = req.body.data[field];
+    // TODO: re-write to use validate properly
+    for (var field in template) {
+        if (template.hasOwnProperty(field)) {
+            var expectedData = {};
+            expectedData[field] = "number";
+            var expectedMask = {};
+            expectedMask[field] = "string";
+            if (!(validator.validate(data, expectedData) &&
+                  validator.validate(mask, expectedMask))) {
+                console.log('Validation failed.');
+                res.status(500).send("Missing or invalid fields");
+                return;
+            }
         }
     }
-    console.log(req.body.data);
-    console.log(to_add);
+
+    console.log("Validation passed.");
+
+    var to_add = {};
+    var mask_to_add = {};
+    for (var field in template) {
+        if (template.hasOwnProperty(field)) {
+            to_add[field] = data[field];
+            mask_to_add[field] = mask[field];
+        }
+    }
 
     // save the mask and individual aggregate
     var agg_to_save = new Aggregate({
-        _id: req.body.user, fields: to_add, date: Date.now(),
-        session: req.body.session, email: req.body.user
+        _id: user, fields: to_add, date: Date.now(),
+        session: session, email: user
     });
 
     var mask_to_save = new Mask({
-        _id: req.body.user, fields: req.body.mask,
-        session: req.body.session
+        _id: user, fields: mask_to_add,
+        session: session
     });
 
     // TODO: currently if aggregate.update succeeds but Mask.update fails, we're in trouble
@@ -146,7 +181,7 @@ app.post('/', function (req, res) {
 
     // for both the aggregate and the mask, update the old aggregate
     // for the company with that email. Update or insert, hence the upsert flag
-    Aggregate.update({_id: req.body.user}, agg_to_save.toObject(), {upsert: true}, function (err) {
+    Aggregate.update({_id: user}, agg_to_save.toObject(), {upsert: true}, function (err) {
         if (err) {
             console.log(err);
             res.status(500).send('Unable to save aggregate, please try again');
@@ -154,7 +189,7 @@ app.post('/', function (req, res) {
         }
     });
 
-    Mask.update({_id: req.body.user}, mask_to_save.toObject(), {upsert: true}, function (err) {
+    Mask.update({_id: user}, mask_to_save.toObject(), {upsert: true}, function (err) {
         if (err) {
             console.log(err);
             res.status(500).send('Unable to save aggregate, please try again');
@@ -162,7 +197,7 @@ app.post('/', function (req, res) {
         }
     });
 
-    res.send(req.body);
+    res.send(body);
 });
 
 // TODO: this should be a GET

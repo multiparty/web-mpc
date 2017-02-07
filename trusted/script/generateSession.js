@@ -91,7 +91,7 @@ function generateSession(hiddenDiv, sessionID, pubID, privID, linkID) {
     }
 }
 
-// TODO: this is obsolete
+// TODO: why two error handlers?
 function generateTable(tableBody, sessionID, status, timestamp, counter) {
     if (timestamp === undefined) timestamp = 0;
     if (counter === undefined) counter = 1;

@@ -49,7 +49,7 @@
       </tbody>
     </table>
     <script>
-      window.genT = function(sessNum){
+      window.genT = function(sessNum) {
         document.getElementById('table').style.visibility = "visible";
         document.getElementById('statusID').style.visibility = "visible";
         var val = sessNum === undefined ? document.getElementById('sess').value: sessNum;
@@ -66,7 +66,7 @@
             results = regex.exec(location.search);
         return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
       }
-      if(getParameterByName('session')){
+      if(getParameterByName('session')) {
         genT(getParameterByName('session'));
       }
     </script>

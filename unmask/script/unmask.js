@@ -57,6 +57,7 @@ function unmask(mOut, privateKey, session, callback){
                 session = _.isString(session) ? parseInt(session) : session;
                 console.log(aggObj);
 
+                // TODO: callbacks
                 $.ajax({
                   type: "POST",
                   url: "/submit_agg",
@@ -124,6 +125,7 @@ function make2DArray(numRows, numCols) {
 
 function populateTable(hot, data, numRows, numCols, rowIdxLookup, colIdxLookup) {
   var buffer = make2DArray(numRows, numCols);
+
   for (var key in data) {
     var value = data[key],
         splitKey = key.split('_'),
@@ -131,6 +133,7 @@ function populateTable(hot, data, numRows, numCols, rowIdxLookup, colIdxLookup) 
         colIdx = colIdxLookup[splitKey[1]];
     buffer[rowIdx][colIdx] = value;
   }
+  
   hot.loadData(buffer);
 }
 

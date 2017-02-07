@@ -207,7 +207,7 @@ var initiateButton = function (tableAndKeys, url, session, email) {
           waitingDialog.hide();
           return response;
         }).fail(function (err) {
-          console.log('error:', err);
+          console.log(err);
           if (err && err.hasOwnProperty('responseText')) {
             alert(err.responseText);
           } else {
