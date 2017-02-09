@@ -8,10 +8,8 @@
  *
  */
 
-allValid = {main: false, verify: false};
-
 var validateSum = function(enteredSum, values) {
-  // TODO: explicitaley check if ...
+  // TODO: explicitly check if ...
   // check 
   for (var i = 0; i < values.length; i++) {
     if (isNaN(values[i])) {
@@ -49,32 +47,27 @@ var makeTable = function (divID, tableConfig) {
     maxRows: tableConfig.numRows,
     maxCols: tableConfig.numCols,
     afterChange: function (changes, source) {
-      this.validateCells(function (valid) {
-        if (document.querySelector('#verify').checked && valid) {
-          $('#submit').prop('disabled', false);
-        } else {
-          $('#submit').prop('disabled', true);
-        }
-      });
+      $('#verify').prop('checked', false);
+      $('#submit').prop('disabled', true);
+      this.validateCells();
     },
     afterValidate: function (isValid, value, row, prop, source) {
-      var isChecked = document.querySelector('#verify').checked,
-          col = this.propToCol(prop);
+      var col = this.propToCol(prop);
       // TODO: add comments
-      if (isChecked) {
-        if (col === tableConfig.numCols - 1
-          && row < tableConfig.numRows - 1) {
-          var rowValues = this.getData(row, 0, row, col - 1)[0];
-          return validateSum(value, rowValues);
-        }
-        else if (row === tableConfig.numRows - 1 
-          && col !== tableConfig.numCols - 1) {
-          var colValues = this.getData(0, col, row - 1, col).map(function (val) {
-            return val[0];
-          });
-          return validateSum(value, colValues);
-        }
+      // TODO: don't forget '1' type entries
+      if (col === tableConfig.numCols - 1
+        && row < tableConfig.numRows - 1) {
+        var rowValues = this.getData(row, 0, row, col - 1)[0];
+        return validateSum(value, rowValues);
       }
+      else if (row === tableConfig.numRows - 1 
+        && col !== tableConfig.numCols - 1) {
+        var colValues = this.getData(0, col, row - 1, col).map(function (val) {
+          return val[0];
+        });
+        return validateSum(value, colValues);
+      }
+      
     },
     cells: function (row, col, prop) {
       var cellProperties = {};
@@ -120,68 +113,114 @@ var tableToJson = function (hot, prefix, rowKeys, colKeys) {
   return jsonData;
 };
 
-var multipleChoiceToJson = function () {
-  var includeQuestions = document.querySelector('#include-questions').checked;
-  console.log(includeQuestions);
-  // var questionDiv = $('#questions');
-  // var forms = questionDiv.find('form');
-  var forms = $('#questions form');
+var multipleChoiceToJson = function (forms, prefix) {
+  var jsonData = {};
+  
   forms.each(function () {
     $this = $(this);
     $label = $('label[for="' + $this.attr('id') + '"]');
-    // $form = $this.find('form');
-    if ($label.length > 0 ) {
-      console.log($label.text());
-      // select input checked
-      // find('input[name="yes"]').val()
-      console.log($this.val());
-    }
+    var questionText = $label.text();
+    $this.find(':input').each(function () {
+      var check = $(this).is(":checked"),
+          val = $(this).val(),
+          key = "question" + "_" + questionText + "_" + val;
+      jsonData[key] = check ? 1 : 0;
+    });
+  });
+  
+  console.log(jsonData);
+  return jsonData;
+};
+
+var checkQuestions = function (forms) {
+  var checked = true;
+
+  forms.each(function () {
+    $this = $(this);
+    var numberChecked = 0;
+    $this.find(':input').each(function () {
+      var value = $(this).is(":checked");
+      numberChecked += value ? 1 : 0;
+    });
+    // could rewrite as for loop to return here
+    // if false but this is not a bottle-neck
+    checked = checked && (numberChecked === 1);
+  });
+
+  return checked;
+};
+
+var revalidateAll = function (mainHot, $questions, $verify, callb) {
+  mainHot.validateCells(function (valid) {
+    var questionsCompleted = checkQuestions($questions);
+    callb(valid && $verify.is(":checked") && questionsCompleted);
   });
 };
 
-var initiateButton = function (tableAndKeys, url, session, email) {
-  var hot = tableAndKeys.table,
-      rowKeys = tableAndKeys.rowKeys,
-      colKeys = tableAndKeys.colKeys;
+// TODO: long term, figure out a way to generalize this
+var submissionHandling = function (inputSources, targetUrl) {
+  // Input sources
+  var mainSection = inputSources['main'],
+      mainHot = mainSection.table,
+      mainRowKeys = mainSection.rowKeys,
+      mainColKeys = mainSection.colKeys;
 
-  // Verify checkbox listener to toggle submit button
-  var verifyBox = document.querySelector('#verify');
-  // TODO: think if there is a "race-condition"
-  Handsontable.Dom.addEvent(verifyBox, 'click', function (event) {
-    hot.validateCells(function (valid) {
-      if (verifyBox.checked && valid) {
-        $('#submit').prop('disabled', false);
-      } else {
-        $('#submit').prop('disabled', true);
-      }
+  var $questions = inputSources['question'];
+
+  // Submission and verification elements
+  var $verifyBox = $('#verify'),
+      $submitButton = $('#submit');
+
+  // Add listeners to radio buttons to uncheck verify box
+  // when changed
+  // TODO: probably shouldn't be on a per-button basis
+  $questions.each(function () {
+    $(this).find(':input').each(function () {
+      $(this).click(function () {
+        $verifyBox.prop('checked', false);
+        $submitButton.prop('disabled', true);
+      });
     });
   });
 
-  var submitButton = document.querySelector('#submit');
-  Handsontable.Dom.addEvent(submitButton, 'click', function (event) {
+  // Verify checkbox listener to toggle submit button
+  $verifyBox.click(function () {
+    if ($(this).is(":checked")) {
+      // revalidate all inputs
+      revalidateAll(mainHot, $questions, $verifyBox, function (valid) {
+        if (!valid) {
+          alert('Input not valid. Please check again!')
+          $verifyBox.prop('checked', false);
+        }
+        $submitButton.prop('disabled', !valid);
+      });
+    }
+    else {
+      // If unchecked, we don't need to revalidate
+      // just disable submission button
+      $submitButton.prop('disabled', false);
+    }
+  });
+  
+  $submitButton.click(function() {
     waitingDialog.show('Loading Data',{dialogSize: 'sm', progressType: 'warning'});
     var sessionstr = $('#sess').val().trim();
     var emailstr = $('#emailf').val().trim();
 
-    if(!sessionstr.match(/[0-9]{7}/)){
+    if (!sessionstr.match(/[0-9]{7}/)){
       alert("invalid session number: must be 7 digit number");
       waitingDialog.hide();
       return;
     }
 
-    if(!emailstr.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/)){
+    if (!emailstr.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/)){
       alert("Did not type a correct email address");
       waitingDialog.hide();
       return;
     }
 
-    // TODO: make below chain more robust.
-    // If anything breaks inside the then blocks, it will *not*
-    // be caught and the waiting dialog hangs
-
-    // validate table before submitting
-    hot.validateCells(function (valid) {
-      if (verifyBox.checked && valid) {
+    revalidateAll(mainHot, $questions, $verifyBox, function (valid) {
+      if (valid) {
         var sessionID = parseInt(sessionstr);
         $.ajax({
           type: "POST",
@@ -190,20 +229,21 @@ var initiateButton = function (tableAndKeys, url, session, email) {
           data: JSON.stringify({session: sessionID}),
           dataType: "text"
         }).then(function (publickey) {
-          // var multipleChoice = multipleChoiceToJson();
-          var flat = tableToJson(hot, "main", rowKeys, colKeys);
-          var maskObj = genMask(Object.keys(flat)); 
-          var encryptedMask = encryptWithKey(maskObj, publickey);
+          var questionJson = multipleChoiceToJson($questions, "question"),
+              mainJson = tableToJson(mainHot, "main", mainRowKeys, mainColKeys), 
+              allJson = Object.assign(mainJson, questionJson),
+              maskObj = genMask(Object.keys(allJson)),
+              encryptedMask = encryptWithKey(maskObj, publickey);
 
           console.log("public key: ");
           console.log(publickey);
-          console.log('data: ', flat);
+          console.log('data: ', allJson);
 
           // TODO: modular addition
-          for (var k in flat) {
-            flat[k] += maskObj[k];
+          for (var k in allJson) {
+            allJson[k] += maskObj[k];
           }
-          console.log('masked data: ', flat);
+          console.log('masked data: ', allJson);
           console.log('encrypted mask: ', encryptedMask);
 
           // Instead of submitting email in the clear
@@ -213,7 +253,7 @@ var initiateButton = function (tableAndKeys, url, session, email) {
           var emailHash = md.digest().toHex().toString();
 
           var sendData = {
-            data: flat,
+            data: allJson,
             mask: encryptedMask,
             user: emailHash,
             session: sessionID
@@ -221,7 +261,7 @@ var initiateButton = function (tableAndKeys, url, session, email) {
 
           return $.ajax({
             type: "POST",
-            url: url,
+            url: targetUrl,
             data: JSON.stringify(sendData),
             contentType: 'application/json'
           });
@@ -235,7 +275,8 @@ var initiateButton = function (tableAndKeys, url, session, email) {
           console.log(err);
           if (err && err.hasOwnProperty('responseText')) {
             alert(err.responseText);
-          } else {
+          } 
+          else {
             alert('Error! Please verify submission and try again.');
           }
           waitingDialog.hide();
@@ -243,6 +284,7 @@ var initiateButton = function (tableAndKeys, url, session, email) {
       }
       else {
         alert("Invalid Spreadsheet:\nplease ensure all fields are filled out correctly");
+        waitingDialog.hide();
       }
     });
   });

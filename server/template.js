@@ -65,5 +65,17 @@ module.exports = {
     "main_TOTAL Cols_Not-Hispanic or Latino Female Native Hawaiian or Other Parcific Islander": 0,
     "main_TOTAL Cols_Not-Hispanic or Latino Female Asian": 0,
     "main_TOTAL Cols_Not-Hispanic or Latino Female American Indian or Alaska Native": 0,
-    "main_TOTAL Cols_Not-Hispanic or Latino Female Two or more races": 0
+    "main_TOTAL Cols_Not-Hispanic or Latino Female Two or more races": 0,
+    "question_Does your company hold events to celebrate diversity and inclusion?_yes": 0, 
+    "question_Does your company hold events to celebrate diversity and inclusion?_no": 0, 
+    "question_Does your company hold events to celebrate diversity and inclusion?_na": 0, 
+    "question_Does your company provide diversity and inclusion education or training for managers, staff or both?_yes": 0,
+    "question_Does your company provide diversity and inclusion education or training for managers, staff or both?_no": 0,
+    "question_Does your company provide diversity and inclusion education or training for managers, staff or both?_na": 0, 
+    "question_Does your management team meet to discuss your organization's diverse workforce or workplace culture?_yes": 0, 
+    "question_Does your management team meet to discuss your organization's diverse workforce or workplace culture?_no": 0, 
+    "question_Does your management team meet to discuss your organization's diverse workforce or workplace culture?_na": 0, 
+    "question_Does your CEO engage in or lead discussions on diversity and inclusion with your management team or with other business executives?_yes": 0,
+    "question_Does your CEO engage in or lead discussions on diversity and inclusion with your management team or with other business executives?_no": 0,
+    "question_Does your CEO engage in or lead discussions on diversity and inclusion with your management team or with other business executives?_na": 0
 }

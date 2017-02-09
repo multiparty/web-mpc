@@ -74,13 +74,6 @@
   <h3>Number of Employees (Report employees in only one category)</h3>
   <div id="main-hot" style=""></div>
   <br>
-  <form>
-    <div class="checkbox">
-    <label>
-      <input autocomplete="off" type="checkbox" id="verify" name="verify"> All numbers are verified and correct
-    </label>
-    </div>
-  </form>
   <div id="directors">
     <h3>Board of Directors</h3>
     <form>
@@ -94,52 +87,65 @@
   </div>
   <div id="additional-questions">
     <h3>Additional Questions</h3>
-    <form>
-      <div class="checkbox">
-      <label>
-        <input autocomplete="off" type="checkbox" id="include-questions"> Answer additional questions
-      </label>
-      </div>
-    </form>
-    <div id="questions" class="hidden">
+    <div id="questions">
       <form id="question-a">
         <label for="question-a">Does your company hold events to celebrate diversity and inclusion?</label>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="yes">Yes</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="yes">Yes</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="no">No</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="no">No</label>
         </div>
-        <!-- <label class="radio-inline"><input autocomplete="off" type="radio" value="0">No</label> -->
+        <div class="radio">
+          <label><input autocomplete="off" type="radio" name="optradio" value="na">Don't wish to answer</label>
+        </div>
       </form>
       <form id="question-b">
         <label for="question-b">Does your company provide diversity and inclusion education or training for managers, staff or both?</label>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio">Yes</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="yes">Yes</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio">No</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="no">No</label>
+        </div>
+        <div class="radio">
+          <label><input autocomplete="off" type="radio" name="optradio" value="na">Don't wish to answer</label>
         </div>
       </form>
       <form id="question-c">
         <label for="question-c">Does your management team meet to discuss your organization's diverse workforce or workplace culture?</label>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio">Yes</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="yes">Yes</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio">No</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="no">No</label>
+        </div>
+        <div class="radio">
+          <label><input autocomplete="off" type="radio" name="optradio" value="na">Don't wish to answer</label>
         </div>
       </form>
       <form id="question-d">
         <label for="question-d">Does your CEO engage in or lead discussions on diversity and inclusion with your management team or with other business executives?</label>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio">Yes</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="yes">Yes</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio">No</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="no">No</label>
+        </div>
+        <div class="radio">
+          <label><input autocomplete="off" type="radio" name="optradio" value="na">Don't wish to answer</label>
         </div>
       </form>
     </div>
+  </div>
+  <div>
+    <form>
+      <div class="checkbox">
+      <label>
+        <input autocomplete="off" type="checkbox" id="verify" name="verify"> All information is verified and correct
+      </label>
+      </div>
+    </form>
   </div>
   <button name="dump" class="btn btn-primary btn-lg" id="submit">Submit</button>
   <br/>
@@ -152,16 +158,13 @@
         url: "../shared/templates/main.json",
         dataType: "json"
       }).done(function (tableConfig) {
-        var tableAndKeys = makeTable("#main-hot", tableConfig);
-        initiateButton(tableAndKeys, '/', '', '');
-      });
-
-      $("#include-questions").click(function() {
-        if ($(this).is(":checked")) {
-          $("#questions").show();
-        } else {
-          $("#questions").hide();
-        }
+        var mainTableAndKeys = makeTable("#main-hot", tableConfig),
+            questionForms = $('#questions form'),
+            inputSources = {
+              "main": mainTableAndKeys,
+              "question": questionForms 
+            }
+        submissionHandling(inputSources, '/');
       });
 
     });
