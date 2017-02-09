@@ -7,7 +7,6 @@
  */
 
 function validate(obj, props) {
-    // console.log(props);
     for (var key in props) {
         var type = props[key];
         if (obj.hasOwnProperty(key)) {

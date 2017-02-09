@@ -127,6 +127,7 @@ app.post('/', function (req, res) {
     var body = req.body;
     // console.log(body);
 
+    // TODO: use joi
     if (!validator.validate(body, expected)) {
         console.log('Validation failed.');
         res.status(500).send("Missing or invalid fields");
@@ -139,6 +140,9 @@ app.post('/', function (req, res) {
         user = body.user;
 
     // TODO: re-write to use validate properly
+    
+    var to_add = {};
+    var mask_to_add = {};
     for (var field in template) {
         if (template.hasOwnProperty(field)) {
             var expectedData = {};
@@ -150,20 +154,22 @@ app.post('/', function (req, res) {
                 console.log('Validation failed.');
                 res.status(500).send("Missing or invalid fields");
                 return;
+            } 
+            else {
+                to_add[field] = data[field];
+                mask_to_add[field] = mask[field];
             }
         }
     }
 
     console.log("Validation passed.");
 
-    var to_add = {};
-    var mask_to_add = {};
-    for (var field in template) {
-        if (template.hasOwnProperty(field)) {
-            to_add[field] = data[field];
-            mask_to_add[field] = mask[field];
-        }
-    }
+    // for (var field in template) {
+    //     if (template.hasOwnProperty(field)) {
+    //         to_add[field] = data[field];
+    //         mask_to_add[field] = mask[field];
+    //     }
+    // }
 
     // save the mask and individual aggregate
     var agg_to_save = new Aggregate({
@@ -185,6 +191,7 @@ app.post('/', function (req, res) {
         if (err) {
             console.log(err);
             res.status(500).send('Unable to save aggregate, please try again');
+            return;
         } else {
         }
     });
@@ -193,6 +200,7 @@ app.post('/', function (req, res) {
         if (err) {
             console.log(err);
             res.status(500).send('Unable to save aggregate, please try again');
+            return;
         } else {
         }
     });

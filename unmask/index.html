@@ -121,6 +121,8 @@
                         url: "../shared/templates/main.json",
                         dataType: "json",
                         success: function (tableConfig) {
+                          var sections = unflatten(data),
+                              mainTable = sections["main"];
                           // Check if we have created the table already. This prevents
                           // new copies of the table from getting appended to the end
                           // of the containing div.
@@ -128,7 +130,7 @@
                             hot = makeTable("#friendly", tableConfig);
                           }
                           // Populate table with loaded values.
-                          populateTable(hot, data, tableConfig.numRows, 
+                          populateTable(hot, mainTable, tableConfig.numRows, 
                             tableConfig.numCols, rowIdxLookup, colIdxLookup);
                           // Display raw data.
                           $('#result').html(JSON.stringify(data, null, 4));

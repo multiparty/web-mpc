@@ -102,17 +102,18 @@
       </div>
     </form>
     <div id="questions" class="hidden">
-      <form>
-        <label>Does your company hold events to celebrate diversity and inclusion?</label>
+      <form id="question-a">
+        <label for="question-a">Does your company hold events to celebrate diversity and inclusion?</label>
         <div class="radio">
-          <label class="radio-inline"><input autocomplete="off" type="radio" name="optradio">Yes</label>
+          <label><input autocomplete="off" type="radio" name="yes">Yes</label>
         </div>
         <div class="radio">
-          <label class="radio-inline"><input autocomplete="off" type="radio" name="optradio">No</label>
+          <label><input autocomplete="off" type="radio" name="no">No</label>
         </div>
+        <!-- <label class="radio-inline"><input autocomplete="off" type="radio" value="0">No</label> -->
       </form>
-      <form>
-        <label>Does your company provide diversity and inclusion education or training for managers, staff or both?</label>
+      <form id="question-b">
+        <label for="question-b">Does your company provide diversity and inclusion education or training for managers, staff or both?</label>
         <div class="radio">
           <label><input autocomplete="off" type="radio" name="optradio">Yes</label>
         </div>
@@ -120,8 +121,8 @@
           <label><input autocomplete="off" type="radio" name="optradio">No</label>
         </div>
       </form>
-      <form>
-        <label>Does your management team meet to discuss your organization's diverse workforce or workplace culture?</label>
+      <form id="question-c">
+        <label for="question-c">Does your management team meet to discuss your organization's diverse workforce or workplace culture?</label>
         <div class="radio">
           <label><input autocomplete="off" type="radio" name="optradio">Yes</label>
         </div>
@@ -129,8 +130,8 @@
           <label><input autocomplete="off" type="radio" name="optradio">No</label>
         </div>
       </form>
-      <form>
-        <label>Does your CEO engage in or lead discussions on diversity and inclusion with your management team or with other business executives?</label>
+      <form id="question-d">
+        <label for="question-d">Does your CEO engage in or lead discussions on diversity and inclusion with your management team or with other business executives?</label>
         <div class="radio">
           <label><input autocomplete="off" type="radio" name="optradio">Yes</label>
         </div>
@@ -153,6 +154,14 @@
       }).done(function (tableConfig) {
         var tableAndKeys = makeTable("#main-hot", tableConfig);
         initiateButton(tableAndKeys, '/', '', '');
+      });
+
+      $("#include-questions").click(function() {
+        if ($(this).is(":checked")) {
+          $("#questions").show();
+        } else {
+          $("#questions").hide();
+        }
       });
 
     });

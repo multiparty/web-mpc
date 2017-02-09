@@ -95,6 +95,40 @@ function arrayBufferToString(arrayBuffer) {
     return byteString;
 }
 
+// Not a very descriptive name, I just like the word
+// TODO: comment
+function unflatten(data) {
+  var nested = {};
+  var current = nested;
+
+  for (var topLevelKey in data) {
+    if (data.hasOwnProperty(topLevelKey)) { // do we really need this?
+      var value = data[topLevelKey],
+          splitKey = topLevelKey.split('_'),
+          lastKey = splitKey[splitKey.length - 1];
+      splitKey.forEach(function (key) {
+        // if we're a last level of nesting, store value
+        if (key === lastKey) {
+          current[key] = value;
+        }
+        else {
+          // we haven't reached the last level yet
+          // so create a new level in nested if necessary
+          // or advance one level by key
+          if (!(current.hasOwnProperty(key))) {
+            current[key] = {};
+          }
+          current = current[key];
+        }
+      });
+      // return to top level of nesting
+      current = nested;
+    }
+  }
+
+  return nested;
+}
+
 function flattenArray(data) {
   return _.flatten(_.map(data, _.values));
 }
@@ -126,12 +160,18 @@ function make2DArray(numRows, numCols) {
 function populateTable(hot, data, numRows, numCols, rowIdxLookup, colIdxLookup) {
   var buffer = make2DArray(numRows, numCols);
 
-  for (var key in data) {
-    var value = data[key],
-        splitKey = key.split('_'),
-        rowIdx = rowIdxLookup[splitKey[0]],
-        colIdx = colIdxLookup[splitKey[1]];
-    buffer[rowIdx][colIdx] = value;
+  for (var rowKey in data) {
+    if (data.hasOwnProperty(rowKey)) {
+      var columns = data[rowKey];
+      for (var colKey in columns) {
+        if (columns.hasOwnProperty(colKey)) {
+          var value = columns[colKey];
+          rowIdx = rowIdxLookup[rowKey],
+          colIdx = colIdxLookup[colKey];
+          buffer[rowIdx][colIdx] = value;
+        }
+      } 
+    }
   }
   
   hot.loadData(buffer);

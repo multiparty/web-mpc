@@ -38,6 +38,7 @@ function generateSession(hiddenDiv, sessionID, pubID, privID, linkID) {
             console.log(publicKey);
 
             var priBlob = new Blob([privateKey],{type: "text/plain;charset=utf-8"});
+            // console.log('herehere1');
 
             // TODO: shouldn't mix promises with callbacks like that
             $.ajax({
@@ -57,11 +58,21 @@ function generateSession(hiddenDiv, sessionID, pubID, privID, linkID) {
                     saveAs(priBlob,'Session_'+rndSess.toString()+'_private_key.pem');
                 },
                 error: function(){
+                    // 
                     var errmsg = "ERROR!!!: failed to load public key to server, please try again";
+                    document.getElementById(sessionID).innerHTML = errmsg;
                     document.getElementById(privID).innerHTML = errmsg;
                     document.getElementById(pubID).innerHTML = errmsg;
                 }
             });
+        })
+        .catch(function (err) {
+            // TODO: double-check
+            console.log(err);
+            var errmsg = "ERROR!!!: failed to load public key to server, please try again";
+            document.getElementById(sessionID).innerHTML = errmsg;
+            document.getElementById(privID).innerHTML = errmsg;
+            document.getElementById(pubID).innerHTML = errmsg;
         });
 
     function arrayBufferToString(arrayBuffer) {

@@ -11,6 +11,8 @@
 allValid = {main: false, verify: false};
 
 var validateSum = function(enteredSum, values) {
+  // TODO: explicitaley check if ...
+  // check 
   for (var i = 0; i < values.length; i++) {
     if (isNaN(values[i])) {
       return false;
@@ -58,6 +60,7 @@ var makeTable = function (divID, tableConfig) {
     afterValidate: function (isValid, value, row, prop, source) {
       var isChecked = document.querySelector('#verify').checked,
           col = this.propToCol(prop);
+      // TODO: add comments
       if (isChecked) {
         if (col === tableConfig.numCols - 1
           && row < tableConfig.numRows - 1) {
@@ -75,7 +78,7 @@ var makeTable = function (divID, tableConfig) {
     },
     cells: function (row, col, prop) {
       var cellProperties = {};
-
+      // tableConfig.numRows - 1 corresponds to totals column
       if (row === tableConfig.numRows - 1 
         && col === tableConfig.numCols - 1) {
         cellProperties.readOnly = true;
@@ -89,7 +92,7 @@ var makeTable = function (divID, tableConfig) {
 };
 
 // pre-condition: all data is valid. only call this *after* validation
-var tableToJson = function (hot, tableName, rowKeys, colKeys) {
+var tableToJson = function (hot, prefix, rowKeys, colKeys) {
   var data = hot.getData(),
       jsonData = {};
 
@@ -98,7 +101,7 @@ var tableToJson = function (hot, tableName, rowKeys, colKeys) {
       var meta = hot.getCellMeta(rowIdx, colIdx),
           rowKey = rowKeys[rowIdx],
           colKey = colKeys[colIdx],
-          key = rowKey + "_" + colKey;
+          key = prefix + "_" + rowKey + "_" + colKey;
 
       // Exclude "dummy" read-only values 
       // (these correspond to the cell at row totals, col totals)
@@ -117,6 +120,25 @@ var tableToJson = function (hot, tableName, rowKeys, colKeys) {
   return jsonData;
 };
 
+var multipleChoiceToJson = function () {
+  var includeQuestions = document.querySelector('#include-questions').checked;
+  console.log(includeQuestions);
+  // var questionDiv = $('#questions');
+  // var forms = questionDiv.find('form');
+  var forms = $('#questions form');
+  forms.each(function () {
+    $this = $(this);
+    $label = $('label[for="' + $this.attr('id') + '"]');
+    // $form = $this.find('form');
+    if ($label.length > 0 ) {
+      console.log($label.text());
+      // select input checked
+      // find('input[name="yes"]').val()
+      console.log($this.val());
+    }
+  });
+};
+
 var initiateButton = function (tableAndKeys, url, session, email) {
   var hot = tableAndKeys.table,
       rowKeys = tableAndKeys.rowKeys,
@@ -124,6 +146,7 @@ var initiateButton = function (tableAndKeys, url, session, email) {
 
   // Verify checkbox listener to toggle submit button
   var verifyBox = document.querySelector('#verify');
+  // TODO: think if there is a "race-condition"
   Handsontable.Dom.addEvent(verifyBox, 'click', function (event) {
     hot.validateCells(function (valid) {
       if (verifyBox.checked && valid) {
@@ -166,8 +189,9 @@ var initiateButton = function (tableAndKeys, url, session, email) {
           contentType: "application/json",
           data: JSON.stringify({session: sessionID}),
           dataType: "text"
-        }).then(function(publickey) {
-          var flat = tableToJson(hot, "", rowKeys, colKeys);
+        }).then(function (publickey) {
+          // var multipleChoice = multipleChoiceToJson();
+          var flat = tableToJson(hot, "main", rowKeys, colKeys);
           var maskObj = genMask(Object.keys(flat)); 
           var encryptedMask = encryptWithKey(maskObj, publickey);
 
@@ -206,6 +230,7 @@ var initiateButton = function (tableAndKeys, url, session, email) {
           alert("Submitted data.");
           waitingDialog.hide();
           return response;
+          // TODO: change to catch with new jquery
         }).fail(function (err) {
           console.log(err);
           if (err && err.hasOwnProperty('responseText')) {
