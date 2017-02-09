@@ -52,32 +52,29 @@ var makeTable = function (divID, tableConfig) {
       this.validateCells();
     },
     afterValidate: function (isValid, value, row, prop, source) {
-      var col = this.propToCol(prop);
+      var col = this.propToCol(prop),
+          totalsColIdx = tableConfig.numCols - 1,
+          totalsRowIdx = tableConfig.numRows - 1;
       // TODO: add comments
       // TODO: don't forget '1' type entries
-      if (col === tableConfig.numCols - 1
-        && row < tableConfig.numRows - 1) {
+      if (col === totalsColIdx && row < totalsRowIdx) {
         var rowValues = this.getData(row, 0, row, col - 1)[0];
         return validateSum(value, rowValues);
       }
-      else if (row === tableConfig.numRows - 1 
-        && col !== tableConfig.numCols - 1) {
+      else if (row === totalsRowIdx && col !== totalsColIdx) {
         var colValues = this.getData(0, col, row - 1, col).map(function (val) {
           return val[0];
         });
         return validateSum(value, colValues);
       }
-      
-    },
-    cells: function (row, col, prop) {
-      var cellProperties = {};
-      // tableConfig.numRows - 1 corresponds to totals column
-      if (row === tableConfig.numRows - 1 
-        && col === tableConfig.numCols - 1) {
-        cellProperties.readOnly = true;
+      else if (row === totalsRowIdx && col === totalsColIdx) {
+        var rowValues = this.getData(row, 0, row, col - 1)[0];
+        var colValues = this.getData(0, col, row - 1, col).map(function (val) {
+          return val[0];
+        });
+        return validateSum(value, rowValues) 
+          && validateSum(value, colValues);
       }
-
-      return cellProperties;
     }
   };
   var hot = new Handsontable(hotElement, hotSettings);
@@ -91,22 +88,18 @@ var tableToJson = function (hot, prefix, rowKeys, colKeys) {
 
   data.forEach(function (row, rowIdx) {
     row.forEach(function (element, colIdx) {
-      var meta = hot.getCellMeta(rowIdx, colIdx),
-          rowKey = rowKeys[rowIdx],
+      var rowKey = rowKeys[rowIdx],
           colKey = colKeys[colIdx],
           key = prefix + "_" + rowKey + "_" + colKey;
 
-      // Exclude "dummy" read-only values 
-      // (these correspond to the cell at row totals, col totals)
-      if (!meta.readOnly) {
-        // Convert all null and empty string entries to 0
-        if (!Number.isInteger(element)) {
-          jsonData[key] = 0;
-        }
-        else {
-          jsonData[key] = element;
-        }
+      // Convert all null and empty string entries to 0
+      if (!Number.isInteger(element)) {
+        jsonData[key] = 0;
       }
+      else {
+        jsonData[key] = element;
+      }
+      
     });
   });
 
@@ -143,7 +136,7 @@ var checkQuestions = function (forms) {
       numberChecked += value ? 1 : 0;
     });
     // could rewrite as for loop to return here
-    // if false but this is not a bottle-neck
+    // if false 
     checked = checked && (numberChecked === 1);
   });
 

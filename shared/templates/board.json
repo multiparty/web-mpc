@@ -1,0 +1,58 @@
+{
+    "numRows": 1,
+    "numCols": 4,
+    "columns": [
+        {"type": "numeric"},
+        {"type": "numeric"},
+        {"type": "numeric"},
+        {"type": "numeric"}
+    ],
+    "rowKeys": [
+        "TOTAL"
+    ],
+    "colKeys": [
+        "Male White",
+        "Male Other",
+        "Female White",
+        "Female Other"
+    ],
+    "rowHeaders": [
+        "<b>TOTAL</b>"
+    ],
+    "nestedHeaders": [
+        [
+            {
+                "label": "Male",
+                "colspan": 2 
+            },
+            {
+                "label": "Female",
+                "colspan": 2 
+            }
+        ],
+        [
+            {
+                "label": "White",
+                "colspan": 1
+            },
+            {
+                "label": "Other",
+                "colspan": 1
+            },
+            {
+                "label": "White",
+                "colspan": 1
+            },
+            {
+                "label": "Other",
+                "colspan": 1
+            }
+        ],
+        [
+            "A",
+            "B",
+            "C",
+            "D"
+        ]
+    ]
+}

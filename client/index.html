@@ -74,16 +74,16 @@
   <h3>Number of Employees (Report employees in only one category)</h3>
   <div id="main-hot" style=""></div>
   <br>
-  <div id="directors">
+  <div id="board">
     <h3>Board of Directors</h3>
     <form>
       <div class="checkbox">
       <label>
-        <input autocomplete="off" type="checkbox" id="include-directors" name="include-directors"> Provide Board of Directors information
+        <input autocomplete="off" type="checkbox" id="include-board" name="include-board"> Provide Board of Directors information
       </label>
       </div>
     </form>
-    <div id="directors-hot" class="hidden"></div>
+    <div id="board-hot"></div>
   </div>
   <div id="additional-questions">
     <h3>Additional Questions</h3>
@@ -152,13 +152,23 @@
   <script type="text/javascript">
     
     $(document).ready(function() {
-      // Construct main table
-      $.ajax({
+      var mainReq = $.ajax({
         type: "GET",
         url: "../shared/templates/main.json",
         dataType: "json"
-      }).done(function (tableConfig) {
-        var mainTableAndKeys = makeTable("#main-hot", tableConfig),
+      });
+
+      var boardReq = $.ajax({
+        type: "GET",
+        url: "../shared/templates/board.json",
+        dataType: "json"
+      });
+
+      $.when(mainReq, boardReq).then(function (mainConfig, boardConfig) {
+        console.log(mainConfig);
+        console.log(boardConfig);
+        var mainTableAndKeys = makeTable("#main-hot", mainConfig[0]),
+            boardTableAndKeys = makeTable("#board-hot", boardConfig[0]),
             questionForms = $('#questions form'),
             inputSources = {
               "main": mainTableAndKeys,
