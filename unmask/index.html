@@ -87,62 +87,52 @@
           la.start();
           keyReader.readAsText(maskKey.files[0]);
           $(keyReader).on('load', function(e) {
-            // TODO: no need to hard-code. we can generate these from tableConfig.rowKeys/colKeys
-            var rowIdxLookup = {
-                    "Executive/Senior Level Officials and Managers": 0,
-                    "First/Mid-Level Officials and Managers": 1,
-                    "Professionals": 2,
-                    "TOTAL Cols": 3
-                  },
-                colIdxLookup = {
-                    "Hispanic or Latino Male": 0,
-                    "Hispanic or Latino Female": 1,
-                    "Not-Hispanic or Latino Male White": 2,
-                    "Not-Hispanic or Latino Male Black or African American": 3,
-                    "Not-Hispanic or Latino Male Native Hawaiian or Other Parcific Islander": 4,
-                    "Not-Hispanic or Latino Male Asian": 5,
-                    "Not-Hispanic or Latino Male American Indian or Alaska Native": 6,
-                    "Not-Hispanic or Latino Male Two or more races": 7,
-                    "Not-Hispanic or Latino Female White": 8,
-                    "Not-Hispanic or Latino Female Black or African American": 9,
-                    "Not-Hispanic or Latino Female Native Hawaiian or Other Parcific Islander": 10,
-                    "Not-Hispanic or Latino Female Asian": 11,
-                    "Not-Hispanic or Latino Female American Indian or Alaska Native": 12,
-                    "Not-Hispanic or Latino Female Two or more races": 13,
-                    "TOTAL Rows": 14
-                  },
-                privateKey = e.target.result,
+            var privateKey = e.target.result,
                 callb =
                   function (success, data) {
                     la.stop();
                     if (success) {
+                      var sections = unflatten(data),
+                          mainTable = sections["main"];
                       $.ajax({
                         type: "GET",
                         url: "../shared/templates/main.json",
                         dataType: "json",
                         success: function (tableConfig) {
-                          var sections = unflatten(data),
-                              mainTable = sections["main"];
                           // Check if we have created the table already. This prevents
                           // new copies of the table from getting appended to the end
                           // of the containing div.
                           if (hot == null) {
                             hot = makeTable("#friendly", tableConfig);
                           }
+                          // TODO: double-check this
+                          var rowIdxLookup = {};
+                          tableConfig.rowKeys.forEach(function (key, idx) {
+                            return rowIdxLookup[key] = idx;
+                          });
+                          var colIdxLookup = {};
+                          tableConfig.colKeys.forEach(function (key, idx) {
+                            return colIdxLookup[key] = idx;
+                          });
+                          console.log(rowIdxLookup);
+                          console.log(colIdxLookup);
+
                           // Populate table with loaded values.
                           populateTable(hot, mainTable, tableConfig.numRows, 
                             tableConfig.numCols, rowIdxLookup, colIdxLookup);
-                          // Display raw data.
+                          // Display raw data. 
+                          // TODO: check!!
                           $('#result').html(JSON.stringify(data, null, 4));
                         },
                         error: function () {
-                          console.log('Error while retrieving template.');
-                          $('#result').html('Error while retrieving template.');
+                          console.log('Error while retrieving main template.');
+                          $('#result').html('Error while retrieving main template.');
                         } 
                       }); 
                     } 
                     else {
                       console.log(data);
+                      // TODO: this is a terrible idea
                       $('#result').html(data);
                     }
                   };

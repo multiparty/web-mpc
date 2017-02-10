@@ -7,6 +7,12 @@
  */
 
 module.exports = {
+    "board_TOTAL_Female Other": 0,
+    "board_TOTAL_Female White": 0,
+    "board_TOTAL_Male Other": 0,
+    "board_TOTAL_Male White": 0,
+    "includeBoard_Provide Board of Directors information_yes": 0,
+    "includeBoard_Provide Board of Directors information_no": 0,
     "main_Executive/Senior Level Officials and Managers_Hispanic or Latino Male": 0,
     "main_Executive/Senior Level Officials and Managers_Hispanic or Latino Female": 0,
     "main_Executive/Senior Level Officials and Managers_Not-Hispanic or Latino Male White": 0,

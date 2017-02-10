@@ -95,8 +95,9 @@ function arrayBufferToString(arrayBuffer) {
     return byteString;
 }
 
-// Not a very descriptive name, I just like the word
-// TODO: comment
+// Not a very descriptive name, I just like the word.
+// transforms "key1_key2_key#...: val" into {key_1: {key_2: {key_3: val}}}
+// REVIEW
 function unflatten(data) {
   var nested = {};
   var current = nested;

@@ -8,15 +8,17 @@
  *
  */
 
+var emptyOrPosInt = function (val) {
+  return val == null || val === '' || (Number.isInteger(val) && val >= 0);
+};
+
 var validateSum = function(enteredSum, values) {
-  // TODO: explicitly check if ...
-  // check 
   for (var i = 0; i < values.length; i++) {
-    if (isNaN(values[i])) {
+    if (!emptyOrPosInt(values[i])) {
       return false;
     }
   }
-  if (isNaN(enteredSum)) {
+  if (!emptyOrPosInt(enteredSum)) {
     return false;
   }
 
@@ -31,14 +33,29 @@ var validateSum = function(enteredSum, values) {
     return e1 + e2;
   });
 
-  if (!Number.isInteger(enteredSum)) enteredSum = 0;
-  
+  if (!Number.isInteger(enteredSum)) {
+    enteredSum = 0;
+  }
+
   return rowSum === enteredSum;
+};
+
+var wholePositiveValidator = function (value, callback) {
+  if (value == null || value === '') {
+    callback(true);
+  }
+  else {
+    callback(/^0$|^[1-9]\d*$/.test(value));
+  }
 };
 
 // TODO: add validator to mark large values, also greater equal 0
 var makeTable = function (divID, tableConfig) {
   var hotElement = document.querySelector(divID);
+  // ugly workaround because we can only set a validator on the column level
+  var colsWithValidator = tableConfig.columns.forEach(function (col) {
+    col.validator = wholePositiveValidator;
+  });
   var hotSettings = {
     width: 1024,
     columns: tableConfig.columns,
@@ -52,11 +69,13 @@ var makeTable = function (divID, tableConfig) {
       this.validateCells();
     },
     afterValidate: function (isValid, value, row, prop, source) {
+      if (!isValid) {
+        return false;
+      }
       var col = this.propToCol(prop),
           totalsColIdx = tableConfig.numCols - 1,
           totalsRowIdx = tableConfig.numRows - 1;
-      // TODO: add comments
-      // TODO: don't forget '1' type entries
+      
       if (col === totalsColIdx && row < totalsRowIdx) {
         var rowValues = this.getData(row, 0, row, col - 1)[0];
         return validateSum(value, rowValues);
@@ -99,29 +118,44 @@ var tableToJson = function (hot, prefix, rowKeys, colKeys) {
       else {
         jsonData[key] = element;
       }
-      
     });
   });
 
   return jsonData;
 };
 
+// pre-condition: form labels have "for" attribute set
 var multipleChoiceToJson = function (forms, prefix) {
   var jsonData = {};
   
   forms.each(function () {
     $this = $(this);
     $label = $('label[for="' + $this.attr('id') + '"]');
-    var questionText = $label.text();
+    var questionText = $.trim($label.text());
     $this.find(':input').each(function () {
       var check = $(this).is(":checked"),
           val = $(this).val(),
-          key = "question" + "_" + questionText + "_" + val;
+          key = prefix + "_" + questionText + "_" + val;
       jsonData[key] = check ? 1 : 0;
     });
   });
   
   console.log(jsonData);
+  return jsonData;
+};
+
+// pre-condition: checkbox contained by label element 
+var checkboxToJson = function ($checkbox, prefix) {
+  var jsonData = {};
+
+  var optionText = $.trim($checkbox.closest('label').text()),
+      checked = $checkbox.is(':checked');
+
+  [['yes', checked], ['no', !checked]].forEach(function (option) {
+    var key = prefix + "_" + optionText + "_" + option[0];
+    jsonData[key] = option[1] ? 1 : 0;
+  });
+
   return jsonData;
 };
 
@@ -152,7 +186,6 @@ var revalidateAll = function (
   $verify, 
   callb
 ) {
-  // TODO: lock everything during validation?
   var verifyChecked = $verify.is(":checked"),
       questionsValid = checkQuestions($questions);
 
@@ -200,10 +233,17 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources) {
   }).then(function (publickey) {
     var questionJson = multipleChoiceToJson($questions, "question"),
         mainJson = tableToJson(mainHot, "main", mainRowKeys, mainColKeys),
-        boardJson = tableToJson(boardHot, "board", boardRowKeys, boardColKeys);
+        boardJson = tableToJson(boardHot, "board", boardRowKeys, boardColKeys),
+        includeBoardJson = checkboxToJson($boardBox, "includeBoard");
 
-    var allJson = Object.assign(mainJson, questionJson, boardJson),
-        maskObj = genMask(Object.keys(allJson)),
+    var allJson = Object.assign(
+      mainJson, 
+      questionJson, 
+      boardJson, 
+      includeBoardJson
+    );
+
+    var maskObj = genMask(Object.keys(allJson)),
         encryptedMask = encryptWithKey(maskObj, publickey);
 
     console.log("public key: ");
@@ -237,7 +277,7 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources) {
       contentType: 'application/json'
     });
   }).then(function (response) {
-    console.log('reponse: ', response);
+    console.log('reponse:', response);
     alert("Submitted data.");
     waitingDialog.hide();
     return response;
@@ -312,11 +352,11 @@ var submissionHandling = function (inputSources, targetUrl) {
     if ($(this).is(":checked")) {
       // revalidate all inputs
       revalidateAll(
-        mainHot, 
-        boardHot, 
-        $boardBox, 
-        $questions, 
-        $verifyBox, 
+        mainHot,
+        boardHot,
+        $boardBox,
+        $questions,
+        $verifyBox,
         function (valid) {
           if (!valid) {
             alert('Input incomplete or invalid. Please check again!')
@@ -354,11 +394,11 @@ var submissionHandling = function (inputSources, targetUrl) {
     }
 
     revalidateAll(
-      mainHot, 
-      boardHot, 
-      $boardBox, 
-      $questions, 
-      $verifyBox, 
+      mainHot,
+      boardHot,
+      $boardBox,
+      $questions,
+      $verifyBox,
       function (valid) {
         if (valid) {
           submitAll(
