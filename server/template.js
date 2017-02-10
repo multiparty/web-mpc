@@ -66,6 +66,7 @@ module.exports = {
     "main_TOTAL Cols_Not-Hispanic or Latino Female Asian": 0,
     "main_TOTAL Cols_Not-Hispanic or Latino Female American Indian or Alaska Native": 0,
     "main_TOTAL Cols_Not-Hispanic or Latino Female Two or more races": 0,
+    "main_TOTAL Cols_TOTAL Rows": 0,
     "question_Does your company hold events to celebrate diversity and inclusion?_yes": 0, 
     "question_Does your company hold events to celebrate diversity and inclusion?_no": 0, 
     "question_Does your company hold events to celebrate diversity and inclusion?_na": 0, 

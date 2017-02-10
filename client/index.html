@@ -78,9 +78,9 @@
     <h3>Board of Directors</h3>
     <form>
       <div class="checkbox">
-      <label>
-        <input autocomplete="off" type="checkbox" id="include-board" name="include-board"> Provide Board of Directors information
-      </label>
+        <label class="btn btn-default active">
+          <input type="checkbox" checked="checked" id="include-board" name="include-board">Provide Board of Directors information
+        </label>
       </div>
     </form>
     <div id="board-hot"></div>
@@ -141,7 +141,7 @@
   <div>
     <form>
       <div class="checkbox">
-      <label>
+      <label class="btn btn-default">
         <input autocomplete="off" type="checkbox" id="verify" name="verify"> All information is verified and correct
       </label>
       </div>
@@ -165,15 +165,14 @@
       });
 
       $.when(mainReq, boardReq).then(function (mainConfig, boardConfig) {
-        console.log(mainConfig);
-        console.log(boardConfig);
         var mainTableAndKeys = makeTable("#main-hot", mainConfig[0]),
             boardTableAndKeys = makeTable("#board-hot", boardConfig[0]),
             questionForms = $('#questions form'),
             inputSources = {
               "main": mainTableAndKeys,
-              "question": questionForms 
-            }
+              "question": questionForms,
+              "board": boardTableAndKeys
+            };
         submissionHandling(inputSources, '/');
       });
 

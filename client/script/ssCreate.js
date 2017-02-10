@@ -143,10 +143,114 @@ var checkQuestions = function (forms) {
   return checked;
 };
 
-var revalidateAll = function (mainHot, $questions, $verify, callb) {
-  mainHot.validateCells(function (valid) {
-    var questionsCompleted = checkQuestions($questions);
-    callb(valid && $verify.is(":checked") && questionsCompleted);
+// REVIEW
+var revalidateAll = function (
+  mainHot, 
+  boardHot, 
+  $boardBox, 
+  $questions, 
+  $verify, 
+  callb
+) {
+  // TODO: lock everything during validation?
+  var verifyChecked = $verify.is(":checked"),
+      questionsValid = checkQuestions($questions);
+
+  if (!verifyChecked || !questionsValid) {
+    return callb(false);
+  }
+
+  mainHot.validateCells(function (mainValid) {
+    if (!mainValid) {
+      return callb(false);
+    }
+    if ($boardBox.is(':checked')) {
+      boardHot.validateCells(function (boardValid) {
+        return callb(boardValid);
+      });
+    }
+    else {
+      return callb(mainValid);
+    }
+  });
+};
+
+var submitAll = function (sessionstr, emailstr, targetUrl, inputSources) {
+  // Unpack input sources
+  var mainSection = inputSources['main'],
+      mainHot = mainSection.table,
+      mainRowKeys = mainSection.rowKeys,
+      mainColKeys = mainSection.colKeys;
+
+  var boardSection = inputSources['board'],
+      boardHot = boardSection.table,
+      boardRowKeys = boardSection.rowKeys,
+      boardColKeys = boardSection.colKeys;
+  var $boardBox = $('#include-board');
+
+  var $questions = inputSources['question'];
+
+  var sessionID = parseInt(sessionstr);
+  $.ajax({
+    type: "POST",
+    url: "/publickey",
+    contentType: "application/json",
+    data: JSON.stringify({session: sessionID}),
+    dataType: "text"
+  }).then(function (publickey) {
+    var questionJson = multipleChoiceToJson($questions, "question"),
+        mainJson = tableToJson(mainHot, "main", mainRowKeys, mainColKeys),
+        boardJson = tableToJson(boardHot, "board", boardRowKeys, boardColKeys);
+
+    var allJson = Object.assign(mainJson, questionJson, boardJson),
+        maskObj = genMask(Object.keys(allJson)),
+        encryptedMask = encryptWithKey(maskObj, publickey);
+
+    console.log("public key: ");
+    console.log(publickey);
+    console.log('data: ', allJson);
+
+    // TODO: modular addition
+    for (var k in allJson) {
+      allJson[k] += maskObj[k];
+    }
+    console.log('masked data: ', allJson);
+    console.log('encrypted mask: ', encryptedMask);
+
+    // Instead of submitting email in the clear
+    // we will submit a hash
+    var md = forge.md.sha1.create();
+    md.update(emailstr);
+    var emailHash = md.digest().toHex().toString();
+
+    var sendData = {
+      data: allJson,
+      mask: encryptedMask,
+      user: emailHash,
+      session: sessionID
+    };
+
+    return $.ajax({
+      type: "POST",
+      url: targetUrl,
+      data: JSON.stringify(sendData),
+      contentType: 'application/json'
+    });
+  }).then(function (response) {
+    console.log('reponse: ', response);
+    alert("Submitted data.");
+    waitingDialog.hide();
+    return response;
+    // TODO: change to catch with new jquery
+  }).fail(function (err) {
+    console.log(err);
+    if (err && err.hasOwnProperty('responseText')) {
+      alert(err.responseText);
+    } 
+    else {
+      alert('Error! Please verify submission and try again.');
+    }
+    waitingDialog.hide();
   });
 };
 
@@ -158,18 +262,45 @@ var submissionHandling = function (inputSources, targetUrl) {
       mainRowKeys = mainSection.rowKeys,
       mainColKeys = mainSection.colKeys;
 
+  var boardSection = inputSources['board'],
+      boardHot = boardSection.table,
+      boardRowKeys = boardSection.rowKeys,
+      boardColKeys = boardSection.colKeys;
+  var $boardBox = $('#include-board');
+
   var $questions = inputSources['question'];
 
   // Submission and verification elements
   var $verifyBox = $('#verify'),
       $submitButton = $('#submit');
 
-  // Add listeners to radio buttons to uncheck verify box
-  // when changed
+  // Listeners
+  $boardBox.click(function () {
+    // disable submission 
+    $verifyBox.prop('checked', false);
+    $submitButton.prop('disabled', true);
+    if ($(this).is(':checked')) {
+      // Enable table editing
+      boardHot.updateSettings({
+        readOnly: false
+      });
+    }
+    else {
+      // Clear all entered data
+      // Disable editing
+      boardHot.clear();
+      boardHot.updateSettings({
+        readOnly: true
+      });  
+    }
+  });
+
+  // Radio button listeners
   // TODO: probably shouldn't be on a per-button basis
   $questions.each(function () {
     $(this).find(':input').each(function () {
       $(this).click(function () {
+        // disable submission
         $verifyBox.prop('checked', false);
         $submitButton.prop('disabled', true);
       });
@@ -180,18 +311,28 @@ var submissionHandling = function (inputSources, targetUrl) {
   $verifyBox.click(function () {
     if ($(this).is(":checked")) {
       // revalidate all inputs
-      revalidateAll(mainHot, $questions, $verifyBox, function (valid) {
-        if (!valid) {
-          alert('Input not valid. Please check again!')
-          $verifyBox.prop('checked', false);
+      revalidateAll(
+        mainHot, 
+        boardHot, 
+        $boardBox, 
+        $questions, 
+        $verifyBox, 
+        function (valid) {
+          if (!valid) {
+            alert('Input incomplete or invalid. Please check again!')
+            $verifyBox.prop('checked', false);
+            $submitButton.prop('disabled', true);  
+          }
+          $submitButton.prop('disabled', !valid);
+          // $verifyBox.prop('checked', false);
         }
-        $submitButton.prop('disabled', !valid);
-      });
+      );
     }
     else {
       // If unchecked, we don't need to revalidate
       // just disable submission button
-      $submitButton.prop('disabled', false);
+      // console.log('here!');
+      $submitButton.prop('disabled', true);
     }
   });
   
@@ -201,7 +342,7 @@ var submissionHandling = function (inputSources, targetUrl) {
     var emailstr = $('#emailf').val().trim();
 
     if (!sessionstr.match(/[0-9]{7}/)){
-      alert("invalid session number: must be 7 digit number");
+      alert("Invalid session number: must be 7 digit number");
       waitingDialog.hide();
       return;
     }
@@ -212,74 +353,27 @@ var submissionHandling = function (inputSources, targetUrl) {
       return;
     }
 
-    revalidateAll(mainHot, $questions, $verifyBox, function (valid) {
-      if (valid) {
-        var sessionID = parseInt(sessionstr);
-        $.ajax({
-          type: "POST",
-          url: "/publickey",
-          contentType: "application/json",
-          data: JSON.stringify({session: sessionID}),
-          dataType: "text"
-        }).then(function (publickey) {
-          var questionJson = multipleChoiceToJson($questions, "question"),
-              mainJson = tableToJson(mainHot, "main", mainRowKeys, mainColKeys), 
-              allJson = Object.assign(mainJson, questionJson),
-              maskObj = genMask(Object.keys(allJson)),
-              encryptedMask = encryptWithKey(maskObj, publickey);
-
-          console.log("public key: ");
-          console.log(publickey);
-          console.log('data: ', allJson);
-
-          // TODO: modular addition
-          for (var k in allJson) {
-            allJson[k] += maskObj[k];
-          }
-          console.log('masked data: ', allJson);
-          console.log('encrypted mask: ', encryptedMask);
-
-          // Instead of submitting email in the clear
-          // we will submit a hash
-          var md = forge.md.sha1.create();
-          md.update(emailstr);
-          var emailHash = md.digest().toHex().toString();
-
-          var sendData = {
-            data: allJson,
-            mask: encryptedMask,
-            user: emailHash,
-            session: sessionID
-          };
-
-          return $.ajax({
-            type: "POST",
-            url: targetUrl,
-            data: JSON.stringify(sendData),
-            contentType: 'application/json'
-          });
-        }).then(function (response) {
-          console.log('reponse: ', response);
-          alert("Submitted data.");
+    revalidateAll(
+      mainHot, 
+      boardHot, 
+      $boardBox, 
+      $questions, 
+      $verifyBox, 
+      function (valid) {
+        if (valid) {
+          submitAll(
+            sessionstr,
+            emailstr,
+            targetUrl,
+            inputSources
+          );
+        }
+        else {
+          alert("Input incomplete or invalid. Please check again!");
           waitingDialog.hide();
-          return response;
-          // TODO: change to catch with new jquery
-        }).fail(function (err) {
-          console.log(err);
-          if (err && err.hasOwnProperty('responseText')) {
-            alert(err.responseText);
-          } 
-          else {
-            alert('Error! Please verify submission and try again.');
-          }
-          waitingDialog.hide();
-        });
+        }
       }
-      else {
-        alert("Invalid Spreadsheet:\nplease ensure all fields are filled out correctly");
-        waitingDialog.hide();
-      }
-    });
+    );
   });
 };
 
