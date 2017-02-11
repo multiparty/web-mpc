@@ -158,7 +158,14 @@ function make2DArray(numRows, numCols) {
   return arr;
 }
 
-function populateTable(hot, data, numRows, numCols, rowIdxLookup, colIdxLookup) {
+function populateTable(
+  hot, 
+  data, 
+  numRows, 
+  numCols, 
+  rowIdxLookup, 
+  colIdxLookup
+) {
   var buffer = make2DArray(numRows, numCols);
 
   for (var rowKey in data) {
@@ -176,6 +183,45 @@ function populateTable(hot, data, numRows, numCols, rowIdxLookup, colIdxLookup) 
   }
   
   hot.loadData(buffer);
+}
+
+function displayResults(divID, hot, data, tableConfig) {
+  // Check if we have created the table already. This prevents
+  // new copies of the table from getting appended to the end
+  // of the containing div.
+  if (hot == null) {
+    hot = makeTable(divID, tableConfig);
+  }
+  // TODO: double-check this
+  var rowIdxLookup = {};
+  tableConfig.rowKeys.forEach(function (key, idx) {
+    return rowIdxLookup[key] = idx;
+  });
+  var colIdxLookup = {};
+  tableConfig.colKeys.forEach(function (key, idx) {
+    return colIdxLookup[key] = idx;
+  });
+  console.log(rowIdxLookup);
+  console.log(colIdxLookup);
+
+  // Populate table with loaded values.
+  populateTable(hot, data, tableConfig.numRows, 
+    tableConfig.numCols, rowIdxLookup, colIdxLookup);
+}
+
+function displayFromTemplate(divID, hot, data, templateUrl) {
+  $.ajax({
+    type: "GET",
+    url: templateUrl,
+    dataType: "json",
+    success: function (tableConfig) {
+      displayResults(divID, hot, data, tableConfig)
+    },
+    error: function () {
+      console.log('Error while retrieving template.');
+      $('#error').html('Error while retrieving template.');
+    }
+  });
 }
 
 /*eof*/

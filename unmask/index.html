@@ -70,13 +70,23 @@
     </button>
 
     <br/><br/>
-    <div id="friendly"></div>
+    <div id="friendly">
+      <div id="main-hot"></div>
+      <br/>
+      <div id="board-hot"></div>
+      <br/>
+      <pre id="board-include"></pre>
+      <br/>
+      <pre id="question"></pre>
+    </div>
     <br/>
     <pre id="result"></pre>
+    <pre id="error"></pre>
     <script type="text/javascript">
       // This is the handsontable object which will be defined
       // during the unmasking process.
-      var hot;
+      var mainHot,
+          boardHot;
       $('#unmask').on('click', function() {
         var maskKey = $('#maskKey').get(0),
             sessKey = $('#sessKey').val(),
@@ -92,48 +102,41 @@
                   function (success, data) {
                     la.stop();
                     if (success) {
-                      var sections = unflatten(data),
-                          mainTable = sections["main"];
-                      $.ajax({
-                        type: "GET",
-                        url: "../shared/templates/main.json",
-                        dataType: "json",
-                        success: function (tableConfig) {
-                          // Check if we have created the table already. This prevents
-                          // new copies of the table from getting appended to the end
-                          // of the containing div.
-                          if (hot == null) {
-                            hot = makeTable("#friendly", tableConfig);
+                      var sections = unflatten(data);
+                      for (var sectionName in sections) {
+                        if (sections.hasOwnProperty(sectionName)) {
+                          var section = sections[sectionName];
+                          if (sectionName === 'main') {
+                            displayFromTemplate(
+                              "#main-hot", 
+                              mainHot, 
+                              data, 
+                              "../shared/templates/main.json"
+                            );
                           }
-                          // TODO: double-check this
-                          var rowIdxLookup = {};
-                          tableConfig.rowKeys.forEach(function (key, idx) {
-                            return rowIdxLookup[key] = idx;
-                          });
-                          var colIdxLookup = {};
-                          tableConfig.colKeys.forEach(function (key, idx) {
-                            return colIdxLookup[key] = idx;
-                          });
-                          console.log(rowIdxLookup);
-                          console.log(colIdxLookup);
-
-                          // Populate table with loaded values.
-                          populateTable(hot, mainTable, tableConfig.numRows, 
-                            tableConfig.numCols, rowIdxLookup, colIdxLookup);
-                          // Display raw data. 
-                          // TODO: check!!
-                          $('#result').html(JSON.stringify(data, null, 4));
-                        },
-                        error: function () {
-                          console.log('Error while retrieving main template.');
-                          $('#result').html('Error while retrieving main template.');
-                        } 
-                      }); 
+                          else if (sectionName === 'board') {
+                            displayFromTemplate(
+                              "#board-hot", 
+                              boardHot, 
+                              data, 
+                              "../shared/templates/board.json"
+                            );
+                          }
+                          else if (sectionName === 'includeBoard') {
+                            $('#board-include').html(JSON.stringify(section, null, 4));
+                          }
+                          else if (sectionName === 'question') {
+                            $('#question').html(JSON.stringify(section, null, 4));
+                          }
+                        }
+                      }
+                      // Display raw data. 
+                      $('#result').html(JSON.stringify(data, null, 4));
                     } 
                     else {
                       console.log(data);
-                      // TODO: this is a terrible idea
-                      $('#result').html(data);
+                      // TODO: this seems like a terrible idea
+                      $('#error').html(data);
                     }
                   };
               // Remove top and bottom line of pem file
