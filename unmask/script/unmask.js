@@ -166,6 +166,7 @@ function populateTable(
   rowIdxLookup, 
   colIdxLookup
 ) {
+  console.log('data', data);
   var buffer = make2DArray(numRows, numCols);
 
   for (var rowKey in data) {
@@ -182,15 +183,21 @@ function populateTable(
     }
   }
   
-  hot.loadData(buffer);
+  console.log(buffer);
+
+  console.log(hot.table.getData());
+
+  hot.table.loadData(buffer);
+
+  console.log(hot.table.getData());
 }
 
 function displayResults(divID, hot, data, tableConfig) {
   // Check if we have created the table already. This prevents
   // new copies of the table from getting appended to the end
   // of the containing div.
-  if (hot == null) {
-    hot = makeTable(divID, tableConfig);
+  if (hot.table == null) {
+    hot.table = makeTable(divID, tableConfig);
   }
   // TODO: double-check this
   var rowIdxLookup = {};
@@ -222,6 +229,24 @@ function displayFromTemplate(divID, hot, data, templateUrl) {
       $('#error').html('Error while retrieving template.');
     }
   });
+}
+
+function displaySimple(divID, data) {
+  var container = $(divID);
+  container.empty();
+  for (var question in data) {
+    if (data.hasOwnProperty(question)) {
+      var awnserSect = data[question];
+      container.append("<p>" + question + "</p>");
+      for (var answerText in awnserSect) {
+        if (awnserSect.hasOwnProperty(answerText)) {
+          container.append(
+            "<p>" + answerText + ": " + awnserSect[answerText] + "</p>");
+        }
+      }
+    }
+  }
+  container.show();
 }
 
 /*eof*/

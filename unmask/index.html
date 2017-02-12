@@ -35,7 +35,10 @@
           vertical-align: middle;
         }
         pre {
-            text-align: left;
+          text-align:left;
+        }
+        pre p {
+          font-size:12px;
         }
     </style>
 </head>
@@ -85,8 +88,11 @@
     <script type="text/javascript">
       // This is the handsontable object which will be defined
       // during the unmasking process.
-      var mainHot,
-          boardHot;
+      var mainHot = {table: null},
+          boardHot = {table: null};
+
+      $('pre').hide();
+
       $('#unmask').on('click', function() {
         var maskKey = $('#maskKey').get(0),
             sessKey = $('#sessKey').val(),
@@ -110,7 +116,7 @@
                             displayFromTemplate(
                               "#main-hot", 
                               mainHot, 
-                              data, 
+                              section, 
                               "../shared/templates/main.json"
                             );
                           }
@@ -118,25 +124,27 @@
                             displayFromTemplate(
                               "#board-hot", 
                               boardHot, 
-                              data, 
+                              section, 
                               "../shared/templates/board.json"
                             );
                           }
                           else if (sectionName === 'includeBoard') {
-                            $('#board-include').html(JSON.stringify(section, null, 4));
+                            displaySimple('#board-include', section);
                           }
                           else if (sectionName === 'question') {
-                            $('#question').html(JSON.stringify(section, null, 4));
+                            displaySimple('#question', section);
                           }
                         }
                       }
-                      // Display raw data. 
+                      // Display raw data.
                       $('#result').html(JSON.stringify(data, null, 4));
+                      $('#result').show();
                     } 
                     else {
                       console.log(data);
                       // TODO: this seems like a terrible idea
                       $('#error').html(data);
+                      $('#error').show();
                     }
                   };
               // Remove top and bottom line of pem file
