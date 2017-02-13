@@ -151,7 +151,7 @@ var checkboxToJson = function ($checkbox, prefix) {
   var optionText = $.trim($checkbox.closest('label').text()),
       checked = $checkbox.is(':checked');
 
-  [['yes', checked], ['no', !checked]].forEach(function (option) {
+  [['Yes', checked], ['No', !checked]].forEach(function (option) {
     var key = prefix + "_" + optionText + "_" + option[0];
     jsonData[key] = option[1] ? 1 : 0;
   });
@@ -434,7 +434,7 @@ function normalRangeRenderer(instance, td, row, col, prop, value, cellProperties
 }
 
 // generates array of random numbers
-function secureRandom(size){
+function secureRandom(size) {
   var array = new Uint32Array(size);
   var cryptoObj = window.crypto || window.msCrypto; // IE 11 fix
   cryptoObj.getRandomValues(array);
@@ -442,7 +442,7 @@ function secureRandom(size){
 }
 
 // creates random mask
-function genMask(keys){
+function genMask(keys) {
   return _.object(keys, secureRandom(keys.length));
 }
 
