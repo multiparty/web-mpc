@@ -54,7 +54,6 @@ function unmask(mOut, privateKey, session, callback){
           .then(function () {
               var aggObj = aggregate(decryptedJson);
               aggObj.then(function (value) {
-                session = _.isString(session) ? parseInt(session) : session;
                 console.log(aggObj);
 
                 // TODO: callbacks
@@ -64,11 +63,14 @@ function unmask(mOut, privateKey, session, callback){
                   contentType: "application/json",
                   data: JSON.stringify({data: value, session: session}),
                   dataType: "json",
-                  success: function(data){
+                  success: function (data) {
                     console.log(data);
                     callback(true, data);
                   },
-                  error: function(error){callback(false,error)}
+                  error: function (error) {
+                    console.log(error);
+                    callback(false, "Error: couldn't compute aggregate.");
+                  }
                 });
               });
 

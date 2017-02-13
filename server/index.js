@@ -100,15 +100,25 @@ var Aggregate = mongoose.model('Aggregate', {
     _id: String,
     fields: Object,
     date: Number,
-    session: Number,
+    session: String,
     email: String
 });
-var Mask = mongoose.model('Mask', {_id: String, fields: Object, session: Number});
+var Mask = mongoose.model('Mask', {
+    _id: String, 
+    fields: Object, 
+    session: String
+});
 var PublicKey = mongoose.model('PublicKey', {
-    _id: Number, session: Number,
+    _id: String, 
+    session: String,
     pub_key: String
 });
-var FinalAggregate = mongoose.model('FinalAggregate', {_id: Number, aggregate: Object, date: Number, session: Number});
+var FinalAggregate = mongoose.model('FinalAggregate', {
+    _id: String, 
+    aggregate: Object, 
+    date: Number, 
+    session: String
+});
 
 // for parsing application/json
 app.use(body_parser.json({limit: '50mb'}));
@@ -127,7 +137,7 @@ app.post('/', function (req, res) {
     var bodySchema = {
         mask: maskSchema.required(),
         data: dataSchema.required(),
-        session: joi.number().required(),
+        session: joi.string().alphanum().required(),
         user: joi.string().alphanum().required()
     };
 
@@ -147,12 +157,16 @@ app.post('/', function (req, res) {
 
         // save the mask and individual aggregate
         var aggToSave = new Aggregate({
-            _id: user, fields: data, date: Date.now(),
-            session: session, email: user
+            _id: user, 
+            fields: data, 
+            date: Date.now(),
+            session: session, 
+            email: user
         });
 
         var maskToSave = new Mask({
-            _id: user, fields: mask,
+            _id: user, 
+            fields: mask,
             session: session
         });
 
@@ -186,7 +200,7 @@ app.post('/', function (req, res) {
 app.post("/publickey", function (req, res) {
     console.log('POST /publickey');
     console.log(req.body);
-    var schema = {session: joi.number().required()};
+    var schema = {session: joi.string().alphanum().required()};
 
     joi.validate(req.body, schema, function (valErr, body) {
         if (valErr) {
@@ -224,13 +238,13 @@ app.post('/create_session', function (req, res) {
             return;
         }
 
-        var publickey = body.publickey;   
-        var sessionID = Math.floor((Math.random() * 8999999) + 1000000);
-
+        var publickey = body.publickey;
+        var sessionID = crypto.randomBytes(16).toString('hex');
+        
         var newKey = new PublicKey({
+            _id: sessionID,
             session: sessionID, 
-            pub_key: publickey, 
-            _id: sessionID
+            pub_key: publickey 
         });
 
         newKey.save(function (err) {
@@ -255,7 +269,7 @@ app.post('/get_data', function (req, res) {
     console.log(req.body);
     
     var schema = {
-        session: joi.number().required(), 
+        session: joi.string().alphanum().required(), 
         last_fetch: joi.number().required() // TODO: enforce time stamp
     };
 
@@ -289,7 +303,7 @@ app.post('/get_masks', function (req, res) {
     console.log('POST to get_masks.');
     console.log(req.body);
 
-    var schema = {session: joi.number().required()};
+    var schema = {session: joi.string().alphanum().required()};
 
     joi.validate(req.body, schema, function (valErr, body) {
         if (valErr) {
@@ -325,7 +339,7 @@ app.post('/submit_agg', function (req, res) {
     console.log("Fetching aggregate");
 
     var schema = {
-        session: joi.number().required(),
+        session: joi.string().alphanum().required(),
         data: dataSchema.required()
     };
 

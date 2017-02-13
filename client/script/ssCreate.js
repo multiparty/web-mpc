@@ -223,12 +223,11 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources) {
 
   var $questions = inputSources['question'];
 
-  var sessionID = parseInt(sessionstr);
   $.ajax({
     type: "POST",
     url: "/publickey",
     contentType: "application/json",
-    data: JSON.stringify({session: sessionID}),
+    data: JSON.stringify({session: sessionstr}),
     dataType: "text"
   }).then(function (publickey) {
     var questionJson = multipleChoiceToJson($questions, "question"),
@@ -267,7 +266,7 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources) {
       data: allJson,
       mask: encryptedMask,
       user: emailHash,
-      session: sessionID
+      session: sessionstr
     };
 
     return $.ajax({
@@ -381,7 +380,7 @@ var submissionHandling = function (inputSources, targetUrl) {
     var sessionstr = $('#sess').val().trim();
     var emailstr = $('#emailf').val().trim();
 
-    if (!sessionstr.match(/[0-9]{7}/)){
+    if (!sessionstr.match(/^[a-z0-9]{32}$/)){
       alert("Invalid session number: must be 7 digit number");
       waitingDialog.hide();
       return;

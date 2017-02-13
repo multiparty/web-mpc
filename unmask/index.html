@@ -160,7 +160,7 @@
                 type: "POST",
                 url: "/get_masks",
                 contentType: "application/json",
-                data: JSON.stringify({session: parseInt(sessKey)}),
+                data: JSON.stringify({session: sessKey}),
                 success: function (data) {
                   unmask(data, privateKey, sessKey, callb);
                 },

@@ -53,9 +53,9 @@ function generateSession(hiddenDiv, sessionID, pubID, privID, linkID) {
                     document.getElementById(pubID).innerHTML = publicKey;
                     document.getElementById(sessionID).innerHTML = rndSess;
                     document.getElementById(linkID).innerHTML =
-                        "Go To Live Data Page for Session " + rndSess.toString();
-                    document.getElementById(linkID).href += "?session=" + rndSess.toString();
-                    saveAs(priBlob,'Session_'+rndSess.toString()+'_private_key.pem');
+                        "Go To Live Data Page for Session " + rndSess;
+                    document.getElementById(linkID).href += "?session=" + rndSess;
+                    saveAs(priBlob,'Session_' + rndSess + '_private_key.pem');
                 },
                 error: function(){
                     // 
@@ -111,7 +111,7 @@ function generateTable(tableBody, sessionID, status, timestamp, counter) {
         type: "POST",
         url: "/get_data",
         contentType: "application/json",
-        data: JSON.stringify({session: parseInt(sessionID), last_fetch: timestamp}),
+        data: JSON.stringify({session: sessionID, last_fetch: timestamp}),
         dataType: "json",
         error: function () {
             console.log("error connecting");
