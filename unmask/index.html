@@ -92,8 +92,14 @@
           boardHot = {table: null};
 
       $('pre').hide();
+      $('#main-hot').hide();
+      $('#board-hot').hide();
 
       $('#unmask').on('click', function() {
+        $('pre').hide();
+        $('#main-hot').hide();
+        $('#board-hot').hide();
+        
         var maskKey = $('#maskKey').get(0),
             sessKey = $('#sessKey').val(),
             la = Ladda.create(this),

@@ -166,7 +166,6 @@ function populateTable(
   rowIdxLookup, 
   colIdxLookup
 ) {
-  console.log('data', data);
   var buffer = make2DArray(numRows, numCols);
 
   for (var rowKey in data) {
@@ -183,13 +182,7 @@ function populateTable(
     }
   }
   
-  console.log(buffer);
-
-  console.log(hot.table.getData());
-
   hot.table.loadData(buffer);
-
-  console.log(hot.table.getData());
 }
 
 function displayResults(divID, hot, data, tableConfig) {
@@ -222,6 +215,7 @@ function displayFromTemplate(divID, hot, data, templateUrl) {
     url: templateUrl,
     dataType: "json",
     success: function (tableConfig) {
+      $(divID).show();
       displayResults(divID, hot, data, tableConfig)
     },
     error: function () {
@@ -231,6 +225,7 @@ function displayFromTemplate(divID, hot, data, templateUrl) {
   });
 }
 
+// TODO: displaying raw html like that is bad 
 function displaySimple(divID, data) {
   var container = $(divID);
   container.empty();
@@ -240,8 +235,7 @@ function displaySimple(divID, data) {
       container.append("<p>" + question + "</p>");
       for (var answerText in awnserSect) {
         if (awnserSect.hasOwnProperty(answerText)) {
-          container.append(
-            "<p>" + answerText + ": " + awnserSect[answerText] + "</p>");
+          container.append("<p>" + answerText + ": " + awnserSect[answerText] + "</p>");
         }
       }
     }

@@ -13,6 +13,17 @@
 
 'use strict';
 
+function templateToJoiSchema(template, joiCls) {
+    var schema = {};
+    for (var key in template) {
+        if (template.hasOwnProperty(key)) {
+            schema[key] = joiCls().required();
+        }
+    }
+    var joiSchema = joi.object().keys(schema);
+    return joiSchema;
+}
+
 var LEX = require('letsencrypt-express');
 var http = require('http');
 var express = require('express');
@@ -21,8 +32,14 @@ var body_parser = require('body-parser');
 var mongoose = require('mongoose');
 var template = require('./template');
 var aggregator = require('../shared/aggregate');
-var validator = require('../shared/validate')
 var crypto = require('crypto');
+var joi = require('joi');
+var Promise = require('bluebird');
+var maskSchema = templateToJoiSchema(template, joi.string);
+var dataSchema = templateToJoiSchema(template, joi.number);
+
+// Override default mpromise (cause it be bad...)
+mongoose.Promise = Promise;
 
 /*  Set server to staging for testing
     Set server to https://acme-v01.api.letsencrypt.org/directory for production
@@ -103,237 +120,286 @@ app.use(express.static(__dirname + '/../'));
 
 // protocol for accepting new data
 app.post('/', function (req, res) {
-    // Old code:
-    // // only take the fields that are in the template, mask, and data
-    // var to_add = {};
-    // for (var field in template) {
-    //     if (template.hasOwnProperty(field) &&
-    //         data.hasOwnProperty(field) &&
-    //         mask.hasOwnProperty(field)) {
-
-    //         to_add[field] = req.body.data[field];
-    //     }
-    // }
-    // console.log(to_add);
-
     console.log('POST /');
-    var expected = {
-        mask: "object",
-        data: "object",
-        session: "number",
-        user: "string"
-    }
-
-    var body = req.body;
-    // console.log(body);
-
-    // TODO: use joi
-    if (!validator.validate(body, expected)) {
-        console.log('Validation failed.');
-        res.status(500).send("Missing or invalid fields");
-        return;
-    }
-
-    var mask = body.mask,
-        data = body.data,
-        session = body.session,
-        user = body.user;
-
-    // TODO: re-write to use validate properly
     
-    var to_add = {};
-    var mask_to_add = {};
-    for (var field in template) {
-        if (template.hasOwnProperty(field)) {
-            var expectedData = {};
-            expectedData[field] = "number";
-            var expectedMask = {};
-            expectedMask[field] = "string";
-            if (!(validator.validate(data, expectedData) &&
-                  validator.validate(mask, expectedMask))) {
-                console.log('Validation failed.');
-                res.status(500).send("Missing or invalid fields");
-                return;
-            } 
-            else {
-                to_add[field] = data[field];
-                mask_to_add[field] = mask[field];
-            }
-        }
-    }
+    var body = req.body;
 
-    console.log("Validation passed.");
+    var bodySchema = {
+        mask: maskSchema.required(),
+        data: dataSchema.required(),
+        session: joi.number().required(),
+        user: joi.string().alphanum().required()
+    };
 
-    // for (var field in template) {
-    //     if (template.hasOwnProperty(field)) {
-    //         to_add[field] = data[field];
-    //         mask_to_add[field] = mask[field];
-    //     }
-    // }
-
-    // save the mask and individual aggregate
-    var agg_to_save = new Aggregate({
-        _id: user, fields: to_add, date: Date.now(),
-        session: session, email: user
-    });
-
-    var mask_to_save = new Mask({
-        _id: user, fields: mask_to_add,
-        session: session
-    });
-
-    // TODO: currently if aggregate.update succeeds but Mask.update fails, we're in trouble
-    // below control flow is broken, add returns
-
-    // for both the aggregate and the mask, update the old aggregate
-    // for the company with that email. Update or insert, hence the upsert flag
-    Aggregate.update({_id: user}, agg_to_save.toObject(), {upsert: true}, function (err) {
+    joi.validate(body, bodySchema, function (err, body) {
         if (err) {
+            console.log(err);
+            res.status(500).send('Missing or invalid fields');
+            return;
+        }
+
+        console.log('Validation passed.');
+
+        var mask = body.mask,
+            data = body.data,
+            session = body.session,
+            user = body.user;
+
+        // save the mask and individual aggregate
+        var aggToSave = new Aggregate({
+            _id: user, fields: data, date: Date.now(),
+            session: session, email: user
+        });
+
+        var maskToSave = new Mask({
+            _id: user, fields: mask,
+            session: session
+        });
+
+        // for both the aggregate and the mask, update the old aggregate
+        // for the company with that email. Update or insert, hence the upsert flag
+        var aggPromise = Aggregate.update(
+                    {_id: user}, 
+                    aggToSave.toObject(), 
+                    {upsert: true}
+                ),
+            maskPromise = Mask.update(
+                    {_id: user}, 
+                    maskToSave.toObject(),
+                    {upsert: true}
+                );
+
+        Promise.join(aggPromise, maskPromise)
+        .then(function (aggStored, maskStored) {
+            res.send(body);
+            return;
+        })
+        .catch(function (err) {
             console.log(err);
             res.status(500).send('Unable to save aggregate, please try again');
             return;
-        } else {
-        }
+        });
     });
-
-    Mask.update({_id: user}, mask_to_save.toObject(), {upsert: true}, function (err) {
-        if (err) {
-            console.log(err);
-            res.status(500).send('Unable to save aggregate, please try again');
-            return;
-        } else {
-        }
-    });
-
-    res.send(body);
 });
 
-// TODO: this should be a GET
 // endpoint for fetching the public key for a specific session
 app.post("/publickey", function (req, res) {
-    PublicKey.findOne({session: req.body.session}, function (err, data) {
-        if (err) {
-            console.log(err);
-            res.status(500).send('Error while fetching key.');
-        }
+    console.log('POST /publickey');
+    console.log(req.body);
+    var schema = {session: joi.number().required()};
 
-        if (data == null) {
-            res.status(500).send('No key found with the specified session ID');
-        } else {
-            res.send(data.pub_key);
+    joi.validate(req.body, schema, function (valErr, body) {
+        if (valErr) {
+            console.log(valErr);
+            res.status(500).send('Error while fetching key.');
+            return;
         }
+        PublicKey.findOne({session: body.session}, function (err, data) {
+            if (err) {
+                console.log(err);
+                res.status(500).send('Error while fetching key.');
+                return;
+            }
+            if (data == null) {
+                res.status(500).send('No key found with the specified session ID');
+            } else {
+                res.send(data.pub_key);
+            }
+        });
     });
 });
 
-// TODO: generate session ID server side
 // endpoint for generating and saving the public key
 app.post('/create_session', function (req, res) {
     console.log('POST /create_session');
-    var publickey = req.body.publickey;        
-    
-    // TODO: switch to crypto.randomBytes
-    var sessionID = Math.floor((Math.random() * 8999999) + 1000000);
+    console.log(req.body);
 
-    try {
-        var new_key = new PublicKey({session: sessionID, pub_key: publickey, _id: sessionID});
-        new_key.save(function (err) {
-          if (err) {
-            throw err;
-          } else {
-            console.log('Session generated...');
-          }
+    // TODO: should be more restrictive here
+    var schema = {publickey: joi.string().required()};
+
+    joi.validate(req.body, schema, function (valErr, body) {
+        if (valErr) {
+            console.log(valErr);
+            res.status(500).send('Invalid public key.');
+            return;
+        }
+
+        var publickey = body.publickey;   
+        var sessionID = Math.floor((Math.random() * 8999999) + 1000000);
+
+        var newKey = new PublicKey({
+            session: sessionID, 
+            pub_key: publickey, 
+            _id: sessionID
         });
-        res.json({sessionID: sessionID});
-    }
-    catch (err) {
-        console.log(err);
-        res.status(500).send("Error during session creation.");
-    }
 
+        newKey.save(function (err) {
+            if (err) {
+                console.log(err);
+                res.status(500).send("Error during session creation.");
+                return;
+            }
+            else {
+                console.log('Session generated for:', sessionID);
+                res.json({sessionID: sessionID});
+                return;
+            }
+        });
+
+    });
 });
 
 // endpoint for returning the emails that have submitted already
 app.post('/get_data', function (req, res) {
+    console.log('POST /get_data');
     console.log(req.body);
+    
+    var schema = {
+        session: joi.number().required(), 
+        last_fetch: joi.number().required() // TODO: enforce time stamp
+    };
 
-    // find all entries for a specific session and return the email and the time they submitted
-    Aggregate.where({session: req.body.session}).gt('date', req.body.last_fetch).find(function (err, data) {
-        if (err) {
-            console.log(err);
-            res.send(err);
-        } else {
-            var to_send = {};
-
-            for (var row in data) {
-                to_send[data[row].email] = data[row].date;
-            }
-            res.json(to_send);
+    joi.validate(req.body, schema, function (valErr, body) {
+        if (valErr) {
+            console.log(valErr);
+            res.status(500).send('Invalid or missing fields.');
+            return;
         }
+        // find all entries for a specific session and return the email and the time they submitted
+        Aggregate.where({session: body.session}).gt('date', body.last_fetch).find(function (err, data) {
+            if (err) {
+                console.log(err);
+                res.status(500).send('Failed to fetch contributors.');
+                return;
+            } else {
+                var to_send = {};
+                for (var row in data) {
+                    to_send[data[row].email] = data[row].date;
+                }
+                res.json(to_send);
+                return;
+            }
+        });
     });
+
 });
 
 // endpoint for getting all of the masks for a specific session
 app.post('/get_masks', function (req, res) {
     console.log('POST to get_masks.');
-    // console.log(req);
-    Mask.where({session: req.body.session}).find(function (err, data) {
-        // TODO: double-check js short circuiting
-        if (!data || data.length === 0) {
-            res.status(500).send('No submissions yet. Come back later.');
+    console.log(req.body);
+
+    var schema = {session: joi.number().required()};
+
+    joi.validate(req.body, schema, function (valErr, body) {
+        if (valErr) {
+            console.log(valErr);
+            res.status(500).send('Invalid or missing fields.');
+            return;
         }
-        else {
-            res.send({data: JSON.stringify(data)});
-        }
+        Mask.where({session: body.session}).find(function (err, data) {
+            if (err) {
+                console.log(err);
+                res.status(500).send('Error getting masks.');
+                return;
+            }
+            if (!data || data.length === 0) {
+                res.status(500).send('No submissions yet. Come back later.');
+                return;
+            }
+            else {
+                res.send({data: JSON.stringify(data)});
+                return;
+            }
+        });
     });
+
 });
 
 // endpoint for fetching the aggregate
 // must pass in the session ID
 // number for that key
 app.post('/submit_agg', function (req, res) {
-    var mask = req.body.data;
-
+    console.log('POST /submit_agg');
+    console.log(req.body);
     console.log("Fetching aggregate");
 
-    // finds all aggreagtes of a specific session
-    Aggregate.where({session: req.body.session}).find(function (err, data) {
-        console.log(data);
-        // make sure query result is not empty
-        if (data.length >= 1) {
+    var schema = {
+        session: joi.number().required(),
+        data: dataSchema.required()
+    };
 
-            // create the aggregate of all of the submitted entries
-            var final_data = aggregator.aggregate(data, false, true);
-            final_data.then(function (value) {
-                // TODO: get rid of _count check
-                // subtract out the random data, unless it is a counter field
-                for (var field in value)
-                    if (mask.hasOwnProperty(field) && field.slice(field.length - 6, field.length) != '_count')
-                        value[field] -= mask[field];
-
-                console.log('Final aggregate computed.');
-
-                var new_final = {_id: req.body.session, aggregate: value, date: Date.now(), session: req.body.session};
-                var to_save = new FinalAggregate(new_final);
-
-                console.log('Saving aggregate.');
-
-                // save the final aggregate for future reference.
-                // you can build another endpoint to query the finalaggregates collection if you would like
-                FinalAggregate.update({_id: req.body.session}, to_save.toObject(), function (err) {
-                    if (err) {
-                        console.log(err);
-                    } else {
-                        console.log('Aggregate saved and sent.');
-                    }
-                });
-                res.json(value);
-                return;
-            });
-        } 
-        else {
-            res.status(500).send("No submissions yet. Please come back later.");
+    joi.validate(req.body, schema, function (valErr, body) {
+        if (valErr) {
+            console.log(valErr);
+            res.status(500).send('Invalid or missing fields.');
+            return;
         }
 
+        var mask = body.data;
+        // finds all aggreagtes of a specific session
+        Aggregate.where({session: body.session}).find(function (err, data) {
+            
+            if (err) {
+                console.log(err);
+                res.status(500).send('Error computing aggregate.');
+                return;
+            }
+
+            // make sure query result is not empty
+            if (data.length >= 1) {
+
+                // create the aggregate of all of the submitted entries
+                var finalData = aggregator.aggregate(data, false, true);
+                finalData.then(function (value) {
+                    // TODO: get rid of _count check
+                    // subtract out the random data, unless it is a counter field
+                    for (var field in value) {
+                        if (mask.hasOwnProperty(field) && 
+                            field.slice(field.length - 6, field.length) != '_count') 
+                        {
+                            value[field] -= mask[field];                        
+                        }
+                    }
+
+                    console.log('Final aggregate computed.');
+
+                    var newFinal = {
+                        _id: body.session, 
+                        aggregate: value, 
+                        date: Date.now(), 
+                        session: body.session
+                    };
+                    var toSave = new FinalAggregate(newFinal);
+
+                    console.log('Sending aggregate.');
+                    // We want to send first, then save
+                    res.json(value);
+
+                    // Note that it's fine to do more processing
+                    // after res.send as long as it doesn't involved res again
+                    console.log('Saving aggregate.');
+                    // save the final aggregate for future reference.
+                    // you can build another endpoint to query the finalaggregates collection if you would like
+                    FinalAggregate.update(
+                        {_id: body.session},
+                        toSave.toObject(),
+                        {upsert: true},
+                        function (upErr) {
+                            if (upErr) {
+                                console.log(upErr);
+                            } else {
+                                console.log('Aggregate saved.');
+                            }
+                        }
+                    );
+                }); // TODO: catch here?
+            } 
+            else {
+                res.status(500).send("No submissions yet. Please come back later.");
+                return;
+            }
+        });
     });
 });
 
