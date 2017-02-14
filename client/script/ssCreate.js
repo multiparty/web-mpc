@@ -309,19 +309,20 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources) {
       data: JSON.stringify(sendData),
       contentType: 'application/json'
     });
-  }).then(function (response) {
-    console.log('reponse:', response);
+  })
+  .then(function (response) {
+    console.log(response);
     alert("Submitted data.");
     waitingDialog.hide();
     return response;
-    // TODO: change to catch with new jquery
-  }).fail(function (err) {
+  })
+  .catch(function (err) {
     console.log(err);
     if (err && err.hasOwnProperty('responseText')) {
       alert(err.responseText);
     } 
     else {
-      alert('Error! Please verify submission and try again.');
+      alert('Something went wrong! Please verify submission and try again.');
     }
     waitingDialog.hide();
   });
