@@ -8,6 +8,15 @@
  *
  */
 
+var UNCHECKED_ERR = 'Please acknowledge that all data is correct and verified.',
+    ADD_QUESTIONS_ERR = 'Please answer all Additional Questions.',
+    NUM_EMP_INVALID_ERR = 'Please double-check the Number of Employees spreadsheet.',
+    NUM_EMP_EMPTY_ERR = 'Please fill out the Number of Employees spreadsheet.',
+    BOARD_INVALID_ERR = 'Please double-check the Board of Directors spreadsheet \n' +
+                        'or uncheck the Provide Board of Directors Information checkbox.',
+    BOARD_EMPTY_ERR = 'Please fill out the Board of Directors spreadsheet \n' + 
+                      'or uncheck the Provide Board of Directors Information checkbox.';
+
 var emptyOrPosInt = function (val) {
   return val == null || val === '' || (Number.isInteger(val) && val >= 0);
 };
@@ -196,26 +205,33 @@ var revalidateAll = function (
   $verify, 
   callb
 ) {
-  var verifyChecked = $verify.is(":checked"),
+  var verifyChecked = $verify.is(':checked'),
       questionsValid = checkQuestions($questions);
 
-  if (!verifyChecked || !questionsValid) {
-    return callb(false);
+  if (!verifyChecked) {
+    return callb(false, UNCHECKED_ERR);
+  }
+
+  if (!questionsValid) {
+    return callb(false, ADD_QUESTIONS_ERR);
   }
 
   mainHot.validateCells(function (mainValid) {
     if (!mainValid) {
-      return callb(false);
+      return callb(false, NUM_EMP_INVALID_ERR);
     }
 
     if (isTableEmpty(mainHot)) {
-      return callb(false);  
+      return callb(false, NUM_EMP_EMPTY_ERR);
     }
 
     if ($boardBox.is(':checked')) {
       boardHot.validateCells(function (boardValid) {
+        if (!boardValid) {
+          return callb(false, BOARD_INVALID_ERR);
+        }
         if (isTableEmpty(boardHot)) {
-          return callb(false);  
+          return callb(false, BOARD_EMPTY_ERR);
         }
         return callb(boardValid);
       });
@@ -374,13 +390,13 @@ var submissionHandling = function (inputSources, targetUrl) {
         $boardBox,
         $questions,
         $verifyBox,
-        function (valid) {
+        function (valid, errMsg) {
           if (valid) {
             $submitButton.prop('disabled', false);
             // $verifyBox.prop('checked', false);
           }
           else {
-            alert('Input incomplete or invalid. Please check again!')
+            alert(errMsg);
             $verifyBox.prop('checked', false);
             $submitButton.prop('disabled', true);  
           }
@@ -418,7 +434,7 @@ var submissionHandling = function (inputSources, targetUrl) {
       $boardBox,
       $questions,
       $verifyBox,
-      function (valid) {
+      function (valid, errMsg) {
         if (valid) {
           submitAll(
             sessionstr,
@@ -428,7 +444,7 @@ var submissionHandling = function (inputSources, targetUrl) {
           );
         }
         else {
-          alert("Input incomplete or invalid. Please check again!");
+          alert(errMsg);
           waitingDialog.hide();
         }
       }
