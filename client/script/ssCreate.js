@@ -177,6 +177,16 @@ var checkQuestions = function (forms) {
   return checked;
 };
 
+// Sadly, there doesn't seem to be an easier way to do this...
+var isTableEmpty = function (hot) {
+  var numEmptyRows = hot.countEmptyRows(),
+      numEmptyCols = hot.countEmptyCols(),
+      numTotalRows = hot.countRows(),
+      numTotalCols = hot.countCols();
+  return (numTotalRows === numEmptyRows) && 
+         (numTotalCols === numEmptyCols);
+}
+
 // REVIEW
 var revalidateAll = function (
   mainHot, 
@@ -197,8 +207,16 @@ var revalidateAll = function (
     if (!mainValid) {
       return callb(false);
     }
+
+    if (isTableEmpty(mainHot)) {
+      return callb(false);  
+    }
+
     if ($boardBox.is(':checked')) {
       boardHot.validateCells(function (boardValid) {
+        if (isTableEmpty(boardHot)) {
+          return callb(false);  
+        }
         return callb(boardValid);
       });
     }
@@ -357,13 +375,15 @@ var submissionHandling = function (inputSources, targetUrl) {
         $questions,
         $verifyBox,
         function (valid) {
-          if (!valid) {
+          if (valid) {
+            $submitButton.prop('disabled', false);
+            // $verifyBox.prop('checked', false);
+          }
+          else {
             alert('Input incomplete or invalid. Please check again!')
             $verifyBox.prop('checked', false);
             $submitButton.prop('disabled', true);  
           }
-          $submitButton.prop('disabled', !valid);
-          // $verifyBox.prop('checked', false);
         }
       );
     }
