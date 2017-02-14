@@ -38,7 +38,7 @@ var Promise = require('bluebird');
 var maskSchema = templateToJoiSchema(template, joi.string);
 var dataSchema = templateToJoiSchema(template, joi.number);
 
-// Override default mpromise (cause it be bad...)
+// Override deprecated default mpromise 
 mongoose.Promise = Promise;
 
 /*  Set server to staging for testing
@@ -134,6 +134,7 @@ app.post('/', function (req, res) {
     
     var body = req.body;
 
+    // TODO: set length restrictions on session and user
     var bodySchema = {
         mask: maskSchema.required(),
         data: dataSchema.required(),
@@ -153,11 +154,12 @@ app.post('/', function (req, res) {
         var mask = body.mask,
             data = body.data,
             session = body.session,
-            user = body.user;
+            user = body.user,
+            ID = session + user; // will use concat of user + session for now
 
         // save the mask and individual aggregate
         var aggToSave = new Aggregate({
-            _id: user, 
+            _id: ID, 
             fields: data, 
             date: Date.now(),
             session: session, 
@@ -165,7 +167,7 @@ app.post('/', function (req, res) {
         });
 
         var maskToSave = new Mask({
-            _id: user, 
+            _id: ID, 
             fields: mask,
             session: session
         });
@@ -173,12 +175,12 @@ app.post('/', function (req, res) {
         // for both the aggregate and the mask, update the old aggregate
         // for the company with that email. Update or insert, hence the upsert flag
         var aggPromise = Aggregate.update(
-                    {_id: user}, 
+                    {_id: ID}, 
                     aggToSave.toObject(), 
                     {upsert: true}
                 ),
             maskPromise = Mask.update(
-                    {_id: user}, 
+                    {_id: ID}, 
                     maskToSave.toObject(),
                     {upsert: true}
                 );
@@ -318,7 +320,7 @@ app.post('/get_masks', function (req, res) {
                 return;
             }
             if (!data || data.length === 0) {
-                res.status(500).send('No submissions yet. Come back later.');
+                res.status(500).send('No submissions yet. Please come back later.');
                 return;
             }
             else {
@@ -391,7 +393,9 @@ app.post('/submit_agg', function (req, res) {
                     res.json(value);
 
                     // Note that it's fine to do more processing
-                    // after res.send as long as it doesn't involved res again
+                    // after res.send as long as it doesn't use res
+                    // to send more data
+
                     console.log('Saving aggregate.');
                     // save the final aggregate for future reference.
                     // you can build another endpoint to query the finalaggregates collection if you would like
