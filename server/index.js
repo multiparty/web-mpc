@@ -13,6 +13,7 @@
 
 'use strict';
 
+// TODO: check how to chain
 function templateToJoiSchema(template, joiCls) {
     var schema = {};
     for (var key in template) {
@@ -338,7 +339,7 @@ app.post('/get_masks', function (req, res) {
 app.post('/submit_agg', function (req, res) {
     console.log('POST /submit_agg');
     console.log(req.body);
-    console.log("Fetching aggregate");
+    console.log('Fetching aggregate');
 
     var schema = {
         session: joi.string().alphanum().required(),

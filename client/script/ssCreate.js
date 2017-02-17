@@ -106,7 +106,11 @@ var makeTable = function (divID, tableConfig) {
     }
   };
   var hot = new Handsontable(hotElement, hotSettings);
-  return {table: hot, rowKeys: tableConfig.rowKeys, colKeys: tableConfig.colKeys};
+  return {
+    table: hot, 
+    rowKeys: tableConfig.rowKeys, 
+    colKeys: tableConfig.colKeys
+  };
 };
 
 // pre-condition: all data is valid. only call this *after* validation
@@ -133,14 +137,12 @@ var tableToJson = function (hot, prefix, rowKeys, colKeys) {
   return jsonData;
 };
 
-// pre-condition: form labels have "for" attribute set
-var multipleChoiceToJson = function (forms, prefix) {
+var multipleChoiceToJson = function ($forms, prefix) {
   var jsonData = {};
   
-  forms.each(function () {
+  $forms.each(function () {
     $this = $(this);
-    $label = $('label[for="' + $this.attr('id') + '"]');
-    var questionText = $.trim($label.text());
+    var questionText = $.trim($this.find("#question-text").text());
     $this.find(':input').each(function () {
       var check = $(this).is(":checked"),
           val = $(this).val(),
@@ -153,7 +155,6 @@ var multipleChoiceToJson = function (forms, prefix) {
   return jsonData;
 };
 
-// pre-condition: checkbox contained by label element 
 var checkboxToJson = function ($checkbox, prefix) {
   var jsonData = {};
 
@@ -264,16 +265,11 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources) {
     data: JSON.stringify({session: sessionstr}),
     dataType: "text"
   }).then(function (publickey) {
-    var questionJson = multipleChoiceToJson($questions, "question"),
-        mainJson = tableToJson(mainHot, "main", mainRowKeys, mainColKeys),
-        boardJson = tableToJson(boardHot, "board", boardRowKeys, boardColKeys),
-        includeBoardJson = checkboxToJson($boardBox, "includeBoard");
-
     var allJson = Object.assign(
-      mainJson, 
-      questionJson, 
-      boardJson, 
-      includeBoardJson
+      multipleChoiceToJson($questions, "question"), 
+      tableToJson(mainHot, "main", mainRowKeys, mainColKeys), 
+      tableToJson(boardHot, "board", boardRowKeys, boardColKeys), 
+      checkboxToJson($boardBox, "includeBoard")
     );
 
     var maskObj = genMask(Object.keys(allJson)),

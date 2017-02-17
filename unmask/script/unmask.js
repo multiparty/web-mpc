@@ -137,7 +137,6 @@ function flattenArray(data) {
 }
 
 function makeTable(divID, tableConfig) {
-  // TODO: check that we can use document.querySelector 
   var hotElement = document.querySelector(divID),
       hotSettings = {
           width: 1024,

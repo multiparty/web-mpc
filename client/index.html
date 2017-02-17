@@ -5,21 +5,16 @@
 
   <script type="text/javascript" src="../shared/jquery-3.1.1.min.js"></script>
   <script type="text/javascript" src="../shared/underscore.js"></script>
-  
-  <script src="http://docs.handsontable.com/pro/bower_components/handsontable-pro/dist/handsontable.full.min.js"></script>
-
+  <script type="text/javascript" src="../shared/handsontable-pro/dist/handsontable.full.js"></script>
   <script type="text/javascript" src="../shared/forge.min.js"></script>
   <script type="text/javascript" src="style/bootstrap/js/bootstrap.js"></script>
   <script type="text/javascript" src="script/waitingDialog.js"></script>
   <script type="text/javascript" src="script/ssCreate.js"></script>
-  <link rel="stylesheet" type="text/css" href="http://docs.handsontable.com/pro/bower_components/handsontable-pro/dist/handsontable.full.min.css">
-  <link rel="stylesheet" type="text/css" href="http://handsontable.com/static/css/main.css">
+
   <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="style/bootstrap/v3/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" type="text/css" href="../shared/handsontable-pro/dist/handsontable.full.css"> 
   <style type="text/css">
-    .hidden {
-      display:none;
-    }
     .handsontable .ht_clone_top,
     .handsontable .ht_clone_top_left,
     .handsontable .ht_clone_top_left_corner {
@@ -45,6 +40,11 @@
       white-space: pre-line;
       max-width: 110px;
       vertical-align: middle;
+    }
+    p {
+      font-weight: 400 !important;
+      font-size: 1rem !important;
+      color: #444;
     }
     form label {
       font-weight: 400 !important;
@@ -78,8 +78,8 @@
     <h3>Board of Directors</h3>
     <form>
       <div class="checkbox">
-        <label class="btn btn-default active">Provide Board of Directors Information
-          <input type="checkbox" autocomplete="off" checked="checked" id="include-board" name="include-board">
+        <label>
+          <input type="checkbox" autocomplete="off" checked="checked" id="include-board" name="include-board">Provide Board of Directors Information
         </label>
       </div>
     </form>
@@ -89,7 +89,7 @@
     <h3>Additional Questions</h3>
     <div id="questions">
       <form id="question-a">
-        <label for="question-a">Does your company hold events to celebrate diversity and inclusion?</label>
+        <p id="question-text">Does your company hold events to celebrate diversity and inclusion?</p>
         <div class="radio">
           <label><input autocomplete="off" type="radio" name="optradio" value="Yes">Yes</label>
         </div>
@@ -101,7 +101,7 @@
         </div>
       </form>
       <form id="question-b">
-        <label for="question-b">Does your company provide diversity and inclusion education or training for managers, staff or both?</label>
+        <p id="question-text">Does your company provide diversity and inclusion education or training for managers, staff or both?</p>
         <div class="radio">
           <label><input autocomplete="off" type="radio" name="optradio" value="Yes">Yes</label>
         </div>
@@ -113,7 +113,7 @@
         </div>
       </form>
       <form id="question-c">
-        <label for="question-c">Does your management team meet to discuss your organization's diverse workforce or workplace culture?</label>
+        <p id="question-text">Does your management team meet to discuss your organization's diverse workforce or workplace culture?</p>
         <div class="radio">
           <label><input autocomplete="off" type="radio" name="optradio" value="Yes">Yes</label>
         </div>
@@ -125,7 +125,7 @@
         </div>
       </form>
       <form id="question-d">
-        <label for="question-d">Does your CEO engage in or lead discussions on diversity and inclusion with your management team or with other business executives?</label>
+        <p id="question-text">Does your CEO engage in or lead discussions on diversity and inclusion with your management team or with other business executives?</p>
         <div class="radio">
           <label><input autocomplete="off" type="radio" name="optradio" value="Yes">Yes</label>
         </div>
@@ -141,7 +141,7 @@
   <div>
     <form>
       <div class="checkbox">
-      <label class="btn btn-default">
+      <label>
         <input autocomplete="off" type="checkbox" id="verify" name="verify"> All information is verified and correct
       </label>
       </div>
@@ -150,7 +150,6 @@
   <button name="dump" class="btn btn-primary btn-lg" id="submit">Submit</button>
   <br/>
   <script type="text/javascript">
-    
     $(document).ready(function() {
       var mainReq = $.ajax({
         type: "GET",
@@ -177,7 +176,6 @@
       });
 
     });
-
   </script>
   </div>
 </body>

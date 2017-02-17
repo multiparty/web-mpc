@@ -6,40 +6,40 @@
     <script type="text/javascript" src="../shared/jquery-3.1.1.min.js"></script>
     <script type="text/javascript" src="../shared/underscore.js"></script>
     <script type="text/javascript" src="../shared/aggregate.js"></script>
+    <script type="text/javascript" src="../shared/handsontable-pro/dist/handsontable.full.js"></script>
     <script type="text/javascript" src="style/bootstrap/js/bootstrap.js"></script>
     <script type="text/javascript" src="script/spin.min.js"></script>
     <script type="text/javascript" src="script/ladda.min.js"></script>
     <script type="text/javascript" src="script/unmask.js"></script>
-    <script src="http://docs.handsontable.com/pro/bower_components/handsontable-pro/dist/handsontable.full.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="http://docs.handsontable.com/pro/bower_components/handsontable-pro/dist/handsontable.full.min.css">
-    <link rel="stylesheet" type="text/css" href="http://handsontable.com/static/css/main.css">
+    
+    <link rel="stylesheet" type="text/css" href="../shared/handsontable-pro/dist/handsontable.full.css">
     <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.css">
     <link rel="stylesheet" href="style/ladda-themeless.min.css">
     <style type="text/css">
-        .handsontable .ht_clone_top,
-        .handsontable .ht_clone_top_left,
-        .handsontable .ht_clone_top_left_corner {
-          transform: initial !important;
-        }
-        .handsontable col.rowHeader {
-          width: 200px !important;
-        }
-        .handsontable th:first-child {
-          text-align: left;
-          white-space: normal;
-        }
-        .handsontable th {
-          font-size:12px;
-          white-space: pre-line;
-          max-width: 110px;
-          vertical-align: middle;
-        }
-        pre {
-          text-align:left;
-        }
-        pre p {
-          font-size:12px;
-        }
+      .handsontable .ht_clone_top,
+      .handsontable .ht_clone_top_left,
+      .handsontable .ht_clone_top_left_corner {
+        transform: initial !important;
+      }
+      .handsontable col.rowHeader {
+        width: 200px !important;
+      }
+      .handsontable th:first-child {
+        text-align: left;
+        white-space: normal;
+      }
+      .handsontable th {
+        font-size:12px;
+        white-space: pre-line;
+        max-width: 110px;
+        vertical-align: middle;
+      }
+      pre {
+        text-align:left;
+      }
+      pre p {
+        font-size:12px;
+      }
     </style>
 </head>
 <body>
@@ -143,13 +143,12 @@
                         }
                       }
                       // Display raw data.
-                      $('#result').html(JSON.stringify(data, null, 4));
+                      $('#result').text(JSON.stringify(data, null, 4));
                       $('#result').show();
                     } 
                     else {
                       console.log(data);
-                      // TODO: this seems like a terrible idea
-                      $('#error').html(data);
+                      $('#error').text(data);
                       $('#error').show();
                     }
                   };
