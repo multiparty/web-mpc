@@ -422,7 +422,6 @@ var submissionHandling = function (inputSources, targetUrl) {
     else {
       // If unchecked, we don't need to revalidate
       // just disable submission button
-      // console.log('here!');
       $submitButton.prop('disabled', true);
     }
   });
@@ -433,7 +432,7 @@ var submissionHandling = function (inputSources, targetUrl) {
     var emailstr = $('#emailf').val().trim();
 
     if (!sessionstr.match(/^[a-z0-9]{32}$/)){
-      alert("Invalid session number: must be 7 digit number");
+      alert("Invalid session number: must be 32 character combination of letters and numbers");
       waitingDialog.hide();
       return;
     }
