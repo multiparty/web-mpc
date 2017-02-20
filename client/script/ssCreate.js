@@ -77,7 +77,7 @@ var makeTable = function (divID, tableConfig) {
       $('#submit').prop('disabled', true);
       this.validateCells();
     },
-    afterValidate: function (isValid, value, row, prop, source) {
+    afterValidate: function (isValid, value, row, prop, source) { 
       if (!isValid) {
         return false;
       }
@@ -103,6 +103,25 @@ var makeTable = function (divID, tableConfig) {
         return validateSum(value, rowValues) 
           && validateSum(value, colValues);
       }
+    },
+    cells: function (row, col, prop) {
+      var cellProperties = {},
+          isReadOnly = this.instance.getSettings().readOnly;
+
+      if (isReadOnly) {
+        cellProperties.renderer = makeBlank;
+      }
+      else {
+        var value = this.instance.getDataAtCell(row, col);
+        if (value > 10000) {
+          cellProperties.renderer = outsideRangeRenderer;
+        }
+        else {
+          cellProperties.renderer = Handsontable.renderers.NumericRenderer;
+        }
+      }
+
+      return cellProperties;
     }
   };
   var hot = new Handsontable(hotElement, hotSettings);
@@ -449,20 +468,14 @@ var submissionHandling = function (inputSources, targetUrl) {
   });
 };
 
-// creates propertes of a blank cell
 function makeBlank(instance, td, row, col, prop, value, cellProperties) {
-  td.style.color = 'grey';
-  td.style.background = 'grey';
+  Handsontable.renderers.NumericRenderer.apply(this, arguments);
+  td.style.background = '#f3f3f3';
 }
 
 function outsideRangeRenderer(instance, td, row, col, prop, value, cellProperties) {
   Handsontable.renderers.NumericRenderer.apply(this, arguments);
-  td.style.background = '#f0e68c';
-}
-
-function normalRangeRenderer(instance, td, row, col, prop, value, cellProperties) {
-  Handsontable.renderers.NumericRenderer.apply(this, arguments);
-  td.style.background = '#fff';
+  td.style.background = '#ffff00';
 }
 
 // generates array of random numbers
