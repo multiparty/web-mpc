@@ -470,6 +470,8 @@ var submissionHandling = function (inputSources, targetUrl) {
 function makeBlank(instance, td, row, col, prop, value, cellProperties) {
   Handsontable.renderers.NumericRenderer.apply(this, arguments);
   td.style.background = '#f3f3f3';
+  //td.style['background-image'] = 'linear-gradient(to right top, transparent 33%, black 33%, black 66%, transparent 66%)';
+  //td.style['background-size'] = '3px 3px';
 }
 
 function outsideRangeRenderer(instance, td, row, col, prop, value, cellProperties) {
