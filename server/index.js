@@ -14,11 +14,11 @@
 'use strict';
 
 // TODO: check how to chain
-function templateToJoiSchema(template, joiCls) {
+function templateToJoiSchema(template, joiFieldType) {
     var schema = {};
     for (var key in template) {
         if (template.hasOwnProperty(key)) {
-            schema[key] = joiCls().required();
+            schema[key] = joiFieldType; // safe to re-use since immutable
         }
     }
     var joiSchema = joi.object().keys(schema);
@@ -36,10 +36,10 @@ var aggregator = require('../shared/aggregate');
 var crypto = require('crypto');
 var joi = require('joi');
 var Promise = require('bluebird');
-var maskSchema = templateToJoiSchema(template, joi.string);
-var dataSchema = templateToJoiSchema(template, joi.number);
+var maskSchema = templateToJoiSchema(template, joi.string().required());
+var dataSchema = templateToJoiSchema(template, joi.number().required());
 
-// Override deprecated default mpromise 
+// Override deprecated mpromise 
 mongoose.Promise = Promise;
 
 /*  Set server to staging for testing

@@ -296,14 +296,14 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources) {
 
     console.log("public key: ");
     console.log(publickey);
-    console.log('data: ', allJson);
+    console.log('data:', allJson);
 
     // TODO: modular addition
     for (var k in allJson) {
       allJson[k] += maskObj[k];
     }
-    console.log('masked data: ', allJson);
-    console.log('encrypted mask: ', encryptedMask);
+    console.log('masked data:', allJson);
+    console.log('encrypted mask:', encryptedMask);
 
     // Instead of submitting email in the clear
     // we will submit a hash
