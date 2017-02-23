@@ -171,6 +171,19 @@
           alert("Please upload both files before continuing.");
         }
       });
+
+      // taken directly from trusted/session_data.html.
+      // could probably clean up
+      window.getParameterByName = function(name) {
+        console.log(name);
+        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+            results = regex.exec(location.search);
+        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+      }
+      if (getParameterByName('session')) {
+        $('#sessKey').val(getParameterByName('session'));
+      }
     </script>
   </div>
 </body>

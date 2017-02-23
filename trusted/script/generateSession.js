@@ -8,6 +8,7 @@
  */
 
 function generateSession(hiddenDiv, sessionID, pubID, privID, linkID) {
+    console.log('here!');
 
     document.getElementById(hiddenDiv).style.visibility = "visible";
     document.getElementById(sessionID).innerHTML = "Loading...";
@@ -38,7 +39,6 @@ function generateSession(hiddenDiv, sessionID, pubID, privID, linkID) {
             console.log(publicKey);
 
             var priBlob = new Blob([privateKey],{type: "text/plain;charset=utf-8"});
-            // console.log('herehere1');
 
             // TODO: shouldn't mix promises with callbacks like that
             $.ajax({
@@ -54,11 +54,10 @@ function generateSession(hiddenDiv, sessionID, pubID, privID, linkID) {
                     document.getElementById(sessionID).innerHTML = rndSess;
                     document.getElementById(linkID).innerHTML =
                         "Go To Live Data Page for Session " + rndSess;
-                    document.getElementById(linkID).href += "?session=" + rndSess;
+                    document.getElementById(linkID).href = "session_data.html?session=" + rndSess;
                     saveAs(priBlob,'Session_' + rndSess + '_private_key.pem');
                 },
-                error: function(){
-                    // 
+                error: function() {
                     var errmsg = "ERROR!!!: failed to load public key to server, please try again";
                     document.getElementById(sessionID).innerHTML = errmsg;
                     document.getElementById(privID).innerHTML = errmsg;
