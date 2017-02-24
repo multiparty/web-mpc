@@ -13,14 +13,23 @@ function unmask(mOut, privateKey, session, callback){
 
     //console.log(mOut);
     for (row in mOut) {
-        maskedData.push(mOut[row].fields);
+      maskedData.push(mOut[row].fields);
     }
 
     console.log(maskedData);
 
+    var skArrayBuffer;
+    try {
+       skArrayBuffer = str2ab(atob(privateKey));  
+    }
+    catch (err) {
+      callback(false, "Error: invalid key file.");
+      return;
+    }
+    
     window.crypto.subtle.importKey(
       "pkcs8", //can be "jwk" (public or private), "spki" (public only), or "pkcs8" (private only)
-      str2ab(atob(privateKey)),
+      skArrayBuffer,
       {   //these are the algorithm options
           name: "RSA-OAEP",
           hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
@@ -67,15 +76,16 @@ function unmask(mOut, privateKey, session, callback){
                     console.log(data);
                     callback(true, data);
                   },
-                  error: function (error) {
-                    console.log(error);
-                    callback(false, "Error: couldn't compute aggregate.");
+                  error: function (err) {
+                    console.log(err);
+                    callback(false, "Error: could not compute aggregate.");
                   }
                 });
               });
-
           });
-
+    }).catch(function (err) {
+      callback(false, "Error: could not decrypt.");
+      return;
     });
 }
 

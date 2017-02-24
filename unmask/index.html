@@ -41,6 +41,25 @@
       pre p {
         font-size: 12px;
       }
+      .btn-file {
+        position: relative;
+        overflow: hidden;
+      }
+      .btn-file input[type=file] {
+        position: absolute;
+        top: 0;
+        right: 0;
+        min-width: 100%;
+        min-height: 100%;
+        font-size: 100px;
+        text-align: right;
+        opacity: 0;
+        outline: none;
+        background: white;
+        cursor: inherit;
+        display: block;
+      }
+
     </style>
 </head>
 <body>
@@ -61,17 +80,23 @@
     <h4>Input Session Key</h4>
     <input type=text id="sessKey" placeholder="Session Key"/>
 
-    <h4>Upload Private Key  <small>(Note this does not upload the key to the network)</small></h4>
-    <input type=file id="maskKey"/>
+    <h4>Upload Private Key <small>(Note this does not upload the key to the network)</small></h4>
 
-    <br/>
-    <br/>
+    <div class="input-group">
+        <label class="input-group-btn">
+            <label class="btn btn-default btn-file">
+                Browse… <input id="maskKey" style="display:none;" type="file">
+            </label>
+        </label>
+        <input class="form-control" style="width:415px" readonly="" type="text">
+    </div>
 
     <button id="unmask" class="btn btn-primary ladda-button" data-style="zoom-out">
       <span class="ladda-label">Unmask Data</span>
     </button>
 
-    <br/><br/>
+    <br/>
+    <br/>
     <div id="friendly">
       <div id="main-hot"></div>
       <br/>
@@ -88,7 +113,7 @@
       // This is the handsontable object which will be defined
       // during the unmasking process.
       var mainHot = {table: null},
-          boardHot = {table: null};
+          boardHot = {table: null};      
 
       $('pre').hide();
       $('#main-hot').hide();
@@ -185,6 +210,21 @@
       if (getParameterByName('session')) {
         $('#sessKey').val(getParameterByName('session'));
       }
+
+      // We can attach the `fileselect` event to all file inputs on the page
+      $(document).on('change', ':file', function() {
+        var input = $(this),
+            label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+        input.trigger('fileselect', [label]);
+      });
+
+      $(':file').on('fileselect', function(event, label) {
+        var input = $(this).parents('.input-group').find(':text');
+        if (input.length) {
+          input.val(label);
+        }
+      });
+
     </script>
   </div>
 </body>
