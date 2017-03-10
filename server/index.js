@@ -367,16 +367,12 @@ app.post('/submit_agg', function (req, res) {
             if (data.length >= 1) {
 
                 // create the aggregate of all of the submitted entries
-                
-                var modulus = 4294967296; // 2^32, doesn't belong here
-                var finalData = mpc.aggregate(data, modulus, false, true);
+                var finalData = mpc.aggregateShares(data, mpc.FIELD, false, true);
                 finalData.then(function (value) {
-                    // TODO: get rid of _count check
                     // subtract out the random data, unless it is a counter field
                     for (var field in value) {
-                        if (mask.hasOwnProperty(field) && 
-                            field.slice(field.length - 6, field.length) != '_count') {
-                            value[field] = mpc.recombine([value[field], mask[field]], modulus);                      
+                        if (mask.hasOwnProperty(field)) {
+                            value[field] = mpc.recombine([value[field], mask[field]], mpc.FIELD);                      
                         }
                     }
 

@@ -294,8 +294,8 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources) {
     );
 
     // Secret-share the value in each key-value pair
-    var modulus = 4294967296; // 2^32, doesn't belong here
-    var secretShared = secretShareValues(keyValuePairs, modulus),
+    // Note: FIELD is a global defined and imported from ../shared/mpc.js
+    var secretShared = secretShareValues(keyValuePairs, FIELD),
         serviceShares = secretShared.service,
         analystShares = secretShared.analyst; 
 
