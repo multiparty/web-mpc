@@ -15,7 +15,8 @@ var UNCHECKED_ERR = 'Please acknowledge that all data is correct and verified.',
     BOARD_INVALID_ERR = 'Please double-check the Board of Directors spreadsheet \n' +
                         'or uncheck the Provide Board of Directors Information checkbox.',
     BOARD_EMPTY_ERR = 'Please fill out the Board of Directors spreadsheet \n' + 
-                      'or uncheck the Provide Board of Directors Information checkbox.';
+                      'or uncheck the Provide Board of Directors Information checkbox.',
+    GENERIC_SUBMISSION_ERR = 'Something went wrong with submission! Please try again.';
 
 var emptyOrPosInt = function (val) {
   return val == null || val === '' || (Number.isInteger(val) && val >= 0);
@@ -58,7 +59,6 @@ var wholePositiveValidator = function (value, callback) {
   }
 };
 
-// TODO: add validator to mark large values, also greater equal 0
 var makeTable = function (divID, tableConfig) {
   var hotElement = document.querySelector(divID);
   // ugly workaround because we can only set a validator on the column level
@@ -199,7 +199,7 @@ var checkQuestions = function (forms) {
       numberChecked += value ? 1 : 0;
     });
     // could rewrite as for loop to return here
-    // if false 
+    // if false
     checked = checked && (numberChecked === 1);
   });
 
@@ -284,44 +284,45 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources) {
     data: JSON.stringify({session: sessionstr}),
     dataType: "text"
   }).then(function (publickey) {
-    var allJson = Object.assign(
+    
+    // Flattened input in the form of key-value pairs
+    var keyValuePairs = Object.assign(
       multipleChoiceToJson($questions, "question"), 
       tableToJson(mainHot, "main", mainRowKeys, mainColKeys), 
       tableToJson(boardHot, "board", boardRowKeys, boardColKeys), 
       checkboxToJson($boardBox, "includeBoard")
     );
 
-    var maskObj = genMask(Object.keys(allJson)),
-        encryptedMask = encryptWithKey(maskObj, publickey);
+    // Secret-share the value in each key-value pair
+    var modulus = 4294967296; // 2^32, doesn't belong here
+    var secretShared = secretShareValues(keyValuePairs, modulus),
+        serviceShares = secretShared.service,
+        analystShares = secretShared.analyst; 
 
-    console.log("public key: ");
-    console.log(publickey);
-    console.log('data:', allJson);
+    // Encrypt analyst shares
+    var encryptedAnalystShares = encryptWithKey(analystShares, publickey);
 
-    // TODO: modular addition
-    for (var k in allJson) {
-      allJson[k] += maskObj[k];
-    }
-    console.log('masked data:', allJson);
-    console.log('encrypted mask:', encryptedMask);
-
-    // Instead of submitting email in the clear
-    // we will submit a hash
+    // Hash email address for submission
     var md = forge.md.sha1.create();
     md.update(emailstr);
     var emailHash = md.digest().toHex().toString();
 
-    var sendData = {
-      data: allJson,
-      mask: encryptedMask,
+    // The submission to be posted to service
+    var submission = {
+      data: serviceShares,
+      mask: encryptedAnalystShares,
       user: emailHash,
       session: sessionstr
     };
 
+    console.log('public key:', publickey);
+    console.log('submission:', submission);
+
+    // Post submission
     return $.ajax({
       type: "POST",
       url: targetUrl,
-      data: JSON.stringify(sendData),
+      data: JSON.stringify(submission),
       contentType: 'application/json'
     });
   })
@@ -337,7 +338,7 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources) {
       alert(err.responseText);
     } 
     else {
-      alert('Something went wrong! Please verify submission and try again.');
+      alert(GENERIC_SUBMISSION_ERR);
     }
     waitingDialog.hide();
   });
@@ -492,7 +493,7 @@ function genMask(keys) {
   return _.object(keys, secureRandom(keys.length));
 }
 
-function encryptWithKey(obj, key) {
+function encryptWithKey (obj, key) {
   var pki = forge.pki;
   var publicKey = pki.publicKeyFromPem(key);
 

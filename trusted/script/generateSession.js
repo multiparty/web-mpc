@@ -8,8 +8,6 @@
  */
 
 function generateSession(hiddenDiv, sessionID, pubID, privID, linkID) {
-    console.log('here!');
-
     document.getElementById(hiddenDiv).style.visibility = "visible";
     document.getElementById(sessionID).innerHTML = "Loading...";
     document.getElementById(pubID).innerHTML = "Loading...";

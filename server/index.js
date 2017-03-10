@@ -32,7 +32,7 @@ var app = express();
 var body_parser = require('body-parser');
 var mongoose = require('mongoose');
 var template = require('./template');
-var aggregator = require('../shared/aggregate');
+var mpc = require('../shared/mpc');
 var crypto = require('crypto');
 var joi = require('joi');
 var Promise = require('bluebird');
@@ -367,15 +367,16 @@ app.post('/submit_agg', function (req, res) {
             if (data.length >= 1) {
 
                 // create the aggregate of all of the submitted entries
-                var finalData = aggregator.aggregate(data, false, true);
+                
+                var modulus = 4294967296; // 2^32, doesn't belong here
+                var finalData = mpc.aggregate(data, modulus, false, true);
                 finalData.then(function (value) {
                     // TODO: get rid of _count check
                     // subtract out the random data, unless it is a counter field
                     for (var field in value) {
                         if (mask.hasOwnProperty(field) && 
-                            field.slice(field.length - 6, field.length) != '_count') 
-                        {
-                            value[field] -= mask[field];                        
+                            field.slice(field.length - 6, field.length) != '_count') {
+                            value[field] = mpc.recombine([value[field], mask[field]], modulus);                      
                         }
                     }
 

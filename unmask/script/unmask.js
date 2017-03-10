@@ -58,10 +58,12 @@ function unmask(mOut, privateKey, session, callback){
             });
         });
 
+        // TODO: error handling is incorrect
         // Wait for all promises to complete
         Promise.all(flattenArray(decryptedJson))
           .then(function () {
-              var aggObj = aggregate(decryptedJson);
+              var modulus = 4294967296;
+              var aggObj = aggregate(decryptedJson, modulus);
               aggObj.then(function (value) {
                 console.log(aggObj);
 
