@@ -333,6 +333,47 @@ app.post('/get_masks', function (req, res) {
 
 });
 
+// endpoint for getting the service share of the result of the aggregation
+app.post('/get_aggregate', function (req, res) {
+    console.log('POST /get_aggregate');
+    console.log(req.body);
+    
+    var schema = {session: joi.string().alphanum().required()};
+
+    joi.validate(req.body, schema, function (valErr, body) {
+        if (valErr) {
+            console.log(valErr);
+            res.status(500).send('Invalid or missing fields.');
+            return;
+        }
+        Aggregate.where({session: body.session}).find(function (err, data) {
+            
+            if (err) {
+                console.log(err);
+                res.status(500).send('Error computing aggregate.');
+                return;
+            }
+
+            // make sure query result is not empty
+            if (data.length >= 1) {
+                console.log('Computing share of aggregate.');
+                var serviceShare = mpc.aggregateShares(data, mpc.FIELD, false, true);
+
+                console.log('Sending aggregate.');
+                res.json(serviceShare);
+                
+                return;
+            }
+            else {
+                res.status(500).send('No submissions yet. Please come back later.');
+                return;
+            }
+        });
+
+    });
+
+});
+
 // endpoint for fetching the aggregate
 // must pass in the session ID
 // number for that key
@@ -367,49 +408,46 @@ app.post('/submit_agg', function (req, res) {
             if (data.length >= 1) {
 
                 // create the aggregate of all of the submitted entries
-                var finalData = mpc.aggregateShares(data, mpc.FIELD, false, true);
-                finalData.then(function (value) {
-                    // subtract out the random data, unless it is a counter field
-                    for (var field in value) {
-                        if (mask.hasOwnProperty(field)) {
-                            value[field] = mpc.recombine([value[field], mask[field]], mpc.FIELD);                      
+                var value = mpc.aggregateShares(data, mpc.FIELD, false, true);
+                for (var field in value) {
+                    if (mask.hasOwnProperty(field)) {
+                        value[field] = mpc.recombine([value[field], mask[field]], mpc.FIELD);                      
+                    }
+                }
+
+                console.log('Final aggregate computed.');
+
+                var newFinal = {
+                    _id: body.session, 
+                    aggregate: value, 
+                    date: Date.now(), 
+                    session: body.session
+                };
+                var toSave = new FinalAggregate(newFinal);
+
+                console.log('Sending aggregate.');
+                // We want to send first, then save
+                res.json(value);
+
+                // Note that it's fine to do more processing
+                // after res.send as long as it doesn't use res
+                // to send more data
+
+                console.log('Saving aggregate.');
+                // save the final aggregate for future reference.
+                // you can build another endpoint to query the finalaggregates collection if you would like
+                FinalAggregate.update(
+                    {_id: body.session},
+                    toSave.toObject(),
+                    {upsert: true},
+                    function (upErr) {
+                        if (upErr) {
+                            console.log(upErr);
+                        } else {
+                            console.log('Aggregate saved.');
                         }
                     }
-
-                    console.log('Final aggregate computed.');
-
-                    var newFinal = {
-                        _id: body.session, 
-                        aggregate: value, 
-                        date: Date.now(), 
-                        session: body.session
-                    };
-                    var toSave = new FinalAggregate(newFinal);
-
-                    console.log('Sending aggregate.');
-                    // We want to send first, then save
-                    res.json(value);
-
-                    // Note that it's fine to do more processing
-                    // after res.send as long as it doesn't use res
-                    // to send more data
-
-                    console.log('Saving aggregate.');
-                    // save the final aggregate for future reference.
-                    // you can build another endpoint to query the finalaggregates collection if you would like
-                    FinalAggregate.update(
-                        {_id: body.session},
-                        toSave.toObject(),
-                        {upsert: true},
-                        function (upErr) {
-                            if (upErr) {
-                                console.log(upErr);
-                            } else {
-                                console.log('Aggregate saved.');
-                            }
-                        }
-                    );
-                }); // TODO: catch here?
+                );
             } 
             else {
                 res.status(500).send("No submissions yet. Please come back later.");

@@ -118,6 +118,7 @@
       $('pre').hide();
       $('#main-hot').hide();
       $('#board-hot').hide();
+      $('#unmask').removeAttr("disabled");
 
       $('#unmask').on('click', function() {
         $('pre').hide();
@@ -201,7 +202,6 @@
       // taken directly from trusted/session_data.html.
       // could probably clean up
       window.getParameterByName = function(name) {
-        console.log(name);
         name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
         var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
             results = regex.exec(location.search);

@@ -6,6 +6,7 @@
  *
  */
 
+/* This is the modulus we will use */
 var FIELD = 4294967296; // 2^32
 
 /**
@@ -14,6 +15,7 @@ var FIELD = 4294967296; // 2^32
  * @param modulus
  */
 function _mod (value, modulus) {
+  // Note: % is the remainder op NOT the mod op
   return (((value) % modulus) + modulus) % modulus;
 }
 
@@ -52,7 +54,7 @@ function _addShares (share1, share2, field) {
  * @param shares
  * @param field
  */
-function recombine (shares, field) {
+function _recombine (shares, field) {
   return shares.reduce(function (e1, e2) {
     return _mod(e1 + e2, field); 
   });
@@ -82,50 +84,66 @@ function secretShareValues (tuples, field) {
   };
 }
 
+/**
+ *
+ * @param data
+ * @param modulus
+ * @param includeCounts
+ * @param db
+ */
 function aggregateShares (data, modulus, includeCounts, db) {
 
-    // By default, this is not for the database calculation.
-    if (db == null)
-        db = false;
+  // By default, this is not for the database calculation.
+  if (db == null) {
+    db = false;
+  }
+  
+  // Access fields in JSON object or in DB object.
+  var fields = db ? function(x){return x.fields;} : function(x){return x;};
+  var convert = db ? function(x){return x;} : parseInt;
 
-    // Access fields in JSON object or in DB object.
-    var fields = db ? function(x){return x.fields;} : function(x){return x;};
-    var convert = db ? function(x){return x;} : parseInt;
+  // Ensure we are always working with an array.
+  if (db) {
+    var arr = [];
+    for (row in data)
+        arr.push(data[row]);
+    data = arr;
+  }
+  var promises = [];
 
-    // Ensure we are always working with an array.
-    if (db) {
-        var arr = [];
-        for (row in data)
-            arr.push(data[row]);
-        data = arr;
+  // Compute the aggregate.
+  var agg = {};
+  for (var key in fields(data[0])) {
+    agg[key] = 0;
+  }
+  for (var i = 0; i < data.length; i++) {
+    for (let key in agg) {
+      agg[key] = _addShares(agg[key], convert(fields(data[i])[key]), modulus);
     }
-    var promises = [];
+  }
 
-    // Compute the aggregate.
-    var agg = {};
-    for (var key in fields(data[0])) {
-        agg[key] = 0;
-    }
-    for (var i = 0; i < data.length; i++) {
-        for (let key in agg) {
-            promises.push(Promise.resolve(fields(data[i])[key]).then(function (value) {
-                agg[key] = _addShares(agg[key], convert(value), modulus);
-            }));
-        }
-    }
+  return agg;
+}
 
-    return Promise.all(promises)
-      .then(function () {
-          return agg;
-      });
+/**
+ *
+ * @param serviceTuples
+ * @param analystTuples
+ * @param modulus
+ */
+function recombineValues (serviceTuples, analystTuples, modulus) {
+  var res = {};
+  for (var field in serviceTuples) {
+    if (serviceTuples.hasOwnProperty(field)) {
+      res[field] = _recombine([serviceTuples[field], analystTuples[field]], modulus);                      
+    }
+  }
+  return res;
 }
 
 if (typeof module !== 'undefined') {
   module.exports = {
     'FIELD': FIELD,
-    'aggregateShares': aggregateShares,
-    'recombine': recombine
+    'aggregateShares': aggregateShares
   };
 }
-  
-/*eof*/

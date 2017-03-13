@@ -503,5 +503,3 @@ function encryptWithKey (obj, key) {
     })
   });
 }
-
-/*eof*/
