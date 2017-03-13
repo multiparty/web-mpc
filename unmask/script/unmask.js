@@ -7,88 +7,110 @@
  */
 
 // Takes callback(true|false, data).
-// TODO: refactor
 function unmask(mOut, privateKey, session, callback){
-    mOut = JSON.parse(mOut.data);
+  mOut = JSON.parse(mOut.data);
+  
+  var maskedData = [];
+  for (row in mOut) {
+    maskedData.push(mOut[row].fields);
+  }
+
+  var skArrayBuffer;
+  try {
+    skArrayBuffer = str2ab(atob(privateKey));  
+  }
+  catch (err) {
+    callback(false, "Error: invalid key file.");
+    return;
+  }
+  
+  // Import key returns a promise
+  var sk = window.crypto.subtle.importKey(
+    "pkcs8", // (private only)
+    skArrayBuffer,
+    {name: "RSA-OAEP", hash: {name: "SHA-256"}},
+    false, // whether the key is extractable (i.e. can be used in exportKey)
+    ["decrypt"]
+  );
+
+  // Decrypt all value fields in the masked data
+  // decrypted is a list of promises, each promise
+  // corresponding to a submission with decrypted
+  // value fields
+  var decrypted = decryptValueShares(sk, maskedData);
+
+  // Aggregate decrypted values by key
+  var analystResultShare = decrypted.then(function (analystShares) {
+    return aggregateShares(analystShares, FIELD); 
+  });
+
+  // Request service to aggregate its shares and send us the result
+  var serviceResultShare = getServiceResultShare(session);
+
+  Promise.all([analystResultShare, serviceResultShare])
+  .then(function (resultShares) {
+    var analystResult = resultShares[0],
+        serviceResult = resultShares[1],
+        finalResult = recombineValues(
+            analystResult, serviceResult, FIELD
+          );
+    callback(true, finalResult);
+  }).catch(function (err) {
+    console.log(err);
+    callback(false, "Error: could not compute result.");
+  });
+}
+
+function getServiceResultShare (session) {
+  return $.ajax({
+    type: "POST",
+    url: "/get_aggregate",
+    contentType: "application/json",
+    data: JSON.stringify({
+      session: session
+    }),
+    dataType: "json"
+  });
+}
+
+// TODO: add comments
+function _decryptValueShares (importedKey, maskedData) {
+  var decryptedData = maskedData.map(function (submission) {
+    var resultTuples = [];
     
-    var maskedData = [];
-    for (row in mOut) {
-      maskedData.push(mOut[row].fields);
-    }
+    for (let key in submission) {
+      if (submission.hasOwnProperty(key)) {
+        var encryptedShare = submission[key];
 
-    var skArrayBuffer;
-    try {
-       skArrayBuffer = str2ab(atob(privateKey));  
-    }
-    catch (err) {
-      callback(false, "Error: invalid key file.");
-      return;
-    }
-    
-    var analystResultShare = window.crypto.subtle.importKey(
-      "pkcs8", //can be "jwk" (public or private), "spki" (public only), or "pkcs8" (private only)
-      skArrayBuffer,
-      {   //these are the algorithm options
-          name: "RSA-OAEP",
-          hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
-      },
-      false, //whether the key is extractable (i.e. can be used in exportKey)
-      ["decrypt"] //"encrypt" or "wrapKey" for public key import or
-      //"decrypt" or "unwrapKey" for private key imports
-    ).then(function (importedKey) {
-      // Decrypt the JSON data.
-      var decryptedData = maskedData.map(function (submission) {
-        var resultTuples = [];
-        for (let key in submission) {
-          if (submission.hasOwnProperty(key)) {
-            var encryptedShare = submission[key];
-
-            var resultTuple = window.crypto.subtle.decrypt(
-              {name: "RSA-OAEP"},
-              importedKey,
-              str2ab(encryptedShare)
-            ).then(function (decryptedShare) {
-              var tuple = {};
-              tuple[key] = arrayBufferToString(decryptedShare);
-              return tuple;
-            });
-
-            resultTuples.push(resultTuple);
-          }
-        }
-
-        var decryptedSubmission = Promise.all(resultTuples).then(function (tuples) {
-          // recombine from tuples into object
-          return Object.assign(...tuples);
+        var resultTuple = window.crypto.subtle.decrypt(
+          {name: "RSA-OAEP"},
+          importedKey,
+          str2ab(encryptedShare)
+        ).then(function (decryptedShare) {
+          var tuple = {};
+          tuple[key] = arrayBufferToString(decryptedShare);
+          return tuple;
         });
 
-        return decryptedSubmission;
-      });
+        resultTuples.push(resultTuple);
+      }
+    }
 
-      return Promise.all(decryptedData);
-    }).then(function (analystShares) {
-      return aggregateShares(analystShares, FIELD);
+    var decryptedSubmission = Promise.all(resultTuples).then(function (tuples) {
+      // recombine individual key-value pairs into single object
+      return Object.assign(...tuples);
     });
 
-    var serviceResultShare = $.ajax({
-      type: "POST",
-      url: "/get_aggregate",
-      contentType: "application/json",
-      data: JSON.stringify({
-        session: session
-      }),
-      dataType: "json"
-    });
+    return decryptedSubmission;
+  });
 
-    Promise.all([analystResultShare, serviceResultShare])
-    .then(function (resultShares) {
-      var result = recombineValues(resultShares[0], resultShares[1], FIELD);
-      console.log(result);
-      callback(true, result);
-    }).catch(function (err) {
-      console.log(err);
-      callback(false, "Error: could not compute result.");
-    });
+  return Promise.all(decryptedData);
+}
+
+function decryptValueShares (sk, maskedData) {
+  return sk.then(function (importedKey) {
+    return _decryptValueShares(importedKey, maskedData);
+  });
 }
 
 function str2ab(str) {

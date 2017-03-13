@@ -374,87 +374,14 @@ app.post('/get_aggregate', function (req, res) {
 
 });
 
-// endpoint for fetching the aggregate
-// must pass in the session ID
-// number for that key
+// endpoint for storing the encrypted result
 app.post('/submit_agg', function (req, res) {
     console.log('POST /submit_agg');
     console.log(req.body);
     console.log('Fetching aggregate');
 
-    var schema = {
-        session: joi.string().alphanum().required(),
-        data: dataSchema.required()
-    };
-
-    joi.validate(req.body, schema, function (valErr, body) {
-        if (valErr) {
-            console.log(valErr);
-            res.status(500).send('Invalid or missing fields.');
-            return;
-        }
-
-        var mask = body.data;
-        // finds all aggreagtes of a specific session
-        Aggregate.where({session: body.session}).find(function (err, data) {
-            
-            if (err) {
-                console.log(err);
-                res.status(500).send('Error computing aggregate.');
-                return;
-            }
-
-            // make sure query result is not empty
-            if (data.length >= 1) {
-
-                // create the aggregate of all of the submitted entries
-                var value = mpc.aggregateShares(data, mpc.FIELD, false, true);
-                for (var field in value) {
-                    if (mask.hasOwnProperty(field)) {
-                        value[field] = mpc.recombine([value[field], mask[field]], mpc.FIELD);                      
-                    }
-                }
-
-                console.log('Final aggregate computed.');
-
-                var newFinal = {
-                    _id: body.session, 
-                    aggregate: value, 
-                    date: Date.now(), 
-                    session: body.session
-                };
-                var toSave = new FinalAggregate(newFinal);
-
-                console.log('Sending aggregate.');
-                // We want to send first, then save
-                res.json(value);
-
-                // Note that it's fine to do more processing
-                // after res.send as long as it doesn't use res
-                // to send more data
-
-                console.log('Saving aggregate.');
-                // save the final aggregate for future reference.
-                // you can build another endpoint to query the finalaggregates collection if you would like
-                FinalAggregate.update(
-                    {_id: body.session},
-                    toSave.toObject(),
-                    {upsert: true},
-                    function (upErr) {
-                        if (upErr) {
-                            console.log(upErr);
-                        } else {
-                            console.log('Aggregate saved.');
-                        }
-                    }
-                );
-            } 
-            else {
-                res.status(500).send("No submissions yet. Please come back later.");
-                return;
-            }
-        });
-    });
+    // TODO: implement
+    res.status(500).send('Not implemented.');
 });
 
 // if the page isn't found, return 404 error
