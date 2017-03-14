@@ -24,7 +24,7 @@ function unmask(mOut, privateKey, session, callback){
     return;
   }
   
-  // Import key returns a promise
+  // Import key, returns a promise
   var sk = window.crypto.subtle.importKey(
     "pkcs8", // (private only)
     skArrayBuffer,

@@ -3,64 +3,72 @@
 <head>
 	<title>Trusted Party Data Unmasker</title>
 
-    <script type="text/javascript" src="../shared/jquery-3.1.1.min.js"></script>
-    <script type="text/javascript" src="../shared/underscore.js"></script>
-    <script type="text/javascript" src="../shared/mpc.js"></script>
-    <script type="text/javascript" src="../shared/handsontable-pro/dist/handsontable.full.js"></script>
-    <script type="text/javascript" src="style/bootstrap/js/bootstrap.js"></script>
-    <script type="text/javascript" src="script/spin.min.js"></script>
-    <script type="text/javascript" src="script/ladda.min.js"></script>
-    <script type="text/javascript" src="script/unmask.js"></script>
-    
-    <link rel="stylesheet" type="text/css" href="../shared/handsontable-pro/dist/handsontable.full.css">
-    <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.css">
-    <link rel="stylesheet" href="style/ladda-themeless.min.css">
-    <style type="text/css">
-      .handsontable .ht_clone_top,
-      .handsontable .ht_clone_top_left,
-      .handsontable .ht_clone_top_left_corner {
-        display: none;
-      }
-      #main-hot .handsontable col.rowHeader {
-        width: 200px !important;
-      }
-      .handsontable th:first-child {
-        text-align: left;
-        white-space: normal;
-      }
-      .handsontable th {
-        font-size: 12px;
-        white-space: pre-line;
-        max-width: 110px;
-        vertical-align: middle;
-      }
-      pre {
-        text-align: left;
-        margin-bottom: 0px;
-      }
-      pre p {
-        font-size: 12px;
-      }
-      .btn-file {
-        position: relative;
-        overflow: hidden;
-      }
-      .btn-file input[type=file] {
-        position: absolute;
-        top: 0;
-        right: 0;
-        min-width: 100%;
-        min-height: 100%;
-        font-size: 100px;
-        text-align: right;
-        opacity: 0;
-        outline: none;
-        background: white;
-        cursor: inherit;
-        display: block;
-      }
+  <script type="text/javascript" src="../shared/jquery-3.1.1.min.js"></script>
+  <script type="text/javascript" src="../shared/underscore.js"></script>
+  <script type="text/javascript" src="../shared/mpc.js"></script>
+  <script type="text/javascript" src="../shared/handsontable-pro/dist/handsontable.full.js"></script>
+  <script type="text/javascript" src="style/bootstrap/js/bootstrap.js"></script>
+  <script type="text/javascript" src="script/spin.min.js"></script>
+  <script type="text/javascript" src="script/ladda.min.js"></script>
+  <script type="text/javascript" src="script/unmask.js"></script>
+  
+  <link rel="stylesheet" type="text/css" href="../shared/handsontable-pro/dist/handsontable.full.css">
+  <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.css">
+  <link rel="stylesheet" href="style/ladda-themeless.min.css">
+  <style type="text/css">
+    .handsontable .ht_clone_top,
+    .handsontable .ht_clone_top_left,
+    .handsontable .ht_clone_top_left_corner {
+      display: none;
+    }
+    #main-hot .handsontable col.rowHeader {
+      width: 200px !important;
+    }
+    .handsontable th:first-child {
+      text-align: left;
+      white-space: normal;
+    }
+    .handsontable th {
+      font-size: 12px;
+      white-space: pre-line;
+      max-width: 110px;
+      vertical-align: middle;
+    }
+    pre {
+      text-align: left;
+      margin-bottom: 0px;
+    }
+    pre p {
+      font-size: 12px;
+    }
+    .btn-file {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-file input[type=file] {
+      position: absolute;
+      top: 0;
+      right: 0;
+      min-width: 100%;
+      min-height: 100%;
+      font-size: 100px;
+      text-align: right;
+      opacity: 0;
+      outline: none;
+      background: white;
+      cursor: inherit;
+      display: block;
+    }
 
-    </style>
+    input:invalid {
+      border: 1px solid red;
+    }
+
+    input:valid {
+      border: 1px solid green;
+    }
+
+  </style>
 </head>
 <body>
   <div class="container">
@@ -78,18 +86,20 @@
     </div>
 
     <h4>Input Session Key</h4>
-    <input type=text id="sessKey" placeholder="Session Key"/>
+    <input type=text id="sessKey" placeholder="Session Key" pattern="^[a-z0-9]{32}$" required/>
 
     <h4>Upload Private Key <small>(Note this does not upload the key to the network)</small></h4>
 
-    <div class="input-group">
-        <label class="input-group-btn">
-            <label class="btn btn-default btn-file">
-                Browse… <input id="maskKey" style="display:none;" type="file">
+      <div class="col-xs-4">
+        <div class="input-group">
+            <label class="input-group-btn">
+                <label class="btn btn-default btn-file">
+                    Browse… <input id="maskKey" style="display:none;" type="file">
+                </label>
             </label>
-        </label>
-        <input class="form-control" style="width:415px" readonly="" type="text">
-    </div>
+            <p id="filename">No File selected...</p>
+        </div>
+      </div>
 
     <button id="unmask" class="btn btn-primary ladda-button" data-style="zoom-out">
       <span class="ladda-label">Unmask Data</span>
@@ -219,9 +229,9 @@
       });
 
       $(':file').on('fileselect', function(event, label) {
-        var input = $(this).parents('.input-group').find(':text');
+        var input = $(this).parents('.input-group').find('#filename');
         if (input.length) {
-          input.val(label);
+          input.text(label);
         }
       });
 
