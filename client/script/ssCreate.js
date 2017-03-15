@@ -262,7 +262,10 @@ var revalidateAll = function (
   });
 };
 
-var submitAll = function (sessionstr, emailstr, targetUrl, inputSources) {
+var submitAll = function (sessionstr, emailstr, targetUrl, inputSources, la) {
+  // Start loading animation
+  la.start();
+  
   // Unpack input sources
   var mainSection = inputSources['main'],
       mainHot = mainSection.table,
@@ -329,7 +332,8 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources) {
   .then(function (response) {
     console.log(response);
     alert("Submitted data.");
-    waitingDialog.hide();
+    // Stop loading animation
+    la.stop();
     return response;
   })
   .catch(function (err) {
@@ -340,7 +344,8 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources) {
     else {
       alert(GENERIC_SUBMISSION_ERR);
     }
-    waitingDialog.hide();
+    // Stop loading animation
+    la.stop();
   });
 };
 
@@ -428,19 +433,18 @@ var submissionHandling = function (inputSources, targetUrl) {
   });
   
   $submitButton.click(function() {
-    waitingDialog.show('Loading Data',{dialogSize: 'sm', progressType: 'warning'});
+    var la = Ladda.create(this);
+    // waitingDialog.show('Loading Data',{dialogSize: 'sm', progressType: 'warning'});
     var sessionstr = $('#sess').val().trim();
     var emailstr = $('#emailf').val().trim();
 
     if (!sessionstr.match(/^[a-z0-9]{32}$/)){
       alert("Invalid session number: must be 32 character combination of letters and numbers");
-      waitingDialog.hide();
       return;
     }
 
     if (!emailstr.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/)){
       alert("Did not type a correct email address");
-      waitingDialog.hide();
       return;
     }
 
@@ -456,12 +460,13 @@ var submissionHandling = function (inputSources, targetUrl) {
             sessionstr,
             emailstr,
             targetUrl,
-            inputSources
+            inputSources,
+            la
           );
         }
         else {
           alert(errMsg);
-          waitingDialog.hide();
+          la.stop();
         }
       }
     );
@@ -478,19 +483,6 @@ function makeBlank(instance, td, row, col, prop, value, cellProperties) {
 function outsideRangeRenderer(instance, td, row, col, prop, value, cellProperties) {
   Handsontable.renderers.NumericRenderer.apply(this, arguments);
   td.style.background = '#ffff00';
-}
-
-// generates array of random numbers
-function secureRandom(size) {
-  var array = new Uint32Array(size);
-  var cryptoObj = window.crypto || window.msCrypto; // IE 11 fix
-  cryptoObj.getRandomValues(array);
-  return array;
-}
-
-// creates random mask
-function genMask(keys) {
-  return _.object(keys, secureRandom(keys.length));
 }
 
 function encryptWithKey (obj, key) {
