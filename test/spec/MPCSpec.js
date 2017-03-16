@@ -40,7 +40,7 @@ describe("MPC", function() {
     expect(secretShared.hasOwnProperty('service')).toEqual(true);
     expect(secretShared.hasOwnProperty('analyst')).toEqual(true);
     
-    var analystShares = secretShared['service'];
+    var analystShares = secretShared['analyst'];
     for (var key in analystShares) {
       expect(objA.hasOwnProperty(key)).toEqual(true);
     }

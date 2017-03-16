@@ -109,7 +109,7 @@ function aggregateShares (data, modulus, includeCounts, db) {
         arr.push(data[row]);
     data = arr;
   }
-  var promises = [];
+  // var promises = [];
 
   // Compute the aggregate.
   var agg = {};

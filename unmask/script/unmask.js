@@ -74,7 +74,12 @@ function getServiceResultShare (session) {
 }
 
 // TODO: add comments
+
+/**
+ * This function returns 
+**/
 function _decryptValueShares (importedKey, maskedData) {
+
   var decryptedData = maskedData.map(function (submission) {
     var resultTuples = [];
     
