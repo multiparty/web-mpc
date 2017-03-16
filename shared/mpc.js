@@ -27,6 +27,7 @@ function _mod (value, modulus) {
  */
 function _secretShare (value, n, field) {
   // TODO: double-check if there could be overflow
+  // TODO: raise error in case value > field
   var shares = new Uint32Array(n),
       cryptoObj = window.crypto || window.msCrypto; // IE 11 fix
   cryptoObj.getRandomValues(shares);
@@ -47,7 +48,6 @@ function _secretShare (value, n, field) {
 function _addShares (share1, share2, field) {
   return _mod(share1 + share2, field);
 }
-
 
 /**
  *
