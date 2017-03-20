@@ -19,14 +19,19 @@ function _uint32 (value) {
 /**
  *
  * @param value
+ */
+function _inUint32Range (value) {
+  return (0 <= value) && (value < MAX_VALUE);
+}
+
+/**
+ *
+ * @param value
  * @param n
  */
 function _secretShare (value, n) {
-  if (value >= MAX_VALUE) {
-    throw new Error('Input value too large');
-  }
-  if (value < 0) {
-    throw new Error('Input value negative');  
+  if (!_inUint32Range(value)) {
+    throw new Error('Input value outside valid range');
   }
   var uvalue = _uint32(value),
       shares = new Uint32Array(n),
@@ -87,10 +92,63 @@ function secretShareValues (obj) {
 /**
  *
  * @param data
- * @param includeCounts
  * @param db
  */
-function aggregateShares (data, includeCounts, db) {
+function countInvalidShares (data, db) {
+  // By default, this is not for the database calculation.
+  if (db == null) {
+    db = false;
+  }
+  
+  // Access fields in JSON object or in DB object.
+  var fields = db ? function(x){return x.fields;} : function(x){return x;};
+  var isInvalid;
+  if (db) {
+    isInvalid = function (x) {
+      return (!_inUint32Range(x) ? 1 : 0);
+    };
+  }
+  else {
+    isInvalid = function (x) {
+      var result = parseInt(x, 10);
+          invalid = 0;
+      if (isNaN(result) || !_inUint32Range(result)) {
+        invalid = 1;
+      }
+      return invalid;
+    };
+  }
+
+  // Ensure we are always working with an array.
+  if (db) {
+    var arr = [];
+    for (row in data) {
+      arr.push(data[row]);
+    }
+    data = arr;
+  }
+
+  // Compute the aggregate.
+  var invalidCount = {};
+  for (var key in fields(data[0])) {
+    invalidCount[key] = 0;
+  }
+  for (var i = 0; i < data.length; i++) {
+    for (let key in invalidCount) {
+      var count = isInvalid(fields(data[i])[key]);
+      invalidCount[key] = invalidCount[key] + count;
+    }
+  }
+
+  return invalidCount;
+}
+
+/**
+ *
+ * @param data
+ * @param db
+ */
+function aggregateShares (data, db) {
 
   // By default, this is not for the database calculation.
   if (db == null) {
@@ -99,24 +157,37 @@ function aggregateShares (data, includeCounts, db) {
   
   // Access fields in JSON object or in DB object.
   var fields = db ? function(x){return x.fields;} : function(x){return x;};
-  var convert = db ? function(x){return x;} : parseInt;
+  var convert = db ? function(x){return _uint32(x);} : function (x) {
+    var result = parseInt(x, 10);
+    if (isNaN(result)) {
+      console.error('NaN detected in:', x, data);
+      result = 0;
+    }
+    else if (!_inUint32Range(result)) {
+      console.error('Outside range detected in:', x, data);
+      result = 0;
+    }
+    return _uint32(result);
+  };
 
   // Ensure we are always working with an array.
   if (db) {
     var arr = [];
-    for (row in data)
-        arr.push(data[row]);
+    for (row in data) {
+      arr.push(data[row]);
+    }
     data = arr;
   }
 
   // Compute the aggregate.
   var agg = {};
   for (var key in fields(data[0])) {
-    agg[key] = 0;
+    agg[key] = _uint32(0);
   }
   for (var i = 0; i < data.length; i++) {
     for (let key in agg) {
-      agg[key] = _addShares(agg[key], convert(fields(data[i])[key]));
+      var value = convert(fields(data[i])[key]);
+      agg[key] = _addShares(agg[key], value);
     }
   }
 

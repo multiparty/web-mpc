@@ -41,7 +41,7 @@ function unmask(mOut, privateKey, session, callback){
 
   // Aggregate decrypted values by key
   var analystResultShare = decrypted.then(function (analystShares) {
-    return aggregateShares(analystShares, FIELD); 
+    return aggregateShares(analystShares); 
   });
 
   // Request service to aggregate its shares and send us the result

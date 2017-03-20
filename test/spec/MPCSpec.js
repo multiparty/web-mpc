@@ -1,8 +1,9 @@
 // TODO: think about safe integers and overflow
 
-describe("Unsigned integer conversion", function () {
-  var twoto32 = MAX_VALUE;
+var twoto32 = MAX_VALUE;
 
+describe("Unsigned integer conversion", function () {
+  
   it("should preserve values < 2^32", function () {
     expect(_uint32(0)).toEqual(0);
     expect(_uint32(1001)).toEqual(1001);
@@ -30,9 +31,8 @@ describe("Unsigned integer conversion", function () {
 });
 
 describe("MPC for single values", function () {
-  var twoto32 = MAX_VALUE;
 
-  it("should secret share a value into n pieces", function () {
+  it("should secret share a value into n shares", function () {
     expect(_secretShare(100, 2).length).toEqual(2);
     expect(_secretShare(100, 3).length).toEqual(3);
     expect(_secretShare(100, 10).length).toEqual(10);
@@ -64,7 +64,7 @@ describe("MPC for single values", function () {
       2464346730])).toEqual(908021323);
   });
 
-  it("should hold that recombination is inverse of secret-sharing", function () {
+  it("should hold that recombination is inverse of secret sharing", function () {
     expect(_recombine(_secretShare(100, 2))).toEqual(100);
     expect(_recombine(_secretShare(100, 3))).toEqual(100);
     expect(_recombine(_secretShare(100, 10))).toEqual(100);
@@ -82,28 +82,28 @@ describe("MPC for single values", function () {
     expect(given).toEqual(expected);
   });
 
-  it("should throw exception when input >= 2^32", function () {
+  it("should throw when input >= 2^32", function () {
     var f = function () {
       _secretShare(twoto32, 2);
     };
-    expect(f).toThrow(new Error('Input value too large'));
+    expect(f).toThrow(new Error('Input value outside valid range'));
     f = function () {
       _secretShare(twoto32 + 100, 2);
     };
-    expect(f).toThrow(new Error('Input value too large'));
+    expect(f).toThrow(new Error('Input value outside valid range'));
   });
 
-  it("should throw exception when input is negative", function () {
+  it("should throw when input is negative", function () {
     var f = function () {
       _secretShare(-1, 2);
     };
-    expect(f).toThrow(new Error('Input value negative'));
+    expect(f).toThrow(new Error('Input value outside valid range'));
   });
 });
 
 describe("MPC for objects", function () {
 
-  it("should secret share the fields of an object", function() {
+  it("should secret share the fields of an object", function () {
     var objA = {
         'k1': 123,
         'k2': 456,
@@ -130,4 +130,107 @@ describe("MPC for objects", function () {
       expect(serviceShare.hasOwnProperty(key)).toEqual(true);
     }
   });
+
+  it("should secret share, aggregate, recombine two submissions", function () {
+    var objA = {
+            'k1': 123,
+            'k2': 456,
+            'k3': 890
+          },
+        objB = {
+            'k1': 42,
+            'k2': 111,
+            'k3': 12300
+          },
+        secretSharedA = secretShareValues(objA),
+        secretSharedB = secretShareValues(objB);
+
+    var serviceShares = [
+            {fields: secretSharedA.service}, 
+            {fields: secretSharedB.service}
+          ],
+        analystShares = [
+            secretSharedA.analyst, 
+            secretSharedB.analyst
+          ];
+
+    var aggregatedService = aggregateShares(serviceShares, true),
+        aggregatedAnalyst = aggregateShares(analystShares),
+        result = recombineValues(
+          aggregatedService, 
+          aggregatedAnalyst
+        );
+
+    var expected = {
+      'k1': 123 + 42,
+      'k2': 456 + 111,
+      'k3': 890 + 12300
+    };
+
+    expect(result).toEqual(expected);
+
+  });
+
+  it("should secret share, aggregate, recombine multiple submissions", function () {
+    var numSubs = 100,
+        submissions = [];
+
+    for (var i = 0; i < numSubs; ++i) {
+      submissions.push({
+        k1: 1,
+        k2: 2,
+        k3: 3
+      });
+    }
+    var secretShared = submissions.map(function (submission) {
+      return secretShareValues(submission);
+    });
+
+    var serviceShares = [],
+        analystShares = [];
+
+    secretShared.forEach(function (submission) {
+      serviceShares.push({fields: submission.service});
+      analystShares.push(submission.analyst);      
+    });
+
+    var aggregatedService = aggregateShares(serviceShares, true),
+        aggregatedAnalyst = aggregateShares(analystShares),
+        result = recombineValues(
+          aggregatedService, 
+          aggregatedAnalyst
+        );
+
+    var expected = {
+      'k1': 1 * numSubs,
+      'k2': 2 * numSubs,
+      'k3': 3 * numSubs
+    };
+
+    expect(result).toEqual(expected);
+
+  });
+
+  it("should replace NaNs with 0 during aggregation", function () {
+    var shares = [{k: 'aaa'}, {k: ''}, {k: '100'}, {k: 'bb'}],
+        result = aggregateShares(shares),
+        expected = {k: 100};
+    expect(result).toEqual(expected);
+  });
+
+  it("should correctly count NaNs in analyst shares", function () {
+    var shares = [{k: 'aaa'}, {k: ''}, {k: '100'}, {k: 'bb'}],
+        result = countInvalidShares(shares),
+        expected = {k: 3};
+    expect(result).toEqual(expected);
+  });
+
+  it("should correctly count out-of-bounds in service shares", function () {
+    var shares = [{k: -1}, {k: -10}, {k: 10}, {k: twoto32}, {k: twoto32 + 1}],
+        wrappedShares = shares.map(function (share) {return {fields: share}}),
+        result = countInvalidShares(wrappedShares, true),
+        expected = {k: 4};
+    expect(result).toEqual(expected);
+  });
+
 });

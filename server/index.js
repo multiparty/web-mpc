@@ -357,7 +357,7 @@ app.post('/get_aggregate', function (req, res) {
             // make sure query result is not empty
             if (data.length >= 1) {
                 console.log('Computing share of aggregate.');
-                var serviceShare = mpc.aggregateShares(data, mpc.FIELD, false, true);
+                var serviceShare = mpc.aggregateShares(data, true);
 
                 console.log('Sending aggregate.');
                 res.json(serviceShare);
