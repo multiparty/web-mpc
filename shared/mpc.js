@@ -6,36 +6,39 @@
  *
  */
 
-/* This is the modulus we will use */
-var FIELD = 4294967296; // 2^32
+var MAX_VALUE = 4294967296; // 2^32
 
 /**
  *
  * @param value
- * @param modulus
  */
-function _mod (value, modulus) {
-  // Note: % is the remainder op NOT the mod op
-  return (((value) % modulus) + modulus) % modulus;
+function _uint32 (value) {
+  return value >>> 0;
 }
 
 /**
  *
  * @param value
  * @param n
- * @param field
  */
-function _secretShare (value, n, field) {
-  // TODO: double-check if there could be overflow
-  // TODO: raise error in case value > field
-  var shares = new Uint32Array(n),
+function _secretShare (value, n) {
+  if (value >= MAX_VALUE) {
+    throw new Error('Input value too large');
+  }
+  if (value < 0) {
+    throw new Error('Input value negative');  
+  }
+  var uvalue = _uint32(value),
+      shares = new Uint32Array(n),
       cryptoObj = window.crypto || window.msCrypto; // IE 11 fix
+  
   cryptoObj.getRandomValues(shares);
-  shares[n - 1] = 0;
+  
+  shares[n - 1] = _uint32(0);
   var sumRandomShares = shares.reduce(function (e1, e2) {
-    return _mod(e1 + e2, field);
+    return _uint32(e1 + e2);
   });
-  shares[n - 1] = _mod(value - sumRandomShares, field);
+  shares[n - 1] = _uint32(uvalue - sumRandomShares);
   return shares;
 }
 
@@ -43,36 +46,33 @@ function _secretShare (value, n, field) {
  *
  * @param share1
  * @param share2
- * @param field
  */
-function _addShares (share1, share2, field) {
-  return _mod(share1 + share2, field);
+function _addShares (share1, share2) {
+  return _uint32(share1 + share2);
 }
 
 /**
  *
  * @param shares
- * @param field
  */
-function _recombine (shares, field) {
+function _recombine (shares) {
   return shares.reduce(function (e1, e2) {
-    return _mod(e1 + e2, field); 
+    return _uint32(e1 + e2); 
   });
 }
 
 /**
  *
- * @param tuples
- * @param field
+ * @param obj
  */
-function secretShareValues (tuples, field) {
+function secretShareValues (obj) {
   var serviceTuples = {},
       analystTuples = {};
 
-  for (var key in tuples) {
-    if (tuples.hasOwnProperty(key)) {
-      var value = tuples[key],
-          shares = _secretShare(value, 2, field);
+  for (var key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      var value = obj[key],
+          shares = _secretShare(value, 2);
       serviceTuples[key] = shares[0];
       analystTuples[key] = shares[1];
     }
@@ -87,11 +87,10 @@ function secretShareValues (tuples, field) {
 /**
  *
  * @param data
- * @param modulus
  * @param includeCounts
  * @param db
  */
-function aggregateShares (data, modulus, includeCounts, db) {
+function aggregateShares (data, includeCounts, db) {
 
   // By default, this is not for the database calculation.
   if (db == null) {
@@ -109,7 +108,6 @@ function aggregateShares (data, modulus, includeCounts, db) {
         arr.push(data[row]);
     data = arr;
   }
-  // var promises = [];
 
   // Compute the aggregate.
   var agg = {};
@@ -118,7 +116,7 @@ function aggregateShares (data, modulus, includeCounts, db) {
   }
   for (var i = 0; i < data.length; i++) {
     for (let key in agg) {
-      agg[key] = _addShares(agg[key], convert(fields(data[i])[key]), modulus);
+      agg[key] = _addShares(agg[key], convert(fields(data[i])[key]));
     }
   }
 
@@ -129,13 +127,12 @@ function aggregateShares (data, modulus, includeCounts, db) {
  *
  * @param serviceTuples
  * @param analystTuples
- * @param modulus
  */
-function recombineValues (serviceTuples, analystTuples, modulus) {
+function recombineValues (serviceTuples, analystTuples) {
   var res = {};
   for (var field in serviceTuples) {
     if (serviceTuples.hasOwnProperty(field)) {
-      res[field] = _recombine([serviceTuples[field], analystTuples[field]], modulus);                      
+      res[field] = _recombine([serviceTuples[field], analystTuples[field]]);                      
     }
   }
   return res;
