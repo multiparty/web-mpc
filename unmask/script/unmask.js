@@ -41,6 +41,10 @@ function unmask(mOut, privateKey, session, callback){
 
   // Aggregate decrypted values by key
   var analystResultShare = decrypted.then(function (analystShares) {
+    var invalidShareCount = countInvalidShares(analystShares);
+    // TODO: we should set a threshold and abort if there are too
+    // many invalid shares
+    console.log('Invalid share count:', invalidShareCount);
     return aggregateShares(analystShares); 
   });
 
@@ -51,9 +55,7 @@ function unmask(mOut, privateKey, session, callback){
   .then(function (resultShares) {
     var analystResult = resultShares[0],
         serviceResult = resultShares[1],
-        finalResult = recombineValues(
-            analystResult, serviceResult, FIELD
-          );
+        finalResult = recombineValues(analystResult, serviceResult);
     callback(true, finalResult);
   }).catch(function (err) {
     console.log(err);

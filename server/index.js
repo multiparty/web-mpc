@@ -13,7 +13,6 @@
 
 'use strict';
 
-// TODO: check how to chain
 function templateToJoiSchema(template, joiFieldType) {
     var schema = {};
     for (var key in template) {
@@ -357,7 +356,13 @@ app.post('/get_aggregate', function (req, res) {
             // make sure query result is not empty
             if (data.length >= 1) {
                 console.log('Computing share of aggregate.');
-                var serviceShare = mpc.aggregateShares(data, true);
+                
+                var invalidShareCount = mpc.countInvalidShares(data, true),
+                    serviceShare = mpc.aggregateShares(data, true);
+                
+                // TODO: we should set a threshold and abort if there are too
+                // many invalid shares
+                console.log('Invalid share count:', invalidShareCount);
 
                 console.log('Sending aggregate.');
                 res.json(serviceShare);

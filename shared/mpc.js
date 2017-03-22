@@ -6,6 +6,8 @@
  *
  */
 
+'use strict';
+
 var MAX_VALUE = 4294967296; // 2^32
 
 /**
@@ -110,7 +112,7 @@ function countInvalidShares (data, db) {
   }
   else {
     isInvalid = function (x) {
-      var result = parseInt(x, 10);
+      var result = parseInt(x, 10),
           invalid = 0;
       if (isNaN(result) || !_inUint32Range(result)) {
         invalid = 1;
@@ -122,7 +124,7 @@ function countInvalidShares (data, db) {
   // Ensure we are always working with an array.
   if (db) {
     var arr = [];
-    for (row in data) {
+    for (let row in data) {
       arr.push(data[row]);
     }
     data = arr;
@@ -173,7 +175,7 @@ function aggregateShares (data, db) {
   // Ensure we are always working with an array.
   if (db) {
     var arr = [];
-    for (row in data) {
+    for (let row in data) {
       arr.push(data[row]);
     }
     data = arr;
@@ -211,7 +213,7 @@ function recombineValues (serviceTuples, analystTuples) {
 
 if (typeof module !== 'undefined') {
   module.exports = {
-    'FIELD': FIELD,
-    'aggregateShares': aggregateShares
+    'aggregateShares': aggregateShares,
+    'countInvalidShares': countInvalidShares
   };
 }

@@ -1,5 +1,7 @@
 // TODO: think about safe integers and overflow
 
+'use strict';
+
 var twoto32 = MAX_VALUE;
 
 describe("Unsigned integer conversion", function () {
@@ -82,7 +84,7 @@ describe("MPC for single values", function () {
     expect(given).toEqual(expected);
   });
 
-  it("should throw when input >= 2^32", function () {
+  it("should throw when input to secret sharing >= 2^32", function () {
     var f = function () {
       _secretShare(twoto32, 2);
     };
@@ -93,7 +95,7 @@ describe("MPC for single values", function () {
     expect(f).toThrow(new Error('Input value outside valid range'));
   });
 
-  it("should throw when input is negative", function () {
+  it("should throw when input to secret sharing is negative", function () {
     var f = function () {
       _secretShare(-1, 2);
     };
@@ -220,6 +222,13 @@ describe("MPC for objects", function () {
 
   it("should correctly count NaNs in analyst shares", function () {
     var shares = [{k: 'aaa'}, {k: ''}, {k: '100'}, {k: 'bb'}],
+        result = countInvalidShares(shares),
+        expected = {k: 3};
+    expect(result).toEqual(expected);
+  });
+
+  it("should correctly count out-of-bounds in analyst shares", function () {
+    var shares = [{k: '-1'}, {k: '4294967296'}, {k: '4294967297'}, {k: '7'}],
         result = countInvalidShares(shares),
         expected = {k: 3};
     expect(result).toEqual(expected);
