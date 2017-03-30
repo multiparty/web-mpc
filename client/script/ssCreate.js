@@ -439,7 +439,6 @@ var submissionHandling = function (inputSources, targetUrl) {
   
   $submitButton.click(function() {
     var la = Ladda.create(this);
-    // waitingDialog.show('Loading Data',{dialogSize: 'sm', progressType: 'warning'});
     var sessionstr = $('#sess').val().trim();
     var emailstr = $('#emailf').val().trim();
 
