@@ -104,6 +104,12 @@ var makeTable = function (divID, tableConfig) {
           && validateSum(value, colValues);
       }
     },
+    beforeChange: function (changes, source) {
+      // Workaround for handsontable undo issue
+      if (this.readOnly) {
+        return false;
+      }
+    },
     cells: function (row, col, prop) {
       var cellProperties = {},
           isReadOnly = this.instance.getSettings().readOnly;
