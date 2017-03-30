@@ -9,7 +9,14 @@
   <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.css">
   <style>
     #infoDiv {
-        visibility: hidden;
+      visibility: hidden;
+    }
+    input:invalid {
+      border: 1px solid red;
+    }
+
+    input:valid {
+      border: 1px solid green;
     }
   </style>
 </head>
@@ -37,8 +44,16 @@
       </p>
     </div>
     <br/>
+    <div>
+      <h3>Initiator Email Address</h3>
+      <input autocomplete="off" type=text id="emailID" pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$" required/>
+      <h3>Confirmation Token</h3>
+      <input autocomplete="off" type=text id="nonceID" pattern="^[a-z0-9]{32}$" required/>
+      <h3>Analysts to Invite</h3>
+      <input autocomplete="off" type=text id="analystsID" pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}(,[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4})*$" required/>
+    </div>
     <button class="btn btn-primary btn-lg" id="Generate" 
-            onclick="generateSession('infoDiv','sessionID','pubkeyID','privkeyID','linkID')">
+            onclick="generateSession('emailID','nonceID','analystsID','infoDiv','sessionID','pubkeyID','privkeyID','linkID')">
       Generate Session
     </button>
       <div id="infoDiv">

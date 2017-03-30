@@ -7,12 +7,38 @@
  *
  */
 
-function generateSession(hiddenDiv, sessionID, pubID, privID, linkID) {
-    document.getElementById(hiddenDiv).style.visibility = "visible";
-    document.getElementById(sessionID).innerHTML = "Loading...";
-    document.getElementById(pubID).innerHTML = "Loading...";
-    document.getElementById(privID).innerHTML = "Loading... (Remember: Do not share this)";
-    var keyP, privateKey, publicKey;
+function generateSession (
+    emailID, 
+    nonceID, 
+    analystsID, 
+    hiddenDiv, 
+    sessionID, 
+    pubID, 
+    privID, 
+    linkID) 
+{
+    // TODO: use ajax
+    
+    // TODO: enable/ disable button instead of alert
+    if (!(document.getElementById(emailID).checkValidity() &&
+          document.getElementById(nonceID).checkValidity() &&
+          document.getElementById(analystsID).checkValidity())) {
+        alert('Please make sure all form elements valid.');
+        return;
+    }
+
+    document.getElementById(hiddenDiv).style.visibility = 'visible';
+    document.getElementById(sessionID).innerHTML = 'Loading...';
+    document.getElementById(pubID).innerHTML = 'Loading...';
+    document.getElementById(privID).innerHTML = 'Loading... (Remember: Do not share this)';
+    
+    var email = document.getElementById(emailID).value.trim(), 
+        nonce = document.getElementById(nonceID).value.trim(), 
+        analystEmails = document.getElementById(analystsID).value.trim().split(','),
+        keyP,
+        privateKey,
+        publicKey,
+        priBlob;
 
     window.crypto.subtle.generateKey({
             name: "RSA-OAEP",
@@ -35,33 +61,30 @@ function generateSession(hiddenDiv, sessionID, pubID, privID, linkID) {
         .then(function (spki) {
             publicKey = toPem(arrayBufferToBase64String(spki), false);
             console.log(publicKey);
+            priBlob = new Blob([privateKey],{type: "text/plain;charset=utf-8"});
 
-            var priBlob = new Blob([privateKey],{type: "text/plain;charset=utf-8"});
-
-            // TODO: shouldn't mix promises with callbacks like that
-            $.ajax({
+            return $.ajax({
                 type: "POST",
                 url: "/create_session",
                 contentType: "application/json",
-                data: JSON.stringify({publickey: publicKey}),
-                success: function(resp) {
-                    console.log(resp);
-                    var rndSess = resp.sessionID;
-                    document.getElementById(privID).innerHTML = privateKey;
-                    document.getElementById(pubID).innerHTML = publicKey;
-                    document.getElementById(sessionID).innerHTML = rndSess;
-                    document.getElementById(linkID).innerHTML =
-                        "Go To Live Data Page for Session " + rndSess;
-                    document.getElementById(linkID).href = "session_data.html?session=" + rndSess;
-                    saveAs(priBlob,'Session_' + rndSess + '_private_key.pem');
-                },
-                error: function() {
-                    var errmsg = "ERROR!!!: failed to load public key to server, please try again";
-                    document.getElementById(sessionID).innerHTML = errmsg;
-                    document.getElementById(privID).innerHTML = errmsg;
-                    document.getElementById(pubID).innerHTML = errmsg;
-                }
+                data: JSON.stringify({
+                    publickey: publicKey,
+                    email: email,
+                    analystEmails: analystEmails,
+                    nonce: nonce
+                })
             });
+        })
+        .then(function (resp) {
+            console.log(resp);
+            var rndSess = resp.sessionID;
+            document.getElementById(privID).innerHTML = privateKey;
+            document.getElementById(pubID).innerHTML = publicKey;
+            document.getElementById(sessionID).innerHTML = rndSess;
+            document.getElementById(linkID).innerHTML =
+                "Go To Live Data Page for Session " + rndSess;
+            document.getElementById(linkID).href = "session_data.html?session=" + rndSess;
+            saveAs(priBlob,'Session_' + rndSess + '_private_key.pem');
         })
         .catch(function (err) {
             // TODO: double-check
