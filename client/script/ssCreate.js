@@ -287,44 +287,53 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources, la) {
   var $questions = inputSources['question'];
 
   $.ajax({
-    type: "POST",
-    url: "/publickey",
-    contentType: "application/json",
+    type: 'POST',
+    url: '/analyst_details',
+    contentType: 'application/json',
     data: JSON.stringify({session: sessionstr}),
-    dataType: "text"
-  }).then(function (publickey) {
+    dataType: 'text'
+  }).then(function (analystDetails) {
+
+    console.log(analystDetails);
+
+    var analysts = JSON.parse(analystDetails).all,
+        numberOfAnalysts = analysts.length;
+
+    console.log(analysts);
     
     // Flattened input in the form of key-value pairs
     var keyValuePairs = Object.assign(
-      multipleChoiceToJson($questions, "question"), 
-      tableToJson(mainHot, "main", mainRowKeys, mainColKeys), 
-      tableToJson(boardHot, "board", boardRowKeys, boardColKeys), 
-      checkboxToJson($boardBox, "includeBoard")
+      multipleChoiceToJson($questions, 'question'), 
+      tableToJson(mainHot, 'main', mainRowKeys, mainColKeys), 
+      tableToJson(boardHot, 'board', boardRowKeys, boardColKeys), 
+      checkboxToJson($boardBox, 'includeBoard')
     );
-
-    // Secret-share the value in each key-value pair
-    var secretShared = secretShareValues(keyValuePairs),
-        serviceShares = secretShared.service,
-        analystShares = secretShared.analyst; 
-
-    // Encrypt analyst shares
-    var encryptedAnalystShares = encryptWithKey(analystShares, publickey);
 
     // Hash email address for submission
     var md = forge.md.sha1.create();
     md.update(emailstr);
     var emailHash = md.digest().toHex().toString();
+    
+    // Secret-share the value in each key-value pair
+    var secretShared = secretShareValues(keyValuePairs, numberOfAnalysts + 1);
+
+    // We want to use one the shares as the service share
+    // and use the remaining shares as analyst shares
+    var serviceShares = secretShared[0],
+        analystShares = secretShared.slice(1, secretShared.length); 
+
+    // Encrypt analyst shares
+    var encryptedAnalystShares = encryptShares(analystShares, analysts);
 
     // The submission to be posted to service
     var submission = {
-      data: serviceShares,
-      mask: encryptedAnalystShares,
-      user: emailHash,
-      session: sessionstr
+      serviceShare: serviceShares,
+      analystShares: encryptedAnalystShares,
+      session: sessionstr,
+      contributorHash: emailHash
     };
 
-    console.log('public key:', publickey);
-    console.log('submission:', submission);
+    console.log(submission);
 
     // Post submission
     return $.ajax({
@@ -410,7 +419,7 @@ var submissionHandling = function (inputSources, targetUrl) {
   // Verify checkbox listener to toggle submit button
   $verifyBox.click(function () {
     if ($(this).is(":checked")) {
-      // revalidate all inputs
+      // re-validate all inputs
       revalidateAll(
         mainHot,
         boardHot,
@@ -420,7 +429,6 @@ var submissionHandling = function (inputSources, targetUrl) {
         function (valid, errMsg) {
           if (valid) {
             $submitButton.prop('disabled', false);
-            // $verifyBox.prop('checked', false);
           }
           else {
             alert(errMsg);
@@ -431,7 +439,7 @@ var submissionHandling = function (inputSources, targetUrl) {
       );
     }
     else {
-      // If unchecked, we don't need to revalidate
+      // If unchecked, we don't need to re-validate
       // just disable submission button
       $submitButton.prop('disabled', true);
     }
@@ -477,7 +485,7 @@ var submissionHandling = function (inputSources, targetUrl) {
   });
 };
 
-function makeBlank(instance, td, row, col, prop, value, cellProperties) {
+function makeBlank (instance, td, row, col, prop, value, cellProperties) {
   Handsontable.renderers.NumericRenderer.apply(this, arguments);
   td.style.background = '#f3f3f3';
 }
@@ -487,13 +495,25 @@ function outsideRangeRenderer(instance, td, row, col, prop, value, cellPropertie
   td.style.background = '#ffff00';
 }
 
-function encryptWithKey (obj, key) {
-  var pki = forge.pki;
-  var publicKey = pki.publicKeyFromPem(key);
+function encryptForAnalyst (shares, analyst) {
+  var pki = forge.pki,
+      publicKey = pki.publicKeyFromPem(analyst.publickey),
+      analystEmail = analyst.email;
 
-  return _.mapObject(obj, function(x,k) {
+  var encrypted = _.mapObject(shares, function (x,k) {
     return publicKey.encrypt(x.toString(), 'RSA-OAEP', {
       md: forge.md.sha256.create()
     })
+  });
+
+  return {
+    analystEmail: analystEmail, 
+    fields: encrypted
+  };
+}
+
+function encryptShares (shares, analysts) {
+  return shares.map(function (share, idx) {
+    return encryptForAnalyst(share, analysts[idx]);
   });
 }

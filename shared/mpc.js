@@ -71,24 +71,26 @@ function _recombine (shares) {
 /**
  *
  * @param obj
+ * @param n
  */
-function secretShareValues (obj) {
-  var serviceTuples = {},
-      analystTuples = {};
+function secretShareValues (obj, n) {
+  var secretSharedObjs = [];
+
+  for (var i = 0; i < n; i++) {
+    secretSharedObjs[i] = {};
+  }
 
   for (var key in obj) {
     if (obj.hasOwnProperty(key)) {
       var value = obj[key],
-          shares = _secretShare(value, 2);
-      serviceTuples[key] = shares[0];
-      analystTuples[key] = shares[1];
+          shares = _secretShare(value, n);
+      shares.forEach(function(share, idx) {
+        secretSharedObjs[idx][key] = share;
+      });
     }
   }
 
-  return {
-    'service': serviceTuples,
-    'analyst': analystTuples
-  };
+  return secretSharedObjs;
 }
 
 /**

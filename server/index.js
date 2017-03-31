@@ -13,7 +13,11 @@
 
 'use strict';
 
-function templateToJoiSchema(template, joiFieldType) {
+/*
+* Helper functions--these don't belong here.
+*/
+
+function templateToJoiSchema (template, joiFieldType) {
     var schema = {};
     for (var key in template) {
         if (template.hasOwnProperty(key)) {
@@ -23,6 +27,25 @@ function templateToJoiSchema(template, joiFieldType) {
     var joiSchema = joi.object().keys(schema);
     return joiSchema;
 }
+
+// TODO: should this take in a session ID as well when not
+// dealing with initiator?
+function confirmAnalyst (email, initiatorEmail, nonce) {
+    var query = {
+        email: email, 
+        initiator_email: initiatorEmail,
+        nonce: nonce
+    };
+    return AnalystToken.findOne(query).exec().then(function (candidate) {
+        if (!candidate) {
+            throw new Error('Initiator not found or nonce mismatch.');
+        }
+        if (candidate.confirmed) {
+            throw new Error('Already confirmed.');
+        }
+        return candidate;
+    });
+};
 
 var LEX = require('letsencrypt-express');
 var http = require('http');
@@ -35,8 +58,11 @@ var mpc = require('../shared/mpc');
 var crypto = require('crypto');
 var joi = require('joi');
 var Promise = require('bluebird');
-var maskSchema = templateToJoiSchema(template, joi.string().required());
-var dataSchema = templateToJoiSchema(template, joi.number().required());
+var analystShareSchema = joi.object().keys({
+    analystEmail: joi.string().email(),
+    fields: templateToJoiSchema(template, joi.string().required())
+});
+var serviceShareSchema = templateToJoiSchema(template, joi.number().required());
 
 // Override deprecated mpromise 
 mongoose.Promise = Promise;
@@ -95,69 +121,46 @@ try {
     console.log(err);
 }
 
-var Analyst = mongoose.model('Analyst', {
-  _id: String,
-  session: String,
-  pub_key: String,
-  email: String,
-  initiator: Boolean
+var AnalystToken = mongoose.model('AnalystToken', {
+    _id: String,
+    nonce: String,
+    confirmed: Boolean,
+    email: String,
+    initiator_email: String
 });
 
-var AnalystToken = mongoose.model('AnalystToken', {
-  _id: String,
-  nonce: String,
-  confirmed: Boolean,
-  email: String,
-  initiator_email: String
+var Analyst = mongoose.model('Analyst', {
+    _id: String,
+    session: String,
+    pub_key: String,
+    email: String,
+    initiator: Boolean
 });
 
 var AnalystShare = mongoose.model('AnalystShare', {
-  _id: String, 
-  field: Object,
-  date: Number, 
-  session: String,
-  cont_email: String,
-  analyst_email: String
+    _id: String, 
+    fields: Object,
+    date: Number, 
+    session: String,
+    cont_hash: String,
+    analyst_email: String
 });
 
 var ServiceShare = mongoose.model('ServiceShare', {
-  _id: String,
-  field: Object, // change to Number?
-  date: Number,
-  session: String,
-  email: String
+    _id: String,
+    fields: Object,
+    date: Number,
+    session: String,
+    cont_hash: String
 });
 
 var ResultShare = mongoose.model('ResultShare', {
-  _id: String, 
-  field: Object, 
-  date: Number, 
-  session: String,
-  analyst_email: String
+    _id: String, 
+    fields: Object, 
+    date: Number, 
+    session: String,
+    analyst_email: String
 });
-
-/*
-* Helper functions--these don't belong here.
-*/
-
-// TODO: should this take in a session ID as well when not
-// dealing with initiator?
-var confirmAnalyst = function (email, initiatorEmail, nonce) {
-  var query = {
-    email: email, 
-    initiator_email: initiatorEmail,
-    nonce: nonce
-  };
-  return AnalystToken.findOne(query).exec().then(function (candidate) {
-    if (!candidate) {
-      throw new Error('Initiator not found or nonce mismatch.');
-    }
-    if (candidate.confirmed) {
-      throw new Error('Already confirmed.');
-    }
-    return candidate;
-  });
-};
 
 // for parsing application/json
 app.use(body_parser.json({limit: '50mb'}));
@@ -168,6 +171,7 @@ app.use(express.static(__dirname + '/../client'));
 app.use(express.static(__dirname + '/../'));
 
 app.post('/initiator_signup', function (req, res) {
+    
     console.log('POST /initiator_signup');
     
     var body = req.body,
@@ -337,74 +341,47 @@ app.post('/join_session', function (req, res) {
     });
 });
 
-// protocol for accepting new data
-app.post('/', function (req, res) {
-    console.log('POST /');
-    
-    var body = req.body;
+// endpoint for fetching all analysts' details for a specific session
+app.post("/analyst_details", function (req, res) {
+    console.log('POST /analyst_details');
 
-    // TODO: set length restrictions on session and user
-    var bodySchema = {
-        mask: maskSchema.required(),
-        data: dataSchema.required(),
-        session: joi.string().alphanum().required(),
-        user: joi.string().alphanum().required()
-    };
+    var body = req.body,
+        bodySchema = {session: joi.string().alphanum().required()};
+
+    // TODO: prevent fetching details before all analysts have created keys.
+    // For now this can be achieved by ensuring that initiator doesn't email
+    // out session ID until all the analysts have signed up but obviously
+    // this isn't ideal.
 
     joi.validate(body, bodySchema, function (err, body) {
         if (err) {
             console.log(err);
-            res.status(500).send('Missing or invalid fields');
+            res.status(500).send('Missing or invalid fields.');
             return;
         }
 
-        console.log('Validation passed.');
-
-        var mask = body.mask,
-            data = body.data,
-            session = body.session,
-            user = body.user,
-            ID = session + user; // will use concat of user + session for now
-
-        // save the mask and individual aggregate
-        var aggToSave = new Aggregate({
-            _id: ID, 
-            fields: data, 
-            date: Date.now(),
-            session: session, 
-            email: user
-        });
-
-        var maskToSave = new Mask({
-            _id: ID, 
-            fields: mask,
-            session: session
-        });
-
-        // for both the aggregate and the mask, update the old aggregate
-        // for the company with that email. Update or insert, hence the upsert flag
-        var aggPromise = Aggregate.update(
-                    {_id: ID}, 
-                    aggToSave.toObject(), 
-                    {upsert: true}
-                ),
-            maskPromise = Mask.update(
-                    {_id: ID}, 
-                    maskToSave.toObject(),
-                    {upsert: true}
-                );
-
-        Promise.join(aggPromise, maskPromise)
-        .then(function (aggStored, maskStored) {
-            res.send(body);
-            return;
-        })
-        .catch(function (err) {
-            console.log(err);
-            res.status(500).send('Unable to save aggregate, please try again');
-            return;
+        var session = body.session;
+        
+        Analyst.find({session: session}, function (err, data) {
+            if (err) {
+                console.log(err);
+                res.status(500).send('Error while fetching analyst details.');
+                return;
+            }
+            else if (data == null) {
+                res.status(500).send('No analyst found for session.');
+                return;
+            } 
+            else {
+                var details = data.map(function (analyst) {
+                    return {email: analyst.email, publickey: analyst.pub_key};
+                });
+                res.json({all: details});
+                return;
+            }
         });
     });
+
 });
 
 // endpoint for fetching the public key for a specific session
@@ -433,6 +410,81 @@ app.post("/publickey", function (req, res) {
         });
     });
 });
+
+// protocol for accepting new data
+app.post('/', function (req, res) {
+
+    console.log('POST /');
+    
+    var body = req.body,
+        bodySchema = {
+            serviceShare: serviceShareSchema.required(),
+            analystShares: joi.array().items(analystShareSchema).required(),
+            session: joi.string().alphanum().required(),
+            contributorHash: joi.string().alphanum().required()
+        };
+
+    console.log(body);
+
+    joi.validate(body, bodySchema, function (err, body) {
+        
+        if (err) {
+            console.log(err);
+            res.status(500).send('Missing or invalid fields');
+            return;
+        }
+
+        var serviceShare = body.serviceShare,
+            analystShares = body.analystShares,
+            contributorHash = body.contributorHash,
+            session = body.session;
+        
+        var svcShareToSave = new ServiceShare({
+            _id: contributorHash + session,
+            fields: serviceShare,
+            date: Date.now(),
+            session: session,
+            cont_hash: contributorHash,
+        });
+
+        var analystSharesToSave = analystShares.map(function (share) {
+            return new AnalystShare({
+                _id:  session + contributorHash + share.analystEmail, 
+                fields: share.fields,
+                date: Date.now(),
+                session: session,
+                cont_hash: contributorHash,
+                analyst_email: share.analystEmail
+            });
+        });
+
+        var updatePromises = analystSharesToSave.map(function (share) {
+            return AnalystShare.update(
+                {_id: share._id}, 
+                share.toObject(), 
+                {upsert: true}  
+            );
+        });
+        updatePromises.push(
+            ServiceShare.update(
+                {_id: svcShareToSave._id}, 
+                svcShareToSave.toObject(), 
+                {upsert: true}  
+            )
+        );
+
+        Promise.all(updatePromises).then(function (allSaved) {
+            return res.json(body);
+        })
+        .catch(function (err) {
+            // TODO: Should roll back in case of error.
+            console.log(err);
+            return res.status(500).send('Failed to upload shares.');
+        });
+
+    });
+});
+
 
 // endpoint for returning the emails that have submitted already
 app.post('/get_data', function (req, res) {
