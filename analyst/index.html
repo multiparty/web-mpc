@@ -1,0 +1,67 @@
+<html>
+<head>
+	<title>Analyst Join Session</title>
+
+	<script type="text/javascript" src="../shared/jquery-3.1.1.min.js"></script>
+  <script type="text/javascript" src="../shared/underscore.js"></script>
+	<script type="text/javascript" src="script/filesaver.js"></script>
+	<script type="text/javascript" src="script/joinSession.js"></script>
+  <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.css">
+  <style>
+    #infoDiv {
+      visibility: hidden;
+    }
+    input:invalid {
+      border: 1px solid red;
+    }
+
+    input:valid {
+      border: 1px solid green;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="page-header">
+      <table width="100%">
+        <tr>
+          <td>
+            <h1>Analyst<br/><small>Join Session</small></h1>
+          </td>
+          <td align="right">
+            <img src="../shared/bu.png" width="110px"/>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div>
+      <h2>Instructions</h2>
+      <p>
+        [...]
+      </p>
+    </div>
+    <br/>
+    <div>
+      <h3>Analyst Email Address</h3>
+      <input autocomplete="off" type=text id="analystEmailID" pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$" required/>
+      <h3>Initiator Email Address</h3>
+      <input autocomplete="off" type=text id="initiatorEmailID" pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$" required/>
+      <h3>Confirmation Token</h3>
+      <input autocomplete="off" type=text id="nonceID" pattern="^[a-z0-9]{32}$" required/>
+      <h3>Session ID</h3>
+      <input autocomplete="off" type=text id="sessionID" pattern="^[a-z0-9]{32}$" required/>
+    </div>
+    <button class="btn btn-primary btn-lg" id="Join" 
+            onclick="joinSession('analystEmailID','initiatorEmailID','nonceID','infoDiv','sessionID','pubkeyID','privkeyID')">
+      Join Session
+    </button>
+      <div id="infoDiv">
+        <h3>Public Key</h3>
+        <pre id="pubkeyID"></pre>
+        <br/>
+        <h3>Private Key (do not share)</h3>
+        <pre id="privkeyID"></pre>
+      </div>
+    </div>
+</body>
+</html>

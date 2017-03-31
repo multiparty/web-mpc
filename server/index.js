@@ -140,6 +140,8 @@ var ResultShare = mongoose.model('ResultShare', {
 * Helper functions--these don't belong here.
 */
 
+// TODO: should this take in a session ID as well when not
+// dealing with initiator?
 var confirmAnalyst = function (email, initiatorEmail, nonce) {
   var query = {
     email: email, 
@@ -156,31 +158,6 @@ var confirmAnalyst = function (email, initiatorEmail, nonce) {
     return candidate;
   });
 };
-
-// model for aggregate data
-// var Aggregate = mongoose.model('Aggregate', {
-//     _id: String,
-//     fields: Object,
-//     date: Number,
-//     session: String,
-//     email: String
-// });
-// var Mask = mongoose.model('Mask', {
-//     _id: String, 
-//     fields: Object, 
-//     session: String
-// });
-// var PublicKey = mongoose.model('PublicKey', {
-//     _id: String, 
-//     session: String,
-//     pub_key: String
-// });
-// var FinalAggregate = mongoose.model('FinalAggregate', {
-//     _id: String, 
-//     aggregate: Object, 
-//     date: Number, 
-//     session: String
-// });
 
 // for parsing application/json
 app.use(body_parser.json({limit: '50mb'}));
@@ -221,7 +198,7 @@ app.post('/initiator_signup', function (req, res) {
 
         token.save()
         .then(function (value) {
-            // TODO: email
+            // TODO: email initiator token
             console.log('Token generated:', nonce, 'and sent to:', initiator_email);
             res.send(req.body);
             return;
@@ -262,8 +239,7 @@ app.post('/create_session', function (req, res) {
             initiatorPK = body.publickey,
             analystEmails = body.analystEmails;
 
-        // TODO: figure out way to roll back if failure further down
-        // the workflow
+        // TODO: figure out way to roll back if there is a failure further down the workflow
         confirmAnalyst(initiatorEmail, initiatorEmail, initiatorToken)
         .then(function (candidate) {
             candidate.confirmed = true;
@@ -285,9 +261,11 @@ app.post('/create_session', function (req, res) {
             return Promise.all(saved);
         })
         .then(function (allSaved) {
+            // TODO: email analysts their tokens and session ID
+            console.log(allSaved);
             var sessionID = crypto.randomBytes(16).toString('hex'),
                 analyst = new Analyst({
-                    _id: initiatorEmail,
+                    _id: sessionID + initiatorEmail,
                     session: sessionID,
                     pub_key: initiatorPK,
                     email: initiatorEmail,
@@ -306,6 +284,58 @@ app.post('/create_session', function (req, res) {
     });
 });
 
+// endpoint for ...
+app.post('/join_session', function (req, res) {
+    console.log('POST /join_session');
+
+    var body = req.body,
+        bodySchema = {
+            analystEmail: joi.string().email().required(),
+            nonce: joi.string().alphanum().required(),
+            publickey: joi.string().required(),
+            initiatorEmail: joi.string().email().required(),
+            session: joi.string().alphanum().required(),            
+        };
+
+    joi.validate(body, bodySchema, function (err, body) {
+        if (err) {
+            console.log(err);
+            res.status(500).send('Missing or invalid fields');
+            return;
+        }
+
+        console.log(body);
+
+        var analystEmail = body.analystEmail,
+            analystToken = body.nonce,
+            analystPK = body.publickey,
+            initiatorEmail = body.initiatorEmail,
+            session = body.session; 
+
+        confirmAnalyst(analystEmail, initiatorEmail, analystToken)
+        .then(function (candidate) {
+            candidate.confirmed = true;            
+            return candidate.save();
+        })
+        .then(function (updatedToken) {
+            var analyst = new Analyst({
+                    _id: session + analystEmail,
+                    session: session,
+                    pub_key: analystPK,
+                    email: analystEmail,
+                    initiator: false
+                });
+            return analyst.save();
+        })
+        .then(function (savedAnalyst) {
+            return res.json(body);
+        })
+        .catch(function (err) {
+            console.error(err);
+            return res.status(500).send('Error! Failed to join session.');
+        });
+    });
+});
 
 // protocol for accepting new data
 app.post('/', function (req, res) {
@@ -403,46 +433,6 @@ app.post("/publickey", function (req, res) {
         });
     });
 });
-
-// // endpoint for generating and saving the public key
-// app.post('/create_session', function (req, res) {
-//     console.log('POST /create_session');
-//     console.log(req.body);
-
-//     // TODO: should be more restrictive here
-//     var schema = {publickey: joi.string().required()};
-
-//     joi.validate(req.body, schema, function (valErr, body) {
-//         if (valErr) {
-//             console.log(valErr);
-//             res.status(500).send('Invalid public key.');
-//             return;
-//         }
-
-//         var publickey = body.publickey;
-//         var sessionID = crypto.randomBytes(16).toString('hex');
-        
-//         var newKey = new PublicKey({
-//             _id: sessionID,
-//             session: sessionID, 
-//             pub_key: publickey 
-//         });
-
-//         newKey.save(function (err) {
-//             if (err) {
-//                 console.log(err);
-//                 res.status(500).send("Error during session creation.");
-//                 return;
-//             }
-//             else {
-//                 console.log('Session generated for:', sessionID);
-//                 res.json({sessionID: sessionID});
-//                 return;
-//             }
-//         });
-
-//     });
-// });
 
 // endpoint for returning the emails that have submitted already
 app.post('/get_data', function (req, res) {
