@@ -1,0 +1,199 @@
+<!doctype html>
+<html>
+<head>
+	<title>Trusted Party Data Unmasker</title>
+
+  <script type="text/javascript" src="../shared/jquery-3.1.1.min.js"></script>
+  <script type="text/javascript" src="../shared/underscore.js"></script>
+  <script type="text/javascript" src="../shared/mpc.js"></script>
+  <script type="text/javascript" src="../shared/handsontable-pro/dist/handsontable.full.js"></script>
+  <script type="text/javascript" src="style/bootstrap/js/bootstrap.js"></script>
+  <script type="text/javascript" src="script/spin.min.js"></script>
+  <script type="text/javascript" src="script/ladda.min.js"></script>
+  <script type="text/javascript" src="script/unmask.js"></script>
+  
+  <link rel="stylesheet" type="text/css" href="../shared/handsontable-pro/dist/handsontable.full.css">
+  <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.css">
+  <link rel="stylesheet" href="style/ladda-themeless.min.css">
+  <style type="text/css">
+    .handsontable .ht_clone_top,
+    .handsontable .ht_clone_top_left,
+    .handsontable .ht_clone_top_left_corner {
+      display: none;
+    }
+    #main-hot .handsontable col.rowHeader {
+      width: 200px !important;
+    }
+    .handsontable th:first-child {
+      text-align: left;
+      white-space: normal;
+    }
+    .handsontable th {
+      font-size: 12px;
+      white-space: pre-line;
+      max-width: 110px;
+      vertical-align: middle;
+    }
+    pre {
+      text-align: left;
+      margin-bottom: 0px;
+    }
+    pre p {
+      font-size: 12px;
+    }
+    .btn-file {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-file input[type=file] {
+      position: absolute;
+      top: 0;
+      right: 0;
+      min-width: 100%;
+      min-height: 100%;
+      font-size: 100px;
+      text-align: right;
+      opacity: 0;
+      outline: none;
+      background: white;
+      cursor: inherit;
+      display: block;
+    }
+
+    input:invalid {
+      border: 1px solid red;
+    }
+
+    input:valid {
+      border: 1px solid green;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="page-header">
+      <table width="100%">
+        <tr>
+          <td>
+            <h1>Analyst<br/><small>Aggregate Data Unmasker</small></h1>
+          </td>
+          <td align="right">
+            <img src="../shared/bu.png" width="110px"/>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <h4>Input Session Key</h4>
+    <input type=text id="sessKey" placeholder="Session Key" pattern="^[a-z0-9]{32}$" required/>
+
+    <h4>Analyst Email</h4>
+    <input type=text id="email" placeholder="Email Address" pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$" required/>
+
+
+    <h4>Upload Private Key <small>(Note this does not upload the key to the network)</small></h4>
+
+      <div class="col-xs-4">
+        <div class="input-group">
+            <label class="input-group-btn">
+                <label class="btn btn-default btn-file">
+                    Browse… <input id="maskKey" style="display:none;" type="file">
+                </label>
+            </label>
+            <p id="filename">No File selected...</p>
+        </div>
+      </div>
+
+    <button id="unmask" class="btn btn-primary ladda-button" data-style="zoom-out">
+      <span class="ladda-label">Unmask Data</span>
+    </button>
+
+    <script type="text/javascript">
+      
+      // an error leads to the button getting disabled
+      // when the user reloads the site it stays that way
+      // unless we manually reset it 
+      $('#unmask').removeAttr("disabled");
+
+      $('#unmask').on('click', function() {
+        
+        var maskKey = $('#maskKey').get(0),
+            sessKey = $('#sessKey').val(),
+            la = Ladda.create(this),
+            keyReader = new FileReader();
+
+        // TODO: check that inputs are well-formed
+
+        if (maskKey.files.length) {
+          la.start();
+          keyReader.readAsText(maskKey.files[0]);
+          $(keyReader).on('load', function(e) {
+            var privateKey = e.target.result,
+                callb =
+                  function (success, data) {
+                    la.stop();
+                    if (success) {
+                      alert('Success.');
+                    } 
+                    else {
+                      console.log(data);
+                      alert('Something went wrong.');
+                    }
+                  };
+              // Remove top and bottom line of pem file
+              privateKey = privateKey.split('\n')[1];
+
+              $.ajax({
+                type: "POST",
+                url: "/get_analyst_shares",
+                contentType: "application/json",
+                data: JSON.stringify({
+                  session: sessKey,
+                  email: analystEmail
+                }),
+                success: function (data) {
+                  unmask(data, privateKey, sessKey, callb);
+                },
+                error: function() {
+                  callb(false, "Error: failed to load masks");
+                }
+              });
+
+          });
+        } 
+        else {
+          alert('Please upload both files before continuing.');
+        }
+      });
+
+      // taken directly from trusted/session_data.html.
+      // could probably clean up
+      window.getParameterByName = function(name) {
+        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+            results = regex.exec(location.search);
+        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+      }
+      if (getParameterByName('session')) {
+        $('#sessKey').val(getParameterByName('session'));
+      }
+
+      // We can attach the `fileselect` event to all file inputs on the page
+      $(document).on('change', ':file', function() {
+        var input = $(this),
+            label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+        input.trigger('fileselect', [label]);
+      });
+
+      $(':file').on('fileselect', function(event, label) {
+        var input = $(this).parents('.input-group').find('#filename');
+        if (input.length) {
+          input.text(label);
+        }
+      });
+
+    </script>
+  </div>
+</body>
+</html>

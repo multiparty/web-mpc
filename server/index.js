@@ -503,7 +503,7 @@ app.post('/get_data', function (req, res) {
             return;
         }
         // find all entries for a specific session and return the email and the time they submitted
-        Aggregate.where({session: body.session}).gt('date', body.last_fetch).find(function (err, data) {
+        ServiceShare.where({session: body.session}).gt('date', body.last_fetch).find(function (err, data) {
             if (err) {
                 console.log(err);
                 res.status(500).send('Failed to fetch contributors.');
@@ -511,7 +511,7 @@ app.post('/get_data', function (req, res) {
             } else {
                 var to_send = {};
                 for (var row in data) {
-                    to_send[data[row].email] = data[row].date;
+                    to_send[data[row].cont_hash] = data[row].date;
                 }
                 res.json(to_send);
                 return;
@@ -521,23 +521,30 @@ app.post('/get_data', function (req, res) {
 
 });
 
-// endpoint for getting all of the masks for a specific session
-app.post('/get_masks', function (req, res) {
-    console.log('POST to get_masks.');
-    console.log(req.body);
+// endpoint for getting all of the encrypted shares for a specific session and analyst
+app.post('/get_analyst_shares', function (req, res) {
+    console.log('POST /get_analyst_shares');
 
-    var schema = {session: joi.string().alphanum().required()};
+    var body = req.body,
+        bodySchema = {
+            session: joi.string().alphanum().required(),
+            email: joi.string().email().required()
+        };
 
-    joi.validate(req.body, schema, function (valErr, body) {
+    joi.validate(body, bodySchema, function (valErr, body) {
         if (valErr) {
             console.log(valErr);
             res.status(500).send('Invalid or missing fields.');
             return;
         }
-        Mask.where({session: body.session}).find(function (err, data) {
+
+        var session = body.session,
+            email = body.email;
+
+        AnalystShare.where({session: session, analyst_email: email}).find(function (err, data) {
             if (err) {
                 console.log(err);
-                res.status(500).send('Error getting masks.');
+                res.status(500).send('Error getting shares.');
                 return;
             }
             if (!data || data.length === 0) {
