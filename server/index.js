@@ -24,7 +24,7 @@ function templateToJoiSchema(template, joiFieldType) {
     return joiSchema;
 }
 
-var LEX = require('letsencrypt-express');
+var LEX = require('greenlock-express');
 var http = require('http');
 var express = require('express');
 var app = express();
