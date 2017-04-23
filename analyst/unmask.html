@@ -91,7 +91,6 @@
     <h4>Analyst Email</h4>
     <input type=text id="email" placeholder="Email Address" pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$" required/>
 
-
     <h4>Upload Private Key <small>(Note this does not upload the key to the network)</small></h4>
 
       <div class="col-xs-4">
@@ -114,12 +113,13 @@
       // an error leads to the button getting disabled
       // when the user reloads the site it stays that way
       // unless we manually reset it 
-      $('#unmask').removeAttr("disabled");
+      $("#unmask").removeAttr("disabled");
 
-      $('#unmask').on('click', function() {
+      $("#unmask").on("click", function() {
         
-        var maskKey = $('#maskKey').get(0),
-            sessKey = $('#sessKey').val(),
+        var maskKey = $("#maskKey").get(0),
+            sessKey = $("#sessKey").val(),
+            analystEmail = $("#email").val(),
             la = Ladda.create(this),
             keyReader = new FileReader();
 
@@ -128,37 +128,45 @@
         if (maskKey.files.length) {
           la.start();
           keyReader.readAsText(maskKey.files[0]);
-          $(keyReader).on('load', function(e) {
-            var privateKey = e.target.result,
-                callb =
-                  function (success, data) {
-                    la.stop();
-                    if (success) {
-                      alert('Success.');
-                    } 
-                    else {
-                      console.log(data);
-                      alert('Something went wrong.');
-                    }
-                  };
-              // Remove top and bottom line of pem file
-              privateKey = privateKey.split('\n')[1];
+          $(keyReader).on("load", function(e) {
+            var privateKey = e.target.result;
+                
+            // Remove top and bottom line of pem file
+            privateKey = privateKey.split("\n")[1];
 
-              $.ajax({
-                type: "POST",
-                url: "/get_analyst_shares",
-                contentType: "application/json",
-                data: JSON.stringify({
-                  session: sessKey,
-                  email: analystEmail
-                }),
-                success: function (data) {
-                  unmask(data, privateKey, sessKey, callb);
-                },
-                error: function() {
-                  callb(false, "Error: failed to load masks");
-                }
-              });
+            var sharesProm = $.ajax({
+                    type: "POST",
+                    url: "/get_analyst_shares",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                      session: sessKey,
+                      email: analystEmail
+                    })
+                  }),
+                initiatorPKProm = $.ajax({
+                    type: "POST",
+                    url: "/session_initiator",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                      session: sessKey
+                    })
+                  });
+
+            Promise.all([sharesProm, initiatorPKProm])
+            .then(function (sharesAndPK) {
+              var shares = sharesAndPK[0],
+                  initiatorPK = sharesAndPK[1];
+              return unmask(shares, initiatorPK, privateKey, sessKey);              
+            })
+            .then(function (success) {
+              alert("Success.");
+              la.stop();
+            })
+            .catch(function (err) {
+              console.log(err);
+              alert("Error: failed to unmask");
+              la.stop();
+            });
 
           });
         } 

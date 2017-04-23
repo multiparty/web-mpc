@@ -1,83 +1,82 @@
 /***************************************************************
  *
- * unmask/script/unmask.js
- *
- * Unmasking interface.
+ * TODO
  *
  */
 
 
 // TODO: unmask is a misnomer
-// Takes callback(true|false, data).
-function unmask(mOut, privateKey, session, analystEmail, callback){
-  mOut = JSON.parse(mOut.data);
+function unmask (rawShares, initiatorPK, privateKey, analystEmail) {
+  var jsonShares = JSON.parse(rawShares.data);
   
-  var maskedData = [];
-  for (row in mOut) {
-    maskedData.push(mOut[row].fields);
+  var encryptedShares = [];
+  for (row in jsonShares) {
+    encryptedShares.push(jsonShares[row].fields);
   }
 
-  var skArrayBuffer;
-  try {
-    skArrayBuffer = str2ab(atob(privateKey));  
-  }
-  catch (err) {
-    callback(false, "Error: invalid key file.");
-    return;
-  }
-  
-  // Import key, returns a promise
-  var sk = window.crypto.subtle.importKey(
-    "pkcs8", // (private only)
-    skArrayBuffer,
-    {name: "RSA-OAEP", hash: {name: "SHA-256"}},
-    false, // whether the key is extractable (i.e. can be used in exportKey)
-    ["decrypt"]
-  );
+  // Import private key for decryption
+  var skArrayBuffer = str2ab(atob(privateKey)),
+      sk = window.crypto.subtle.importKey(
+        "pkcs8", // (private only)
+        skArrayBuffer,
+        {name: "RSA-OAEP", hash: {name: "SHA-256"}},
+        false, // whether the key is extractable (i.e. can be used in exportKey)
+        ["decrypt"]
+      );
 
   // Decrypt all value fields in the masked data
   // decrypted is a list of promises, each promise
   // corresponding to a submission with decrypted
   // value fields
-  var decrypted = decryptValueShares(sk, maskedData);
+  var decrypted = decryptValueShares(sk, encryptedShares);
 
   // Aggregate decrypted values by key
-  var analystResultShare = decrypted.then(function (analystShares) {
+  var analystResultShareProm = decrypted.then(function (analystShares) {
     var invalidShareCount = countInvalidShares(analystShares);
     // TODO: we should set a threshold and abort if there are too
     // many invalid shares
-    console.log('Invalid share count:', invalidShareCount);
+    console.log("Invalid share count:", invalidShareCount);
     return aggregateShares(analystShares); 
   });
 
-  var initiatorPK = getInitiatorPK(session);
-
-  Promise.all([analystResultShare, serviceResultShare])
-  .then(function (resultShares) {
-    var analystResult = resultShares[0],
-        serviceResult = resultShares[1],
-        finalResult = recombineValues(analystResult, serviceResult);
-    callback(true, finalResult);
-  })
-  .catch(function (err) {
-    console.log(err);
-    callback(false, "Error: could not compute result.");
+  analystResultShareProm.then(function (analystResultShare) {
+    console.log(analystResultShare);
   });
-}
 
-function getInitiatorPK (session) {
-  return $.ajax({
-    type: "POST",
-    url: "/initiator_pk",
-    contentType: "application/json",
-    data: JSON.stringify({
-      session: session
-    }),
-    dataType: "json"
-  });
+  // var initiatorPK = getInitiatorPK(session);
+
+  // Promise.all([analystResultShare, serviceResultShare])
+  // .then(function (resultShares) {
+  //   var analystResult = resultShares[0],
+  //       serviceResult = resultShares[1],
+  //       finalResult = recombineValues(analystResult, serviceResult);
+  //   callback(true, finalResult);
+  // })
+  // .catch(function (err) {
+  //   console.log(err);
+  //   callback(false, "Error: could not compute result.");
+  // });
 }
 
 // TODO: add comments
+// TODO: move out into shared file implementing encryption/ decryption
+
+function encryptForAnalyst (shares, analyst) {
+  var pki = forge.pki,
+      publicKey = pki.publicKeyFromPem(analyst.publickey),
+      analystEmail = analyst.email;
+
+  var encrypted = _.mapObject(shares, function (x,k) {
+    return publicKey.encrypt(x.toString(), 'RSA-OAEP', {
+      md: forge.md.sha256.create()
+    })
+  });
+
+  return {
+    analystEmail: analystEmail, 
+    fields: encrypted
+  };
+}
 
 /**
  * This function returns 

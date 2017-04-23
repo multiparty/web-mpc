@@ -384,6 +384,41 @@ app.post("/analyst_details", function (req, res) {
 
 });
 
+// endpoint for fetching initiator details for given session
+app.post("/session_initiator", function (req, res) {
+    console.log("POST /session_initiator");
+
+    var body = req.body,
+        bodySchema = {session: joi.string().alphanum().required()};
+
+    joi.validate(body, bodySchema, function (err, body) {
+        if (err) {
+            console.log(err);
+            res.status(500).send("Missing or invalid fields.");
+            return;
+        }
+
+        var session = body.session;
+        
+        Analyst.findOne({session: session, initiator: true}, function (err, data) {
+            if (err) {
+                console.log(err);
+                res.status(500).send("Error while fetching initiator details.");
+                return;
+            }
+            else if (data == null) {
+                res.status(500).send("No initiator found for session.");
+                return;
+            } 
+            else {
+                res.json({initatorPK: data.pub_key});
+                return;
+            }
+        });
+    });
+
+});
+
 // endpoint for fetching the public key for a specific session
 app.post("/publickey", function (req, res) {
     console.log('POST /publickey');
