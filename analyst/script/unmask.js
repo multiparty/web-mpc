@@ -14,6 +14,8 @@ function unmask (rawShares, initiatorPK, privateKey, analystEmail) {
     encryptedShares.push(jsonShares[row].fields);
   }
 
+  // Remove top and bottom line of pem file
+  privateKey = privateKey.split("\n")[1];
   // Import private key for decryption
   var skArrayBuffer = str2ab(atob(privateKey)),
       sk = window.crypto.subtle.importKey(
@@ -24,6 +26,19 @@ function unmask (rawShares, initiatorPK, privateKey, analystEmail) {
         ["decrypt"]
       );
 
+  // Remove top and bottom line of pem file
+  initiatorPK = initiatorPK.split("\n")[1];
+  // Import private key for decryption
+  var pkArrayBuffer = str2ab(atob(initiatorPK)),
+      initiatorPK = window.crypto.subtle.importKey(
+        "spki", // (public only)
+        pkArrayBuffer,
+        {name: "RSA-OAEP", hash: {name: "SHA-256"}},
+        false, // whether the key is extractable (i.e. can be used in exportKey)
+        ["encrypt"]
+      );
+
+
   // Decrypt all value fields in the masked data
   // decrypted is a list of promises, each promise
   // corresponding to a submission with decrypted
@@ -31,7 +46,7 @@ function unmask (rawShares, initiatorPK, privateKey, analystEmail) {
   var decrypted = decryptValueShares(sk, encryptedShares);
 
   // Aggregate decrypted values by key
-  var analystResultShareProm = decrypted.then(function (analystShares) {
+  var resultSharesProm = decrypted.then(function (analystShares) {
     var invalidShareCount = countInvalidShares(analystShares);
     // TODO: we should set a threshold and abort if there are too
     // many invalid shares
@@ -39,44 +54,17 @@ function unmask (rawShares, initiatorPK, privateKey, analystEmail) {
     return aggregateShares(analystShares); 
   });
 
-  analystResultShareProm.then(function (analystResultShare) {
-    console.log(analystResultShare);
+  return Promise.all([resultSharesProm, initiatorPK])
+  .then(function (sharesAndPK) {
+    var resultShares = sharesAndPK[0],
+        initiatorPK = sharesAndPK[1];
+    
+    return true;
   });
 
-  // var initiatorPK = getInitiatorPK(session);
-
-  // Promise.all([analystResultShare, serviceResultShare])
-  // .then(function (resultShares) {
-  //   var analystResult = resultShares[0],
-  //       serviceResult = resultShares[1],
-  //       finalResult = recombineValues(analystResult, serviceResult);
-  //   callback(true, finalResult);
-  // })
-  // .catch(function (err) {
-  //   console.log(err);
-  //   callback(false, "Error: could not compute result.");
-  // });
 }
 
 // TODO: add comments
-// TODO: move out into shared file implementing encryption/ decryption
-
-function encryptForAnalyst (shares, analyst) {
-  var pki = forge.pki,
-      publicKey = pki.publicKeyFromPem(analyst.publickey),
-      analystEmail = analyst.email;
-
-  var encrypted = _.mapObject(shares, function (x,k) {
-    return publicKey.encrypt(x.toString(), 'RSA-OAEP', {
-      md: forge.md.sha256.create()
-    })
-  });
-
-  return {
-    analystEmail: analystEmail, 
-    fields: encrypted
-  };
-}
 
 /**
  * This function returns 

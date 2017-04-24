@@ -79,8 +79,8 @@ function joinSession (
         .then(function (resp) {
             console.log(resp);
             // TODO: make file name safe (don't use email address)
-            // but unique (if for testing we run multiple analyst's on the same)
-            // machine this will overwrite files
+            // but unique (if for testing we run multiple analyst's on the same
+            // machine this will overwrite files)
             document.getElementById(privID).innerHTML = privateKey;
             document.getElementById(pubID).innerHTML = publicKey;
             saveAs(priBlob,'Session_' + analystEmail + session + '_private_key.pem');

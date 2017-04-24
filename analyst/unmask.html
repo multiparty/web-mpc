@@ -129,12 +129,8 @@
           la.start();
           keyReader.readAsText(maskKey.files[0]);
           $(keyReader).on("load", function(e) {
-            var privateKey = e.target.result;
-                
-            // Remove top and bottom line of pem file
-            privateKey = privateKey.split("\n")[1];
-
-            var sharesProm = $.ajax({
+            var privateKey = e.target.result,
+                sharesProm = $.ajax({
                     type: "POST",
                     url: "/get_analyst_shares",
                     contentType: "application/json",
@@ -155,7 +151,7 @@
             Promise.all([sharesProm, initiatorPKProm])
             .then(function (sharesAndPK) {
               var shares = sharesAndPK[0],
-                  initiatorPK = sharesAndPK[1];
+                  initiatorPK = sharesAndPK[1].initatorPK;
               return unmask(shares, initiatorPK, privateKey, sessKey);              
             })
             .then(function (success) {
