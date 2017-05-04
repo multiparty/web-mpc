@@ -38,14 +38,22 @@ var Promise = require('bluebird');
 var maskSchema = templateToJoiSchema(template, joi.string().required());
 var dataSchema = templateToJoiSchema(template, joi.number().required());
 
-// Override deprecated mpromise 
+// Override deprecated mpromise
 mongoose.Promise = Promise;
 
 /*  Set server to staging for testing
     Set server to https://acme-v01.api.letsencrypt.org/directory for production
 */
+
+var serverUrl = '';
+if (process.env.NODE_ENV === 'production') {
+    serverUrl = 'https://acme-v01.api.letsencrypt.org/directory';
+} else {
+    serverUrl = 'staging';
+}
+
 var lex = LEX.create({
-    server: 'staging',
+    server: serverUrl,
     acme: require('le-acme-core').ACME.create(),
     challenge: require('le-challenge-fs').create({
         webrootPath: '~/letsencrypt/var/:hostname'
@@ -60,15 +68,18 @@ var lex = LEX.create({
 
 var server;
 
-// Run on port 8080 without forced https for development
-server = http.createServer(lex.middleware(app)).listen(8080, function () {
-    console.log("Listening for ACME http-01 challenges on", this.address());
-});
+if (process.env.NODE_ENV === 'production') {
+    //handles acme-challenge and redirects to https
+    http.createServer(lex.middleware(require('redirect-https')())).listen(80, function () {
+        console.log("Listening for ACME http-01 challenges on", this.address());
+    });
+} else {
+    // Run on port 8080 without forced https for development
+    server = http.createServer(lex.middleware(app)).listen(8080, function () {
+        console.log("Listening for ACME http-01 challenges on", this.address());
+    });
+}
 
-// handles acme-challenge and redirects to https
-// http.createServer(lex.middleware(require('redirect-https')())).listen(80, function () {
-//     console.log("Listening for ACME http-01 challenges on", this.address());
-// });
 
 function approveDomains(opts, certs, cb) {
     if (!/\.100talent\.org$/.test(opts.domain) && opts.domain !== '100talent.org') {
@@ -104,19 +115,19 @@ var Aggregate = mongoose.model('Aggregate', {
     email: String
 });
 var Mask = mongoose.model('Mask', {
-    _id: String, 
-    fields: Object, 
+    _id: String,
+    fields: Object,
     session: String
 });
 var PublicKey = mongoose.model('PublicKey', {
-    _id: String, 
+    _id: String,
     session: String,
     pub_key: String
 });
 var FinalAggregate = mongoose.model('FinalAggregate', {
-    _id: String, 
-    aggregate: Object, 
-    date: Number, 
+    _id: String,
+    aggregate: Object,
+    date: Number,
     session: String
 });
 
@@ -131,7 +142,7 @@ app.use(express.static(__dirname + '/../'));
 // protocol for accepting new data
 app.post('/', function (req, res) {
     console.log('POST /');
-    
+
     var body = req.body;
 
     // TODO: set length restrictions on session and user
@@ -159,15 +170,15 @@ app.post('/', function (req, res) {
 
         // save the mask and individual aggregate
         var aggToSave = new Aggregate({
-            _id: ID, 
-            fields: data, 
+            _id: ID,
+            fields: data,
             date: Date.now(),
-            session: session, 
+            session: session,
             email: user
         });
 
         var maskToSave = new Mask({
-            _id: ID, 
+            _id: ID,
             fields: mask,
             session: session
         });
@@ -175,12 +186,12 @@ app.post('/', function (req, res) {
         // for both the aggregate and the mask, update the old aggregate
         // for the company with that email. Update or insert, hence the upsert flag
         var aggPromise = Aggregate.update(
-                    {_id: ID}, 
-                    aggToSave.toObject(), 
+                    {_id: ID},
+                    aggToSave.toObject(),
                     {upsert: true}
                 ),
             maskPromise = Mask.update(
-                    {_id: ID}, 
+                    {_id: ID},
                     maskToSave.toObject(),
                     {upsert: true}
                 );
@@ -242,11 +253,11 @@ app.post('/create_session', function (req, res) {
 
         var publickey = body.publickey;
         var sessionID = crypto.randomBytes(16).toString('hex');
-        
+
         var newKey = new PublicKey({
             _id: sessionID,
-            session: sessionID, 
-            pub_key: publickey 
+            session: sessionID,
+            pub_key: publickey
         });
 
         newKey.save(function (err) {
@@ -269,9 +280,9 @@ app.post('/create_session', function (req, res) {
 app.post('/get_data', function (req, res) {
     console.log('POST /get_data');
     console.log(req.body);
-    
+
     var schema = {
-        session: joi.string().alphanum().required(), 
+        session: joi.string().alphanum().required(),
         last_fetch: joi.number().required() // TODO: enforce time stamp
     };
 
@@ -336,7 +347,7 @@ app.post('/get_masks', function (req, res) {
 app.post('/get_aggregate', function (req, res) {
     console.log('POST /get_aggregate');
     console.log(req.body);
-    
+
     var schema = {session: joi.string().alphanum().required()};
 
     joi.validate(req.body, schema, function (valErr, body) {
@@ -346,7 +357,7 @@ app.post('/get_aggregate', function (req, res) {
             return;
         }
         Aggregate.where({session: body.session}).find(function (err, data) {
-            
+
             if (err) {
                 console.log(err);
                 res.status(500).send('Error computing aggregate.');
@@ -356,17 +367,17 @@ app.post('/get_aggregate', function (req, res) {
             // make sure query result is not empty
             if (data.length >= 1) {
                 console.log('Computing share of aggregate.');
-                
+
                 var invalidShareCount = mpc.countInvalidShares(data, true),
                     serviceShare = mpc.aggregateShares(data, true);
-                
+
                 // TODO: we should set a threshold and abort if there are too
                 // many invalid shares
                 console.log('Invalid share count:', invalidShareCount);
 
                 console.log('Sending aggregate.');
                 res.json(serviceShare);
-                
+
                 return;
             }
             else {
@@ -394,8 +405,9 @@ app.get(/.*/, function (req, res) {
     res.status(404).send('Page not found');
 });
 
-// require('https').createServer(lex.httpsOptions, lex.middleware(app)).listen(443, function () {
-//   console.log("Listening for ACME tls-sni-01 challenges and serve app on", this.address());
-// });
-
+if (process.env.NODE_ENV === 'production') {
+    require('https').createServer(lex.httpsOptions, lex.middleware(app)).listen(443, function () {
+      console.log("Listening for ACME tls-sni-01 challenges and serve app on", this.address());
+    });
+}
 /*eof*/

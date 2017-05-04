@@ -9,9 +9,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "joi": "^10.2.2",
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
+    "greenlock-express": "^2.0.10",
+    "joi": "^10.2.2",
     "letsencrypt-express": "^2.0.5",
     "mongoose": "^4.6.5",
     "spdy": "^3.4.4"
