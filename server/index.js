@@ -44,6 +44,15 @@ mongoose.Promise = Promise;
 /*  Set server to staging for testing
     Set server to https://acme-v01.api.letsencrypt.org/directory for production
 */
+
+var serverUrl = ''
+;
+if (process.env.NODE_ENV === 'production') {
+    serverUrl = 'https://acme-v01.api.letsencrypt.org/directory';
+} else {
+    serverUrl = 'staging';
+}
+
 var lex = LEX.create({
     server: 'staging',
     acme: require('le-acme-core').ACME.create(),
@@ -60,15 +69,18 @@ var lex = LEX.create({
 
 var server;
 
-// Run on port 8080 without forced https for development
-server = http.createServer(lex.middleware(app)).listen(8080, function () {
-    console.log("Listening for ACME http-01 challenges on", this.address());
-});
+if (process.env.NODE_ENV === 'production') {
+    //handles acme-challenge and redirects to https
+    http.createServer(lex.middleware(require('redirect-https')())).listen(80, function () {
+        console.log("Listening for ACME http-01 challenges on", this.address());
+    });    
+} else {
+    // Run on port 8080 without forced https for development
+    server = http.createServer(lex.middleware(app)).listen(8080, function () {
+        console.log("Listening for ACME http-01 challenges on", this.address());
+    });
+}
 
-// handles acme-challenge and redirects to https
-// http.createServer(lex.middleware(require('redirect-https')())).listen(80, function () {
-//     console.log("Listening for ACME http-01 challenges on", this.address());
-// });
 
 function approveDomains(opts, certs, cb) {
     if (!/\.100talent\.org$/.test(opts.domain) && opts.domain !== '100talent.org') {
@@ -394,8 +406,10 @@ app.get(/.*/, function (req, res) {
     res.status(404).send('Page not found');
 });
 
-// require('https').createServer(lex.httpsOptions, lex.middleware(app)).listen(443, function () {
-//   console.log("Listening for ACME tls-sni-01 challenges and serve app on", this.address());
-// });
+if (process.env.NODE_ENV === 'production') {
+    require('https').createServer(lex.httpsOptions, lex.middleware(app)).listen(443, function () {
+      console.log("Listening for ACME tls-sni-01 challenges and serve app on", this.address());
+    });
+}
 
 /*eof*/
