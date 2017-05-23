@@ -51,7 +51,7 @@ Local Machine
 
 Instructions for setting up the environment on a Mac/Linux local machine.
 
-* Make sure to have nodejs and mongoDB installed.
+* Make sure to have Node.js and MongoDB installed.
 
 * Navigate to the "server/" directory and install the NPM dependencies:
 
@@ -71,9 +71,17 @@ Instructions for setting up the environment on a Mac/Linux local machine.
 
 * Open a new terminal tab or window and navigate back to the "server/" directory if not already there
 
-* Start the nodejs server
+#### Non-Production Testing
+
+* For testing, start the Node.js server with no environment variables:
 
 `node index.js`
+
+#### Prodction Release
+
+* For production, start the Node.js server with a production environment variable:
+
+`NODE_ENV=production node index.js`
 
 * Open up the browser and navigate to "localhost:8080"
 
@@ -86,11 +94,11 @@ Instructions on how to operate the web-mpc application. All instructions from he
 
 * Navigate to "localhost:8080/trusted"
 
-* Click on generate session key and copy and share the session key with all participants.
+* Click on "Generate Session" and copy and share the session key with all participants.
 
 #### Fill out data
 
-* All participants will naviagte to "localhost:8080", paste the session key into its designated field and proceed to fill out the information. Once completed, click submit.
+* All participants will naviagte to "localhost:8080", paste the session key into its designated field and proceed to fill out the information. Once completed, click "Submit"".
 
 #### Retrieve the result
 
