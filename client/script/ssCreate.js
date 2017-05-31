@@ -336,7 +336,7 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources, la) {
   })
   .then(function (response) {
     console.log(response);
-    alert("Submitted data.");
+    alertify.alert("Submitted data.");
     // Stop loading animation
     la.stop();
     return response;
@@ -344,10 +344,10 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources, la) {
   .catch(function (err) {
     console.log(err);
     if (err && err.hasOwnProperty('responseText')) {
-      alert(err.responseText);
+      alertify.alert(err.responseText);
     } 
     else {
-      alert(GENERIC_SUBMISSION_ERR);
+      alertify.alert(GENERIC_SUBMISSION_ERR);
     }
     // Stop loading animation
     la.stop();
@@ -423,7 +423,7 @@ var submissionHandling = function (inputSources, targetUrl) {
             // $verifyBox.prop('checked', false);
           }
           else {
-            alert(errMsg);
+            alertify.alert(errMsg);
             $verifyBox.prop('checked', false);
             $submitButton.prop('disabled', true);  
           }
@@ -444,12 +444,12 @@ var submissionHandling = function (inputSources, targetUrl) {
     var emailstr = $('#emailf').val().trim();
 
     if (!sessionstr.match(/^[a-z0-9]{32}$/)){
-      alert("Invalid session number: must be 32 character combination of letters and numbers");
+      alertify.alert("Invalid session number: must be 32 character combination of letters and numbers");
       return;
     }
 
     if (!emailstr.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/)){
-      alert("Did not type a correct email address");
+      alertify.alert("Did not type a correct email address");
       return;
     }
 
@@ -470,7 +470,7 @@ var submissionHandling = function (inputSources, targetUrl) {
           );
         }
         else {
-          alert(errMsg);
+          alertify.alert(errMsg);
           la.stop();
         }
       }
