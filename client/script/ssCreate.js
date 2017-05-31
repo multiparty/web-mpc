@@ -349,10 +349,9 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources, la) {
     var submitTime = new Date();
     submitEntries.push({"Time": submitTime, "Submitted": false});
     console.log(err);
-    if (err && err.hasOwnProperty('responseText')) {
+    if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
       alertify.alert("<img src='style/cancel.png' alt='Error'>&nbsp Error!",  err.responseText + convertToHTML(submitEntries));
-    }
-    else {
+    } else {
       alertify.alert("<img src='style/cancel.png' alt='Error'>&nbsp Error!", GENERIC_SUBMISSION_ERR + convertToHTML(submitEntries));
     }
     // Stop loading animation
