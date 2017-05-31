@@ -351,6 +351,9 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources, la) {
     console.log(err);
     if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
       alertify.alert("<img src='style/cancel.png' alt='Error'>&nbsp Error!",  err.responseText + convertToHTML(submitEntries));
+    } else if (err && (err.status === 0 || err.status === 500)) {
+        // check for status 0 or status 500 (Server not reachable.)
+        alertify.alert("<img src='style/cancel.png' alt='Error'>&nbsp Error!",  "Server not reachable." + convertToHTML(submitEntries));
     } else {
       alertify.alert("<img src='style/cancel.png' alt='Error'>&nbsp Error!", GENERIC_SUBMISSION_ERR + convertToHTML(submitEntries));
     }
