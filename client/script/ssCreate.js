@@ -268,6 +268,8 @@ var revalidateAll = function (
   });
 };
 
+var submitEntries = [];
+
 var submitAll = function (sessionstr, emailstr, targetUrl, inputSources, la) {
   // Start loading animation
   la.start();
@@ -335,23 +337,27 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources, la) {
     });
   })
   .then(function (response) {
+    var submitTime = new Date();
+    submitEntries.push({"Time": submitTime, "Submitted": true});
     console.log(response);
-    alertify.alert("Success", "<img src='style/accept.png'>&nbsp Submitted data.");
+    alertify.alert("Success", "<img src='style/accept.png'>&nbsp Submitted data." + convertToHTML(submitEntries));
     // Stop loading animation
     la.stop();
     return response;
   })
   .catch(function (err) {
+    var submitTime = new Date();
+    submitEntries.push({"Time": submitTime, "Submitted": false});
     console.log(err);
     if (err && err.hasOwnProperty('responseText')) {
-      alertify.alert("Error", "<img src='style/cancel.png'>&nbsp" + err.responseText);
+      alertify.alert("Error", "<img src='style/cancel.png'>&nbsp" + err.responseText + convertToHTML(submitEntries));
     }
     else {
-      alertify.alert("Error", "<img src='style/cancel.png'>&nbsp" + GENERIC_SUBMISSION_ERR);
+      alertify.alert("Error", "<img src='style/cancel.png'>&nbsp" + GENERIC_SUBMISSION_ERR + convertToHTML(submitEntries));
     }
     // Stop loading animation
     la.stop();
-  });
+  })
 };
 
 // TODO: long term, figure out a way to generalize this
@@ -497,4 +503,18 @@ function encryptWithKey (obj, key) {
       md: forge.md.sha256.create()
     })
   });
+}
+
+function convertToHTML(entries) {
+  var htmlConcat = "</br><h3>Submission History</h3>";
+
+  for (var i = 0; i < entries.length; i++) {
+    if (entries[i]["Submitted"]) {
+      // append success line
+        htmlConcat += "<p class='success'><img src='style/accept.png'> Successful - "  + entries[i]["Time"] + "</p>";
+    } else {
+        htmlConcat += "<p class='error'><img src='style/cancel.png'> Unsuccessful - " + entries[i]["Time"] + "</p>";
+    }
+  }
+  return htmlConcat;
 }

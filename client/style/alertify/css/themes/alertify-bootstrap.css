@@ -27,6 +27,12 @@
   font-size: 18px;
   color: black;
 }
+
+p.success {  color: #5cb85c; }
+
+p.error {  color: #d9534f;  }
+
+.alertify .ajs-body
 .alertify.ajs-resizable .ajs-content,
 .alertify.ajs-maximized:not(.ajs-resizable) .ajs-content {
   top: 58px;
