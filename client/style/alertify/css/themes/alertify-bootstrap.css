@@ -19,11 +19,12 @@
   color: #333;
   border-bottom: 1px solid #e5e5e5;
   border-radius: 6px 6px 0 0;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 18px;
+  font-family: sans-serif;
+  font-size: 20px;
 }
 .alertify .ajs-body {
-  font-family: 'Roboto', sans-serif;
+  font-family: sans-serif;
+  font-size: 18px;
   color: black;
 }
 .alertify.ajs-resizable .ajs-content,
@@ -32,7 +33,7 @@
   bottom: 68px;
 }
 .alertify .ajs-footer {
-  background-color: #fff;
+  background-color: #87CEEB;
   padding: 15px;
   border-top: 1px solid #e5e5e5;
   border-radius: 0 0 6px 6px;

@@ -14,7 +14,7 @@ var UNCHECKED_ERR = 'Please acknowledge that all data is correct and verified.',
     NUM_EMP_EMPTY_ERR = 'Please fill out the Number of Employees spreadsheet.',
     BOARD_INVALID_ERR = 'Please double-check the Board of Directors spreadsheet \n' +
                         'or uncheck the Provide Board of Directors Information checkbox.',
-    BOARD_EMPTY_ERR = 'Please fill out the Board of Directors spreadsheet \n' + 
+    BOARD_EMPTY_ERR = 'Please fill out the Board of Directors spreadsheet \n' +
                       'or uncheck the Provide Board of Directors Information checkbox.',
     GENERIC_SUBMISSION_ERR = 'Something went wrong with submission! Please try again.';
 
@@ -77,14 +77,14 @@ var makeTable = function (divID, tableConfig) {
       $('#submit').prop('disabled', true);
       this.validateCells();
     },
-    afterValidate: function (isValid, value, row, prop, source) { 
+    afterValidate: function (isValid, value, row, prop, source) {
       if (!isValid) {
         return false;
       }
       var col = this.propToCol(prop),
           totalsColIdx = tableConfig.numCols - 1,
           totalsRowIdx = tableConfig.numRows - 1;
-      
+
       if (col === totalsColIdx && row < totalsRowIdx) {
         var rowValues = this.getData(row, 0, row, col - 1)[0];
         return validateSum(value, rowValues);
@@ -100,7 +100,7 @@ var makeTable = function (divID, tableConfig) {
         var colValues = this.getData(0, col, row - 1, col).map(function (val) {
           return val[0];
         });
-        return validateSum(value, rowValues) 
+        return validateSum(value, rowValues)
           && validateSum(value, colValues);
       }
     },
@@ -132,8 +132,8 @@ var makeTable = function (divID, tableConfig) {
   };
   var hot = new Handsontable(hotElement, hotSettings);
   return {
-    table: hot, 
-    rowKeys: tableConfig.rowKeys, 
+    table: hot,
+    rowKeys: tableConfig.rowKeys,
     colKeys: tableConfig.colKeys
   };
 };
@@ -164,7 +164,7 @@ var tableToJson = function (hot, prefix, rowKeys, colKeys) {
 
 var multipleChoiceToJson = function ($forms, prefix) {
   var jsonData = {};
-  
+
   $forms.each(function () {
     $this = $(this);
     var questionText = $.trim($this.find("#question-text").text());
@@ -175,7 +175,7 @@ var multipleChoiceToJson = function ($forms, prefix) {
       jsonData[key] = check ? 1 : 0;
     });
   });
-  
+
   console.log(jsonData);
   return jsonData;
 };
@@ -218,17 +218,17 @@ var isTableEmpty = function (hot) {
       numEmptyCols = hot.countEmptyCols(),
       numTotalRows = hot.countRows(),
       numTotalCols = hot.countCols();
-  return (numTotalRows === numEmptyRows) && 
+  return (numTotalRows === numEmptyRows) &&
          (numTotalCols === numEmptyCols);
 }
 
 // REVIEW
 var revalidateAll = function (
-  mainHot, 
-  boardHot, 
-  $boardBox, 
-  $questions, 
-  $verify, 
+  mainHot,
+  boardHot,
+  $boardBox,
+  $questions,
+  $verify,
   callb
 ) {
   var verifyChecked = $verify.is(':checked'),
@@ -271,7 +271,7 @@ var revalidateAll = function (
 var submitAll = function (sessionstr, emailstr, targetUrl, inputSources, la) {
   // Start loading animation
   la.start();
-  
+
   // Unpack input sources
   var mainSection = inputSources['main'],
       mainHot = mainSection.table,
@@ -293,19 +293,19 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources, la) {
     data: JSON.stringify({session: sessionstr}),
     dataType: "text"
   }).then(function (publickey) {
-    
+
     // Flattened input in the form of key-value pairs
     var keyValuePairs = Object.assign(
-      multipleChoiceToJson($questions, "question"), 
-      tableToJson(mainHot, "main", mainRowKeys, mainColKeys), 
-      tableToJson(boardHot, "board", boardRowKeys, boardColKeys), 
+      multipleChoiceToJson($questions, "question"),
+      tableToJson(mainHot, "main", mainRowKeys, mainColKeys),
+      tableToJson(boardHot, "board", boardRowKeys, boardColKeys),
       checkboxToJson($boardBox, "includeBoard")
     );
 
     // Secret-share the value in each key-value pair
     var secretShared = secretShareValues(keyValuePairs),
         serviceShares = secretShared.service,
-        analystShares = secretShared.analyst; 
+        analystShares = secretShared.analyst;
 
     // Encrypt analyst shares
     var encryptedAnalystShares = encryptWithKey(analystShares, publickey);
@@ -336,7 +336,7 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources, la) {
   })
   .then(function (response) {
     console.log(response);
-    alertify.alert("Submitted data.");
+    alertify.alert("Success", "<img src='style/accept.png'>&nbsp Submitted data.");
     // Stop loading animation
     la.stop();
     return response;
@@ -344,10 +344,10 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources, la) {
   .catch(function (err) {
     console.log(err);
     if (err && err.hasOwnProperty('responseText')) {
-      alertify.alert(err.responseText);
-    } 
+      alertify.alert("Error", "<img src='style/cancel.png'>&nbsp" + err.responseText);
+    }
     else {
-      alertify.alert(GENERIC_SUBMISSION_ERR);
+      alertify.alert("Error", "<img src='style/cancel.png'>&nbsp" + GENERIC_SUBMISSION_ERR);
     }
     // Stop loading animation
     la.stop();
@@ -376,7 +376,7 @@ var submissionHandling = function (inputSources, targetUrl) {
 
   // Listeners
   $boardBox.click(function () {
-    // disable submission 
+    // disable submission
     $verifyBox.prop('checked', false);
     $submitButton.prop('disabled', true);
     if ($(this).is(':checked')) {
@@ -391,7 +391,7 @@ var submissionHandling = function (inputSources, targetUrl) {
       boardHot.clear();
       boardHot.updateSettings({
         readOnly: true
-      });  
+      });
     }
   });
 
@@ -423,9 +423,9 @@ var submissionHandling = function (inputSources, targetUrl) {
             // $verifyBox.prop('checked', false);
           }
           else {
-            alertify.alert(errMsg);
+              alertify.alert("Error", errMsg);
             $verifyBox.prop('checked', false);
-            $submitButton.prop('disabled', true);  
+            $submitButton.prop('disabled', true);
           }
         }
       );
@@ -436,7 +436,7 @@ var submissionHandling = function (inputSources, targetUrl) {
       $submitButton.prop('disabled', true);
     }
   });
-  
+
   $submitButton.click(function() {
     var la = Ladda.create(this);
     // waitingDialog.show('Loading Data',{dialogSize: 'sm', progressType: 'warning'});
@@ -444,12 +444,12 @@ var submissionHandling = function (inputSources, targetUrl) {
     var emailstr = $('#emailf').val().trim();
 
     if (!sessionstr.match(/^[a-z0-9]{32}$/)){
-      alertify.alert("Invalid session number: must be 32 character combination of letters and numbers");
+      alertify.alert("Error", "<img src='style/cancel.png'>&nbsp Invalid session number: must be 32 character combination of letters and numbers");
       return;
     }
 
     if (!emailstr.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/)){
-      alertify.alert("Did not type a correct email address");
+      alertify.alert("Error", "<img src='style/cancel.png'>&nbsp Did not type a correct email address");
       return;
     }
 
@@ -470,7 +470,7 @@ var submissionHandling = function (inputSources, targetUrl) {
           );
         }
         else {
-          alertify.alert(errMsg);
+          alertify.alert("Error", errMsg);
           la.stop();
         }
       }
