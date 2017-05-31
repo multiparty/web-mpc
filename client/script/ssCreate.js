@@ -340,7 +340,7 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources, la) {
     var submitTime = new Date();
     submitEntries.push({"Time": submitTime, "Submitted": true});
     console.log(response);
-    alertify.alert("Success", "<img src='style/accept.png'>&nbsp Submitted data." + convertToHTML(submitEntries));
+    alertify.alert("<img src='style/accept.png' alt='Success'> Success!", "&nbsp Submitted data." + convertToHTML(submitEntries));
     // Stop loading animation
     la.stop();
     return response;
@@ -350,10 +350,10 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources, la) {
     submitEntries.push({"Time": submitTime, "Submitted": false});
     console.log(err);
     if (err && err.hasOwnProperty('responseText')) {
-      alertify.alert("Error", "<img src='style/cancel.png'>&nbsp" + err.responseText + convertToHTML(submitEntries));
+      alertify.alert("<img src='style/cancel.png' alt='Error'>&nbsp Error!",  err.responseText + convertToHTML(submitEntries));
     }
     else {
-      alertify.alert("Error", "<img src='style/cancel.png'>&nbsp" + GENERIC_SUBMISSION_ERR + convertToHTML(submitEntries));
+      alertify.alert("<img src='style/cancel.png' alt='Error'>&nbsp Error!", GENERIC_SUBMISSION_ERR + convertToHTML(submitEntries));
     }
     // Stop loading animation
     la.stop();
@@ -450,12 +450,12 @@ var submissionHandling = function (inputSources, targetUrl) {
     var emailstr = $('#emailf').val().trim();
 
     if (!sessionstr.match(/^[a-z0-9]{32}$/)){
-      alertify.alert("Error", "<img src='style/cancel.png'>&nbsp Invalid session number: must be 32 character combination of letters and numbers");
+      alertify.alert("<img src='style/cancel.png' alt='Error'>&nbsp Error!", "Invalid session number: must be 32 character combination of letters and numbers");
       return;
     }
 
     if (!emailstr.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/)){
-      alertify.alert("Error", "<img src='style/cancel.png'>&nbsp Did not type a correct email address");
+      alertify.alert("<img src='style/cancel.png' alt='Error'>&nbsp Error!", "Did not type a correct email address");
       return;
     }
 
