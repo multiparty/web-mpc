@@ -77,7 +77,7 @@ var makeTable = function (divID, tableConfig) {
       $('#submit').prop('disabled', true);
       this.validateCells();
     },
-    afterValidate: function (isValid, value, row, prop, source) { 
+    afterValidate: function (isValid, value, row, prop, source) {
       if (!isValid) {
         return false;
       }
@@ -423,7 +423,7 @@ var submissionHandling = function (inputSources, targetUrl) {
             // $verifyBox.prop('checked', false);
           }
           else {
-            alert(errMsg);
+            alertify.alert(errMsg);
             $verifyBox.prop('checked', false);
             $submitButton.prop('disabled', true);  
           }
@@ -498,3 +498,4 @@ function encryptWithKey (obj, key) {
     })
   });
 }
+
