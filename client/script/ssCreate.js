@@ -3,7 +3,7 @@
  * client/script/ssCreate.js
  *
  * Creates a spreadsheet that is obfuscated with random numbers.
- * Dependancies: Handsontable.js, underscore.js, jquery
+ * Dependencies: Handsontable.js, underscore.js, jquery
  * Author: Eric Dunton
  *
  */
@@ -16,6 +16,7 @@ var UNCHECKED_ERR = 'Please acknowledge that all data is correct and verified.',
                         'or uncheck the Provide Board of Directors Information checkbox.',
     BOARD_EMPTY_ERR = 'Please fill out the Board of Directors spreadsheet \n' +
                       'or uncheck the Provide Board of Directors Information checkbox.',
+    SERVER_ERR =  "Server not reachable.",
     GENERIC_SUBMISSION_ERR = 'Something went wrong with submission! Please try again.';
 
 var emptyOrPosInt = function (val) {
@@ -353,7 +354,7 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources, la) {
       alertify.alert("<img src='style/cancel.png' alt='Error'>&nbsp Error!",  err.responseText + convertToHTML(submitEntries));
     } else if (err && (err.status === 0 || err.status === 500)) {
         // check for status 0 or status 500 (Server not reachable.)
-        alertify.alert("<img src='style/cancel.png' alt='Error'>&nbsp Error!",  "Server not reachable." + convertToHTML(submitEntries));
+        alertify.alert("<img src='style/cancel.png' alt='Error'>&nbsp Error!", SERVER_ERR + convertToHTML(submitEntries));
     } else {
       alertify.alert("<img src='style/cancel.png' alt='Error'>&nbsp Error!", GENERIC_SUBMISSION_ERR + convertToHTML(submitEntries));
     }
