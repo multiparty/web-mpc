@@ -341,7 +341,8 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources, la) {
     var submitTime = new Date();
     submitEntries.push({"Time": submitTime, "Submitted": true});
     console.log(response);
-    alertify.alert("<img src='style/accept.png' alt='Success'> Success!", "&nbsp Submitted data." + convertToHTML(submitEntries));
+    alertify.alert("<img src='style/accept.png' alt='Success'> Success!", "&nbsp Submitted data.");
+    convertToHTML(submitEntries)
     // Stop loading animation
     la.stop();
     return response;
@@ -351,13 +352,14 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources, la) {
     submitEntries.push({"Time": submitTime, "Submitted": false});
     console.log(err);
     if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
-      alertify.alert("<img src='style/cancel.png' alt='Error'>&nbsp Error!",  err.responseText + convertToHTML(submitEntries));
+      alertify.alert("<img src='style/cancel.png' alt='Error'>&nbsp Error!",  err.responseText);
     } else if (err && (err.status === 0 || err.status === 500)) {
         // check for status 0 or status 500 (Server not reachable.)
-        alertify.alert("<img src='style/cancel.png' alt='Error'>&nbsp Error!", SERVER_ERR + convertToHTML(submitEntries));
+        alertify.alert("<img src='style/cancel.png' alt='Error'>&nbsp Error!", SERVER_ERR);
     } else {
-      alertify.alert("<img src='style/cancel.png' alt='Error'>&nbsp Error!", GENERIC_SUBMISSION_ERR + convertToHTML(submitEntries));
+      alertify.alert("<img src='style/cancel.png' alt='Error'>&nbsp Error!", GENERIC_SUBMISSION_ERR);
     }
+    convertToHTML(submitEntries);
     // Stop loading animation
     la.stop();
   })
@@ -509,7 +511,7 @@ function encryptWithKey (obj, key) {
 }
 
 function convertToHTML(entries) {
-  var htmlConcat = "</br><h3>Submission History</h3>";
+  var htmlConcat = "<h3>Submission History</h3>";
 
   for (var i = 0; i < entries.length; i++) {
     if (entries[i]["Submitted"]) {
@@ -519,5 +521,5 @@ function convertToHTML(entries) {
         htmlConcat += "<p class='error'><img src='style/cancel.png'> Unsuccessful - " + entries[i]["Time"] + "</p>";
     }
   }
-  return htmlConcat;
+  $('.page-footer').html(htmlConcat);
 }
