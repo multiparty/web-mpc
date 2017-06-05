@@ -40,9 +40,9 @@ p.error {  color: #d9534f;  }
 }
 .alertify .ajs-footer {
   background-color: #87CEEB;
-  padding: 15px;
   border-top: 1px solid #e5e5e5;
   border-radius: 0 0 6px 6px;
+  height: 10px;
 }
 .alertify-notifier .ajs-message {
   background: rgba(255, 255, 255, 0.95);
