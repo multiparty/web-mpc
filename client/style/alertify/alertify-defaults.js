@@ -23,16 +23,9 @@ alertify.defaults = {
         closeButton:false
     },
     glossary:{
-        title:'',
+        title:'<img src="style/cancel.png" alt="Alert">' + 'Error!',
         ok: 'OK',
         cancel: 'Cancel',
-        acccpt: 'Accept',
-        deny: 'Deny',
-        confirm: 'Confirm',
-        decline: 'Decline',
-        close: 'Close',
-        maximize: 'Maximize',
-        restore: 'Restore',
     },
     theme:{
         input:'ajs-input',

@@ -434,7 +434,7 @@ var submissionHandling = function (inputSources, targetUrl) {
             // $verifyBox.prop('checked', false);
           }
           else {
-              alertify.alert("Error", errMsg);
+            alertify.alert(errMsg);
             $verifyBox.prop('checked', false);
             $submitButton.prop('disabled', true);
           }
