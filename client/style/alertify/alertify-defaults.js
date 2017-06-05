@@ -17,7 +17,7 @@ alertify.defaults = {
   preventBodyShift:false, // <== global default not per instance, applies to all dialogs
   resizable:true,
   startMaximized:false,
-  transition:'pulse',
+  transition:'fade',
 
   // notifier defaults
   notifier:{
