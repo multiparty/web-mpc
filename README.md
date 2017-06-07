@@ -81,7 +81,7 @@ Instructions for setting up the environment on a Mac/Linux local machine.
 
 * For production, start the Node.js server with a production environment variable:
 
-`export NODE_ENV=production`</br>
+`export NODE_ENV=production`
 `node index.js`
 
 * Open up the browser and navigate to "localhost:8080"
