@@ -43,6 +43,11 @@
       float: left;
       text-align:right;
     }
+
+    #sess {
+      width:25em;
+    }
+
     .handsontable th:first-child {
       text-align: left;
       white-space: normal;
@@ -106,7 +111,7 @@
   </div>
   <div>
     <h3>Enter Session Key</h3>
-    <input autocomplete="off" type="text" id="sess" pattern="^[a-z0-9]{32}$" required/>
+    <input autocomplete="off" type="text" id="sess" pattern="^[a-z0-9]{32}$" size="32" required/>
     <h3>Email Address to track participation</h3>
     <input autocomplete="off" type=text id="emailf" pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$" required/>
   </div>
