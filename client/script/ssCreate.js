@@ -339,9 +339,9 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources, la) {
   })
   .then(function (response) {
     var submitTime = new Date();
-    submitEntries.push({"Time": submitTime, "Submitted": true});
+    submitEntries.push({time: submitTime, submitted: true});
     console.log(response);
-    alertify.alert("<img src='style/accept.png' alt='Success'> Success!", "&nbsp Submitted data.");
+    alertify.alert("<img src='style/accept.png' alt='Success'>Success!", "Submitted data.");
     convertToHTML(submitEntries)
     // Stop loading animation
     la.stop();
@@ -349,15 +349,15 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources, la) {
   })
   .catch(function (err) {
     var submitTime = new Date();
-    submitEntries.push({"Time": submitTime, "Submitted": false});
+    submitEntries.push({time: submitTime, submitted: false});
     console.log(err);
     if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
-      alertify.alert("<img src='style/cancel.png' alt='Error'>&nbsp Error!",  err.responseText);
+      alertify.alert("<img src='style/cancel.png' alt='Error'>Error!",  err.responseText);
     } else if (err && (err.status === 0 || err.status === 500)) {
         // check for status 0 or status 500 (Server not reachable.)
-        alertify.alert("<img src='style/cancel.png' alt='Error'>&nbsp Error!", SERVER_ERR);
+        alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", SERVER_ERR);
     } else {
-      alertify.alert("<img src='style/cancel.png' alt='Error'>&nbsp Error!", GENERIC_SUBMISSION_ERR);
+      alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", GENERIC_SUBMISSION_ERR);
     }
     convertToHTML(submitEntries);
     // Stop loading animation
@@ -434,7 +434,7 @@ var submissionHandling = function (inputSources, targetUrl) {
             // $verifyBox.prop('checked', false);
           }
           else {
-            alertify.alert(errMsg);
+            alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", errMsg);
             $verifyBox.prop('checked', false);
             $submitButton.prop('disabled', true);
           }
@@ -455,12 +455,12 @@ var submissionHandling = function (inputSources, targetUrl) {
     var emailstr = $('#emailf').val().trim();
 
     if (!sessionstr.match(/^[a-z0-9]{32}$/)){
-      alertify.alert("<img src='style/cancel.png' alt='Error'>&nbsp Error!", "Invalid session number: must be 32 character combination of letters and numbers");
+      alertify.alert("Invalid session number: must be 32 character combination of letters and numbers");
       return;
     }
 
     if (!emailstr.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/)){
-      alertify.alert("<img src='style/cancel.png' alt='Error'>&nbsp Error!", "Did not type a correct email address");
+      alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", "Did not type a correct email address");
       return;
     }
 
@@ -481,7 +481,7 @@ var submissionHandling = function (inputSources, targetUrl) {
           );
         }
         else {
-          alertify.alert("Error", errMsg);
+          alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", errMsg);
           la.stop();
         }
       }
@@ -514,11 +514,11 @@ function convertToHTML(entries) {
   var htmlConcat = "<h3>Submission History</h3>";
 
   for (var i = 0; i < entries.length; i++) {
-    if (entries[i]["Submitted"]) {
+    if (entries[i]['submitted']) {
       // append success line
-        htmlConcat += "<p class='success'><img src='style/accept.png'> Successful - "  + entries[i]["Time"] + "</p>";
+        htmlConcat += "<p class='success' alt='Success'><img src='style/accept.png'>Successful - "  + entries[i]['time'] + "</p>";
     } else {
-        htmlConcat += "<p class='error'><img src='style/cancel.png'> Unsuccessful - " + entries[i]["Time"] + "</p>";
+        htmlConcat += "<p class='error' alt='Error'><img src='style/cancel.png'>Unsuccessful - " + entries[i]['time'] + "</p>";
     }
   }
   $('.page-footer').html(htmlConcat);
