@@ -1,0 +1,41 @@
+{
+  "tables": [
+    { 
+      "name": "board",
+      "element": "main-hot",
+      "rows" : [ 
+        { "key": "TOTAL", "label": "<b>TOTAL</b>" }, 
+        { "key": "SAL", "label": "<b>SALARY</b>" } 
+      ],
+      "cols": [
+        [ 
+          { "label": "Male" , "colspan": 2 }, 
+          { "label": "Female" , "colspan": 2 } 
+        ],
+        [
+            { "label": "White", "colspan": 1 },
+            { "label": "Other", "colspan": 1 },
+            { "label": "White", "colspan": 1 },
+            { "label": "Other", "colspan": 1 },
+            { "label": "<b>TOTAL</b> <br> Col A - D", "colspan": 1 }
+        ],
+        [ 
+          { "label": "A", "key": "Male White" }, 
+          { "label": "B", "key": "Male White" },
+          { "label": "C", "key": "Male White" },
+          { "label": "D", "key": "Male White" },
+          { "label": "E", "key": "Male White" }
+        ]
+      ],
+      "types": [
+        { "range": { "row": "*", "col": "*" }, "type": "count" },
+        { "range": { "row": "1", "col": "0-2" }, "type": "currency" },
+        { "range": { "row": "0", "col": "0-2:3" }, "type": "count", "verifiers": [ "verify1", "verify2" ] }
+      ],
+      "tooltips": [
+        { "range": { "row": "0", "col": "*" }, "tooltip": { "promptTitle": "P1", "promptMessage": "prompt1", "errorTitle": "E1", "errorMessage": "error1" } },
+        { "range": { "row": "1", "col": "*" }, "tooltip": { "promptTitle": "P2", "promptMessage": "prompt2", "errorTitle": "E2", "errorMessage": "error2" } }
+      ]
+    }
+  ]
+}
