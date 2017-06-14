@@ -1,24 +1,102 @@
 var HOT_DEFAULT_WIDTH = 1024;
 
-var verifiers_map = {
-  'verify1': function(value) { console.log("verifier1"); return value > 100; },
-  'verify2': function(value) { console.log(value); return false; }
+var validators_map = {
+  'validate1': function(value, callback) { console.log("validator1"); callback(true); },
+  'validate2': function(value, callback) { console.log(value); callback(true); }
 };
+
+function register_validator(name, validator) {
+  validators_map[name] = validator;
+}
+
+var types_map = {
+  'int': {
+    'type': 'numeric'
+  },
+  
+  'readOnly': {
+    'type': 'text',
+    'readOnly': true
+  },
+  
+  'currency': {
+    'type': 'numeric',
+    'format': '$0,0.00',
+    'language': 'en-US' // this is the default locale, set up for USD
+  }
+}
+
+function register_type(name, type) {
+  types_map[name] = validator;
+}
+
+var validator = function(value, callback) {
+  var cell = this.instance.__sail_meta.cells[this.row][this.col];
+  if(cell.max != null && value > cell.max) { callback(false); return; }
+  if(cell.min != null && value < cell.min) { callback(false); return; }
+  
+  // Create and call the generic_validator
+  // The generic validator is setup such that
+  // all validators will be executed one after the other
+  // such that the callback passed to every validator is
+  // chained into the next one.
+  var _ = function generic_validator(value, callback, k) {
+    if(k >= cell.validators.length) { callback(true); return; }
+  
+    var generic_callback = function(previous_result) {
+      if(previous_result) generic_validator(value, callback, k+1);
+      else callback(false); // early break
+    }
+    
+    if(k > -1) { cell.validators[k](value, generic_callback); return; }
+    
+    // call the default validator
+    var hot_cell_type = cell.type;
+    if(types_map[cell.type] != null && types_map[cell.type].type != null) hot_cell_type = types_map[cell.type].type;
+    
+    var hot_type_alias = Handsontable.cellTypes[hot_cell_type];
+    if(hot_type_alias != null && hot_type_alias.validator != null)
+      hot_type_alias.validator(value, generic_callback);
+      
+    else // no default validator
+      generic_callback(true);
+  }(value, callback, -1);
+}
+
+var renderer = function(instance, TD, row, col, prop, value, cellProperties) {
+  if(instance.__sail_meta == null) return; // render will be called again
+  
+  // show tooltip if 
+  var cell = instance.__sail_meta.cells[row][col];
+  var tooltip = cell.tooltip;
+  if(tooltip != null) {
+    if(cellProperties.valid === false) cellProperties.comment = { "value": tooltip.error };
+    else cellProperties.comment = { "value": tooltip.prompt };
+  }
+  
+  // call the default renderer
+  var baseRenderer = Handsontable.cellTypes['text'].renderer;
+  var hot_cell_type = cell.type;
+  if(types_map[cell.type] != null && types_map[cell.type].type != null) hot_cell_type = types_map[cell.type].type;
+    
+  var hot_type_alias = Handsontable.cellTypes[hot_cell_type];
+  if(hot_type_alias == null || hot_type_alias.renderer == null)
+    baseRenderer = hot_type_alias.renderer;
+    
+  baseRenderer.apply(this, arguments);
+}
 
 /**
  * Creates hands-on-tables from the given definition.
- * @param { json } tables_def - the json object representing the tables.
- * @param { map } elements - a map from table name to enclosing element (a div usually).
- * @return { array } an array of table objects.
+ * @param {json} tables_def - the json object representing the tables.
+ * @return {array} containing HOT tables (table_obj may be accesed using hot_table.__sail_meta).
  */
 function make_tables(tables_def) {
   var result = [];
   for(var t = 0; t < tables_def.tables.length; t++) {
     var table_def = tables_def.tables[t];
-    var table = make_table_obj(table_def);
-    result[t] = table;
-    
-    make_hot_table(table);
+    var table = make_table_obj(table_def);    
+    result[t] = [ make_hot_table(table) ];
   }
   
   return result;
@@ -26,9 +104,8 @@ function make_tables(tables_def) {
 
 /**
  * Creates a hands-on-table from the given definition.
- * @param { json } table_def - the json object representing the table.
- * @param { dom-element } element - the enclosing element (a div usually).\
- * @return { object } an object representing the table
+ * @param {json} table_def - the json object representing the table.
+ * @return {object} an object representing the table
  */
 function make_table_obj(table_def) {
   var table_name = table_def.name;
@@ -58,19 +135,19 @@ function make_table_obj(table_def) {
 
     var update_cell = function(i, j) {
       table[i][j].type = type.type;
+      if(table[i][j].validators == null || type.validators === null)
+        table[i][j].validators = [];
       
-      var tmp = type.verifiers || [];
-      var verifiers = new Array(tmp.length);
-      for(var v = 0; v < tmp.length; v++) {
-        verifiers[v] = verifiers_map[tmp[v]];
-      }
+      var tmp = type.validators || [];
+      for(var v = 0; v < tmp.length; v++) table[i][j].validators.push(validators_map[tmp[v]]);
       
-      table[i][j].verifiers = verifiers;
+      if(type.max !== undefined) table[i][j].max = type.max;
+      if(type.min !== undefined) table[i][j].min = type.min;
+      if(type.empty !== undefined) table[i][j].empty = type.empty;
     };
     
     visit_range(rows_len, cols_len, type.range, update_cell);  
   }
-  
   
   // Fill in tooltip
   for(var t = 0; t < table_def.tooltips.length; t++) {
@@ -97,14 +174,37 @@ function make_table_obj(table_def) {
   };
 }
 
+/**
+ * Construct a Handsontable (HOT) object corresponding to the given table object.
+ * @param {object} table - the table object to create (constructed by make_table from json definition).
+ * @return {hot} - the handsontable object constructed by make_hot_table.
+ */
 function make_hot_table(table) {
   var element = document.querySelector(table.element);
   
   var hot_cols = new Array(table.colsCount);
   for(var i = 0; i < table.colsCount; i++)
-    hot_cols[i] = { "type": "numeric" };
+    hot_cols[i] = { "type": "text" }; //default thing that does not matter, will be overriden cell by cell
+    
+  var cells = [];
+  // construct cell by cell properties
+  for(var i = 0; i < table.rowsCount; i++) {
+    for(var j = 0; j < table.colsCount; j++) {
+      var cell_def = table.cells[i][j];
+      var type = cell_def.type;
+      var empty = true;
+      
+      if(cell_def.empty != null) empty = cell_def.empty;
+            
+      var cell = { "row": i, "col": j, "type": type, "allowEmpty": empty, "validator": validator, "renderer": renderer };
+      if(types_map[cell_def.type]) Object.assign(cell, types_map[cell_def.type]);
+      cells.push(cell);
+    }
+  }
   
   var hotSettings = {
+    // Enable tooltips
+    comments: true,
     // Table width in pixels
     width: table.width,
     // Columns types
@@ -115,30 +215,18 @@ function make_hot_table(table) {
     // Row and column headers and span
     rowHeaders: table.rows,
     nestedHeaders: table.cols,
-    /* 
-     * Handlers for a variety of events 
-     */    
-    // Validate
-    afterChange: function (changes, source) { },
-    
-    // handle if things are valid or invalid
-    afterValidate: function (isValid, value, row, prop, source) { },
-    
-    // Workaround for handsontable undo issue
+    // Per cell properties
+    cell: cells,
+    // Workaround for handsontable undo issue for readOnly tables
     beforeChange: function (changes, source) { return !(this.readOnly); }
   };
   
-  new Handsontable(element, hotSettings);
-}
-
-function makeBlank(instance, td, row, col, prop, value, cellProperties) {
-  Handsontable.renderers.NumericRenderer.apply(this, arguments);
-  td.style.background = '#f3f3f3';
-}
-
-function outsideRangeRenderer(instance, td, row, col, prop, value, cellProperties) {
-  Handsontable.renderers.NumericRenderer.apply(this, arguments);
-  td.style.background = '#ffff00';
+  // Create the Handsontable
+  var handsOnTable = new Handsontable(element, hotSettings);
+  handsOnTable.__sail_meta = table;
+  handsOnTable.render();
+  
+  return handsOnTable;
 }
 
 /**
@@ -146,7 +234,7 @@ function outsideRangeRenderer(instance, td, row, col, prop, value, cellPropertie
  * @param {number} rows_len - the total number of rows.
  * @param {number} cols_len - the total number of cols.
  * @param {json} range - the range (contains row and col attributes).
- * @param { function(i, j) } f - the function to be called on every cell in the range.
+ * @param {function(i, j)} f - the function to be called on every cell in the range.
  */
 function visit_range(rows_len, cols_len, range, f) {
   var row_range = range.row.split("-");
@@ -166,8 +254,8 @@ function visit_range(rows_len, cols_len, range, f) {
       if(row.length == 2) { row[2] = row[1]; row[1] = 1; }
       if(col.length == 2) { col[2] = col[1]; col[1] = 1; }
       
-      row = [ parseInt(row[0]), parseInt(row[1]), parseInt(row[2])];
-      col = [ parseInt(col[0]), parseInt(col[1]), parseInt(col[2])];
+      row = [ parseInt(row[0], 10), parseInt(row[1], 10), parseInt(row[2], 10)];
+      col = [ parseInt(col[0], 10), parseInt(col[1], 10), parseInt(col[2], 10)];
       for(var ri = row[0]; ri <= row[2]; ri+=row[1]) {
         for(var ci = col[0]; ci <= col[2]; ci+=row[1]) {
           f(ri, ci);
@@ -176,3 +264,4 @@ function visit_range(rows_len, cols_len, range, f) {
     }
   }
 }
+
