@@ -80,7 +80,7 @@ var renderer = function(instance, TD, row, col, prop, value, cellProperties) {
   if(types_map[cell.type] != null && types_map[cell.type].type != null) hot_cell_type = types_map[cell.type].type;
     
   var hot_type_alias = Handsontable.cellTypes[hot_cell_type];
-  if(hot_type_alias == null || hot_type_alias.renderer == null)
+  if(hot_type_alias != null && hot_type_alias.renderer != null)
     baseRenderer = hot_type_alias.renderer;
     
   baseRenderer.apply(this, arguments);
