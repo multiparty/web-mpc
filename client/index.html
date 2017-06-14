@@ -9,13 +9,17 @@
   <script type="text/javascript" src="../shared/forge.min.js"></script>
   <script type="text/javascript" src="../shared/mpc.js"></script>
   <script type="text/javascript" src="style/bootstrap/js/bootstrap.js"></script>
+  <script type="text/javascript" src="style/alertify/alertify.js"></script>
+  <script type="text/javascript" src="style/alertify/alertify-defaults.js"></script>
   <script type="text/javascript" src="script/spin.min.js"></script>
   <script type="text/javascript" src="script/ladda.min.js"></script>
   <script type="text/javascript" src="script/ssCreate.js"></script>
 
   <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="style/bootstrap/v3/css/bootstrap-theme.min.css">
-  <link rel="stylesheet" type="text/css" href="../shared/handsontable-pro/dist/handsontable.full.css"> 
+  <link rel="stylesheet" type="text/css" href="../shared/handsontable-pro/dist/handsontable.full.css">
+  <link rel="stylesheet" type="text/css" href="style/alertify/css/alertify.css">
+  <link rel="stylesheet" type="text/css" href="style/alertify/css/themes/alertify-bootstrap.css">
   <link rel="stylesheet" href="style/ladda-themeless.min.css">
 
   <style type="text/css">
@@ -37,6 +41,7 @@
     }
     #submit {
       float: left;
+      text-align:right;
     }
 
     #sess {
@@ -53,6 +58,23 @@
       max-width: 110px;
       vertical-align: middle;
     }
+    .page-footer {
+      padding-top: 50px;
+    }
+
+    /* for alerts and submission history*/
+    .ajs-header img {
+      padding-right: 0.5em;
+    }
+
+    .success img {
+      padding-right: 0.5em;
+    }
+
+    .error img {
+      padding-right: 0.5em;
+    }
+
     p {
       font-weight: 400 !important;
       font-size: 1rem !important;
@@ -171,6 +193,9 @@
   <button name="dump" id="submit" class="btn btn-primary ladda-button" data-style="zoom-out">
     <span class="ladda-label">Submit</span>
   </button>
+    <div class="page-footer">
+
+    </div>
   <br/>
   <script type="text/javascript">
     $(document).ready(function() {

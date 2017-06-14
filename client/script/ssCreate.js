@@ -3,7 +3,7 @@
  * client/script/ssCreate.js
  *
  * Creates a spreadsheet that is obfuscated with random numbers.
- * Dependancies: Handsontable.js, underscore.js, jquery
+ * Dependencies: Handsontable.js, underscore.js, jquery
  * Author: Eric Dunton
  *
  */
@@ -14,8 +14,9 @@ var UNCHECKED_ERR = 'Please acknowledge that all data is correct and verified.',
     NUM_EMP_EMPTY_ERR = 'Please fill out the Number of Employees spreadsheet.',
     BOARD_INVALID_ERR = 'Please double-check the Board of Directors spreadsheet \n' +
                         'or uncheck the Provide Board of Directors Information checkbox.',
-    BOARD_EMPTY_ERR = 'Please fill out the Board of Directors spreadsheet \n' + 
+    BOARD_EMPTY_ERR = 'Please fill out the Board of Directors spreadsheet \n' +
                       'or uncheck the Provide Board of Directors Information checkbox.',
+    SERVER_ERR =  "Server not reachable.",
     GENERIC_SUBMISSION_ERR = 'Something went wrong with submission! Please try again.';
 
 var emptyOrPosInt = function (val) {
@@ -77,14 +78,14 @@ var makeTable = function (divID, tableConfig) {
       $('#submit').prop('disabled', true);
       this.validateCells();
     },
-    afterValidate: function (isValid, value, row, prop, source) { 
+    afterValidate: function (isValid, value, row, prop, source) {
       if (!isValid) {
         return false;
       }
       var col = this.propToCol(prop),
           totalsColIdx = tableConfig.numCols - 1,
           totalsRowIdx = tableConfig.numRows - 1;
-      
+
       if (col === totalsColIdx && row < totalsRowIdx) {
         var rowValues = this.getData(row, 0, row, col - 1)[0];
         return validateSum(value, rowValues);
@@ -100,7 +101,7 @@ var makeTable = function (divID, tableConfig) {
         var colValues = this.getData(0, col, row - 1, col).map(function (val) {
           return val[0];
         });
-        return validateSum(value, rowValues) 
+        return validateSum(value, rowValues)
           && validateSum(value, colValues);
       }
     },
@@ -132,8 +133,8 @@ var makeTable = function (divID, tableConfig) {
   };
   var hot = new Handsontable(hotElement, hotSettings);
   return {
-    table: hot, 
-    rowKeys: tableConfig.rowKeys, 
+    table: hot,
+    rowKeys: tableConfig.rowKeys,
     colKeys: tableConfig.colKeys
   };
 };
@@ -164,7 +165,7 @@ var tableToJson = function (hot, prefix, rowKeys, colKeys) {
 
 var multipleChoiceToJson = function ($forms, prefix) {
   var jsonData = {};
-  
+
   $forms.each(function () {
     $this = $(this);
     var questionText = $.trim($this.find("#question-text").text());
@@ -175,7 +176,7 @@ var multipleChoiceToJson = function ($forms, prefix) {
       jsonData[key] = check ? 1 : 0;
     });
   });
-  
+
   console.log(jsonData);
   return jsonData;
 };
@@ -218,17 +219,17 @@ var isTableEmpty = function (hot) {
       numEmptyCols = hot.countEmptyCols(),
       numTotalRows = hot.countRows(),
       numTotalCols = hot.countCols();
-  return (numTotalRows === numEmptyRows) && 
+  return (numTotalRows === numEmptyRows) &&
          (numTotalCols === numEmptyCols);
 }
 
 // REVIEW
 var revalidateAll = function (
-  mainHot, 
-  boardHot, 
-  $boardBox, 
-  $questions, 
-  $verify, 
+  mainHot,
+  boardHot,
+  $boardBox,
+  $questions,
+  $verify,
   callb
 ) {
   var verifyChecked = $verify.is(':checked'),
@@ -268,10 +269,12 @@ var revalidateAll = function (
   });
 };
 
+var submitEntries = [];
+
 var submitAll = function (sessionstr, emailstr, targetUrl, inputSources, la) {
   // Start loading animation
   la.start();
-  
+
   // Unpack input sources
   var mainSection = inputSources['main'],
       mainHot = mainSection.table,
@@ -293,19 +296,19 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources, la) {
     data: JSON.stringify({session: sessionstr}),
     dataType: "text"
   }).then(function (publickey) {
-    
+
     // Flattened input in the form of key-value pairs
     var keyValuePairs = Object.assign(
-      multipleChoiceToJson($questions, "question"), 
-      tableToJson(mainHot, "main", mainRowKeys, mainColKeys), 
-      tableToJson(boardHot, "board", boardRowKeys, boardColKeys), 
+      multipleChoiceToJson($questions, "question"),
+      tableToJson(mainHot, "main", mainRowKeys, mainColKeys),
+      tableToJson(boardHot, "board", boardRowKeys, boardColKeys),
       checkboxToJson($boardBox, "includeBoard")
     );
 
     // Secret-share the value in each key-value pair
     var secretShared = secretShareValues(keyValuePairs),
         serviceShares = secretShared.service,
-        analystShares = secretShared.analyst; 
+        analystShares = secretShared.analyst;
 
     // Encrypt analyst shares
     var encryptedAnalystShares = encryptWithKey(analystShares, publickey);
@@ -335,23 +338,31 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources, la) {
     });
   })
   .then(function (response) {
+    var submitTime = new Date();
+    submitEntries.push({time: submitTime, submitted: true});
     console.log(response);
-    alert("Submitted data.");
+    alertify.alert("<img src='style/accept.png' alt='Success'>Success!", "Submitted data.");
+    convertToHTML(submitEntries)
     // Stop loading animation
     la.stop();
     return response;
   })
   .catch(function (err) {
+    var submitTime = new Date();
+    submitEntries.push({time: submitTime, submitted: false});
     console.log(err);
-    if (err && err.hasOwnProperty('responseText')) {
-      alert(err.responseText);
-    } 
-    else {
-      alert(GENERIC_SUBMISSION_ERR);
+    if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
+      alertify.alert("<img src='style/cancel.png' alt='Error'>Error!",  err.responseText);
+    } else if (err && (err.status === 0 || err.status === 500)) {
+        // check for status 0 or status 500 (Server not reachable.)
+        alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", SERVER_ERR);
+    } else {
+      alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", GENERIC_SUBMISSION_ERR);
     }
+    convertToHTML(submitEntries);
     // Stop loading animation
     la.stop();
-  });
+  })
 };
 
 // TODO: long term, figure out a way to generalize this
@@ -376,7 +387,7 @@ var submissionHandling = function (inputSources, targetUrl) {
 
   // Listeners
   $boardBox.click(function () {
-    // disable submission 
+    // disable submission
     $verifyBox.prop('checked', false);
     $submitButton.prop('disabled', true);
     if ($(this).is(':checked')) {
@@ -391,7 +402,7 @@ var submissionHandling = function (inputSources, targetUrl) {
       boardHot.clear();
       boardHot.updateSettings({
         readOnly: true
-      });  
+      });
     }
   });
 
@@ -423,9 +434,9 @@ var submissionHandling = function (inputSources, targetUrl) {
             // $verifyBox.prop('checked', false);
           }
           else {
-            alert(errMsg);
+            alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", errMsg);
             $verifyBox.prop('checked', false);
-            $submitButton.prop('disabled', true);  
+            $submitButton.prop('disabled', true);
           }
         }
       );
@@ -436,7 +447,7 @@ var submissionHandling = function (inputSources, targetUrl) {
       $submitButton.prop('disabled', true);
     }
   });
-  
+
   $submitButton.click(function() {
     var la = Ladda.create(this);
     // waitingDialog.show('Loading Data',{dialogSize: 'sm', progressType: 'warning'});
@@ -444,12 +455,12 @@ var submissionHandling = function (inputSources, targetUrl) {
     var emailstr = $('#emailf').val().trim();
 
     if (!sessionstr.match(/^[a-z0-9]{32}$/)){
-      alert("Invalid session number: must be 32 character combination of letters and numbers");
+      alertify.alert("Invalid session number: must be 32 character combination of letters and numbers");
       return;
     }
 
     if (!emailstr.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/)){
-      alert("Did not type a correct email address");
+      alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", "Did not type a correct email address");
       return;
     }
 
@@ -470,7 +481,7 @@ var submissionHandling = function (inputSources, targetUrl) {
           );
         }
         else {
-          alert(errMsg);
+          alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", errMsg);
           la.stop();
         }
       }
@@ -497,4 +508,18 @@ function encryptWithKey (obj, key) {
       md: forge.md.sha256.create()
     })
   });
+}
+
+function convertToHTML(entries) {
+  var htmlConcat = "<h3>Submission History</h3>";
+
+  for (var i = 0; i < entries.length; i++) {
+    if (entries[i]['submitted']) {
+      // append success line
+        htmlConcat += "<p class='success' alt='Success'><img src='style/accept.png'>Successful - "  + entries[i]['time'] + "</p>";
+    } else {
+        htmlConcat += "<p class='error' alt='Error'><img src='style/cancel.png'>Unsuccessful - " + entries[i]['time'] + "</p>";
+    }
+  }
+  $('.page-footer').html(htmlConcat);
 }
