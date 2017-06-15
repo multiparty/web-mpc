@@ -12,6 +12,7 @@
   <script type="text/javascript" src="style/qtip/jquery.qtip.min.js"></script>
   <script type="text/javascript" src="script/spin.min.js"></script>
   <script type="text/javascript" src="script/ladda.min.js"></script>
+  <script type="text/javascript" src="script/sail_hot.js"></script>
   <script type="text/javascript" src="script/ssCreate.js"></script>
 
   <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.min.css">
@@ -176,28 +177,20 @@
   <br/>
   <script type="text/javascript">
     $(document).ready(function() {
-      var mainReq = $.ajax({
+      var req = $.ajax({
         type: "GET",
-        url: "../shared/templates/main.json",
+        url: "../shared/templates/tables.json",
         dataType: "json"
-      });
-
-      var boardReq = $.ajax({
-        type: "GET",
-        url: "../shared/templates/board.json",
-        dataType: "json"
-      });
-
-      $.when(mainReq, boardReq).then(function (mainConfig, boardConfig) {
-        var mainTableAndKeys = makeTable("#main-hot", mainConfig[0]),
-            boardTableAndKeys = makeTable("#board-hot", boardConfig[0]),
-            questionForms = $('#questions form'),
-            inputSources = {
-              "main": mainTableAndKeys,
-              "question": questionForms,
-              "board": boardTableAndKeys
-            };
-        submissionHandling(inputSources, '/');
+      }).then(function (tables_def) {
+        var tables_hot = make_tables(tables_def);
+        var questionForms = $('#questions form');
+        var inputSources = {
+          "main": tables_hot[0],
+          "board": tables_hot[1],
+          "question": questionForms
+        };
+        
+        //submissionHandling(inputSources, '/');
       });
     });
   </script>
