@@ -130,6 +130,7 @@ function make_table_obj(table_def) {
   }
   
   // Fill in types
+  table_def.types = table_def.types || [];
   for(var t = 0; t < table_def.types.length; t++) {
     var type = table_def.types[t];
 
@@ -150,6 +151,7 @@ function make_table_obj(table_def) {
   }
   
   // Fill in tooltip
+  table_def.tooltips = table_def.tooltips || [];
   for(var t = 0; t < table_def.tooltips.length; t++) {
     var tooltip = table_def.tooltips[t];
 

@@ -180,7 +180,7 @@
         url: "../shared/templates/tables.json",
         dataType: "json"
       }).then(function (tables_def) {
-        var tables_hot = make_tables;
+        var tables_hot = make_tables(tables_def);
         var questionForms = $('#questions form');
         var inputSources = {
           "main": tables_hot[0],
@@ -188,7 +188,7 @@
           "question": questionForms
         };
         
-        submissionHandling(inputSources, '/');
+        //submissionHandling(inputSources, '/');
       });
     });
   </script>
