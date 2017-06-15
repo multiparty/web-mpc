@@ -174,27 +174,19 @@
   <br/>
   <script type="text/javascript">
     $(document).ready(function() {
-      var mainReq = $.ajax({
+      var req = $.ajax({
         type: "GET",
-        url: "../shared/templates/main.json",
+        url: "../shared/templates/tables.json",
         dataType: "json"
-      });
-
-      var boardReq = $.ajax({
-        type: "GET",
-        url: "../shared/templates/board.json",
-        dataType: "json"
-      });
-
-      $.when(mainReq, boardReq).then(function (mainConfig, boardConfig) {
-        var mainTableAndKeys = makeTable("#main-hot", mainConfig[0]),
-            boardTableAndKeys = makeTable("#board-hot", boardConfig[0]),
-            questionForms = $('#questions form'),
-            inputSources = {
-              "main": mainTableAndKeys,
-              "question": questionForms,
-              "board": boardTableAndKeys
-            };
+      }).then(function (tables_def) {
+        var tables_hot = make_tables;
+        var questionForms = $('#questions form');
+        var inputSources = {
+          "main": tables_hot[0],
+          "board": tables_hot[1],
+          "question": questionForms
+        };
+        
         submissionHandling(inputSources, '/');
       });
     });

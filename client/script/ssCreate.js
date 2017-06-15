@@ -293,7 +293,6 @@ var submitAll = function (sessionstr, emailstr, targetUrl, inputSources, la) {
     data: JSON.stringify({session: sessionstr}),
     dataType: "text"
   }).then(function (publickey) {
-    
     // Flattened input in the form of key-value pairs
     var keyValuePairs = Object.assign(
       multipleChoiceToJson($questions, "question"), 

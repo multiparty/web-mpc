@@ -96,7 +96,7 @@ function make_tables(tables_def) {
   for(var t = 0; t < tables_def.tables.length; t++) {
     var table_def = tables_def.tables[t];
     var table = make_table_obj(table_def);    
-    result[t] = [ make_hot_table(table) ];
+    result[t] = make_hot_table(table);
   }
   
   return result;

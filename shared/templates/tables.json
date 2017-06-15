@@ -1,0 +1,118 @@
+{
+  "tables": [
+    { 
+      "name": "main",
+      "element": "main-hot",
+      "rows" : [ 
+        { "key": "Executive/Senior Level Officials and Managers", "label": "Executive/Senior Level Officials <br> and Managers" },
+        { "key": "First/Mid-Level Officials and Managers", "label": "First/Mid-Level Officials and Managers" },
+        { "key": "Professionals", "label": "Professionals" },
+        { "key": "TOTAL Cols", "label": "<b>TOTAL</b>" }
+      ],
+      "cols": [
+        [
+            {
+                "label": "Hispanic or Latino",
+                "colspan": 2
+            },
+            {
+                "label": "Not-Hispanic or Latino",
+                "colspan": 12
+            },
+            {
+                "label": "",
+                "colspan": 1
+            }
+        ],
+        [
+            {
+                "label": "",
+                "colspan": 2
+            },
+            {
+                "label": "Male",
+                "colspan": 6
+            },
+            {
+                "label": "Female",
+                "colspan": 6
+            },
+            {
+                "label": "",
+                "colspan": 1
+            }
+        ],
+        [
+            "Male",
+            "Female",
+            "White",
+            "Black <br> or <br> African <br> American",
+            "Native <br> Hawaiian <br> or <br> Other <br> Parcific <br> Islander",
+            "Asian",
+            "American <br> Indian <br> or <br> Alaska <br> Native",
+            "Two <br> or <br> more <br> races",
+            "White",
+            "Black <br> or <br> African <br> American",
+            "Native <br> Hawaiian <br> or <br> Other <br> Parcific <br> Islander",
+            "Asian",
+            "American <br> Indian <br> or <br> Alaska <br> Native",
+            "Two <br> or <br> more <br> races",
+            {
+                "label": "<b>TOTAL</b> <br> Col A - N",
+                "colspan": 1
+            }
+        ],
+        [ 
+          { "label": "A", "key": "Hispanic or Latino Male" }, 
+          { "label": "B", "key": "Hispanic or Latino Female" },
+          { "label": "C", "key": "Not-Hispanic or Latino Male White" },
+          { "label": "D", "key": "Not-Hispanic or Latino Male Black or African American" },
+          { "label": "E", "key": "Not-Hispanic or Latino Male Native Hawaiian or Other Parcific Islander" },
+          { "label": "F", "key": "Not-Hispanic or Latino Male Asian" },
+          { "label": "G", "key": "Not-Hispanic or Latino Male American Indian or Alaska Native" },
+          { "label": "H", "key": "Not-Hispanic or Latino Male Two or more races" },
+          { "label": "I", "key": "Not-Hispanic or Latino Female White" },
+          { "label": "J", "key": "Not-Hispanic or Latino Female Black or African American" },
+          { "label": "K", "key": "Not-Hispanic or Latino Female Native Hawaiian or Other Parcific Islander" },
+          { "label": "L", "key": "Not-Hispanic or Latino Female Asian" },
+          { "label": "M", "key": "Not-Hispanic or Latino Female American Indian or Alaska Native" },
+          { "label": "N", "key": "Not-Hispanic or Latino Female Two or more races" },
+          { "label": "O", "key": "TOTAL Rows" }
+        ]
+      ],
+      "types": [
+        { "range": { "row": "*", "col": "*" }, "type": "int", "max": 10000, "min": 0 }
+      ]
+    },
+    { 
+      "name": "board",
+      "element": "board-hot",
+      "rows" : [ 
+        { "key": "TOTAL", "label": "<b>TOTAL</b>" }
+      ],
+      "cols": [
+        [ 
+          { "label": "Male" , "colspan": 2 }, 
+          { "label": "Female" , "colspan": 2 } 
+        ],
+        [
+            { "label": "White", "colspan": 1 },
+            { "label": "Other", "colspan": 1 },
+            { "label": "White", "colspan": 1 },
+            { "label": "Other", "colspan": 1 },
+            { "label": "<b>TOTAL</b> <br> Col A - D", "colspan": 1 }
+        ],
+        [ 
+          { "label": "A", "key": "Male White" }, 
+          { "label": "B", "key": "Male Other" },
+          { "label": "C", "key": "Female White" },
+          { "label": "D", "key": "Female Other" },
+          { "label": "E", "key": "TOTAL Rows" }
+        ]
+      ],
+      "types": [
+        { "range": { "row": "*", "col": "*" }, "type": "int", "max": 10000, "min": 0 }
+      ]
+    }
+  ]
+}
