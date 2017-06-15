@@ -32,9 +32,10 @@ function register_type(name, type) {
 
 var validator = function(value, callback) {
   var cell = this.instance.__sail_meta.cells[this.row][this.col];
-  if(cell.max != null && value > cell.max) { callback(false); return; }
-  if(cell.min != null && value < cell.min) { callback(false); return; }
-  
+  console.log(value);
+  if(value != '' && value != null && cell.max != null && value > cell.max) { callback(false); return; }
+  if(value != '' && value != null && cell.min != null && value < cell.min) { callback(false); return; }
+  console.log("HELLO");
   // Create and call the generic_validator
   // The generic validator is setup such that
   // all validators will be executed one after the other
@@ -44,6 +45,7 @@ var validator = function(value, callback) {
     if(k >= cell.validators.length) { callback(true); return; }
   
     var generic_callback = function(previous_result) {
+      console.log("previous result: " + previous_result);
       if(previous_result) generic_validator(value, callback, k+1);
       else callback(false); // early break
     }
@@ -55,7 +57,9 @@ var validator = function(value, callback) {
     if(types_map[cell.type] != null && types_map[cell.type].type != null) hot_cell_type = types_map[cell.type].type;
     
     var hot_type_alias = Handsontable.cellTypes[hot_cell_type];
-    if(hot_type_alias != null && hot_type_alias.validator != null)
+    if(hot_type_alias != null && hot_type_alias.validator != null 
+      // Fix: if empty values are allowed, and the value is empty do not call default validator.
+      && (cell.empty === false || (value != null && value != '')))
       hot_type_alias.validator(value, generic_callback);
       
     else // no default validator
@@ -200,6 +204,7 @@ function make_hot_table(table) {
             
       var cell = { "row": i, "col": j, "type": type, "allowEmpty": empty, "validator": validator, "renderer": renderer };
       if(types_map[cell_def.type]) Object.assign(cell, types_map[cell_def.type]);
+      
       cells.push(cell);
     }
   }

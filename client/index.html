@@ -174,21 +174,16 @@
   </button>
   <br/>
   <script type="text/javascript">
+    var tables;
+    
     $(document).ready(function() {
       var req = $.ajax({
         type: "GET",
         url: "../shared/templates/tables.json",
         dataType: "json"
       }).then(function (tables_def) {
-        var tables_hot = make_tables(tables_def);
-        var questionForms = $('#questions form');
-        var inputSources = {
-          "main": tables_hot[0],
-          "board": tables_hot[1],
-          "question": questionForms
-        };
-        
-        //submissionHandling(inputSources, '/');
+        tables = make_tables(tables_def);
+        $("#submit").click(function() { submit(tables); });
       });
     });
   </script>
