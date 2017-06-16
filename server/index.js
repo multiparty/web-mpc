@@ -17,7 +17,10 @@ function templateToJoiSchema(template, joiFieldType) {
     var schema = {};
     for (var key in template) {
         if (template.hasOwnProperty(key)) {
+          if(schema[key] === 0)
             schema[key] = joiFieldType; // safe to re-use since immutable
+          else // since format may have nested objects, recurse!
+            schema[key] = templateToJoiSchema(schema[key], joiFieldType);
         }
     }
     var joiSchema = joi.object().keys(schema);
