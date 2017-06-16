@@ -180,7 +180,7 @@ function make_table_obj(table_def) {
   
   return {
     "name": table_name, "submit": submit, 
-    "element": "#"+element, "width": width, 
+    "element": element, "width": width, 
     "rows": rows, "cols": cols, "cells": table,
     "rowsCount": rows_len, "colsCount": cols_len
   };
@@ -192,7 +192,7 @@ function make_table_obj(table_def) {
  * @return {hot} - the handsontable object constructed by make_hot_table.
  */
 function make_hot_table(table) {  
-  var element = document.querySelector(table.element);
+  var element = document.querySelector("#"+table.element);
   
   var hot_cols = new Array(table.colsCount);
   for(var i = 0; i < table.colsCount; i++)
