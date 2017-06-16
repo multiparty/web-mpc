@@ -80,7 +80,7 @@ function secretShareValues (obj) {
     if (obj.hasOwnProperty(key)) {
       var value = obj[key];
       if(typeof(value) == "number") {
-        shares = _secretShare(value, 2);
+        var shares = _secretShare(value, 2);
         
         serviceTuples[key] = shares[0];
         analystTuples[key] = shares[1];
