@@ -95,8 +95,29 @@
     <h3>Email Address to track participation</h3>
     <input autocomplete="off" type=text id="emailf" pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$" required/>
   </div>
-  <h3>Number of Employees (Report employees in only one category)</h3>
-  <div id="main-hot"></div>
+  
+  <div id="number-employees-hot">
+    <h3>Number of Employees</h3>
+  </div>
+  
+  <div id="compensation-hot">
+    <h3>Total Annual Compensation (Dollars)</h3>
+  </div>
+  
+
+  <div id="performance-pay-hot">
+    <h3>Total Annual Cash Performance Pay (Dollars)</h3>
+  </div>
+  
+  <div id="service-length-hot">
+    <h3>Total Length of Service (Months)</h3>
+  </div>
+  
+  <div id="totals-hot">
+    <h3>Totals Check</h3>
+  </div>
+  
+  <!--
   <div id="board">
     <h3>Board of Directors</h3>
     <form>
@@ -108,6 +129,8 @@
     </form>
     <div id="board-hot"></div>
   </div>
+  -->
+  
   <div id="additional-questions">
     <h3>Additional Questions</h3>
     <div id="questions">
@@ -192,11 +215,13 @@
           });
         });
         
+        /*
         $('#include-board').click(function() {
           var checked = $(this).prop('checked');
           if(!checked) empty_table(tables[1]);
           read_only_table(tables[1], !checked);
         });
+        */
         
         $("#submit").click(function() {
           validate(tables, function(result, msg) {

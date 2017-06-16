@@ -4,10 +4,12 @@ var EMAIL_ERROR = 'Did not type a correct email address';
 var UNCHECKED_ERR = 'Please acknowledge that all data is correct and verified.';
 var ADD_QUESTIONS_ERR = 'Please answer all Additional Questions.';
 
+/*
 var NUM_EMP_EMPTY_ERR = 'Please double-check the Number of Employees spreadsheet.';
 var BOARD_INVALID_ERR = 'Please double-check the Board of Directors spreadsheet \n' +
                         'or uncheck the Provide Board of Directors Information checkbox.';
-
+*/
+var GENERIC_TABLE_ERR = 'Please double-check the ';
 var GENERIC_SUBMISSION_ERR = 'Something went wrong with submission! Please try again.';
 
 function error(msg) {
@@ -42,18 +44,18 @@ function validate(tables, callback) {
   }
   if (!questionsValid) return callback(false, ADD_QUESTIONS_ERR);
   
-  // Verify tables
-  tables[0].validateCells(function(result) {
-    if(!result) return callback(false, NUM_EMP_EMPTY_ERR);
+  // Validate tables (callback chaining)
+  function validate_callback(i) {
+    if(i >= tables.length) return callback(true, "");
     
-    if($('#include-board').is(':checked'))
-      tables[1].validateCells(function(result) {
-        if(!result) return callback(false, BOARD_INVALID_ERR);
-        callback(true, "");
-      });
-    else
-      callback(true, "");
-  });
+    // Dont validate tables that are not going to be submitted
+    if(tables[i].__sail_meta.submit === false) return validate_callback(i+1);
+    
+    tables[i].validateCells(function(result) { // Validate table
+      if(!result) return callback(false, GENERIC_TABLE_ERR + tables[i].__sail_meta.name + " spreadsheet");
+      validate_callback(i+1);
+    });
+  }
 }
 
 /**
