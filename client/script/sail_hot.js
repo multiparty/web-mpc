@@ -246,6 +246,9 @@ function make_hot_table(table) {
   handsOnTable.__sail_meta = table;
   handsOnTable.render();
   
+  // Put name in the title element (if it exists)
+  $('#' + table.element + "-name").html(table.name);
+  
   return handsOnTable;
 }
 
