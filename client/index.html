@@ -110,8 +110,8 @@
   <div id="additional-questions">
     <h3>Additional Questions</h3>
     <div id="questions">
-      <form id="question-a">
-        <p id="question-text">Does your company hold events to celebrate diversity and inclusion?</p>
+      <form>
+        <p class="question-text">Does your company hold events to celebrate diversity and inclusion?</p>
         <div class="radio">
           <label><input autocomplete="off" type="radio" name="optradio" value="Yes">Yes</label>
         </div>
@@ -119,11 +119,11 @@
           <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA">Do not wish to answer</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked='checked'>Do not wish to answer</label>
         </div>
       </form>
-      <form id="question-b">
-        <p id="question-text">Does your company provide diversity and inclusion education or training for managers, staff or both?</p>
+      <form>
+        <p class="question-text">Does your company provide diversity and inclusion education or training for managers, staff or both?</p>
         <div class="radio">
           <label><input autocomplete="off" type="radio" name="optradio" value="Yes">Yes</label>
         </div>
@@ -131,11 +131,11 @@
           <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA">Do not wish to answer</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked='checked'>Do not wish to answer</label>
         </div>
       </form>
-      <form id="question-c">
-        <p id="question-text">Does your management team meet to discuss your organization's diverse workforce or workplace culture?</p>
+      <form>
+        <p class="question-text">Does your management team meet to discuss your organization's diverse workforce or workplace culture?</p>
         <div class="radio">
           <label><input autocomplete="off" type="radio" name="optradio" value="Yes">Yes</label>
         </div>
@@ -143,11 +143,11 @@
           <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA">Do not wish to answer</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked='checked'>Do not wish to answer</label>
         </div>
       </form>
-      <form id="question-d">
-        <p id="question-text">Does your CEO engage in or lead discussions on diversity and inclusion with your management team or with other business executives?</p>
+      <form>
+        <p class="question-text">Does your CEO engage in or lead discussions on diversity and inclusion with your management team or with other business executives?</p>
         <div class="radio">
           <label><input autocomplete="off" type="radio" name="optradio" value="Yes">Yes</label>
         </div>
@@ -155,7 +155,7 @@
           <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA">Do not wish to answer</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked='checked'>Do not wish to answer</label>
         </div>
       </form>
     </div>
@@ -183,7 +183,7 @@
         dataType: "json"
       }).then(function (tables_def) {
         tables = make_tables(tables_def);
-        $("#submit").click(function() { submit(tables); });
+        $("#submit").click(function() { submit('/', tables); });
       });
     });
   </script>

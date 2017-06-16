@@ -32,10 +32,9 @@ function register_type(name, type) {
 
 var validator = function(value, callback) {
   var cell = this.instance.__sail_meta.cells[this.row][this.col];
-  console.log(value);
   if(value != '' && value != null && cell.max != null && value > cell.max) { callback(false); return; }
   if(value != '' && value != null && cell.min != null && value < cell.min) { callback(false); return; }
-  console.log("HELLO");
+  
   // Create and call the generic_validator
   // The generic validator is setup such that
   // all validators will be executed one after the other
@@ -129,7 +128,7 @@ function make_table_obj(table_def) {
     var row_key = table_def.rows[i].key;
     for(var j = 0; j < cols_len; j++) {
       var col_key = table_def.cols[cols_levels-1][j].key;
-      table[i][j] = { "key": table_name + "_" + row_key + "_" + col_key };
+      table[i][j] = { "row_key": row_key, "col_key": col_key };
     }
   }
   
