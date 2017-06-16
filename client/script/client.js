@@ -20,11 +20,11 @@ function error(msg) {
  */
 function submit(target_url, tables) {
   // Create loading wheel
-  var la = Ladda.create(this);
+  var la = Ladda.create(this[0]);
   
   // Verify session key and email
   var session = $('#sess').val().trim();
-  if (!sessionstr.match(/^[a-z0-9]{32}$/)) return error(SESSION_KEY_ERROR);
+  if (!session.match(/^[a-z0-9]{32}$/)) return error(SESSION_KEY_ERROR);
   
   var email = $('#emailf').val().trim();
   if (!email.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/)) return error(EMAIL_ERROR);
@@ -36,9 +36,9 @@ function submit(target_url, tables) {
   // Verify additional questions
   var questionsValid = true;
   var questions = $('#questions form');
-  for(var q = 0; q < questions.length; i++) {
+  for(var q = 0; q < questions.length; q++) {
     var thisQuestionIsValid = false;
-    var radios = $(questions[i]).find('input[type=radio]');
+    var radios = $(questions[q]).find('input[type=radio]');
     for(var r = 0; r < radios.length; r++)
       if(radios[r].checked) { thisQuestionIsValid = true; break; }
     
@@ -51,13 +51,12 @@ function submit(target_url, tables) {
     if(!result) return error(NUM_EMP_EMPTY_ERR);
     
     if($('#include-board').is(':checked'))
-      table[1].validateCells(function(result) {
+      tables[1].validateCells(function(result) {
         if(!result) return error(BOARD_INVALID_ERR);
-        construct_data(tables, la);
+        construct_data(target_url, tables, la);
       });
     else
-      construct_data(tables, la);
-  
+      construct_data(target_url, tables, la);
   });
 }
 
@@ -66,34 +65,34 @@ function submit(target_url, tables) {
  */
 function construct_data(target_url, tables, la) {
   // Start loading animation
-  la.start();
+  //la.start();
   
   // Begin constructing the data  
   var data_submission = { 'questions': {} };
   
   var session = $('#sess').val();
-  var email = $('emailf').val();
+  var email = $('#emailf').val();
   
   // Add questions data, each question has three parts:
   //  'YES', 'NO', and 'NA' and each one has value 0 or 1
   var questions = $('#questions form');
-  for(var q = 0; q < questions.length; i++) {
+  for(var q = 0; q < questions.length; q++) {
     var question_data = {};
-    var question_text = $($(questions[i]).find('.question-text')[0]).text();
-    var radios = $(questions[i]).find('input[type=radio]');
+    var question_text = $($(questions[q]).find('.question-text')[0]).text();
+    var radios = $(questions[q]).find('input[type=radio]');
     for(var r = 0; r < radios.length; r++)
-      question_data[radios[i].value] = (radios[i].checked ? 1 : 0);
+      question_data[radios[r].value] = (radios[r].checked ? 1 : 0);
     
     data_submission['questions'][question_text] = question_data;
   }
   
   // Handle main table data, tables are represented as 2D associative arrays
   // with the first index being the row key, and the second being the column key
-  var main_table = tables[0];
+  var main_table = tables[0]; var main_meta = main_table.__sail_meta;
   var main_data = {};
-  for(var r = 0; r < main_table.rowsCount; r++) {
-    for(var c = 0; c < main_table.colsCount; c++) {
-      var cell = main_table.__sail_meta.cells[r][c];
+  for(var r = 0; r < main_meta.rowsCount; r++) {
+    for(var c = 0; c < main_meta.colsCount; c++) {
+      var cell = main_meta.cells[r][c];
       var row_key = cell.row_key;
       var col_key = cell.col_key;
       
@@ -101,17 +100,17 @@ function construct_data(target_url, tables, la) {
       main_data[row_key][col_key] = main_table.getDataAtCell(r, c);
     }
   }
-  data_submission[tables[0].name] = main_data;
+  data_submission[main_meta.name] = main_data;
   
   // Handle board table data
   var include_board = $('#include-board').is(':checked');
   data_submission['include_board'] = (include_board ? 1 : 0);
 
-  var board_table = tables[1];
+  var board_table = tables[1]; var board_meta = board_table.__sail_meta;
   var board_data = {};
-  for(var r = 0; r < board_table.rowsCount; r++) {
-    for(var c = 0; c < board_table.colsCount; c++) {
-      var cell = board_table.__sail_meta.cells[r][c];
+  for(var r = 0; r < board_meta.rowsCount; r++) {
+    for(var c = 0; c < board_meta.colsCount; c++) {
+      var cell = board_meta.cells[r][c];
       var row_key = cell.row_key;
       var col_key = cell.col_key;
       
@@ -119,7 +118,7 @@ function construct_data(target_url, tables, la) {
       board_data[row_key][col_key] = (include_board ? board_table.getDataAtCell(r, c) : 0);
     }
   }
-  data_submission[tables[1].name] = board_data;
+  data_submission[board_meta.name] = board_data;
   
   console.log(data_submission);
   
@@ -140,16 +139,16 @@ function encrypt_and_send(target_url, session, email, data, mask) {
   // Get the public key to encrypt with
   var pkey_request = $.ajax({ 
     type: "POST", url: "/publickey", contentType: "application/json", 
-    data: JSON.stringify({session: sessionstr}), dataType: "text" 
+    data: JSON.stringify({session: session}), dataType: "text" 
   });
   
   pkey_request.then(function(public_key) {
-      var encryptedMask = encryptWithKey(mask, publickey);
+      mask = encryptWithKey(mask, public_key);
       var submission = {
-        data: serviceShares,
-        mask: encryptedAnalystShares,
-        user: emailHash,
-        session: sessionstr
+        data: data,
+        mask: mask,
+        user: email,
+        session: session
       };
       
       return $.ajax({
@@ -161,7 +160,7 @@ function encrypt_and_send(target_url, session, email, data, mask) {
     alert("Submitted data.");
     
     // Stop loading animation
-    la.stop();
+    //la.stop();
     return response;
   }).catch(function (err) {
     console.log(err);
@@ -169,7 +168,7 @@ function encrypt_and_send(target_url, session, email, data, mask) {
     else alert(GENERIC_SUBMISSION_ERR);
     
     // Stop loading animation
-    la.stop();
+    //la.stop();
   });
 }
 
