@@ -210,7 +210,7 @@ function make_hot_table(table) {
       
       if(cell_def.empty != null) empty = cell_def.empty;
       if(cell_def.read_only != null) read_only = cell_def.read_only;
-      if(cell_def.placeholder != '') placeholder = cell_def.placeholder;
+      if(cell_def.placeholder != null) placeholder = cell_def.placeholder;
             
       var cell = { 
         "row": i, "col": j, "type": type, 
