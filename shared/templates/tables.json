@@ -23,7 +23,7 @@
             },
             {
                 "label": "White",
-                "colspan": 12
+                "colspan": 2
             },
             {
                 "label": "Black/African American",
@@ -102,7 +102,7 @@
             },
             {
                 "label": "White",
-                "colspan": 12
+                "colspan": 2
             },
             {
                 "label": "Black/African American",
@@ -181,7 +181,7 @@
             },
             {
                 "label": "White",
-                "colspan": 12
+                "colspan": 2
             },
             {
                 "label": "Black/African American",
@@ -332,7 +332,7 @@
             },
             {
                 "label": "Compensation and <br> Performance Pay <br> (Dollars)",
-                "colspan": 12
+                "colspan": 2
             },
             {
                 "label": "Length of Service <br> (Months)",
@@ -340,23 +340,11 @@
             }
         ],
         [ 
-          { "label": "Female", "key": "" }, 
+          { "label": "Female", "key": "" },
           { "label": "Male", "key": "" },
-          { "label": "Female", "key": "" }, 
+          { "label": "Female", "key": "" },
           { "label": "Male", "key": "" },
-          { "label": "Female", "key": "" }, 
-          { "label": "Male", "key": "" },
-          { "label": "Female", "key": "" }, 
-          { "label": "Male", "key": "" },
-          { "label": "Female", "key": "" }, 
-          { "label": "Male", "key": "" },
-          { "label": "Female", "key": "" }, 
-          { "label": "Male", "key": "" },
-          { "label": "Female", "key": "" }, 
-          { "label": "Male", "key": "" },
-          { "label": "Female", "key": "" }, 
-          { "label": "Male", "key": "" },
-          { "label": "Female", "key": "" }, 
+          { "label": "Female", "key": "" },
           { "label": "Male", "key": "" }
         ]
       ],
