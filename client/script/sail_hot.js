@@ -210,8 +210,8 @@ function make_hot_table(table) {
       
       if(cell_def.empty != null) empty = cell_def.empty;
       if(cell_def.read_only != null) read_only = cell_def.read_only;
-      if(cell_def.placeholder != null) placeholder = cell_def.placeholder;
-            
+      if(cell_def.placeholder != null) placeholder = cell_def.placeholder.toString();
+      
       var cell = { 
         "row": i, "col": j, "type": type, 
         "allowEmpty": empty, "readOnly": read_only, 'placeholder': placeholder,
@@ -317,15 +317,15 @@ function construct_data(table_hot_obj) {
   var data = {};
   for(var r = 0; r < meta.rowsCount; r++) {
     for(var c = 0; c < meta.colsCount; c++) {
-      var cell = main_meta.cells[r][c];
-      var cell_data = main_table.getDataAtCell(r, c);
+      var cell = meta.cells[r][c];
+      var cell_data = table_hot_obj.getDataAtCell(r, c);
       if(cell_data == null || cell_data.trim() == '')
         if(cell.default != null) cell_data = cell.default;
       
       var row_key = cell.row_key;
       var col_key = cell.col_key;
-      if(main_data[row_key] == undefined) main_data[row_key] = {};
-      main_data[row_key][col_key] = cell_data;
+      if(data[row_key] == undefined) data[row_key] = {};
+      data[row_key][col_key] = cell_data;
     }
   }
   return data;
