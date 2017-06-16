@@ -127,6 +127,8 @@ function encrypt_and_send(target_url, session, email, data, mask, la) {
         session: session
       };
       
+      console.log(submission);
+      
       return $.ajax({
         type: "POST", url: target_url,
         data: JSON.stringify(submission), contentType: 'application/json'
