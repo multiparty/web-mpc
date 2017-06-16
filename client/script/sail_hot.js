@@ -14,11 +14,6 @@ var types_map = {
     'type': 'numeric'
   },
   
-  'readOnly': {
-    'type': 'text',
-    'readOnly': true
-  },
-  
   'currency': {
     'type': 'numeric',
     'format': '$0,0.00',
@@ -44,7 +39,6 @@ var validator = function(value, callback) {
     if(k >= cell.validators.length) { callback(true); return; }
   
     var generic_callback = function(previous_result) {
-      console.log("previous result: " + previous_result);
       if(previous_result) generic_validator(value, callback, k+1);
       else callback(false); // early break
     }
@@ -69,8 +63,12 @@ var validator = function(value, callback) {
 var renderer = function(instance, TD, row, col, prop, value, cellProperties) {
   if(instance.__sail_meta == null) return; // render will be called again
   
-  // show tooltip if 
   var cell = instance.__sail_meta.cells[row][col];
+  
+  // Readonly
+  if(cell.read_only != null) cellProperties.readOnly = cell.read_only;
+  
+  // Tooltip
   var tooltip = cell.tooltip;
   if(tooltip != null) {
     if(cellProperties.valid === false) cellProperties.comment = { "value": tooltip.error };
@@ -114,6 +112,10 @@ function make_table_obj(table_def) {
   var table_name = table_def.name;
   var element = table_def.element;
   var width = table_def.width || HOT_DEFAULT_WIDTH;
+  var submit = table_def.submit;
+  
+  if(!(table_def.submit === true || table_def.submit === false))
+    submit = true;
   
   var rows_len = table_def.rows.length;
   var cols_levels = table_def.cols.length;
@@ -138,7 +140,8 @@ function make_table_obj(table_def) {
     var type = table_def.types[t];
 
     var update_cell = function(i, j) {
-      table[i][j].type = type.type;
+      if(type.type != null) table[i][j].type = type.type;
+      if(type.type == null && table[i][j].type == null) table[i][j].type = 'int';
       if(table[i][j].validators == null || type.validators === null)
         table[i][j].validators = [];
       
@@ -148,6 +151,9 @@ function make_table_obj(table_def) {
       if(type.max !== undefined) table[i][j].max = type.max;
       if(type.min !== undefined) table[i][j].min = type.min;
       if(type.empty !== undefined) table[i][j].empty = type.empty;
+      if(type.read_only !== undefined) table[i][j].read_only = type.read_only;
+      if(type.default !== undefined) table[i][j].default = type.default;
+      if(type.placeholder !== undefined) table[i][j].placeholder = type.placeholder;
     };
     
     visit_range(rows_len, cols_len, type.range, update_cell);  
@@ -173,7 +179,8 @@ function make_table_obj(table_def) {
   for(var i = 0; i < cols_len; i++) cols[cols_levels-1][i] = table_def.cols[cols_levels-1][i].label;
   
   return {
-    "name": table_name, "element": "#"+element, "width": width, 
+    "name": table_name, "submit": submit, 
+    "element": "#"+element, "width": width, 
     "rows": rows, "cols": cols, "cells": table,
     "rowsCount": rows_len, "colsCount": cols_len
   };
@@ -184,7 +191,7 @@ function make_table_obj(table_def) {
  * @param {object} table - the table object to create (constructed by make_table from json definition).
  * @return {hot} - the handsontable object constructed by make_hot_table.
  */
-function make_hot_table(table) {
+function make_hot_table(table) {  
   var element = document.querySelector(table.element);
   
   var hot_cols = new Array(table.colsCount);
@@ -198,10 +205,17 @@ function make_hot_table(table) {
       var cell_def = table.cells[i][j];
       var type = cell_def.type;
       var empty = true;
+      var read_only = false;
+      var placeholder = '';
       
       if(cell_def.empty != null) empty = cell_def.empty;
+      if(cell_def.read_only != null) read_only = cell_def.read_only;
+      if(cell_def.placeholder != '') placeholder = cell_def.placeholder;
             
-      var cell = { "row": i, "col": j, "type": type, "allowEmpty": empty, "validator": validator, "renderer": renderer };
+      var cell = { 
+        "row": i, "col": j, "type": type, 
+        "allowEmpty": empty, "readOnly": read_only, 'placeholder': placeholder,
+        "validator": validator, "renderer": renderer };
       if(types_map[cell_def.type]) Object.assign(cell, types_map[cell_def.type]);
       
       cells.push(cell);
@@ -270,4 +284,77 @@ function visit_range(rows_len, cols_len, range, f) {
     }
   }
 }
+
+/**
+ * Constructs an array of json table data ( see construct_data(hot) ).
+ * tables with the submit attribute set to false will be ignored.
+ * @param {array(hot)} table_hot_arr - an array of handsontable objects.
+ * @return {array(json)} each element contains 'name' and 'data'.
+ */
+function construct_data_tables(table_hot_arr) {
+  var result = [];
+  for(var i = 0; i < table_hot_arr.length; i++) {
+    var table_hot_obj = table_hot_arr[i];
+    if(table_hot_obj.__sail_meta.submit === false) continue;
+    result.push( { 'name': table_hot_obj.__sail_meta.name, 'data': construct_data(table_hot_obj) } );
+  }
+  
+  return result;
+}
+
+/**
+ * Builds a json object that contains the data in the cells.
+ * The json object has the following format:
+ *  { 'row_0_key' : { 'col_0_key': data(0,0), 'col_1_key': data(0,1), ...}, ... }
+ * If a cell is empty (has value null or white space) and the cell has a default
+ * attribute declared, the default value will be used.
+ * @param {hot} table_hot_obj - the handsontable object of the table.
+ * @return {json} the described object.
+ */
+function construct_data(table_hot_obj) {
+  var meta = table_hot_obj.__sail_meta;
+  
+  var data = {};
+  for(var r = 0; r < meta.rowsCount; r++) {
+    for(var c = 0; c < meta.colsCount; c++) {
+      var cell = main_meta.cells[r][c];
+      var cell_data = main_table.getDataAtCell(r, c);
+      if(cell_data == null || cell_data.trim() == '')
+        if(cell.default != null) cell_data = cell.default;
+      
+      var row_key = cell.row_key;
+      var col_key = cell.col_key;
+      if(main_data[row_key] == undefined) main_data[row_key] = {};
+      main_data[row_key][col_key] = cell_data;
+    }
+  }
+  return data;
+}
+
+/**
+ * Empty all cells.
+ * @param {hot} table_hot_obj - the handsontable object.
+ */
+function empty_table(table_hot_obj) {
+  table_hot_obj.clear();
+}
+
+/**
+ * Change the read only attribute of the entire table.
+ * @param {hot} table_hot_obj - the handsontable object.
+ * @param {boolean} read_only - the new value.
+ */
+function read_only_table(table_hot_obj, read_only) {
+  var meta_table = table_hot_obj.__sail_meta;
+  for(var r = 0; r < meta_table.rowsCount; r++) {
+    for(var c = 0; c < meta_table.colsCount; c++) {
+      meta_table.cells[r][c].read_only = read_only;
+    }
+  }
+  
+  table_hot_obj.render();
+}
+
+
+
 

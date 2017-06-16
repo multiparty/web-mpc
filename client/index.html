@@ -174,17 +174,39 @@
     <span class="ladda-label">Submit</span>
   </button>
   <br/>
-  <script type="text/javascript">
-    var tables;
-    
+  <script type="text/javascript">    
     $(document).ready(function() {
       var req = $.ajax({
         type: "GET",
         url: "../shared/templates/tables.json",
         dataType: "json"
       }).then(function (tables_def) {
-        tables = make_tables(tables_def);
-        $("#submit").click(function() { submit('/', tables); });
+        var tables = make_tables(tables_def);
+        
+        $('#verify').click(function() {
+          validate(tables, function(result, msg) {
+            if(result) return $("#submit").prop('disabled', false);
+            
+            error(msg);
+            $('#verify').prop('checked', false);
+          });
+        });
+        
+        $('#include-board').click(function() {
+          var checked = $(this).prop('checked');
+          if(!checked) empty_table(tables[1]);
+          read_only_table(tables[1], !checked);
+        });
+        
+        $("#submit").click(function() {
+          validate(tables, function(result, msg) {
+            if(!result) return error(msg);
+            
+            var la = Ladda.create(document.getElementById('submit'));
+            construct_and_send('/', tables, la);
+          });
+        });
+        
       });
     });
   </script>

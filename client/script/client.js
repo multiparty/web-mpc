@@ -12,26 +12,22 @@ var GENERIC_SUBMISSION_ERR = 'Something went wrong with submission! Please try a
 
 function error(msg) {
   alert(msg);
-  return undefined;
 }
 
 /**
  * Called when the submit button is pressed.
  */
-function submit(target_url, tables) {
-  // Create loading wheel
-  var la = Ladda.create(this[0]);
-  
+function validate(tables, callback) {
   // Verify session key and email
   var session = $('#sess').val().trim();
-  if (!session.match(/^[a-z0-9]{32}$/)) return error(SESSION_KEY_ERROR);
+  if (!session.match(/^[a-z0-9]{32}$/)) return callback(false, SESSION_KEY_ERROR);
   
   var email = $('#emailf').val().trim();
-  if (!email.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/)) return error(EMAIL_ERROR);
+  if (!email.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/)) return callback(false, EMAIL_ERROR);
   
   // Verify confirmation check box was checked
   var verifyChecked = $('#verify').is(':checked');
-  if (!verifyChecked) return error(UNCHECKED_ERR);
+  if (!verifyChecked) return callback(false, UNCHECKED_ERR);
   
   // Verify additional questions
   var questionsValid = true;
@@ -44,28 +40,28 @@ function submit(target_url, tables) {
     
     if(!thisQuestionIsValid) { questionsValid = false; break; }
   }
-  if (!questionsValid) return error(ADD_QUESTIONS_ERR);
+  if (!questionsValid) return callback(false, ADD_QUESTIONS_ERR);
   
   // Verify tables
   tables[0].validateCells(function(result) {
-    if(!result) return error(NUM_EMP_EMPTY_ERR);
+    if(!result) return callback(false, NUM_EMP_EMPTY_ERR);
     
     if($('#include-board').is(':checked'))
       tables[1].validateCells(function(result) {
-        if(!result) return error(BOARD_INVALID_ERR);
-        construct_data(target_url, tables, la);
+        if(!result) return callback(false, BOARD_INVALID_ERR);
+        callback(true, "");
       });
     else
-      construct_data(target_url, tables, la);
+      callback(true, "");
   });
 }
 
 /**
  * All inputs are valid. Construct JSON objects and send them to the server.
  */
-function construct_data(target_url, tables, la) {
+function construct_and_send(target_url, tables, la) {
   // Start loading animation
-  //la.start();
+  la.start();
   
   // Begin constructing the data  
   var data_submission = { 'questions': {} };
@@ -86,40 +82,16 @@ function construct_data(target_url, tables, la) {
     data_submission['questions'][question_text] = question_data;
   }
   
-  // Handle main table data, tables are represented as 2D associative arrays
-  // with the first index being the row key, and the second being the column key
-  var main_table = tables[0]; var main_meta = main_table.__sail_meta;
-  var main_data = {};
-  for(var r = 0; r < main_meta.rowsCount; r++) {
-    for(var c = 0; c < main_meta.colsCount; c++) {
-      var cell = main_meta.cells[r][c];
-      var row_key = cell.row_key;
-      var col_key = cell.col_key;
-      
-      if(main_data[row_key] == undefined) main_data[row_key] = {};
-      main_data[row_key][col_key] = main_table.getDataAtCell(r, c);
-    }
-  }
-  data_submission[main_meta.name] = main_data;
-  
   // Handle board table data
   var include_board = $('#include-board').is(':checked');
   data_submission['include_board'] = (include_board ? 1 : 0);
-
-  var board_table = tables[1]; var board_meta = board_table.__sail_meta;
-  var board_data = {};
-  for(var r = 0; r < board_meta.rowsCount; r++) {
-    for(var c = 0; c < board_meta.colsCount; c++) {
-      var cell = board_meta.cells[r][c];
-      var row_key = cell.row_key;
-      var col_key = cell.col_key;
-      
-      if(board_data[row_key] == undefined) board_data[row_key] = {};
-      board_data[row_key][col_key] = (include_board ? board_table.getDataAtCell(r, c) : 0);
-    }
-  }
-  data_submission[board_meta.name] = board_data;
   
+  // Handle table data, tables are represented as 2D associative arrays
+  // with the first index being the row key, and the second being the column key
+  var tables_data = construct_data_tables(tables);
+  for(var i = 0; i < tables_data.length; i++)
+    data_submission[tables_data[i].name] = tables_data[i].data;
+    
   console.log(data_submission);
   
   // Secret share / mask the data.
@@ -127,10 +99,10 @@ function construct_data(target_url, tables, la) {
   var data = shares['service'];
   var mask = shares['analyst'];
   
-  encrypt_and_send(target_url, session, email, data, mask);
+  encrypt_and_send(target_url, session, email, data, mask, la);
 }
 
-function encrypt_and_send(target_url, session, email, data, mask) {
+function encrypt_and_send(target_url, session, email, data, mask, la) {
   // Hash email address for submission
   var md = forge.md.sha1.create();
   md.update(email);
@@ -160,7 +132,7 @@ function encrypt_and_send(target_url, session, email, data, mask) {
     alert("Submitted data.");
     
     // Stop loading animation
-    //la.stop();
+    la.stop();
     return response;
   }).catch(function (err) {
     console.log(err);
@@ -168,7 +140,7 @@ function encrypt_and_send(target_url, session, email, data, mask) {
     else alert(GENERIC_SUBMISSION_ERR);
     
     // Stop loading animation
-    //la.stop();
+    la.stop();
   });
 }
 

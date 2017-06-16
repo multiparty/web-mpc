@@ -81,7 +81,7 @@
         ]
       ],
       "types": [
-        { "range": { "row": "*", "col": "*" }, "type": "int", "max": 10000, "min": 0 }
+        { "range": { "row": "*", "col": "*" }, "type": "int", "max": 10000, "min": 0, "default": 0, "placeholder": 0 }
       ]
     },
     { 
@@ -111,7 +111,7 @@
         ]
       ],
       "types": [
-        { "range": { "row": "*", "col": "*" }, "type": "int", "max": 10000, "min": 0 }
+        { "range": { "row": "*", "col": "*" }, "type": "int", "max": 10000, "min": 0, "default": 0, "placeholder": 0 }
       ]
     }
   ]
