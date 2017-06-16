@@ -237,7 +237,7 @@ function _encryptWithKey (obj, publicKey) {
         encrypted[key] = publicKey.encrypt(value.toString(), 'RSA-OAEP', { md: forge.md.sha256.create() });
       
       else 
-        encrypted[key] = _encryptWithKey(value, key);
+        encrypted[key] = _encryptWithKey(value, publicKey);
     }
   }
   

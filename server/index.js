@@ -20,7 +20,7 @@ function templateToJoiSchema(template, joiFieldType) {
           if(schema[key] === 0)
             schema[key] = joiFieldType; // safe to re-use since immutable
           else // since format may have nested objects, recurse!
-            schema[key] = templateToJoiSchema(schema[key], joiFieldType);
+            schema[key] = templateToJoiSchema(template[key], joiFieldType);
         }
     }
     var joiSchema = joi.object().keys(schema);
@@ -40,6 +40,8 @@ var joi = require('joi');
 var Promise = require('bluebird');
 var maskSchema = templateToJoiSchema(template, joi.string().required());
 var dataSchema = templateToJoiSchema(template, joi.number().required());
+
+console.log(maskSchema);
 
 // Override deprecated mpromise
 mongoose.Promise = Promise;
