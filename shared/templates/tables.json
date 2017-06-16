@@ -4,8 +4,8 @@
       "name": "Number Of Employees",
       "element": "number-employees-hot",
       "rows" : [
-        { "key": "Ex/Sen", "label": "Executive/Senior Level Officials <br> and Managers" },
-        { "key": "F/M", "label": "First/Mid-Level Officials and Managers" },
+        { "key": "Ex/Sen", "label": "Executive/Senior Level <br> Officials and Managers" },
+        { "key": "F/M", "label": "First/Mid-Level Officials <br> and Managers" },
         { "key": "Profs", "label": "Professionals" },
         { "key": "Techs", "label": "Technicians" },
         { "key": "Sales", "label": "Sales Workers" },
@@ -83,8 +83,8 @@
       "name": "Total Annual Compensation (Dollars)",
       "element": "compensation-hot",
       "rows" : [
-        { "key": "Ex/Sen", "label": "Executive/Senior Level Officials <br> and Managers" },
-        { "key": "F/M", "label": "First/Mid-Level Officials and Managers" },
+        { "key": "Ex/Sen", "label": "Executive/Senior Level <br> Officials and Managers" },
+        { "key": "F/M", "label": "First/Mid-Level Officials <br> and Managers" },
         { "key": "Profs", "label": "Professionals" },
         { "key": "Techs", "label": "Technicians" },
         { "key": "Sales", "label": "Sales Workers" },
@@ -162,8 +162,8 @@
       "name": "Total Annual Cash Performance Pay (Dollars)",
       "element": "performance-pay-hot",
       "rows" : [
-        { "key": "Ex/Sen", "label": "Executive/Senior Level Officials <br> and Managers" },
-        { "key": "F/M", "label": "First/Mid-Level Officials and Managers" },
+        { "key": "Ex/Sen", "label": "Executive/Senior Level <br> Officials and Managers" },
+        { "key": "F/M", "label": "First/Mid-Level Officials <br> and Managers" },
         { "key": "Profs", "label": "Professionals" },
         { "key": "Techs", "label": "Technicians" },
         { "key": "Sales", "label": "Sales Workers" },
@@ -241,8 +241,8 @@
       "name": "Total Length of Service (Months)",
       "element": "service-length-hot",
       "rows" : [
-        { "key": "Ex/Sen", "label": "Executive/Senior Level Officials <br> and Managers" },
-        { "key": "F/M", "label": "First/Mid-Level Officials and Managers" },
+        { "key": "Ex/Sen", "label": "Executive/Senior Level <br> Officials and Managers" },
+        { "key": "F/M", "label": "First/Mid-Level Officials <br> and Managers" },
         { "key": "Profs", "label": "Professionals" },
         { "key": "Techs", "label": "Technicians" },
         { "key": "Sales", "label": "Sales Workers" },
