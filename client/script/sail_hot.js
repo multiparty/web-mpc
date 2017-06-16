@@ -93,7 +93,7 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
         var element = $('#' + idName);
 
         if (!cellProperties.valid) {
-            TD.setAttribute('title', tooltip.error);
+            TD.setAttribute('title', " ");
             TD.setAttribute('id', idName);
             element.qtip(
                 {
@@ -103,18 +103,20 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
                 },
                 {
                     content: {
-                        title: tooltip.error
+                        title: tooltip.errorTitle,
+                        text: tooltip.error
                     }
                 }
             );
 
             if (element !== null && element.qtip('api') !== null) {
-                element.qtip('api').set('content.title', tooltip.error);
+                element.qtip('api').set('content.title', tooltip.errorTitle);
+                element.qtip('api').set('content.text', tooltip.error);
             }
 
         } else {
 
-            TD.setAttribute('title', tooltip.prompt);
+            TD.setAttribute('title', " ");
             TD.setAttribute('id', idName);
 
            element.qtip(
@@ -125,13 +127,15 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
                 },
                 {
                     content: {
-                        title: tooltip.prompt
+                        title: tooltip.promptTitle,
+                        text: tooltip.prompt
                     }
                 }
             );
 
             if (element !== null && element.qtip('api') !== null) {
-                element.qtip('api').set('content.title', tooltip.prompt);
+                element.qtip('api').set('content.title', tooltip.promptTitle);
+                element.qtip('api').set('content.text', tooltip.prompt);
             }
 
         }
