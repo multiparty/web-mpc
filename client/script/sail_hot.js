@@ -36,15 +36,23 @@ function register_type(name, type) {
     types_map[name] = validator;
 }
 
-var validator = function (value, callback) {
-    var cell = this.instance.__sail_meta.cells[this.row][this.col];
-    if (cell.max != null && value > cell.max) {
-        callback(false);
-        return;
-    }
-    if (cell.min != null && value < cell.min) {
-        callback(false);
-        return;
+var validator = function(value, callback) {
+  var cell = this.instance.__sail_meta.cells[this.row][this.col];
+  if(value != '' && value != null && cell.max != null && value > cell.max) { callback(false); return; }
+  if(value != '' && value != null && cell.min != null && value < cell.min) { callback(false); return; }
+  
+  // Create and call the generic_validator
+  // The generic validator is setup such that
+  // all validators will be executed one after the other
+  // such that the callback passed to every validator is
+  // chained into the next one.
+  var _ = function generic_validator(value, callback, k) {
+    if(k >= cell.validators.length) { callback(true); return; }
+  
+    var generic_callback = function(previous_result) {
+      console.log("previous result: " + previous_result);
+      if(previous_result) generic_validator(value, callback, k+1);
+      else callback(false); // early break
     }
 
     // Create and call the generic_validator
@@ -156,8 +164,17 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
     if (types_map[cell.type] != null && types_map[cell.type].type != null) hot_cell_type = types_map[cell.type].type;
 
     var hot_type_alias = Handsontable.cellTypes[hot_cell_type];
-    if (hot_type_alias != null && hot_type_alias.renderer != null)
-        baseRenderer = hot_type_alias.renderer;
+
+    if(hot_type_alias != null && hot_type_alias.validator != null 
+      // Fix: if empty values are allowed, and the value is empty do not call default validator.
+      && (cell.empty === false || (value != null && value != '')))
+      hot_type_alias.validator(value, generic_callback);
+      
+    else // no default validator
+      generic_callback(true);
+  }(value, callback, -1);
+}
+
 
     baseRenderer.apply(this, arguments);
 }
@@ -184,25 +201,24 @@ function make_tables(tables_def) {
  * @return {object} an object representing the table
  */
 function make_table_obj(table_def) {
-    var table_name = table_def.name;
-    var element = table_def.element;
-    var width = table_def.width || HOT_DEFAULT_WIDTH;
-
-    var rows_len = table_def.rows.length;
-    var cols_levels = table_def.cols.length;
-    var cols_len = table_def.cols[cols_levels - 1].length;
-
-    // Create table array
-    var table = new Array(rows_len);
-    for (var i = 0; i < rows_len; i++) table[i] = new Array(cols_len);
-
-    // Fill in keys
-    for (var i = 0; i < rows_len; i++) {
-        var row_key = table_def.rows[i].key;
-        for (var j = 0; j < cols_len; j++) {
-            var col_key = table_def.cols[cols_levels - 1][j].key;
-            table[i][j] = {"key": table_name + "_" + row_key + "_" + col_key};
-        }
+  var table_name = table_def.name;
+  var element = table_def.element;
+  var width = table_def.width || HOT_DEFAULT_WIDTH;
+  
+  var rows_len = table_def.rows.length;
+  var cols_levels = table_def.cols.length;
+  var cols_len = table_def.cols[cols_levels-1].length;
+  
+  // Create table array
+  var table = new Array(rows_len);
+  for(var i = 0; i < rows_len; i++) table[i] = new Array(cols_len);
+  
+  // Fill in keys
+  for(var i = 0; i < rows_len; i++) {
+    var row_key = table_def.rows[i].key;
+    for(var j = 0; j < cols_len; j++) {
+      var col_key = table_def.cols[cols_levels-1][j].key;
+      table[i][j] = { "row_key": row_key, "col_key": col_key };
     }
 
     // Fill in types
@@ -258,33 +274,26 @@ function make_table_obj(table_def) {
  * @return {hot} - the handsontable object constructed by make_hot_table.
  */
 function make_hot_table(table) {
-    var element = document.querySelector(table.element);
-
-    var hot_cols = new Array(table.colsCount);
-    for (var i = 0; i < table.colsCount; i++)
-        hot_cols[i] = {"type": "text"}; //default thing that does not matter, will be overriden cell by cell
-
-    var cells = [];
-    // construct cell by cell properties
-    for (var i = 0; i < table.rowsCount; i++) {
-        for (var j = 0; j < table.colsCount; j++) {
-            var cell_def = table.cells[i][j];
-            var type = cell_def.type;
-            var empty = true;
-
-            if (cell_def.empty != null) empty = cell_def.empty;
-
-            var cell = {
-                "row": i,
-                "col": j,
-                "type": type,
-                "allowEmpty": empty,
-                "validator": validator,
-                "renderer": renderer
-            };
-            if (types_map[cell_def.type]) Object.assign(cell, types_map[cell_def.type]);
-            cells.push(cell);
-        }
+  var element = document.querySelector(table.element);
+  
+  var hot_cols = new Array(table.colsCount);
+  for(var i = 0; i < table.colsCount; i++)
+    hot_cols[i] = { "type": "text" }; //default thing that does not matter, will be overriden cell by cell
+    
+  var cells = [];
+  // construct cell by cell properties
+  for(var i = 0; i < table.rowsCount; i++) {
+    for(var j = 0; j < table.colsCount; j++) {
+      var cell_def = table.cells[i][j];
+      var type = cell_def.type;
+      var empty = true;
+      
+      if(cell_def.empty != null) empty = cell_def.empty;
+            
+      var cell = { "row": i, "col": j, "type": type, "allowEmpty": empty, "validator": validator, "renderer": renderer };
+      if(types_map[cell_def.type]) Object.assign(cell, types_map[cell_def.type]);
+      
+      cells.push(cell);
     }
 
     var hotSettings = {

@@ -13,7 +13,8 @@
   <script type="text/javascript" src="script/spin.min.js"></script>
   <script type="text/javascript" src="script/ladda.min.js"></script>
   <script type="text/javascript" src="script/sail_hot.js"></script>
-  <!--<script type="text/javascript" src="script/ssCreate.js"></script>-->
+  <script type="text/javascript" src="script/ssCreate.js"></script>
+  <script type="text/javascript" src="script/client.js"></script>
 
   <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="style/bootstrap/v3/css/bootstrap-theme.min.css">
@@ -112,8 +113,8 @@
   <div id="additional-questions">
     <h3>Additional Questions</h3>
     <div id="questions">
-      <form id="question-a">
-        <p id="question-text">Does your company hold events to celebrate diversity and inclusion?</p>
+      <form>
+        <p class="question-text">Does your company hold events to celebrate diversity and inclusion?</p>
         <div class="radio">
           <label><input autocomplete="off" type="radio" name="optradio" value="Yes">Yes</label>
         </div>
@@ -121,11 +122,11 @@
           <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA">Do not wish to answer</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked='checked'>Do not wish to answer</label>
         </div>
       </form>
-      <form id="question-b">
-        <p id="question-text">Does your company provide diversity and inclusion education or training for managers, staff or both?</p>
+      <form>
+        <p class="question-text">Does your company provide diversity and inclusion education or training for managers, staff or both?</p>
         <div class="radio">
           <label><input autocomplete="off" type="radio" name="optradio" value="Yes">Yes</label>
         </div>
@@ -133,11 +134,11 @@
           <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA">Do not wish to answer</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked='checked'>Do not wish to answer</label>
         </div>
       </form>
-      <form id="question-c">
-        <p id="question-text">Does your management team meet to discuss your organization's diverse workforce or workplace culture?</p>
+      <form>
+        <p class="question-text">Does your management team meet to discuss your organization's diverse workforce or workplace culture?</p>
         <div class="radio">
           <label><input autocomplete="off" type="radio" name="optradio" value="Yes">Yes</label>
         </div>
@@ -145,11 +146,11 @@
           <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA">Do not wish to answer</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked='checked'>Do not wish to answer</label>
         </div>
       </form>
-      <form id="question-d">
-        <p id="question-text">Does your CEO engage in or lead discussions on diversity and inclusion with your management team or with other business executives?</p>
+      <form>
+        <p class="question-text">Does your CEO engage in or lead discussions on diversity and inclusion with your management team or with other business executives?</p>
         <div class="radio">
           <label><input autocomplete="off" type="radio" name="optradio" value="Yes">Yes</label>
         </div>
@@ -157,7 +158,7 @@
           <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA">Do not wish to answer</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked='checked'>Do not wish to answer</label>
         </div>
       </form>
     </div>
@@ -176,21 +177,16 @@
   </button>
   <br/>
   <script type="text/javascript">
+    var tables;
+    
     $(document).ready(function() {
       var req = $.ajax({
         type: "GET",
         url: "../shared/templates/tables.json",
         dataType: "json"
       }).then(function (tables_def) {
-        var tables_hot = make_tables(tables_def);
-        var questionForms = $('#questions form');
-        var inputSources = {
-          "main": tables_hot[0],
-          "board": tables_hot[1],
-          "question": questionForms
-        };
-        
-        //submissionHandling(inputSources, '/');
+        tables = make_tables(tables_def);
+        $("#submit").click(function() { submit('/', tables); });
       });
     });
   </script>

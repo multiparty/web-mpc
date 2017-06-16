@@ -78,10 +78,20 @@ function secretShareValues (obj) {
 
   for (var key in obj) {
     if (obj.hasOwnProperty(key)) {
-      var value = obj[key],
-          shares = _secretShare(value, 2);
-      serviceTuples[key] = shares[0];
-      analystTuples[key] = shares[1];
+      var value = obj[key];
+      if(typeof(value) == "number") {
+        shares = _secretShare(value, 2);
+        
+        serviceTuples[key] = shares[0];
+        analystTuples[key] = shares[1];
+      }
+      
+      else {
+        // value is a nested object.
+        var tmp = secretShareValues (value);
+        serviceTuples[key] = tmp['service'];
+        analystTuples[key] = tmp['analyst'];
+      }
     }
   }
 
@@ -209,6 +219,20 @@ function recombineValues (serviceTuples, analystTuples) {
     }
   }
   return res;
+}
+
+function encryptWithKey (obj, key) {
+  var pki = forge.pki;
+  var publicKey = pki.publicKeyFromPem(key);
+
+  return _.mapObject(obj, function(x,k) {
+    if(typeof(x) == "number")
+      return publicKey.encrypt(x.toString(), 'RSA-OAEP', {
+        md: forge.md.sha256.create()
+      })
+    else
+      return encryptWithKey(x, key);
+  });
 }
 
 if (typeof module !== 'undefined') {
