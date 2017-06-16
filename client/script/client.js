@@ -45,7 +45,7 @@ function validate(tables, callback) {
   if (!questionsValid) return callback(false, ADD_QUESTIONS_ERR);
   
   // Validate tables (callback chaining)
-  function validate_callback(i) {
+  var _ = function validate_callback(i) {
     if(i >= tables.length) return callback(true, "");
     
     // Dont validate tables that are not going to be submitted
@@ -55,7 +55,7 @@ function validate(tables, callback) {
       if(!result) return callback(false, GENERIC_TABLE_ERR + tables[i].__sail_meta.name + " spreadsheet");
       validate_callback(i+1);
     });
-  }
+  }(0)
 }
 
 /**
@@ -84,9 +84,11 @@ function construct_and_send(target_url, tables, la) {
     data_submission['questions'][question_text] = question_data;
   }
   
+  /*
   // Handle board table data
   var include_board = $('#include-board').is(':checked');
   data_submission['include_board'] = (include_board ? 1 : 0);
+  */
   
   // Handle table data, tables are represented as 2D associative arrays
   // with the first index being the row key, and the second being the column key
