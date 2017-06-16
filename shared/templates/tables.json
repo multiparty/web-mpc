@@ -175,7 +175,47 @@
             "col": "2:7"
           },
           "tooltip": {
+            "prompt": "Please input the total number of male employees in this race/ethnicity and job category.",
+            "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero."
+          }
+        },
+        {
+          "range": {
+            "row": "0:2",
+            "col": "8:13"
+          },
+          "tooltip": {
             "prompt": "Please input the total number of female employees in this race/ethnicity and job category.",
+            "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero."
+          }
+        },
+        {
+          "range": {
+            "row": "0:2",
+            "col": "14"
+          },
+          "tooltip": {
+            "prompt": "Please input the total number of employees for this row.",
+            "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero."
+          }
+        },
+        {
+          "range": {
+            "row": "3",
+            "col": "0:13"
+          },
+          "tooltip": {
+            "prompt": "Please input the total number of employees for this column.",
+            "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero."
+          }
+        },
+        {
+          "range": {
+            "row": "3",
+            "col": "14"
+          },
+          "tooltip": {
+            "prompt": "Please input the total number of employees.",
             "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero."
           }
         }

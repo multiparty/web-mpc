@@ -89,40 +89,64 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
     var tooltip = cell.tooltip;
 
     if (tooltip != null) {
+        var idName = "table-" + row + "-" + col;
+        var element = $('#' + idName);
+
         if (!cellProperties.valid) {
             TD.setAttribute('title', tooltip.error);
-            TD.setAttribute('id', row +"-" + col);
-            $('#' + row + "-" + col).qtip(
-
+            TD.setAttribute('id', idName);
+            element.qtip(
                 {
                     style: {
                         classes: 'qtip-red'
                     }
+                },
+                {
+                    content: {
+                        title: tooltip.error
+                    }
                 }
             );
+
+            if (element !== null && element.qtip('api') !== null) {
+                element.qtip('api').set('content.title', tooltip.error);
+            }
+
         } else {
+
             TD.setAttribute('title', tooltip.prompt);
-            TD.setAttribute('id', row +"-" + col);
-            $('#' + row + "-" + col).qtip(
+            TD.setAttribute('id', idName);
+
+           element.qtip(
                 {
                     style: {
                         classes: 'qtip-light'
                     }
+                },
+                {
+                    content: {
+                        title: tooltip.prompt
+                    }
                 }
             );
-            console.log('valid')
-        }
-        // if(cellProperties.valid === false) {
-        //     cellProperties.comment = { "value": tooltip.error };
-        //     console.log("invalid");
-        // }
-        // else {
-        //     cellProperties.comment = { "value": tooltip.prompt };
-        //     console.log("valid");
-        // }
-    }
 
-    // call the default renderer
+            if (element !== null && element.qtip('api') !== null) {
+                element.qtip('api').set('content.title', tooltip.prompt);
+            }
+
+        }
+    }
+    // if(cellProperties.valid === false) {
+    //     cellProperties.comment = { "value": tooltip.error };
+    //     console.log("invalid");
+    // }
+    // else {
+    //     cellProperties.comment = { "value": tooltip.prompt };
+    //     console.log("valid");
+    // }
+
+
+// call the default renderer
     var baseRenderer = Handsontable.cellTypes['text'].renderer;
     var hot_cell_type = cell.type;
     if (types_map[cell.type] != null && types_map[cell.type].type != null) hot_cell_type = types_map[cell.type].type;
