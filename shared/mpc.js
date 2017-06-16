@@ -234,7 +234,7 @@ function _encryptWithKey (obj, publicKey) {
     if (obj.hasOwnProperty(key)) {
       var value = obj[key];
       if(typeof(value) == "number")
-        encrypted[key] = publicKey.encrypt(x.toString(), 'RSA-OAEP', { md: forge.md.sha256.create() });
+        encrypted[key] = publicKey.encrypt(value.toString(), 'RSA-OAEP', { md: forge.md.sha256.create() });
       
       else 
         encrypted[key] = _encryptWithKey(value, key);
