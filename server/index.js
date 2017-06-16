@@ -147,6 +147,7 @@ app.post('/', function (req, res) {
     console.log('POST /');
 
     var body = req.body;
+    console.log(body);
 
     // TODO: set length restrictions on session and user
     var bodySchema = {

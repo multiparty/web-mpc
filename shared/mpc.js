@@ -224,15 +224,24 @@ function recombineValues (serviceTuples, analystTuples) {
 function encryptWithKey (obj, key) {
   var pki = forge.pki;
   var publicKey = pki.publicKeyFromPem(key);
-
-  return _.mapObject(obj, function(x,k) {
-    if(typeof(x) == "number")
-      return publicKey.encrypt(x.toString(), 'RSA-OAEP', {
-        md: forge.md.sha256.create()
-      })
-    else
-      return encryptWithKey(x, key);
-  });
+  
+  return _encryptWithKey(obj, publicKey);
+}
+  
+function _encryptWithKey (obj, publicKey) {
+  var encrypted = {};
+  for (var key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      var value = obj[key];
+      if(typeof(value) == "number")
+        encrypted[key] = publicKey.encrypt(x.toString(), 'RSA-OAEP', { md: forge.md.sha256.create() });
+      
+      else 
+        encrypted[key] = encryptWithKey(encrypted[key], key);
+    }
+  }
+  
+  return encrypted;
 }
 
 if (typeof module !== 'undefined') {
