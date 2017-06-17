@@ -140,18 +140,30 @@ function countInvalidShares (data, db) {
     data = arr;
   }
 
-  // Compute the aggregate.
-  var invalidCount = {};
-  for (var key in fields(data[0])) {
-    invalidCount[key] = 0;
-  }
-  for (var i = 0; i < data.length; i++) {
-    for (let key in invalidCount) {
-      var count = isInvalid(fields(data[i])[key]);
-      invalidCount[key] = invalidCount[key] + count;
+  // initialize the invalid count object according to the template
+  var invalidCount = function initialize(obj) {
+    var result = {};
+    for(var key in fields(obj)) {
+      if(typeof(obj[key] == "numeric"))
+        result[key] = 0;
+      else
+        result[key] = initialize(obj[key]);
     }
+    return result;
+  }(data[0]);
+  
+  // accummulate invalid count
+  for(var i = 0; i < data.length; i++) {
+    var _ = function accumulate(obj, counts) {
+      for(var key in fields(obj)) {
+        if(typeof(obj[key] == "numeric"))
+          counts[key] += isInvalid(fields(obj)[key]);
+        else
+          accumulate(fields(obj)[key], counts[key]);
+      }
+    }(data[i], invalidCount);
   }
-
+  
   return invalidCount;
 }
 
