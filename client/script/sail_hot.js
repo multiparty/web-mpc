@@ -82,20 +82,21 @@ var validator = function (value, callback) {
 }
 
 var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
-    if (instance.__sail_meta == null) return; // render will be called again
+    if (instance.__sail_meta == null) return; // Render will be called again.
 
     // show tooltip
     var cell = instance.__sail_meta.cells[row][col];
     var tooltip = cell.tooltip;
-    var tableName = instance.__sail_meta.name
+    var tableName = instance.__sail_meta.name   // Assumes each table has distinct name.
+
 
     if (tooltip != null) {
         var idName = tableName + row + "-" + col;
         var element = $('#' + idName);
 
         if (!cellProperties.valid) {
-            // error message
-            TD.style.background = '#f78b83';
+            // Error message with red-colored cell and tooltip.
+            TD.style.background = '#ff4c42';
             TD.setAttribute('title', " ");
             TD.setAttribute('id', idName);
             if (tooltip.errorTitle != null) {
@@ -110,6 +111,12 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
                             title: tooltip.errorTitle,
                             text: tooltip.error
                         }
+                    },
+                    {
+                        show: {
+                            solo: true
+                        },
+                        hide: false
                     }
                 );
             } else {
@@ -123,11 +130,18 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
                         content: {
                             text: tooltip.error
                         }
+                    },
+                    {
+                        show: {
+                            solo: true
+                        },
+                        hide: false
                     }
                 );
             }
 
 
+            // If tooltip already initialized.
             if (element !== null && element.qtip('api') !== null) {
                 if (tooltip.errorTitle !== null) {
                     element.qtip('api').set('content.title', tooltip.errorTitle);
@@ -137,8 +151,9 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
             }
 
         } else {
-            // prompt messages
-            TD.style.background = '#f3f3f3';
+            // Prompt message with light-colored cell and tooltip.
+            // Shows on initial table load and
+            TD.style.background = '#ffffff';
             TD.setAttribute('title', " ");
             TD.setAttribute('id', idName);
 
@@ -154,6 +169,12 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
                             title: tooltip.promptTitle,
                             text: tooltip.prompt
                         }
+                    },
+                    {
+                        show: {
+                            solo: true
+                        },
+                        hide: false
                     }
                 );
             } else {
@@ -167,11 +188,18 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
                         content: {
                             text: tooltip.prompt
                         }
+                    },
+                    {
+                        show: {
+                            solo: true
+                        },
+                        hide: false
                     }
                 );
             }
 
 
+            // If tooltip already initialized.
             if (element !== null && element.qtip('api') !== null) {
                 if (tooltip.promptTitle !== null) {
                     element.qtip('api').set('content.title', tooltip.promptTitle);
