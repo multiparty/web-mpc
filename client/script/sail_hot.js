@@ -1,14 +1,8 @@
 var HOT_DEFAULT_WIDTH = 1024;
 
 var validators_map = {
-    'validate1': function (value, callback) {
-        console.log("validator1");
-        callback(true);
-    },
-    'validate2': function (value, callback) {
-        console.log(value);
-        callback(true);
-    }
+    'validate1': function(value, callback) { console.log("validator1"); callback(true); },
+    'validate2': function(value, callback) { console.log(value); callback(true); }
 };
 
 function register_validator(name, validator) {
@@ -18,11 +12,6 @@ function register_validator(name, validator) {
 var types_map = {
     'int': {
         'type': 'numeric'
-    },
-
-    'readOnly': {
-        'type': 'text',
-        'readOnly': true
     },
 
     'currency': {
@@ -36,16 +25,10 @@ function register_type(name, type) {
     types_map[name] = validator;
 }
 
-var validator = function (value, callback) {
+var validator = function(value, callback) {
     var cell = this.instance.__sail_meta.cells[this.row][this.col];
-    if (cell.max != null && value > cell.max) {
-        callback(false);
-        return;
-    }
-    if (cell.min != null && value < cell.min) {
-        callback(false);
-        return;
-    }
+    if(value != '' && value != null && cell.max != null && value > cell.max) { callback(false); return; }
+    if(value != '' && value != null && cell.min != null && value < cell.min) { callback(false); return; }
 
     // Create and call the generic_validator
     // The generic validator is setup such that
@@ -53,27 +36,23 @@ var validator = function (value, callback) {
     // such that the callback passed to every validator is
     // chained into the next one.
     var _ = function generic_validator(value, callback, k) {
-        if (k >= cell.validators.length) {
-            callback(true);
-            return;
-        }
+        if(k >= cell.validators.length) { callback(true); return; }
 
-        var generic_callback = function (previous_result) {
-            if (previous_result) generic_validator(value, callback, k + 1);
+        var generic_callback = function(previous_result) {
+            if(previous_result) generic_validator(value, callback, k+1);
             else callback(false); // early break
         }
 
-        if (k > -1) {
-            cell.validators[k](value, generic_callback);
-            return;
-        }
+        if(k > -1) { cell.validators[k](value, generic_callback); return; }
 
         // call the default validator
         var hot_cell_type = cell.type;
-        if (types_map[cell.type] != null && types_map[cell.type].type != null) hot_cell_type = types_map[cell.type].type;
+        if(types_map[cell.type] != null && types_map[cell.type].type != null) hot_cell_type = types_map[cell.type].type;
 
         var hot_type_alias = Handsontable.cellTypes[hot_cell_type];
-        if (hot_type_alias != null && hot_type_alias.validator != null)
+        if(hot_type_alias != null && hot_type_alias.validator != null
+            // Fix: if empty values are allowed, and the value is empty do not call default validator.
+            && (cell.empty === false || (value != null && value != '')))
             hot_type_alias.validator(value, generic_callback);
 
         else // no default validator
@@ -81,20 +60,23 @@ var validator = function (value, callback) {
     }(value, callback, -1);
 }
 
-var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
-    if (instance.__sail_meta == null) return; // Render will be called again.
+var renderer = function(instance, TD, row, col, prop, value, cellProperties) {
+    if(instance.__sail_meta == null) return; // render will be called again
 
-    // show tooltip
     var cell = instance.__sail_meta.cells[row][col];
+
+    // Readonly
+    if(cell.read_only != null) cellProperties.readOnly = cell.read_only;
+
+    // Tooltip
     var tooltip = cell.tooltip;
-    var tableName = instance.__sail_meta.name   // Assumes each table has distinct name.
+    var tableName = instance.__sail_meta.element;   // Assumes each table has distinct name.
 
-
-    if (tooltip != null) {
+    if(tooltip != null) {
         var idName = tableName + row + "-" + col;
         var element = $('#' + idName);
 
-        if (!cellProperties.valid) {
+        if (cellProperties.valid === false) {
             // Error message with red-colored cell and tooltip.
             TD.style.background = '#ff4c42';
             TD.setAttribute('title', " ");
@@ -138,16 +120,6 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
                         hide: false
                     }
                 );
-            }
-
-
-            // If tooltip already initialized.
-            if (element !== null && element.qtip('api') !== null) {
-                if (tooltip.errorTitle !== null) {
-                    element.qtip('api').set('content.title', tooltip.errorTitle);
-                }
-
-                element.qtip('api').set('content.text', tooltip.error);
             }
 
         } else {
@@ -198,26 +170,16 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
                 );
             }
 
-
-            // If tooltip already initialized.
-            if (element !== null && element.qtip('api') !== null) {
-                if (tooltip.promptTitle !== null) {
-                    element.qtip('api').set('content.title', tooltip.promptTitle);
-                }
-
-                element.qtip('api').set('content.text', tooltip.prompt);
-            }
-
         }
     }
 
-// call the default renderer
+    // call the default renderer
     var baseRenderer = Handsontable.cellTypes['text'].renderer;
     var hot_cell_type = cell.type;
-    if (types_map[cell.type] != null && types_map[cell.type].type != null) hot_cell_type = types_map[cell.type].type;
+    if(types_map[cell.type] != null && types_map[cell.type].type != null) hot_cell_type = types_map[cell.type].type;
 
     var hot_type_alias = Handsontable.cellTypes[hot_cell_type];
-    if (hot_type_alias != null && hot_type_alias.renderer != null)
+    if(hot_type_alias != null && hot_type_alias.renderer != null)
         baseRenderer = hot_type_alias.renderer;
 
     baseRenderer.apply(this, arguments);
@@ -230,7 +192,7 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
  */
 function make_tables(tables_def) {
     var result = [];
-    for (var t = 0; t < tables_def.tables.length; t++) {
+    for(var t = 0; t < tables_def.tables.length; t++) {
         var table_def = tables_def.tables[t];
         var table = make_table_obj(table_def);
         result[t] = make_hot_table(table);
@@ -248,40 +210,48 @@ function make_table_obj(table_def) {
     var table_name = table_def.name;
     var element = table_def.element;
     var width = table_def.width || HOT_DEFAULT_WIDTH;
+    var submit = table_def.submit;
+
+    if(!(table_def.submit === true || table_def.submit === false))
+        submit = true;
 
     var rows_len = table_def.rows.length;
     var cols_levels = table_def.cols.length;
-    var cols_len = table_def.cols[cols_levels - 1].length;
+    var cols_len = table_def.cols[cols_levels-1].length;
 
     // Create table array
     var table = new Array(rows_len);
-    for (var i = 0; i < rows_len; i++) table[i] = new Array(cols_len);
+    for(var i = 0; i < rows_len; i++) table[i] = new Array(cols_len);
 
     // Fill in keys
-    for (var i = 0; i < rows_len; i++) {
+    for(var i = 0; i < rows_len; i++) {
         var row_key = table_def.rows[i].key;
-        for (var j = 0; j < cols_len; j++) {
-            var col_key = table_def.cols[cols_levels - 1][j].key;
-            table[i][j] = {"key": table_name + "_" + row_key + "_" + col_key};
+        for(var j = 0; j < cols_len; j++) {
+            var col_key = table_def.cols[cols_levels-1][j].key;
+            table[i][j] = { "row_key": row_key, "col_key": col_key };
         }
     }
 
     // Fill in types
     table_def.types = table_def.types || [];
-    for (var t = 0; t < table_def.types.length; t++) {
+    for(var t = 0; t < table_def.types.length; t++) {
         var type = table_def.types[t];
 
-        var update_cell = function (i, j) {
-            table[i][j].type = type.type;
-            if (table[i][j].validators == null || type.validators === null)
+        var update_cell = function(i, j) {
+            if(type.type != null) table[i][j].type = type.type;
+            if(type.type == null && table[i][j].type == null) table[i][j].type = 'int';
+            if(table[i][j].validators == null || type.validators === null)
                 table[i][j].validators = [];
 
             var tmp = type.validators || [];
-            for (var v = 0; v < tmp.length; v++) table[i][j].validators.push(validators_map[tmp[v]]);
+            for(var v = 0; v < tmp.length; v++) table[i][j].validators.push(validators_map[tmp[v]]);
 
-            if (type.max !== undefined) table[i][j].max = type.max;
-            if (type.min !== undefined) table[i][j].min = type.min;
-            if (type.empty !== undefined) table[i][j].empty = type.empty;
+            if(type.max !== undefined) table[i][j].max = type.max;
+            if(type.min !== undefined) table[i][j].min = type.min;
+            if(type.empty !== undefined) table[i][j].empty = type.empty;
+            if(type.read_only !== undefined) table[i][j].read_only = type.read_only;
+            if(type.default !== undefined) table[i][j].default = type.default;
+            if(type.placeholder !== undefined) table[i][j].placeholder = type.placeholder;
         };
 
         visit_range(rows_len, cols_len, type.range, update_cell);
@@ -289,10 +259,10 @@ function make_table_obj(table_def) {
 
     // Fill in tooltip
     table_def.tooltips = table_def.tooltips || [];
-    for (var t = 0; t < table_def.tooltips.length; t++) {
+    for(var t = 0; t < table_def.tooltips.length; t++) {
         var tooltip = table_def.tooltips[t];
 
-        var update_cell = function (i, j) {
+        var update_cell = function(i, j) {
             table[i][j].tooltip = tooltip.tooltip;
         };
 
@@ -301,13 +271,14 @@ function make_table_obj(table_def) {
 
     // Format according to HandsOnTable format.
     var rows = new Array(rows_len);
-    for (var i = 0; i < rows_len; i++) rows[i] = table_def.rows[i].label;
+    for(var i = 0; i < rows_len; i++) rows[i] = table_def.rows[i].label;
 
     var cols = table_def.cols;
-    for (var i = 0; i < cols_len; i++) cols[cols_levels - 1][i] = table_def.cols[cols_levels - 1][i].label;
+    for(var i = 0; i < cols_len; i++) cols[cols_levels-1][i] = table_def.cols[cols_levels-1][i].label;
 
     return {
-        "name": table_name, "element": "#" + element, "width": width,
+        "name": table_name, "submit": submit,
+        "element": element, "width": width,
         "rows": rows, "cols": cols, "cells": table,
         "rowsCount": rows_len, "colsCount": cols_len
     };
@@ -319,38 +290,43 @@ function make_table_obj(table_def) {
  * @return {hot} - the handsontable object constructed by make_hot_table.
  */
 function make_hot_table(table) {
-    var element = document.querySelector(table.element);
+    var element = document.querySelector("#"+table.element);
 
     var hot_cols = new Array(table.colsCount);
-    for (var i = 0; i < table.colsCount; i++)
-        hot_cols[i] = {"type": "text"}; //default thing that does not matter, will be overriden cell by cell
+    for(var i = 0; i < table.colsCount; i++)
+        hot_cols[i] = { "type": "text" }; //default thing that does not matter, will be overriden cell by cell
 
     var cells = [];
     // construct cell by cell properties
-    for (var i = 0; i < table.rowsCount; i++) {
-        for (var j = 0; j < table.colsCount; j++) {
+    for(var i = 0; i < table.rowsCount; i++) {
+        for(var j = 0; j < table.colsCount; j++) {
             var cell_def = table.cells[i][j];
             var type = cell_def.type;
             var empty = true;
+            var read_only = false;
+            var placeholder = '';
 
-            if (cell_def.empty != null) empty = cell_def.empty;
+            if(cell_def.empty != null) empty = cell_def.empty;
+            if(cell_def.read_only != null) read_only = cell_def.read_only;
+            if(cell_def.placeholder != null) placeholder = cell_def.placeholder.toString();
 
             var cell = {
-                "row": i,
-                "col": j,
-                "type": type,
-                "allowEmpty": empty,
-                "validator": validator,
-                "renderer": renderer
-            };
-            if (types_map[cell_def.type]) Object.assign(cell, types_map[cell_def.type]);
+                "row": i, "col": j, "type": type,
+                "allowEmpty": empty, "readOnly": read_only, 'placeholder': placeholder,
+                "validator": validator, "renderer": renderer };
+            if(types_map[cell_def.type]) Object.assign(cell, types_map[cell_def.type]);
+
             cells.push(cell);
         }
     }
 
+    var data = new Array(table.rowsCount);
+    data[table.rowsCount - 1] = '';
+
     var hotSettings = {
         // Enable tooltips
         comments: true,
+        data: data,
         // Table width in pixels
         width: table.width,
         // Columns types
@@ -364,15 +340,16 @@ function make_hot_table(table) {
         // Per cell properties
         cell: cells,
         // Workaround for handsontable undo issue for readOnly tables
-        beforeChange: function (changes, source) {
-            return !(this.readOnly);
-        }
+        beforeChange: function (changes, source) { return !(this.readOnly); }
     };
 
     // Create the Handsontable
     var handsOnTable = new Handsontable(element, hotSettings);
     handsOnTable.__sail_meta = table;
-    handsOnTable.render();
+
+    // Put name in the title element (if it exists)
+    $('#' + table.element + "-name").html(table.name);
+    handsOnTable.clear();
 
     return handsOnTable;
 }
@@ -388,34 +365,100 @@ function visit_range(rows_len, cols_len, range, f) {
     var row_range = range.row.split("-");
     var col_range = range.col.split("-");
 
-    for (var r = 0; r < row_range.length; r++) {
-        for (var c = 0; c < col_range.length; c++) {
+    for(var r = 0; r < row_range.length; r++) {
+        for(var c = 0; c < col_range.length; c++) {
             var row = row_range[r].trim();
             var col = col_range[c].trim();
 
-            if (row == "*") row = "0:1:" + (rows_len - 1);
-            if (col == "*") col = "0:1:" + (cols_len - 1);
-            if (row.indexOf(":") == -1) row = row + ":1:" + row;
-            if (col.indexOf(":") == -1) col = col + ":1:" + col;
+            if(row == "*") row = "0:1:" + (rows_len-1);
+            if(col == "*") col = "0:1:" + (cols_len-1);
+            if(row.indexOf(":") == -1) row = row + ":1:" + row;
+            if(col.indexOf(":") == -1) col = col + ":1:" + col;
 
-            row = row.split(":");
-            col = col.split(":");
-            if (row.length == 2) {
-                row[2] = row[1];
-                row[1] = 1;
-            }
-            if (col.length == 2) {
-                col[2] = col[1];
-                col[1] = 1;
-            }
+            row = row.split(":"); col = col.split(":");
+            if(row.length == 2) { row[2] = row[1]; row[1] = 1; }
+            if(col.length == 2) { col[2] = col[1]; col[1] = 1; }
 
-            row = [parseInt(row[0], 10), parseInt(row[1], 10), parseInt(row[2], 10)];
-            col = [parseInt(col[0], 10), parseInt(col[1], 10), parseInt(col[2], 10)];
-            for (var ri = row[0]; ri <= row[2]; ri += row[1]) {
-                for (var ci = col[0]; ci <= col[2]; ci += row[1]) {
+            row = [ parseInt(row[0], 10), parseInt(row[1], 10), parseInt(row[2], 10)];
+            col = [ parseInt(col[0], 10), parseInt(col[1], 10), parseInt(col[2], 10)];
+            for(var ri = row[0]; ri <= row[2]; ri+=row[1]) {
+                for(var ci = col[0]; ci <= col[2]; ci+=row[1]) {
                     f(ri, ci);
                 }
             }
         }
     }
 }
+
+/**
+ * Constructs an array of json table data ( see construct_data(hot) ).
+ * tables with the submit attribute set to false will be ignored.
+ * @param {array(hot)} table_hot_arr - an array of handsontable objects.
+ * @return {array(json)} each element contains 'name' and 'data'.
+ */
+function construct_data_tables(table_hot_arr) {
+    var result = [];
+    for(var i = 0; i < table_hot_arr.length; i++) {
+        var table_hot_obj = table_hot_arr[i];
+        if(table_hot_obj.__sail_meta.submit === false) continue;
+        result.push( { 'name': table_hot_obj.__sail_meta.name, 'data': construct_data(table_hot_obj) } );
+    }
+
+    return result;
+}
+
+/**
+ * Builds a json object that contains the data in the cells.
+ * The json object has the following format:
+ *  { 'row_0_key' : { 'col_0_key': data(0,0), 'col_1_key': data(0,1), ...}, ... }
+ * If a cell is empty (has value null or white space) and the cell has a default
+ * attribute declared, the default value will be used.
+ * @param {hot} table_hot_obj - the handsontable object of the table.
+ * @return {json} the described object.
+ */
+function construct_data(table_hot_obj) {
+    var meta = table_hot_obj.__sail_meta;
+
+    var data = {};
+    for(var r = 0; r < meta.rowsCount; r++) {
+        for(var c = 0; c < meta.colsCount; c++) {
+            var cell = meta.cells[r][c];
+            var cell_data = table_hot_obj.getDataAtCell(r, c);
+            if(cell_data == null || cell_data.toString().trim() == '')
+                if(cell.default != null) cell_data = cell.default;
+
+            var row_key = cell.row_key;
+            var col_key = cell.col_key;
+            if(data[row_key] == undefined) data[row_key] = {};
+            data[row_key][col_key] = cell_data;
+        }
+    }
+    return data;
+}
+
+/**
+ * Empty all cells.
+ * @param {hot} table_hot_obj - the handsontable object.
+ */
+function empty_table(table_hot_obj) {
+    table_hot_obj.clear();
+}
+
+/**
+ * Change the read only attribute of the entire table.
+ * @param {hot} table_hot_obj - the handsontable object.
+ * @param {boolean} read_only - the new value.
+ */
+function read_only_table(table_hot_obj, read_only) {
+    var meta_table = table_hot_obj.__sail_meta;
+    for(var r = 0; r < meta_table.rowsCount; r++) {
+        for(var c = 0; c < meta_table.colsCount; c++) {
+            meta_table.cells[r][c].read_only = read_only;
+        }
+    }
+
+    table_hot_obj.render();
+}
+
+
+

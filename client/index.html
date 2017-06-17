@@ -13,7 +13,6 @@
   <script type="text/javascript" src="script/spin.min.js"></script>
   <script type="text/javascript" src="script/ladda.min.js"></script>
   <script type="text/javascript" src="script/sail_hot.js"></script>
-  <script type="text/javascript" src="script/ssCreate.js"></script>
   <script type="text/javascript" src="script/client.js"></script>
 
   <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.min.css">
@@ -28,7 +27,7 @@
     .handsontable .ht_clone_top_left_corner {
       display: none;
     }
-    #main-hot .handsontable col.rowHeader {
+    .handsontable col.rowHeader {
       width: 200px !important;
     }
     #body_wrap {
@@ -102,8 +101,19 @@
     <h3>Email Address to track participation</h3>
     <input autocomplete="off" type=text id="emailf" pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$" required/>
   </div>
-  <h3>Number of Employees (Report employees in only one category)</h3>
-  <div id="main-hot"></div>
+
+  <h3 id="number-employees-hot-name"></h3>  
+  <div id="number-employees-hot"></div>
+  <h3 id="compensation-hot-name"></h3>
+  <div id="compensation-hot"></div>
+  <h3 id="performance-pay-hot-name"></h3>
+  <div id="performance-pay-hot"></div>
+  <h3 id="service-length-hot-name"></h3>
+  <div id="service-length-hot"></div>
+  <h3 id="totals-hot-name"></h3>
+  <div id="totals-hot"></div>
+  
+  <!--
   <div id="board">
     <h3>Board of Directors</h3>
     <form>
@@ -115,6 +125,8 @@
     </form>
     <div id="board-hot"></div>
   </div>
+  -->
+  
   <div id="additional-questions">
     <h3>Additional Questions</h3>
     <div id="questions">
@@ -181,17 +193,42 @@
     <span class="ladda-label">Submit</span>
   </button>
   <br/>
-  <script type="text/javascript">
-    var tables;
-    
+  <script type="text/javascript"> 
+  var tables;   
     $(document).ready(function() {
       var req = $.ajax({
         type: "GET",
         url: "../shared/templates/tables.json",
         dataType: "json"
       }).then(function (tables_def) {
-        tables = make_tables(tables_def);
-        $("#submit").click(function() { submit('/', tables); });
+         tables = make_tables(tables_def); window.scrollTo(0, 0);
+        
+        $('#verify').click(function() {
+          validate(tables, function(result, msg) {
+            if(result) return $("#submit").prop('disabled', false);
+            
+            error(msg);
+            $('#verify').prop('checked', false);
+          });
+        });
+        
+        /*
+        $('#include-board').click(function() {
+          var checked = $(this).prop('checked');
+          if(!checked) empty_table(tables[1]);
+          read_only_table(tables[1], !checked);
+        });
+        */
+        
+        $("#submit").click(function() {
+          validate(tables, function(result, msg) {
+            if(!result) return error(msg);
+            
+            var la = Ladda.create(document.getElementById('submit'));
+            construct_and_send('/', tables, la);
+          });
+        });
+        
       });
     });
   </script>

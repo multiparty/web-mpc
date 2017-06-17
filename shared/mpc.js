@@ -113,7 +113,7 @@ function countInvalidShares (data, db) {
   }
   
   // Access fields in JSON object or in DB object.
-  var fields = db ? function(x){return x.fields;} : function(x){return x;};
+  var fields = db ? function(x){ if(x.fields !== undefined) return x.fields; else return x;} : function(x){return x;};
   var isInvalid;
   if (db) {
     isInvalid = function (x) {
@@ -139,19 +139,31 @@ function countInvalidShares (data, db) {
     }
     data = arr;
   }
-
-  // Compute the aggregate.
-  var invalidCount = {};
-  for (var key in fields(data[0])) {
-    invalidCount[key] = 0;
-  }
-  for (var i = 0; i < data.length; i++) {
-    for (let key in invalidCount) {
-      var count = isInvalid(fields(data[i])[key]);
-      invalidCount[key] = invalidCount[key] + count;
+  
+  // initialize the invalid count object according to the template
+  var invalidCount = function initialize(obj) {
+    var result = {};
+    for(var key in fields(obj)) {
+      if(typeof(fields(obj)[key]) == "number")
+        result[key] = 0;
+      else
+        result[key] = initialize(fields(obj)[key]);
     }
+    return result;
+  }(data[0]);
+    
+  // accummulate invalid count
+  for(var i = 0; i < data.length; i++) {
+    var _ = function accumulate(obj, counts) {
+      for(var key in fields(obj)) {
+        if(typeof(fields(obj)[key]) == "number")
+          counts[key] += isInvalid(fields(obj)[key]);
+        else
+          accumulate(fields(obj)[key], counts[key]);
+      }
+    }(data[i], invalidCount);
   }
-
+  
   return invalidCount;
 }
 
@@ -168,7 +180,7 @@ function aggregateShares (data, db) {
   }
   
   // Access fields in JSON object or in DB object.
-  var fields = db ? function(x){return x.fields;} : function(x){return x;};
+  var fields = db ? function(x){ if(x.fields !== undefined) return x.fields; else return x;} : function(x){return x;};
   var convert = db ? function(x){return _uint32(x);} : function (x) {
     var result = parseInt(x, 10);
     if (isNaN(result)) {
@@ -190,17 +202,31 @@ function aggregateShares (data, db) {
     }
     data = arr;
   }
-
-  // Compute the aggregate.
-  var agg = {};
-  for (var key in fields(data[0])) {
-    agg[key] = _uint32(0);
-  }
-  for (var i = 0; i < data.length; i++) {
-    for (let key in agg) {
-      var value = convert(fields(data[i])[key]);
-      agg[key] = _addShares(agg[key], value);
+  
+  // initialize the aggregate object according to the template
+  var agg = function initialize(obj) {
+    var result = {};
+    for(var key in fields(obj)) {
+      if(typeof(fields(obj)[key]) == "number")
+        result[key] = _uint32(0);
+      else
+        result[key] = initialize(fields(obj)[key]);
     }
+    return result;
+  }(data[0]);
+    
+  // aggregate
+  for(var i = 0; i < data.length; i++) {
+    var _ = function accumulate(obj, counts) {
+      for(var key in fields(obj)) {
+        if(typeof(fields(obj)[key]) == "number") {
+          var value = convert(fields(obj)[key]);
+          counts[key] = _addShares(counts[key], value);
+        }
+        else
+          accumulate(fields(obj)[key], counts[key]);
+      }
+    }(data[i], agg);
   }
 
   return agg;
@@ -224,15 +250,24 @@ function recombineValues (serviceTuples, analystTuples) {
 function encryptWithKey (obj, key) {
   var pki = forge.pki;
   var publicKey = pki.publicKeyFromPem(key);
-
-  return _.mapObject(obj, function(x,k) {
-    if(typeof(x) == "number")
-      return publicKey.encrypt(x.toString(), 'RSA-OAEP', {
-        md: forge.md.sha256.create()
-      })
-    else
-      return encryptWithKey(x, key);
-  });
+  
+  return _encryptWithKey(obj, publicKey);
+}
+  
+function _encryptWithKey (obj, publicKey) {
+  var encrypted = {};
+  for (var key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      var value = obj[key];
+      if(typeof(value) == "number")
+        encrypted[key] = publicKey.encrypt(value.toString(), 'RSA-OAEP', { md: forge.md.sha256.create() });
+      
+      else 
+        encrypted[key] = _encryptWithKey(value, publicKey);
+    }
+  }
+  
+  return encrypted;
 }
 
 if (typeof module !== 'undefined') {
