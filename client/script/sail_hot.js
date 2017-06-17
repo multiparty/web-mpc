@@ -322,7 +322,7 @@ function construct_data(table_hot_obj) {
     for(var c = 0; c < meta.colsCount; c++) {
       var cell = meta.cells[r][c];
       var cell_data = table_hot_obj.getDataAtCell(r, c);
-      if(cell_data == null || cell_data.trim() == '')
+      if(cell_data == null || cell_data.toString().trim() == '')
         if(cell.default != null) cell_data = cell.default;
       
       var row_key = cell.row_key;
