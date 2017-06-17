@@ -84,12 +84,13 @@ var validator = function (value, callback) {
 var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
     if (instance.__sail_meta == null) return; // render will be called again
 
-    // show tooltip if
+    // show tooltip
     var cell = instance.__sail_meta.cells[row][col];
     var tooltip = cell.tooltip;
+    var tableName = instance.__sail_meta.name
 
     if (tooltip != null) {
-        var idName = "table-" + row + "-" + col;
+        var idName = tableName + row + "-" + col;
         var element = $('#' + idName);
 
         if (!cellProperties.valid) {
