@@ -222,9 +222,13 @@ function make_hot_table(table) {
     }
   }
   
+  var data = new Array(table.rowsCount);
+  data[table.rowsCount - 1] = '';
+
   var hotSettings = {
     // Enable tooltips
     comments: true,
+    data: data,
     // Table width in pixels
     width: table.width,
     // Columns types
@@ -244,10 +248,10 @@ function make_hot_table(table) {
   // Create the Handsontable
   var handsOnTable = new Handsontable(element, hotSettings);
   handsOnTable.__sail_meta = table;
-  handsOnTable.render();
   
   // Put name in the title element (if it exists)
-  $('#' + table.element + "-name").html(table.name);
+  $('#' + table.element + "-name").html(table.name);  
+  handsOnTable.clear();
   
   return handsOnTable;
 }
