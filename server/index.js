@@ -41,8 +41,6 @@ var Promise = require('bluebird');
 var maskSchema = templateToJoiSchema(template, joi.string().required());
 var dataSchema = templateToJoiSchema(template, joi.number().required());
 
-console.log(maskSchema);
-
 // Override deprecated mpromise
 mongoose.Promise = Promise;
 

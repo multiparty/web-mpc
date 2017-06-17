@@ -220,7 +220,7 @@ function aggregateShares (data, db) {
     var _ = function accumulate(obj, counts) {
       for(var key in fields(obj)) {
         if(typeof(fields(obj)[key]) == "number") {
-          var value = convert(fields(data[i])[key]);
+          var value = convert(fields(obj)[key]);
           counts[key] = _addShares(counts[key], value);
         }
         else
