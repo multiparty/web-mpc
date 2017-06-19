@@ -94,7 +94,7 @@
         {
           "range": {
             "row": "*",
-            "col": "1-3-5-7-9-11-13-15"
+            "col": "1-3-5-7-9-11-13-15-17"
           },
           "tooltip": {
             "promptTitle": "Number of Male Employees",
@@ -200,7 +200,7 @@
         {
           "range": {
             "row": "*",
-            "col": "1-3-5-7-9-11-13-15"
+            "col": "1-3-5-7-9-11-13-15-17"
           },
           "tooltip": {
             "promptTitle": "Total Annual Compensation",
@@ -305,7 +305,7 @@
         {
           "range": {
             "row": "*",
-            "col": "1-3-5-7-9-11-13-15"
+            "col": "1-3-5-7-9-11-13-15-17"
           },
           "tooltip": {
             "promptTitle": "Total Annual Performance Pay",
@@ -410,7 +410,7 @@
         {
           "range": {
             "row": "*",
-            "col": "1-3-5-7-9-11-13-15"
+            "col": "1-3-5-7-9-11-13-15-17"
           },
           "tooltip": {
             "promptTitle": "Total Length of Service",
