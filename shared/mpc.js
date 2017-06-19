@@ -232,16 +232,15 @@ function aggregateShares (data, db) {
   return agg;
 }
 
-/**
- *
- * @param serviceTuples
- * @param analystTuples
- */
+
 function recombineValues (serviceTuples, analystTuples) {
   var res = {};
   for (var field in serviceTuples) {
     if (serviceTuples.hasOwnProperty(field)) {
-      res[field] = _recombine([serviceTuples[field], analystTuples[field]]);                      
+      if(typeof(value) == "number" || typeof(value) == "string" || typeof(value) == "String")
+        res[field] = _recombine([serviceTuples[field], analystTuples[field]]);
+      else
+        res[field] = recombineValue(serviceTuples[field], analystTuples[field]);
     }
   }
   return res;
@@ -259,7 +258,7 @@ function _encryptWithKey (obj, publicKey) {
   for (var key in obj) {
     if (obj.hasOwnProperty(key)) {
       var value = obj[key];
-      if(typeof(value) == "number")
+      if(typeof(value) == "number" || typeof(value) == "string" || typeof(value) == "String")
         encrypted[key] = publicKey.encrypt(value.toString(), 'RSA-OAEP', { md: forge.md.sha256.create() });
       
       else 

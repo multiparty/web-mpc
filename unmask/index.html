@@ -11,17 +11,18 @@
   <script type="text/javascript" src="script/spin.min.js"></script>
   <script type="text/javascript" src="script/ladda.min.js"></script>
   <script type="text/javascript" src="script/unmask.js"></script>
+  <script type="text/javascript" src="../client/script/sail_hot.js"></script>
   
   <link rel="stylesheet" type="text/css" href="../shared/handsontable-pro/dist/handsontable.full.css">
   <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.css">
   <link rel="stylesheet" href="style/ladda-themeless.min.css">
   <style type="text/css">
-    .handsontable .ht_clone_top,
+    handsontable .ht_clone_top,
     .handsontable .ht_clone_top_left,
     .handsontable .ht_clone_top_left_corner {
       display: none;
     }
-    #main-hot .handsontable col.rowHeader {
+    .handsontable col.rowHeader {
       width: 200px !important;
     }
     .handsontable th:first-child {
@@ -67,16 +68,39 @@
     input:valid {
       border: 1px solid green;
     }
-
+    
+    #friendly {
+      margin-left: 150px;
+      margin-right:1 50px;
+    }
+    
+    #friendly div {
+      margin-bottom: 30px;
+      display: none;
+    }
+    
+    #friendly h3 {
+      display: none;
+    }
+    
+    #friendly pre {
+      margin: 0;
+      display: none;
+    }
+    
+    #my_container {
+      margin-left: 150px;
+      margin-right: 150px;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div id="my_container">
     <div class="page-header">
       <table width="100%">
         <tr>
           <td>
-            <h1>Trusted Party<br/><small>Aggregate Data Unmasker</small></h1>
+            <h1>Trusted Party <br> <small>Aggregate Data Unmasker</small> </h1>
           </td>
           <td align="right">
             <img src="../shared/bu.png" width="110px"/>
@@ -101,141 +125,128 @@
         </div>
       </div>
 
-    <button id="unmask" class="btn btn-primary ladda-button" data-style="zoom-out">
+    <button id="unmask" class="btn btn-primary ladda-button" data-style="zoom-out" disabled="disabled">
       <span class="ladda-label">Unmask Data</span>
     </button>
 
     <br/>
     <br/>
-    <div id="friendly">
-      <div id="main-hot"></div>
-      <br/>
-      <div id="board-hot"></div>
-      <br/>
-      <pre id="board-include"></pre>
-      <br/>
-      <pre id="question"></pre>
-    </div>
+  </div>
+    
+  <div id="friendly">
+    <h3 id="number-employees-hot-name"></h3>  
+    <div id="number-employees-hot"></div>
+    <h3 id="compensation-hot-name"></h3>
+    <div id="compensation-hot"></div>
+    <h3 id="performance-pay-hot-name"></h3>
+    <div id="performance-pay-hot"></div>
+    <h3 id="service-length-hot-name"></h3>
+    <div id="service-length-hot"></div>
+    <h3 id="totals-hot-name"></h3>
+    <div id="totals-hot"></div>
+    
+    <div id="questions"></div>
     <br/>
     <pre id="result"></pre>
     <pre id="error"></pre>
-    <script type="text/javascript">
-      // This is the handsontable object which will be defined
-      // during the unmasking process.
-      var mainHot = {table: null},
-          boardHot = {table: null};      
-
-      $('pre').hide();
-      $('#main-hot').hide();
-      $('#board-hot').hide();
-      $('#unmask').removeAttr("disabled");
-
-      $('#unmask').on('click', function() {
-        $('pre').hide();
-        $('#main-hot').hide();
-        $('#board-hot').hide();
-        
-        var maskKey = $('#maskKey').get(0),
-            sessKey = $('#sessKey').val(),
-            la = Ladda.create(this),
-            keyReader = new FileReader();
-
-        if (maskKey.files.length) {
-          la.start();
-          keyReader.readAsText(maskKey.files[0]);
-          $(keyReader).on('load', function(e) {
-            var privateKey = e.target.result,
-                callb =
-                  function (success, data) {
-                    la.stop();
-                    if (success) {
-                      var sections = unflatten(data);
-                      for (var sectionName in sections) {
-                        if (sections.hasOwnProperty(sectionName)) {
-                          var section = sections[sectionName];
-                          if (sectionName === 'main') {
-                            displayFromTemplate(
-                              "#main-hot", 
-                              mainHot, 
-                              section, 
-                              "../shared/templates/main.json"
-                            );
-                          }
-                          else if (sectionName === 'board') {
-                            displayFromTemplate(
-                              "#board-hot", 
-                              boardHot, 
-                              section, 
-                              "../shared/templates/board.json"
-                            );
-                          }
-                          else if (sectionName === 'includeBoard') {
-                            displaySimple('#board-include', section);
-                          }
-                          else if (sectionName === 'question') {
-                            displaySimple('#question', section);
-                          }
-                        }
-                      }
-                      // Display raw data.
-                      $('#result').text(JSON.stringify(data, null, 4));
-                      $('#result').show();
-                    } 
-                    else {
-                      console.log(data);
-                      $('#error').text(data);
-                      $('#error').show();
-                    }
-                  };
-              // Remove top and bottom line of pem file
-              privateKey = privateKey.split('\n')[1];
-
-              $.ajax({
-                type: "POST",
-                url: "/get_masks",
-                contentType: "application/json",
-                data: JSON.stringify({session: sessKey}),
-                success: function (data) {
-                  unmask(data, privateKey, sessKey, callb);
-                },
-                error: function() {
-                  callb(false, "Error: failed to load masks");
-                }
-              });
-
-          });
-        } else {
-          alert("Please upload both files before continuing.");
-        }
-      });
-
-      // taken directly from trusted/session_data.html.
-      // could probably clean up
-      window.getParameterByName = function(name) {
-        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-            results = regex.exec(location.search);
-        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-      }
-      if (getParameterByName('session')) {
-        $('#sessKey').val(getParameterByName('session'));
-      }
-
-      // We can attach the `fileselect` event to all file inputs on the page
-      $(document).on('change', ':file', function() {
-        var input = $(this),
-            label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
-        input.trigger('fileselect', [label]);
-      });
-
-      $(':file').on('fileselect', function(event, label) {
-        var input = $(this).parents('.input-group').find('#filename');
-        if (input.length) {
-          input.text(label);
-        }
-      });
-
-    </script>
   </div>
+  
+  <script type="text/javascript">
+    var tables_map = {};
+    
+    // Get the handsontable scheme
+    $(document).ready(function() {
+      //$('#friendly').hide();
+      
+      var req = $.ajax({
+        type: "GET",
+        url: "../shared/templates/tables.json",
+        dataType: "json"
+      }).then(function (tables_def) {
+        tables = make_tables(tables_def); window.scrollTo(0, 0);
+        for(var v = 0; v < tables.length; v++)
+          tables_map[tables[v].__sail_meta.name] = tables[v];
+        
+        //$('#friendly').hide();
+        $('#unmask').removeAttr("disabled");
+      });
+    });
+
+    // Handler for unmasking
+    $('#unmask').on('click', function() {        
+      var maskKey = $('#maskKey').get(0),
+          sessKey = $('#sessKey').val(),
+          la = Ladda.create(this),
+          keyReader = new FileReader();
+
+      if (maskKey.files.length) {
+        la.start();
+        keyReader.readAsText(maskKey.files[0]);
+        $(keyReader).on('load', function(e) {
+          var privateKey = e.target.result;
+          var callb = function (success, data) {
+            la.stop();
+            if (success) {
+              console.log(data);
+              // Display raw data.
+              $('#result').text(JSON.stringify(data, null, 4));
+              $('#result').show();
+            }
+            else {
+              console.log(data);
+              $('#error').text(data);
+              $('#error').show();
+            }
+          };
+          
+          // Remove top and bottom line of pem file
+          privateKey = privateKey.split('\n')[1];
+
+          $.ajax({
+            type: "POST",
+            url: "/get_masks",
+            contentType: "application/json",
+            data: JSON.stringify({session: sessKey}),
+            success: function (data) {
+              unmask(data, privateKey, sessKey, callb);
+            },
+            error: function() {
+              callb(false, "Error: failed to load masks");
+            }
+          });
+        });
+      } else {
+        alert("Please upload both files before continuing.");
+      }
+    });
+
+    // taken directly from trusted/session_data.html.
+    // could probably clean up
+    window.getParameterByName = function(name) {
+      name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+      var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+          results = regex.exec(location.search);
+      return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+    }
+    
+    if (getParameterByName('session')) {
+      $('#sessKey').val(getParameterByName('session'));
+    }
+
+    // We can attach the `fileselect` event to all file inputs on the page
+    $(document).on('change', ':file', function() {
+      var input = $(this),
+          label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+      input.trigger('fileselect', [label]);
+    });
+
+    $(':file').on('fileselect', function(event, label) {
+      var input = $(this).parents('.input-group').find('#filename');
+      if (input.length) {
+        input.text(label);
+      }
+    });
+
+  </script>
 </body>
 </html>

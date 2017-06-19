@@ -222,8 +222,11 @@ function make_hot_table(table) {
     }
   }
   
+  // Work around not rendering the entire table
+  // Make enough space in data for all rows ahead of time
   var data = new Array(table.rowsCount);
-  data[table.rowsCount - 1] = '';
+  for(var r = 0; r < table.rowsCount; r++)
+    data[r] = [];
 
   var hotSettings = {
     // Enable tooltips
