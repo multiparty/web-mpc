@@ -365,6 +365,28 @@ function read_only_table(table_hot_obj, read_only) {
   table_hot_obj.render();
 }
 
+/**
+ * Change the read only attribute of the entire table.
+ * @param {json} data - an object of nested objects (like 2D arrays) where
+             the first key is the row key, and the second is the column key.
+ * @param {hot} table_hot - the handsontable object.
+ */
+function fill_data(data, table_hot) {
+  var table_meta = table_hot.__sail_meta;
+  for(var r = 0; r < table_meta.rowsCount; r++) {
+    for(var c = 0; c < table_meta.colsCount; c++) {
+      var cell = table_meta.cells[r][c];
+      var row_key = cell.row_key;
+      var col_key = cell.col_key;
+      
+      table_hot.setDataAtCell(r, c, data[row_key][col_key]);
+    }
+  }
+  
+  $('#' + table_meta.element).show();
+  $('#' + table_meta.element + "-name").show();  
+}
+
 
 
 
