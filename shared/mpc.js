@@ -144,10 +144,12 @@ function countInvalidShares (data, db) {
   var invalidCount = function initialize(obj) {
     var result = {};
     for(var key in fields(obj)) {
-      if(typeof(fields(obj)[key]) == "number")
-        result[key] = 0;
-      else
-        result[key] = initialize(fields(obj)[key]);
+      if((db || obj.hasOwnProperty(key)) && key !== '0') {
+        if(typeof(fields(obj)[key]) == "number" || typeof(fields(obj)[key]) == "string" || typeof(fields(obj)[key]) == "String")
+          result[key] = 0;
+        else
+          result[key] = initialize(fields(obj)[key]);
+      }
     }
     return result;
   }(data[0]);
@@ -156,10 +158,12 @@ function countInvalidShares (data, db) {
   for(var i = 0; i < data.length; i++) {
     var _ = function accumulate(obj, counts) {
       for(var key in fields(obj)) {
-        if(typeof(fields(obj)[key]) == "number")
-          counts[key] += isInvalid(fields(obj)[key]);
-        else
-          accumulate(fields(obj)[key], counts[key]);
+        if((db || obj.hasOwnProperty(key)) && key !== '0') {
+          if(typeof(fields(obj)[key]) == "number" || typeof(fields(obj)[key]) == "string" || typeof(fields(obj)[key]) == "String")
+            counts[key] += isInvalid(fields(obj)[key]);
+          else
+            accumulate(fields(obj)[key], counts[key]);
+        }
       }
     }(data[i], invalidCount);
   }
@@ -203,32 +207,36 @@ function aggregateShares (data, db) {
     data = arr;
   }
   
+  // TODO FIX WEIRD BEHAVIOR
   // initialize the aggregate object according to the template
   var agg = function initialize(obj) {
     var result = {};
     for(var key in fields(obj)) {
-      if(typeof(fields(obj)[key]) == "number")
-        result[key] = _uint32(0);
-      else
-        result[key] = initialize(fields(obj)[key]);
+      if((db || obj.hasOwnProperty(key)) && key !== '0') {
+        if(typeof(fields(obj)[key]) == "number" || typeof(fields(obj)[key]) == "string" || typeof(fields(obj)[key]) == "String")
+          result[key] = _uint32(0);
+        else
+          result[key] = initialize(fields(obj)[key]);
+      }
     }
     return result;
   }(data[0]);
-    
+      
   // aggregate
   for(var i = 0; i < data.length; i++) {
     var _ = function accumulate(obj, counts) {
       for(var key in fields(obj)) {
-        if(typeof(fields(obj)[key]) == "number") {
-          var value = convert(fields(obj)[key]);
-          counts[key] = _addShares(counts[key], value);
+        if((db || obj.hasOwnProperty(key)) && key !== '0') {
+          if(typeof(fields(obj)[key]) == "number" || typeof(fields(obj)[key]) == "string" || typeof(fields(obj)[key]) == "String") {
+            var value = convert(fields(obj)[key]);
+            counts[key] = _addShares(counts[key], value);
+          }
+          else
+            accumulate(fields(obj)[key], counts[key]);
         }
-        else
-          accumulate(fields(obj)[key], counts[key]);
       }
     }(data[i], agg);
   }
-
   return agg;
 }
 
@@ -237,10 +245,11 @@ function recombineValues (serviceTuples, analystTuples) {
   var res = {};
   for (var field in serviceTuples) {
     if (serviceTuples.hasOwnProperty(field)) {
+      var value = serviceTuples[field];
       if(typeof(value) == "number" || typeof(value) == "string" || typeof(value) == "String")
         res[field] = _recombine([serviceTuples[field], analystTuples[field]]);
       else
-        res[field] = recombineValue(serviceTuples[field], analystTuples[field]);
+        res[field] = recombineValues(serviceTuples[field], analystTuples[field]);
     }
   }
   return res;

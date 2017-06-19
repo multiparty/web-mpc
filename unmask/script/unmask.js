@@ -7,7 +7,7 @@
  */
 
 // Takes callback(true|false, data).
-function unmask(mOut, privateKey, session, callback) {
+function aggregate_and_unmask(mOut, privateKey, session, callback) {
   mOut = JSON.parse(mOut.data);
   
   var skArrayBuffer;
@@ -70,27 +70,42 @@ function getServiceResultShare (session) {
   });
 }
 
+function construct_tuple(key, buffer) {
+  if(buffer) 
+    return function (decryptedShare) { 
+      var tuple = {}; tuple[key] = arrayBufferToString(decryptedShare);
+      return tuple;
+    };
+    
+  else
+    return function (decryptedShare) { 
+      var tuple = {}; tuple[key] = decryptedShare;
+      return tuple;
+    } 
+}
+
 /**
  * @return {promise} a promise to an equivalent object to maskedData, where the keys
  *    and nesting is the same (same schema) but the values are decrypted
 **/
 function _decryptWithKey (obj, importedKey) {
   // decrypt one level of obj, decrypt nested object recursively
-  var resultTuples = {};
+  var resultTuples = [];
   
   for(var key in obj) {
     if (obj.hasOwnProperty(key)) {
+      //console.log(key);
       var value = obj[key];
       if(typeof(value) == "number" || typeof(value) == "string" || typeof(value) == "String") {
         // decrypt atomic value          
         var resultTuple = window.crypto.subtle.decrypt({name: "RSA-OAEP"}, importedKey, str2ab(value))
-          .then(function (decryptedShare) { return { key: arrayBufferToString(decryptedShare) }; });
+          .then(construct_tuple(key, true));
           
         resultTuples.push(resultTuple);
       }
       else 
         resultTuples.push(_decryptWithKey(value, importedKey)
-          .then(function (decryptedShare) { return { key: decryptedShare }; }));
+          .then(construct_tuple(key, false)));
     }
   }
   
@@ -107,8 +122,9 @@ function decryptValueShares (sk, maskedData) {
   return sk.then(function (importedKey) {
     // decrypt all masks
     var all = [];
-    for(var d = 0; d < maskedData.length; d++)
-      all.push(_decryptWithKey(maskedData[d], importedKey);
+    for(var d = 0; d < maskedData.length; d++) {
+      all.push(_decryptWithKey(maskedData[d].fields, importedKey));
+    }
 
     return Promise.all(all);
   });

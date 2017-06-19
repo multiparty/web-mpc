@@ -208,7 +208,7 @@
             contentType: "application/json",
             data: JSON.stringify({session: sessKey}),
             success: function (data) {
-              unmask(data, privateKey, sessKey, callb);
+              aggregate_and_unmask(data, privateKey, sessKey, callb);
             },
             error: function() {
               callb(false, "Error: failed to load masks");
