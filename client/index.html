@@ -193,29 +193,45 @@
         url: "../shared/templates/tables.json",
         dataType: "json"
       }).then(function (tables_def) {
+        // Create the tables
         var tables = make_tables(tables_def); window.scrollTo(0, 0);
+        var sums = [0, 0, 0, 0, 0, 0];
         
-        var compute_totals = function(value, callback) {
-          var totals = [0, 0, 0, 0, 0, 0];
-          for(var i = 0; i < tables.length-1; i++) {
-            var table = tables[i];
-            var table_index = i > 1 ? i-1 : i; // tables 2 and 3 are combined togther.
-            for(var r = 0; r < table.__sail_meta.rowsCount; r++) {
-              for(var c = 0; c < table.__sail_meta.colsCount; c++) {
-                var index = 2*table_index + (c % 2);
-                totals[index] += table.getDataAtCell(r, c);              
-              }
-            }
+        // Custom validator that computes the totals
+        var afterChange = function(table) {
+          var index_map = {
+            'Number Of Employees': 0, 
+            'Total Annual Compensation (Dollars)': 1, 
+            'Total Annual Cash Performance Pay (Dollars)': 1, 
+            'Total Length of Service (Months)': 2
           }
-                    
+            
+          var table_index = index_map[table.__sail_meta.name];
           var totals_table = tables[tables.length-1];
-          totals_table.loadData([totals, totals]);
-        
-          callback(true);
+          return function(changes, source) {
+            if(changes == null) return;
+            for(var i = 0; i < changes.length; i++) {
+              var change = changes[i];
+              var old = change[2]; var val = change[3];
+              
+              old = (old == '' || old == null) ? 0 : old;
+              val = (val == '' || val == null) ? 0 : val;
+              if(old == val) continue;
+              
+              var c = change[1];
+              var index = 2*table_index + (c % 2);
+              sums[index] += val - old;
+            }
+            
+            totals_table.loadData([sums, sums]);
+          }
         }
         
-        register_validator('compute_totals', compute_totals);
+        // Register when ready
+        for(var i = 0; i < tables.length-1; i++)
+          tables[i].addHook('afterChange', afterChange(tables[i]));
         
+        // Button clicks handlers
         $('#verify').click(function() {
           validate(tables, function(result, msg) {
             if(result) return $("#submit").prop('disabled', false);

@@ -1,8 +1,7 @@
 var HOT_DEFAULT_WIDTH = 1400;
 
 var validators_map = {
-  'validate1': function(value, callback) { console.log("validator1"); callback(true); },
-  'validate2': function(value, callback) { console.log(value); callback(true); }
+  'dummy_template': function(table, cell, value, callback) { callback(true); }
 };
 
 function register_validator(name, validator) {
@@ -22,11 +21,16 @@ var types_map = {
 }
 
 function register_type(name, type) {
-  types_map[name] = validator;
+  types_map[name] = type;
 }
 
 var validator = function(value, callback) {
-  var cell = this.instance.__sail_meta.cells[this.row][this.col];
+  var table = this.instance;
+  var cell = table.__sail_meta.cells[this.row][this.col];
+  
+  // Makes initializing the table faster.
+  if(cell.first_time == undefined) { cell.first_time = true; callback(true); return; }
+  
   if(value != '' && value != null && cell.max != null && value > cell.max) { callback(false); return; }
   if(value != '' && value != null && cell.min != null && value < cell.min) { callback(false); return; }
   
@@ -43,7 +47,12 @@ var validator = function(value, callback) {
       else callback(false); // early break
     }
     
-    if(k > -1) { cell.validators[k](value, generic_callback); return; }
+    if(k > -1) {
+      var validator_func = validators_map[cell.validators[k]];
+      if(validator_func != null) validator_func(table, cell, value, generic_callback); 
+      else generic_callback(true);
+      return;
+    }
     
     // call the default validator
     var hot_cell_type = cell.type;
@@ -130,7 +139,7 @@ function make_table_obj(table_def) {
     var row_key = table_def.rows[i].key;
     for(var j = 0; j < cols_len; j++) {
       var col_key = table_def.cols[cols_levels-1][j].key;
-      table[i][j] = { "row_key": row_key, "col_key": col_key };
+      table[i][j] = { "row_key": row_key, "col_key": col_key, "row_index": i, "col_index": j };
     }
   }
   
@@ -146,7 +155,7 @@ function make_table_obj(table_def) {
         table[i][j].validators = [];
       
       var tmp = type.validators || [];
-      for(var v = 0; v < tmp.length; v++) table[i][j].validators.push(validators_map[tmp[v]]);
+      for(var v = 0; v < tmp.length; v++) table[i][j].validators.push(tmp[v]);
       
       if(type.max !== undefined) table[i][j].max = type.max;
       if(type.min !== undefined) table[i][j].min = type.min;
