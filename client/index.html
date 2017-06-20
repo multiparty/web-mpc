@@ -267,10 +267,10 @@
         });
         
         $("#submit").click(function() {
+          var la = Ladda.create(document.getElementById('submit'));
           validate(tables, function(result, msg) {
-            if(!result) return error(msg);
+            if(!result) { la.stop(); error(msg); return; }
             
-            var la = Ladda.create(document.getElementById('submit'));
             construct_and_send('/', tables, la);
           });
         });
