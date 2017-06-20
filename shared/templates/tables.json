@@ -76,7 +76,7 @@
         ]
       ],
       "types": [
-        { "range": { "row": "*", "col": "*" }, "type": "int", "max": 1000000, "min": 0, "default": 0, "placeholder": 0 }
+        { "range": { "row": "*", "col": "*" }, "type": "int", "max": 1000000, "min": 0, "default": 0, "placeholder": 0, "validators": [ "compute_totals" ] }
       ]
     },
     { 
@@ -155,7 +155,7 @@
         ]
       ],
       "types": [
-        { "range": { "row": "*", "col": "*" }, "type": "currency", "max": 100000000, "min": 0, "default": 0, "placeholder": 0 }
+        { "range": { "row": "*", "col": "*" }, "type": "currency", "max": 100000000, "min": 0, "default": 0, "placeholder": 0, "validators": [ "compute_totals" ] }
       ]
     },
     { 
@@ -234,7 +234,7 @@
         ]
       ],
       "types": [
-        { "range": { "row": "*", "col": "*" }, "type": "currency", "max": 100000000, "min": 0, "default": 0, "placeholder": 0 }
+        { "range": { "row": "*", "col": "*" }, "type": "currency", "max": 100000000, "min": 0, "default": 0, "placeholder": 0, "validators": [ "compute_totals" ] }
       ]
     },
     { 
@@ -313,7 +313,7 @@
         ]
       ],
       "types": [
-        { "range": { "row": "*", "col": "*" }, "type": "int", "max": 100000000, "min": 0, "default": 0, "placeholder": 0 }
+        { "range": { "row": "*", "col": "*" }, "type": "int", "max": 100000000, "min": 0, "default": 0, "placeholder": 0, "validators": [ "compute_totals" ] }
       ]
     },
     { 

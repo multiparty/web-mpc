@@ -195,6 +195,27 @@
       }).then(function (tables_def) {
         var tables = make_tables(tables_def); window.scrollTo(0, 0);
         
+        var compute_totals = function(value, callback) {
+          var totals = [0, 0, 0, 0, 0, 0];
+          for(var i = 0; i < tables.length-1; i++) {
+            var table = tables[i];
+            var table_index = i > 1 ? i-1 : i; // tables 2 and 3 are combined togther.
+            for(var r = 0; r < table.__sail_meta.rowsCount; r++) {
+              for(var c = 0; c < table.__sail_meta.colsCount; c++) {
+                var index = 2*table_index + (c % 2);
+                totals[index] += table.getDataAtCell(r, c);              
+              }
+            }
+          }
+                    
+          var totals_table = tables[tables.length-1];
+          totals_table.loadData([totals, totals]);
+        
+          callback(true);
+        }
+        
+        register_validator('compute_totals', compute_totals);
+        
         $('#verify').click(function() {
           validate(tables, function(result, msg) {
             if(result) return $("#submit").prop('disabled', false);
