@@ -136,15 +136,15 @@
     
   <div id="friendly">
     <h3 id="number-employees-hot-name" class="head_element"></h3>  
-    <div id="number-employees-hot" class="head_element"></div>
+    <div id="number-employees-hot" class="head_element"></div> <br>
     <h3 id="compensation-hot-name" class="head_element"></h3>
-    <div id="compensation-hot" class="head_element"></div>
+    <div id="compensation-hot" class="head_element"></div> <br>
     <h3 id="performance-pay-hot-name" class="head_element"></h3>
-    <div id="performance-pay-hot" class="head_element"></div>
+    <div id="performance-pay-hot" class="head_element"></div> <br>
     <h3 id="service-length-hot-name" class="head_element"></h3>
-    <div id="service-length-hot" class="head_element"></div>
+    <div id="service-length-hot" class="head_element"></div> <br>
     <h3 id="totals-hot-name" class="head_element"></h3>
-    <div id="totals-hot" class="head_element"></div>
+    <div id="totals-hot" class="head_element"></div> <br>
     
     <div id="questions" class="head_element"></div>
     <pre id="result" class="head_element"></pre>
@@ -194,13 +194,15 @@
                     if(table != null) { // This is a table field
                     
                       var table_data = data[name];
+                      remove_validators(table);
                       fill_data(table_data, table);
+                      read_only_table(table, true);
                     }
                     
                     else { // Not a table, questions
                       var fields = data[name];
                       
-                      var h3 = $('<h3>').text(name);
+                      var h3 = $('<h3>').text(toTitleCase(name));
                       $('#'+name).append(h3);
                       h3.show();
                       
@@ -226,8 +228,8 @@
                   }
                   
                   // Display raw data.
-                  $('#result').text(JSON.stringify(data, null, 4));
-                  $('#result').show();
+                  //$('#result').text(JSON.stringify(data, null, 4));
+                  //$('#result').show();
                   $('#error').hide();
                   $('#unmask').prop('disabled', true);
                   $('#unmask').hide();
@@ -262,6 +264,11 @@
         });
       });
     });
+    
+    // Capitalize the first letter of every word
+    function toTitleCase(str) {
+        return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+    }
 
     // taken directly from trusted/session_data.html.
     // could probably clean up

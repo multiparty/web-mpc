@@ -1,4 +1,4 @@
-var HOT_DEFAULT_WIDTH = 1024;
+var HOT_DEFAULT_WIDTH = 1400;
 
 var validators_map = {
   'validate1': function(value, callback) { console.log("validator1"); callback(true); },
@@ -366,6 +366,24 @@ function read_only_table(table_hot_obj, read_only) {
 }
 
 /**
+ * Remove all validators from the table, keeping only the built-in
+ *  validators of Handsontable.
+ * @param {hot} table_hot_obj - the handsontable object.
+ */
+function remove_validators(table_hot_obj) {
+  var meta_table = table_hot_obj.__sail_meta;
+  for(var r = 0; r < meta_table.rowsCount; r++) {
+    for(var c = 0; c < meta_table.colsCount; c++) {
+      meta_table.cells[r][c].validators = [];
+      meta_table.cells[r][c].max = null;
+      meta_table.cells[r][c].min = null;
+    }
+  }
+  
+  table_hot_obj.render();
+}
+
+/**
  * Change the read only attribute of the entire table.
  * @param {json} data - an object of nested objects (like 2D arrays) where
              the first key is the row key, and the second is the column key.
@@ -373,16 +391,20 @@ function read_only_table(table_hot_obj, read_only) {
  */
 function fill_data(data, table_hot) {
   var table_meta = table_hot.__sail_meta;
+  
+  var data_array = new Array(table_meta.rowsCount);
   for(var r = 0; r < table_meta.rowsCount; r++) {
+    data_array[r] = new Array(table_meta.colsCount);
     for(var c = 0; c < table_meta.colsCount; c++) {
       var cell = table_meta.cells[r][c];
       var row_key = cell.row_key;
       var col_key = cell.col_key;
       
-      table_hot.setDataAtCell(r, c, data[row_key][col_key]);
+      data_array[r][c] = data[row_key][col_key];
     }
   }
   
+  table_hot.loadData(data_array);
   $('#' + table_meta.element).show();
   $('#' + table_meta.element + "-name").show();  
 }
