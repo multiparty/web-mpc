@@ -4,16 +4,12 @@ var EMAIL_ERROR = 'Did not type a correct email address';
 var UNCHECKED_ERR = 'Please acknowledge that all data is correct and verified.';
 var ADD_QUESTIONS_ERR = 'Please answer all Additional Questions.';
 
-/*
-var NUM_EMP_EMPTY_ERR = 'Please double-check the Number of Employees spreadsheet.';
-var BOARD_INVALID_ERR = 'Please double-check the Board of Directors spreadsheet \n' +
-                        'or uncheck the Provide Board of Directors Information checkbox.';
-*/
 var GENERIC_TABLE_ERR = 'Please double-check the ';
+var SERVER_ERR =  "Server not reachable.";
 var GENERIC_SUBMISSION_ERR = 'Something went wrong with submission! Please try again.';
 
 function error(msg) {
-  alert(msg);
+  alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", msg);
 }
 
 /**
@@ -84,12 +80,6 @@ function construct_and_send(target_url, tables, la) {
     data_submission['questions'][question_text] = question_data;
   }
   
-  /*
-  // Handle board table data
-  var include_board = $('#include-board').is(':checked');
-  data_submission['include_board'] = (include_board ? 1 : 0);
-  */
-  
   // Handle table data, tables are represented as 2D associative arrays
   // with the first index being the row key, and the second being the column key
   var tables_data = construct_data_tables(tables);
@@ -106,6 +96,7 @@ function construct_and_send(target_url, tables, la) {
   encrypt_and_send(target_url, session, email, data, mask, la);
 }
 
+var submitEntries = [];
 function encrypt_and_send(target_url, session, email, data, mask, la) {
   // Hash email address for submission
   var md = forge.md.sha1.create();
@@ -134,20 +125,53 @@ function encrypt_and_send(target_url, session, email, data, mask, la) {
         data: JSON.stringify(submission), contentType: 'application/json'
       });
   }).then(function(response) {
+    var submitTime = new Date();
+    submitEntries.push({time: submitTime, submitted: true});
+    
     console.log(response);
-    alert("Submitted data.");
+    
+    alertify.alert("<img src='style/accept.png' alt='Success'>Success!", "Submitted data.");
+    convertToHTML(submitEntries);
     
     // Stop loading animation
     la.stop();
     return response;
   }).catch(function (err) {
+    var submitTime = new Date();
+    submitEntries.push({time: submitTime, submitted: false});
+    
     console.log(err);
-    if (err && err.hasOwnProperty('responseText')) alert(err.responseText);
-    else alert(GENERIC_SUBMISSION_ERR);
+    
+    if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined)
+      alertify.alert("<img src='style/cancel.png' alt='Error'>Error!",  err.responseText);
+    else if (err && (err.status === 0 || err.status === 500))
+      // check for status 0 or status 500 (Server not reachable.)
+      alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", SERVER_ERR);
+    else 
+      alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", GENERIC_SUBMISSION_ERR);
+      
+    convertToHTML(submitEntries);
     
     // Stop loading animation
     la.stop();
   });
+}
+
+/**
+ * Convert the list of submissions into html for display.
+ */
+function convertToHTML(entries) {
+  var htmlConcat = "<h3>Submission History</h3>";
+  
+  for (var i = 0; i < entries.length; i++) {
+    if (entries[i]['submitted']) {
+      // append success line
+      htmlConcat += "<p class='success' alt='Success'><img src='style/accept.png'>Successful - "  + entries[i]['time'] + "</p>";
+    } else {
+      htmlConcat += "<p class='error' alt='Error'><img src='style/cancel.png'>Unsuccessful - " + entries[i]['time'] + "</p>";
+    }
+  }
+  $('.page-footer').html(htmlConcat);
 }
 
 
