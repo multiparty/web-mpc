@@ -128,20 +128,6 @@
   <h3 id="totals-hot-name"></h3>
   <div id="totals-hot"></div>
   
-  <!--
-  <div id="board">
-    <h3>Board of Directors</h3>
-    <form>
-      <div class="checkbox">
-        <label>
-          <input type="checkbox" autocomplete="off" checked="checked" id="include-board" name="include-board">Provide Board of Directors Information
-        </label>
-      </div>
-    </form>
-    <div id="board-hot"></div>
-  </div>
-  -->
-  
   <div id="additional-questions">
     <h3>Additional Questions</h3>
     <div id="questions">
@@ -154,7 +140,7 @@
           <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked='checked'>Do not wish to answer</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked="checked">Do not wish to answer</label>
         </div>
       </form>
       <form>
@@ -166,7 +152,7 @@
           <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked='checked'>Do not wish to answer</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked="checked">Do not wish to answer</label>
         </div>
       </form>
       <form>
@@ -178,7 +164,7 @@
           <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked='checked'>Do not wish to answer</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked="checked">Do not wish to answer</label>
         </div>
       </form>
       <form>
@@ -190,7 +176,7 @@
           <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked='checked'>Do not wish to answer</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked="checked">Do not wish to answer</label>
         </div>
       </form>
     </div>
@@ -225,13 +211,13 @@
         // Custom validator that computes the totals
         var afterChange = function(table) {
           var index_map = {
-            'Number Of Employees': 0, 
-            'Total Annual Compensation (Dollars)': 1, 
-            'Total Annual Cash Performance Pay (Dollars)': 1, 
-            'Total Length of Service (Months)': 2
+            "Number Of Employees": 0, 
+            "Total Annual Compensation (Dollars)": 1, 
+            "Total Annual Cash Performance Pay (Dollars)": 1, 
+            "Total Length of Service (Months)": 2
           }
             
-          var table_index = index_map[table.__sail_meta.name];
+          var table_index = index_map[table._sail_meta.name];
           var totals_table = tables[tables.length-1];
           return function(changes, source) {
             if(changes == null) return;
@@ -271,7 +257,7 @@
           validate(tables, function(result, msg) {
             if(!result) { la.stop(); error(msg); return; }
             
-            construct_and_send('/', tables, la);
+            construct_and_send(tables, la);
           });
         });
         

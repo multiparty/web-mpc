@@ -164,7 +164,7 @@
         var tables = make_tables(tables_def); window.scrollTo(0, 0);
         var tables_map = {};
         for(var v = 0; v < tables.length; v++)
-          tables_map[tables[v].__sail_meta.name] = tables[v];
+          tables_map[tables[v]._sail_meta.name] = tables[v];
         
         //$('#friendly').hide();
         $('#unmask').removeAttr("disabled");
@@ -197,6 +197,10 @@
                       remove_validators(table);
                       fill_data(table_data, table);
                       read_only_table(table, true);
+                      
+                      // Show tables
+                      $('#' + table._sail_meta.element).show();
+                      $('#' + table._sail_meta.element + "-name").show(); 
                     }
                     
                     else { // Not a table, questions

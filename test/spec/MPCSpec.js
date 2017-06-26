@@ -113,10 +113,10 @@ describe("MPC for objects", function () {
       },
     secretShared = secretShareValues(objA);
 
-    expect(secretShared.hasOwnProperty('service')).toEqual(true);
-    expect(secretShared.hasOwnProperty('analyst')).toEqual(true);
+    expect(secretShared.hasOwnProperty('data')).toEqual(true);
+    expect(secretShared.hasOwnProperty('mask')).toEqual(true);
     
-    var analystShares = secretShared['analyst'];
+    var analystShares = secretShared['mask'];
     for (var key in analystShares) {
       expect(objA.hasOwnProperty(key)).toEqual(true);
     }
@@ -124,7 +124,7 @@ describe("MPC for objects", function () {
       expect(analystShares.hasOwnProperty(key)).toEqual(true);
     }
 
-    var serviceShare = secretShared['service'];
+    var serviceShare = secretShared['data'];
     for (var key in serviceShare) {
       expect(objA.hasOwnProperty(key)).toEqual(true);
     }
@@ -148,12 +148,12 @@ describe("MPC for objects", function () {
         secretSharedB = secretShareValues(objB);
 
     var serviceShares = [
-            {fields: secretSharedA.service}, 
-            {fields: secretSharedB.service}
+            {fields: secretSharedA.data}, 
+            {fields: secretSharedB.data}
           ],
         analystShares = [
-            secretSharedA.analyst, 
-            secretSharedB.analyst
+            secretSharedA.mask, 
+            secretSharedB.mask
           ];
 
     var aggregatedService = aggregateShares(serviceShares, true),
@@ -192,8 +192,8 @@ describe("MPC for objects", function () {
         analystShares = [];
 
     secretShared.forEach(function (submission) {
-      serviceShares.push({fields: submission.service});
-      analystShares.push(submission.analyst);      
+      serviceShares.push({fields: submission.data});
+      analystShares.push(submission.mask);      
     });
 
     var aggregatedService = aggregateShares(serviceShares, true),

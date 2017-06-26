@@ -41,43 +41,44 @@ function validate(tables, callback) {
   if (!questionsValid) return callback(false, ADD_QUESTIONS_ERR);
   
   // Validate tables (callback chaining)
-  var _ = function validate_callback(i) {
+  (function validate_callback(i) {
     if(i >= tables.length) return callback(true, "");
     
     // Dont validate tables that are not going to be submitted
-    if(tables[i].__sail_meta.submit === false) return validate_callback(i+1);
+    if(tables[i]._sail_meta.submit === false) return validate_callback(i+1);
     
     tables[i].validateCells(function(result) { // Validate table
-      if(!result) return callback(false, GENERIC_TABLE_ERR + tables[i].__sail_meta.name + " spreadsheet");
+      if(!result) return callback(false, GENERIC_TABLE_ERR + tables[i]._sail_meta.name + " spreadsheet");
       validate_callback(i+1);
     });
-  }(0)
+  })(0)
 }
 
 /**
  * All inputs are valid. Construct JSON objects and send them to the server.
  */
-function construct_and_send(target_url, tables, la) {
+function construct_and_send(tables, la) {
   // Start loading animation
   la.start();
   
   // Begin constructing the data  
-  var data_submission = { 'questions': {} };
+  var data_submission = { questions: {} };
   
-  var session = $('#sess').val();
-  var email = $('#emailf').val();
+  var session = $('#sess').val().trim();
+  var email = $('#emailf').val().trim();
   
   // Add questions data, each question has three parts:
   //  'YES', 'NO', and 'NA' and each one has value 0 or 1
   var questions = $('#questions form');
+  var questions_text = questions.find('.question-text');
   for(var q = 0; q < questions.length; q++) {
     var question_data = {};
-    var question_text = $($(questions[q]).find('.question-text')[0]).text();
     var radios = $(questions[q]).find('input[type=radio]');
     for(var r = 0; r < radios.length; r++)
       question_data[radios[r].value] = (radios[r].checked ? 1 : 0);
     
-    data_submission['questions'][question_text] = question_data;
+    var text = $(questions_text[q]).text();
+    data_submission['questions'][text] = question_data;
   }
   
   // Handle table data, tables are represented as 2D associative arrays
@@ -85,19 +86,17 @@ function construct_and_send(target_url, tables, la) {
   var tables_data = construct_data_tables(tables);
   for(var i = 0; i < tables_data.length; i++)
     data_submission[tables_data[i].name] = tables_data[i].data;
-    
-  console.log(data_submission);
-  
+      
   // Secret share / mask the data.
   var shares = secretShareValues(data_submission);
-  var data = shares['service'];
-  var mask = shares['analyst'];
+  var data = shares['data'];
+  var mask = shares['mask'];
   
-  encrypt_and_send(target_url, session, email, data, mask, la);
+  encrypt_and_send(session, email, data, mask, la);
 }
 
 var submitEntries = [];
-function encrypt_and_send(target_url, session, email, data, mask, la) {
+function encrypt_and_send(session, email, data, mask, la) {
   // Hash email address for submission
   var md = forge.md.sha1.create();
   md.update(email);
@@ -118,29 +117,22 @@ function encrypt_and_send(target_url, session, email, data, mask, la) {
         session: session
       };
       
-      console.log(submission);
-      
       return $.ajax({
-        type: "POST", url: target_url,
+        type: "POST", url: "/",
         data: JSON.stringify(submission), contentType: 'application/json'
       });
   }).then(function(response) {
     var submitTime = new Date();
     submitEntries.push({time: submitTime, submitted: true});
     
-    console.log(response);
-    
     alertify.alert("<img src='style/accept.png' alt='Success'>Success!", "Submitted data.");
     convertToHTML(submitEntries);
     
     // Stop loading animation
     la.stop();
-    return response;
   }).catch(function (err) {
     var submitTime = new Date();
     submitEntries.push({time: submitTime, submitted: false});
-    
-    console.log(err);
     
     if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined)
       alertify.alert("<img src='style/cancel.png' alt='Error'>Error!",  err.responseText);
