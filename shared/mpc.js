@@ -73,8 +73,8 @@ function _recombine (shares) {
  * @param obj
  */
 function secretShareValues (obj) {
-  var serviceTuples = {},
-      analystTuples = {};
+  var dataTuples = {}, // previously serviceTuples
+      maskTuples = {}; // previously analystTuples
 
   for (var key in obj) {
     if (obj.hasOwnProperty(key)) {
@@ -82,29 +82,80 @@ function secretShareValues (obj) {
       if(typeof(value) == "number") {
         var shares = _secretShare(value, 2);
         
-        serviceTuples[key] = shares[0];
-        analystTuples[key] = shares[1];
+        dataTuples[key] = shares[0];
+        maskTuples[key] = shares[1];
       }
       
       else {
         // value is a nested object.
         var tmp = secretShareValues (value);
-        serviceTuples[key] = tmp['service'];
-        analystTuples[key] = tmp['analyst'];
+        dataTuples[key] = tmp['data'];
+        maskTuples[key] = tmp['mask'];
       }
     }
   }
 
   return {
-    'service': serviceTuples,
-    'analyst': analystTuples
+    'data': dataTuples,
+    'mask': maskTuples
   };
 }
 
 /**
+ * Helper used in countInvalidShares and aggregate shares.
+ * Makes a (deep) copy of the passed javascript object, and initializes every 
+ * value to the passed value.
+ * @param {json/mongo module} obj - the object to copy.
+ * @param {} init_value - the desired initial value.
+ * @param {function(json/mongo module)} fields - a function that allows us to access fields inside obj.
+ */
+function initialize(obj, init_value, fields) {
+  var result = {};
+  for(var key in fields(obj)) {
+    if(fields(obj).hasOwnProperty(key) && key !== '0') {
+      if(typeof(fields(obj)[key]) == "number" || typeof(fields(obj)[key]) == "string" || typeof(fields(obj)[key]) == "String")
+        result[key] = init_value;
+      else
+        result[key] = initialize(fields(obj)[key], init_value, fields);
+    }
+  }
+  
+  return result;
+}
+
+/**
+ * Accumulate obj into accumulator using f.
+ * @param {json/mongo module} obj - the object currently being add/processed into accumulator.
+ * @param {json} accumulator - a javascript object matching the obj key schema.
+ *    every value of accumulator will be accumulated using f with the corresponding value in obj.
+ *    and then overwriten by the result (accumulator mutates).
+ * @param {function(json/mongo modules)} fields - a function that allows us to access fields inside obj.
+ * @param {function(string)} convert - a function that converts the given string into unsigned 32bits integer.
+ * @param {function(u32int, u32int)} f - a function that combines/accumulates the current value in accumulator
+ *    and obj (should return the result of accumulation).
+ */
+function accumulate(obj, accumulator, fields, convert, f) {
+  for(var key in fields(obj)) {
+    if(fields(obj).hasOwnProperty(key) && key !== '0') {
+      if(typeof(fields(obj)[key]) == "number" || typeof(fields(obj)[key]) == "string" || typeof(fields(obj)[key]) == "String") {
+        var value = convert(fields(obj)[key]);
+        accumulator[key] = f(accumulator[key], value);
+      }
+      else
+        accumulate(fields(obj)[key], accumulator[key], fields, convert, f);
+    }
+  }
+  
+  return accumulator;
+}
+
+/**
+ * Counts how many invalid (NaN or out-of-range) shares are in data.
+ * @param data {array} - the data to look into.
+ * @param db {boolean} - true if this is a server-side invocation with 
+ *                       data being an array of mongo modules, false if front-end
+ *                       with data being an array of json/javascript objects.
  *
- * @param data
- * @param db
  */
 function countInvalidShares (data, db) {
   // By default, this is not for the database calculation.
@@ -113,130 +164,108 @@ function countInvalidShares (data, db) {
   }
   
   // Access fields in JSON object or in DB object.
-  var fields = db ? function(x){ if(x.fields !== undefined) return x.fields; else return x;} : function(x){return x;};
-  var isInvalid;
-  if (db) {
-    isInvalid = function (x) {
-      return (!_inUint32Range(x) ? 1 : 0);
+  var fields = function(x) { return x; }; // if !db, return the object as it is for access.
+  if(db) { // if db, then the passed object may be a mongo module, use .fields to access its fields.
+    fields = function(x) { 
+      if(x.fields !== undefined) 
+        return x.fields; 
+      else 
+        return x;
     };
   }
-  else {
+  
+  // Criteria for being invalid for a value (being outside of range).
+  var isInvalid = function (x) { // The node.js way.
+    return (!_inUint32Range(x) ? 1 : 0);
+  };
+    
+  if(!db) { // The front-end way.
     isInvalid = function (x) {
-      var result = parseInt(x, 10),
-          invalid = 0;
-      if (isNaN(result) || !_inUint32Range(result)) {
+      var result = parseInt(x, 10);
+      var invalid = 0;
+      if (isNaN(result) || !_inUint32Range(result))
         invalid = 1;
-      }
+        
       return invalid;
     };
   }
 
   // Ensure we are always working with an array.
-  if (db) {
+  if (db) { // if db, then what is passed is a collection of mongo modules (not exactly an array).
     var arr = [];
-    for (let row in data) {
+    for (let row in data)
       arr.push(data[row]);
-    }
+    
     data = arr;
   }
   
   // initialize the invalid count object according to the template
-  var invalidCount = function initialize(obj) {
-    var result = {};
-    for(var key in fields(obj)) {
-      if((db || obj.hasOwnProperty(key)) && key !== '0') {
-        if(typeof(fields(obj)[key]) == "number" || typeof(fields(obj)[key]) == "string" || typeof(fields(obj)[key]) == "String")
-          result[key] = 0;
-        else
-          result[key] = initialize(fields(obj)[key]);
-      }
-    }
-    return result;
-  }(data[0]);
+  var invalidCount = initialize(data[0], 0, fields);
     
   // accummulate invalid count
-  for(var i = 0; i < data.length; i++) {
-    var _ = function accumulate(obj, counts) {
-      for(var key in fields(obj)) {
-        if((db || obj.hasOwnProperty(key)) && key !== '0') {
-          if(typeof(fields(obj)[key]) == "number" || typeof(fields(obj)[key]) == "string" || typeof(fields(obj)[key]) == "String")
-            counts[key] += isInvalid(fields(obj)[key]);
-          else
-            accumulate(fields(obj)[key], counts[key]);
-        }
-      }
-    }(data[i], invalidCount);
-  }
+  for(var i = 0; i < data.length; i++)
+    invalidCount = accumulate(data[i], invalidCount, fields, function(v) { return v; }, function(acc, v) { return acc + v; });
   
   return invalidCount;
 }
 
 /**
+ * Aggregates (sums up) the shares.
+ * @param data {array} - the data to aggregate.
+ * @param db {boolean} - true if this is a server-side invocation with 
+ *                       data being an array of mongo modules, false if front-end
+ *                       with data being an array of json/javascript objects.
  *
- * @param data
- * @param db
  */
 function aggregateShares (data, db) {
-
   // By default, this is not for the database calculation.
-  if (db == null) {
+  if (db == null)
     db = false;
-  }
   
   // Access fields in JSON object or in DB object.
-  var fields = db ? function(x){ if(x.fields !== undefined) return x.fields; else return x;} : function(x){return x;};
-  var convert = db ? function(x){return _uint32(x);} : function (x) {
-    var result = parseInt(x, 10);
-    if (isNaN(result)) {
-      console.error('NaN detected in:', x, data);
-      result = 0;
-    }
-    else if (!_inUint32Range(result)) {
-      console.error('Outside range detected in:', x, data);
-      result = 0;
-    }
-    return _uint32(result);
-  };
+  var fields = function(x) { return x; }; // if !db, return the object as it is for access.
+  if(db) { // if db, then the passed object may be a mongo module, use .fields to access its fields.
+    fields = function(x) { 
+      if(x.fields !== undefined) 
+        return x.fields; 
+      else 
+        return x;
+    };
+  }
+  
+  // Convert numbers to unsigned 32-bits integers.
+  var convert = function(x) { return _uint32(x); } // node.js way.
+  if(!db) { // front end way.
+    convert = function (x) {
+      var result = parseInt(x, 10);
+      if (isNaN(result)) {
+        console.error('NaN detected in:', x, data);
+        result = 0;
+      }
+      else if (!_inUint32Range(result)) {
+        console.error('Outside range detected in:', x, data);
+        result = 0;
+      }
+      return _uint32(result);
+    };
+  }
 
   // Ensure we are always working with an array.
-  if (db) {
+  if (db) { // if db, then what is passed is a collection of mongo modules (not exactly an array).
     var arr = [];
-    for (let row in data) {
+    for (let row in data)
       arr.push(data[row]);
-    }
+    
     data = arr;
   }
   
-  // TODO FIX WEIRD BEHAVIOR
   // initialize the aggregate object according to the template
-  var agg = function initialize(obj) {
-    var result = {};
-    for(var key in fields(obj)) {
-      if((db || obj.hasOwnProperty(key)) && key !== '0') {
-        if(typeof(fields(obj)[key]) == "number" || typeof(fields(obj)[key]) == "string" || typeof(fields(obj)[key]) == "String")
-          result[key] = _uint32(0);
-        else
-          result[key] = initialize(fields(obj)[key]);
-      }
-    }
-    return result;
-  }(data[0]);
+  var agg = initialize(data[0], _uint32(0), fields);
       
   // aggregate
-  for(var i = 0; i < data.length; i++) {
-    var _ = function accumulate(obj, counts) {
-      for(var key in fields(obj)) {
-        if((db || obj.hasOwnProperty(key)) && key !== '0') {
-          if(typeof(fields(obj)[key]) == "number" || typeof(fields(obj)[key]) == "string" || typeof(fields(obj)[key]) == "String") {
-            var value = convert(fields(obj)[key]);
-            counts[key] = _addShares(counts[key], value);
-          }
-          else
-            accumulate(fields(obj)[key], counts[key]);
-        }
-      }
-    }(data[i], agg);
-  }
+  for(var i = 0; i < data.length; i++)
+    agg = accumulate(data[i], agg, fields, convert, function(acc, v) { return _addShares(acc, v); });
+  
   return agg;
 }
 

@@ -10,15 +10,19 @@
   <script type="text/javascript" src="../shared/mpc.js"></script>
   <script type="text/javascript" src="style/bootstrap/js/bootstrap.js"></script>
   <script type="text/javascript" src="style/qtip/jquery.qtip.min.js"></script>
+  <script type="text/javascript" src="style/alertify/alertify.js"></script>
+  <script type="text/javascript" src="style/alertify/alertify-defaults.js"></script>
   <script type="text/javascript" src="script/spin.min.js"></script>
   <script type="text/javascript" src="script/ladda.min.js"></script>
-  <script type="text/javascript" src="script/sail_hot.js"></script>
+  <script type="text/javascript" src="../shared/sail_hot.js"></script>
   <script type="text/javascript" src="script/client.js"></script>
 
   <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="style/bootstrap/v3/css/bootstrap-theme.min.css">
   <link rel="stylesheet" type="text/css" href="style/qtip/jquery.qtip.min.css">
-  <link rel="stylesheet" type="text/css" href="../shared/handsontable-pro/dist/handsontable.full.css"> 
+  <link rel="stylesheet" type="text/css" href="../shared/handsontable-pro/dist/handsontable.full.css">
+  <link rel="stylesheet" type="text/css" href="style/alertify/css/alertify.css">
+  <link rel="stylesheet" type="text/css" href="style/alertify/css/themes/alertify-bootstrap.css">
   <link rel="stylesheet" href="style/ladda-themeless.min.css">
 
   <style type="text/css">
@@ -40,6 +44,7 @@
     }
     #submit {
       float: left;
+      text-align:right;
     }
 
     #sess {
@@ -55,6 +60,23 @@
       white-space: pre-line;
       max-width: 110px;
       vertical-align: middle;
+    }
+
+    .page-footer {
+      padding-top: 50px;
+    }
+
+    /* for alerts and submission history*/
+    .ajs-header img {
+      padding-right: 0.5em;
+    }
+
+    .success img {
+      padding-right: 0.5em;
+    }
+
+    .error img {
+      padding-right: 0.5em;
     }
 
     p {
@@ -113,20 +135,6 @@
   <h3 id="totals-hot-name"></h3>
   <div id="totals-hot"></div>
   
-  <!--
-  <div id="board">
-    <h3>Board of Directors</h3>
-    <form>
-      <div class="checkbox">
-        <label>
-          <input type="checkbox" autocomplete="off" checked="checked" id="include-board" name="include-board">Provide Board of Directors Information
-        </label>
-      </div>
-    </form>
-    <div id="board-hot"></div>
-  </div>
-  -->
-  
   <div id="additional-questions">
     <h3>Additional Questions</h3>
     <div id="questions">
@@ -139,7 +147,7 @@
           <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked='checked'>Do not wish to answer</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked="checked">Do not wish to answer</label>
         </div>
       </form>
       <form>
@@ -151,7 +159,7 @@
           <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked='checked'>Do not wish to answer</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked="checked">Do not wish to answer</label>
         </div>
       </form>
       <form>
@@ -163,7 +171,7 @@
           <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked='checked'>Do not wish to answer</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked="checked">Do not wish to answer</label>
         </div>
       </form>
       <form>
@@ -175,7 +183,7 @@
           <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked='checked'>Do not wish to answer</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked="checked">Do not wish to answer</label>
         </div>
       </form>
     </div>
@@ -192,6 +200,9 @@
   <button name="dump" id="submit" class="btn btn-primary ladda-button" data-style="zoom-out">
     <span class="ladda-label">Submit</span>
   </button>
+    <div class="page-footer">
+
+    </div>
   <br/>
   <script type="text/javascript"> 
     $(document).ready(function() {
@@ -200,31 +211,65 @@
         url: "../shared/templates/tables.json",
         dataType: "json"
       }).then(function (tables_def) {
+        // Create the tables
         var tables = make_tables(tables_def); window.scrollTo(0, 0);
+        var sums = [0, 0, 0, 0, 0, 0];
         
+        // Custom validator that computes the totals
+        var afterChange = function(table) {
+          var index_map = {
+            "Number Of Employees": 0, 
+            "Total Annual Compensation (Dollars)": 1, 
+            "Total Annual Cash Performance Pay (Dollars)": 1, 
+            "Total Length of Service (Months)": 2
+          }
+            
+          var table_index = index_map[table._sail_meta.name];
+          var totals_table = tables[tables.length-1];
+          return function(changes, source) {
+            if(changes == null) return;
+            for(var i = 0; i < changes.length; i++) {
+              var change = changes[i];
+              var old = change[2]; var val = change[3];
+              
+              old = (old == '' || old == null) ? 0 : old;
+              val = (val == '' || val == null) ? 0 : val;
+              if(old == val) continue;
+              
+              var c = change[1];
+              var index = 2*table_index + (c % 2);
+              sums[index] += val - old;
+            }
+            
+            totals_table.loadData([sums, sums]);
+          }
+        }
+        
+        // Register when ready
+        for(var i = 0; i < tables.length-1; i++)
+          tables[i].addHook('afterChange', afterChange(tables[i]));
+        
+        // Button clicks handlers
         $('#verify').click(function() {
           validate(tables, function(result, msg) {
-            if(result) return $("#submit").prop('disabled', false);
+            if(result) 
+              return $("#submit").prop('disabled', false);
             
             error(msg);
             $('#verify').prop('checked', false);
           });
         });
         
-        /*
-        $('#include-board').click(function() {
-          var checked = $(this).prop('checked');
-          if(!checked) empty_table(tables[1]);
-          read_only_table(tables[1], !checked);
-        });
-        */
-        
         $("#submit").click(function() {
+          var la = Ladda.create(document.getElementById('submit'));
           validate(tables, function(result, msg) {
-            if(!result) return error(msg);
+            if(!result) { 
+              la.stop(); 
+              error(msg); 
+              return; 
+            }
             
-            var la = Ladda.create(document.getElementById('submit'));
-            construct_and_send('/', tables, la);
+            construct_and_send(tables, la);
           });
         });
         

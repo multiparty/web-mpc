@@ -1,14 +1,30 @@
-var HOT_DEFAULT_WIDTH = 1024;
+// Default width of a table (in pixels).
+var HOT_DEFAULT_WIDTH = 1400;
 
+// A Map from names to validator functions.
+// The name can be used in the json template to assign
+// the corresponding validator to a cell.
+// The validator functions must follow the header specified by the dummy_template below.
+// Params: table: hands on table object for the table being validated.
+//         cell: a cell object representing the cell being validated.
+//         value: the new value of the cell.
+//         callback: must be used to pass on the result of the validation (true or false).
+//                   failure to call the callback will break how HOT work and the UI to hang in a weird way.
+// The cell object has the following attributes:
+// row_key, col_key, row_index, col_index, type, validators (array of names), max, min, empty (flag), read_only (flag), default, placeholder, tooltip (nest object)
 var validators_map = {
-    'validate1': function(value, callback) { console.log("validator1"); callback(true); },
-    'validate2': function(value, callback) { console.log(value); callback(true); }
+    'dummy_template': function(table, cell, value, callback) { callback(true); }
 };
 
+// Registers a validator function with a name for use in the json template.
+// May be called before or after template is parsed or the table is created.
 function register_validator(name, validator) {
     validators_map[name] = validator;
 }
 
+// A Map from names to complex handsontable types.
+// The names can be used in the json template as a shortcut to assign
+// the mapped type information and formatting to a cell.
 var types_map = {
     'int': {
         'type': 'numeric'
@@ -21,12 +37,32 @@ var types_map = {
     }
 }
 
+// Registers a type (an object with attributes matching HOT format) for use in the json template.
+// This must be called BEFORE the template is parsed.
 function register_type(name, type) {
-    types_map[name] = validator;
+    types_map[name] = type;
 }
 
+
+/**
+ * Generic Validator:
+ * HOT by default allows only one validator per cell.
+ * However, we want to allow multiple "chained" one, such that all the validators must be sucessfully passed
+ * in order to validate a cell.
+ * Validators in HOT are asynchronous. Therefore we use validator chaining. I.e. we set up callbacks and pass
+ * them to the validators such that every validator calls the next.
+ * First we validate the simple attributes provided in the json template: max, min.
+ * Then call the default validators that matches the cell's declared Handsontable type.
+ * Then call each custom validator and have it invoke the next validator through a callback.
+ */
 var validator = function(value, callback) {
-    var cell = this.instance.__sail_meta.cells[this.row][this.col];
+    var table = this.instance;
+    var cell = table._sail_meta.cells[this.row][this.col];
+
+    // Makes initializing the table faster.
+    // Dont validate empty on intialization cells until they receive values.
+    if(cell.first_time == undefined) { cell.first_time = true; callback(true); return; }
+
     if(value != '' && value != null && cell.max != null && value > cell.max) { callback(false); return; }
     if(value != '' && value != null && cell.min != null && value < cell.min) { callback(false); return; }
 
@@ -43,7 +79,12 @@ var validator = function(value, callback) {
             else callback(false); // early break
         }
 
-        if(k > -1) { cell.validators[k](value, generic_callback); return; }
+        if(k > -1) {
+            var validator_func = validators_map[cell.validators[k]];
+            if(validator_func != null) validator_func(table, cell, value, generic_callback);
+            else generic_callback(true);
+            return;
+        }
 
         // call the default validator
         var hot_cell_type = cell.type;
@@ -60,17 +101,24 @@ var validator = function(value, callback) {
     }(value, callback, -1);
 }
 
+/**
+ * Custom renderer.
+ * The header (parameters) is specified by HOT.
+ * This renderer is created to display the appropriate tooltip.
+ * If the cell was invalidated then an error tooltip is shown, otherwise the prompt tooltip is shown.
+ * Then the default renderer that matches the declared cell type is called.
+ */
 var renderer = function(instance, TD, row, col, prop, value, cellProperties) {
-    if(instance.__sail_meta == null) return; // render will be called again
+    if(instance._sail_meta == null) return; // render will be called again
 
-    var cell = instance.__sail_meta.cells[row][col];
+    var cell = instance._sail_meta.cells[row][col];
 
     // Readonly
     if(cell.read_only != null) cellProperties.readOnly = cell.read_only;
 
     // Tooltip
     var tooltip = cell.tooltip;
-    var tableName = instance.__sail_meta.element;   // Assumes each table has distinct name.
+    var tableName = instance._sail_meta.element;   // Assumes each table has distinct name.
 
     if(tooltip != null) {
         var idName = tableName + row + "-" + col;
@@ -201,13 +249,13 @@ var renderer = function(instance, TD, row, col, prop, value, cellProperties) {
     if(hot_type_alias != null && hot_type_alias.renderer != null)
         baseRenderer = hot_type_alias.renderer;
 
-    baseRenderer.apply(this, arguments);
+    baseRenderer.apply(this, arguments); // call default renderer that matches the type.
 }
 
 /**
  * Creates hands-on-tables from the given definition.
  * @param {json} tables_def - the json object representing the tables.
- * @return {array} containing HOT tables (table_obj may be accesed using hot_table.__sail_meta).
+ * @return {array} containing HOT tables (table_obj may be accesed using hot_table._sail_meta).
  */
 function make_tables(tables_def) {
     var result = [];
@@ -247,7 +295,7 @@ function make_table_obj(table_def) {
         var row_key = table_def.rows[i].key;
         for(var j = 0; j < cols_len; j++) {
             var col_key = table_def.cols[cols_levels-1][j].key;
-            table[i][j] = { "row_key": row_key, "col_key": col_key };
+            table[i][j] = { "row_key": row_key, "col_key": col_key, "row_index": i, "col_index": j };
         }
     }
 
@@ -263,7 +311,7 @@ function make_table_obj(table_def) {
                 table[i][j].validators = [];
 
             var tmp = type.validators || [];
-            for(var v = 0; v < tmp.length; v++) table[i][j].validators.push(validators_map[tmp[v]]);
+            for(var v = 0; v < tmp.length; v++) table[i][j].validators.push(tmp[v]);
 
             if(type.max !== undefined) table[i][j].max = type.max;
             if(type.min !== undefined) table[i][j].min = type.min;
@@ -367,10 +415,10 @@ function make_hot_table(table) {
 
     // Create the Handsontable
     var handsOnTable = new Handsontable(element, hotSettings);
-    handsOnTable.__sail_meta = table;
+    handsOnTable._sail_meta = table;
 
     // Put name in the title element (if it exists)
-    $('#' + table.element + "-name").html(table.name);
+    document.getElementById(table.element + "-name").innerHTML = table.name;
     handsOnTable.clear();
 
     return handsOnTable;
@@ -422,8 +470,8 @@ function construct_data_tables(table_hot_arr) {
     var result = [];
     for(var i = 0; i < table_hot_arr.length; i++) {
         var table_hot_obj = table_hot_arr[i];
-        if(table_hot_obj.__sail_meta.submit === false) continue;
-        result.push( { 'name': table_hot_obj.__sail_meta.name, 'data': construct_data(table_hot_obj) } );
+        if(table_hot_obj._sail_meta.submit === false) continue;
+        result.push( { 'name': table_hot_obj._sail_meta.name, 'data': construct_data(table_hot_obj) } );
     }
 
     return result;
@@ -439,7 +487,7 @@ function construct_data_tables(table_hot_arr) {
  * @return {json} the described object.
  */
 function construct_data(table_hot_obj) {
-    var meta = table_hot_obj.__sail_meta;
+    var meta = table_hot_obj._sail_meta;
 
     var data = {};
     for(var r = 0; r < meta.rowsCount; r++) {
@@ -472,7 +520,7 @@ function empty_table(table_hot_obj) {
  * @param {boolean} read_only - the new value.
  */
 function read_only_table(table_hot_obj, read_only) {
-    var meta_table = table_hot_obj.__sail_meta;
+    var meta_table = table_hot_obj._sail_meta;
     for(var r = 0; r < meta_table.rowsCount; r++) {
         for(var c = 0; c < meta_table.colsCount; c++) {
             meta_table.cells[r][c].read_only = read_only;
@@ -480,6 +528,48 @@ function read_only_table(table_hot_obj, read_only) {
     }
 
     table_hot_obj.render();
+}
+
+/**
+ * Remove all validators from the table, keeping only the built-in
+ *  validators of Handsontable.
+ * @param {hot} table_hot_obj - the handsontable object.
+ */
+function remove_validators(table_hot_obj) {
+    var meta_table = table_hot_obj._sail_meta;
+    for(var r = 0; r < meta_table.rowsCount; r++) {
+        for(var c = 0; c < meta_table.colsCount; c++) {
+            meta_table.cells[r][c].validators = [];
+            meta_table.cells[r][c].max = null;
+            meta_table.cells[r][c].min = null;
+        }
+    }
+
+    table_hot_obj.render();
+}
+
+/**
+ * Fills in the given table with the given data.
+ * @param {json} data - an object of nested objects (like 2D arrays) where
+ the first key is the row key, and the second is the column key.
+ * @param {hot} table_hot - the handsontable object.
+ */
+function fill_data(data, table_hot) {
+    var table_meta = table_hot._sail_meta;
+
+    var data_array = new Array(table_meta.rowsCount);
+    for(var r = 0; r < table_meta.rowsCount; r++) {
+        data_array[r] = new Array(table_meta.colsCount);
+        for(var c = 0; c < table_meta.colsCount; c++) {
+            var cell = table_meta.cells[r][c];
+            var row_key = cell.row_key;
+            var col_key = cell.col_key;
+
+            data_array[r][c] = data[row_key][col_key];
+        }
+    }
+
+    table_hot.loadData(data_array);
 }
 
 
