@@ -245,7 +245,8 @@
         // Button clicks handlers
         $('#verify').click(function() {
           validate(tables, function(result, msg) {
-            if(result) return $("#submit").prop('disabled', false);
+            if(result) 
+              return $("#submit").prop('disabled', false);
             
             error(msg);
             $('#verify').prop('checked', false);
@@ -255,7 +256,11 @@
         $("#submit").click(function() {
           var la = Ladda.create(document.getElementById('submit'));
           validate(tables, function(result, msg) {
-            if(!result) { la.stop(); error(msg); return; }
+            if(!result) { 
+              la.stop(); 
+              error(msg); 
+              return; 
+            }
             
             construct_and_send(tables, la);
           });

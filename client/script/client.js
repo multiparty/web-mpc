@@ -12,20 +12,27 @@ function error(msg) {
   alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", msg);
 }
 
+function success(msg) {
+  alertify.alert("<img src='style/accept.png' alt='Success'>Success!", msg);
+}
+
 /**
  * Called when the submit button is pressed.
  */
 function validate(tables, callback) {
   // Verify session key and email
   var session = $('#sess').val().trim();
-  if (!session.match(/^[a-z0-9]{32}$/)) return callback(false, SESSION_KEY_ERROR);
+  if(!session.match(/^[a-z0-9]{32}$/)) 
+    return callback(false, SESSION_KEY_ERROR);
   
   var email = $('#emailf').val().trim();
-  if (!email.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/)) return callback(false, EMAIL_ERROR);
+  if(!email.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/)) 
+    return callback(false, EMAIL_ERROR);
   
   // Verify confirmation check box was checked
   var verifyChecked = $('#verify').is(':checked');
-  if (!verifyChecked) return callback(false, UNCHECKED_ERR);
+  if(!verifyChecked) 
+    return callback(false, UNCHECKED_ERR);
   
   // Verify additional questions
   var questionsValid = true;
@@ -34,11 +41,19 @@ function validate(tables, callback) {
     var thisQuestionIsValid = false;
     var radios = $(questions[q]).find('input[type=radio]');
     for(var r = 0; r < radios.length; r++)
-      if(radios[r].checked) { thisQuestionIsValid = true; break; }
+      if(radios[r].checked) { 
+        thisQuestionIsValid = true; 
+        break; 
+      }
     
-    if(!thisQuestionIsValid) { questionsValid = false; break; }
+    if(!thisQuestionIsValid) { 
+      questionsValid = false; 
+      break; 
+    }
   }
-  if (!questionsValid) return callback(false, ADD_QUESTIONS_ERR);
+  
+  if(!questionsValid) 
+    return callback(false, ADD_QUESTIONS_ERR);
   
   // Validate tables (callback chaining)
   (function validate_callback(i) {
@@ -104,8 +119,11 @@ function encrypt_and_send(session, email, data, mask, la) {
   
   // Get the public key to encrypt with
   var pkey_request = $.ajax({ 
-    type: "POST", url: "/publickey", contentType: "application/json", 
-    data: JSON.stringify({session: session}), dataType: "text" 
+    type: "POST", 
+    url: "/publickey", 
+    contentType: "application/json", 
+    data: JSON.stringify({session: session}), 
+    dataType: "text" 
   });
   
   pkey_request.then(function(public_key) {
@@ -118,29 +136,31 @@ function encrypt_and_send(session, email, data, mask, la) {
       };
       
       return $.ajax({
-        type: "POST", url: "/",
-        data: JSON.stringify(submission), contentType: 'application/json'
+        type: "POST", 
+        url: "/",
+        data: JSON.stringify(submission), 
+        contentType: 'application/json'
       });
   }).then(function(response) {
     var submitTime = new Date();
-    submitEntries.push({time: submitTime, submitted: true});
+    submitEntries.push( { time: submitTime, submitted: true } );
     
-    alertify.alert("<img src='style/accept.png' alt='Success'>Success!", "Submitted data.");
+    success("Submitted data.");
     convertToHTML(submitEntries);
     
     // Stop loading animation
     la.stop();
   }).catch(function (err) {
     var submitTime = new Date();
-    submitEntries.push({time: submitTime, submitted: false});
+    submitEntries.push( { time: submitTime, submitted: false } );
     
     if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined)
-      alertify.alert("<img src='style/cancel.png' alt='Error'>Error!",  err.responseText);
+      error(err.responseText);
     else if (err && (err.status === 0 || err.status === 500))
       // check for status 0 or status 500 (Server not reachable.)
-      alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", SERVER_ERR);
+      error(SERVER_ERR);
     else 
-      alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", GENERIC_SUBMISSION_ERR);
+      error(GENERIC_SUBMISSION_ERR);
       
     convertToHTML(submitEntries);
     
