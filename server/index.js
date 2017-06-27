@@ -17,7 +17,10 @@ function templateToJoiSchema(template, joiFieldType) {
     var schema = {};
     for (var key in template) {
         if (template.hasOwnProperty(key)) {
+          if(template[key] === 0)
             schema[key] = joiFieldType; // safe to re-use since immutable
+          else // since format may have nested objects, recurse!
+            schema[key] = templateToJoiSchema(template[key], joiFieldType);
         }
     }
     var joiSchema = joi.object().keys(schema);
@@ -144,6 +147,7 @@ app.post('/', function (req, res) {
     console.log('POST /');
 
     var body = req.body;
+    console.log(body);
 
     // TODO: set length restrictions on session and user
     var bodySchema = {

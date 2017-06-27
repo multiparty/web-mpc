@@ -13,7 +13,8 @@
   <script type="text/javascript" src="style/alertify/alertify-defaults.js"></script>
   <script type="text/javascript" src="script/spin.min.js"></script>
   <script type="text/javascript" src="script/ladda.min.js"></script>
-  <script type="text/javascript" src="script/ssCreate.js"></script>
+  <script type="text/javascript" src="../shared/sail_hot.js"></script>
+  <script type="text/javascript" src="script/client.js"></script>
 
   <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="style/bootstrap/v3/css/bootstrap-theme.min.css">
@@ -28,7 +29,7 @@
     .handsontable .ht_clone_top_left_corner {
       display: none;
     }
-    #main-hot .handsontable col.rowHeader {
+    .handsontable col.rowHeader {
       width: 200px !important;
     }
     #body_wrap {
@@ -115,24 +116,23 @@
     <h3>Email Address to track participation</h3>
     <input autocomplete="off" type=text id="emailf" pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$" required/>
   </div>
-  <h3>Number of Employees (Report employees in only one category)</h3>
-  <div id="main-hot"></div>
-  <div id="board">
-    <h3>Board of Directors</h3>
-    <form>
-      <div class="checkbox">
-        <label>
-          <input type="checkbox" autocomplete="off" checked="checked" id="include-board" name="include-board">Provide Board of Directors Information
-        </label>
-      </div>
-    </form>
-    <div id="board-hot"></div>
-  </div>
+
+  <h3 id="number-employees-hot-name"></h3>  
+  <div id="number-employees-hot"></div>
+  <h3 id="compensation-hot-name"></h3>
+  <div id="compensation-hot"></div>
+  <h3 id="performance-pay-hot-name"></h3>
+  <div id="performance-pay-hot"></div>
+  <h3 id="service-length-hot-name"></h3>
+  <div id="service-length-hot"></div>
+  <h3 id="totals-hot-name"></h3>
+  <div id="totals-hot"></div>
+  
   <div id="additional-questions">
     <h3>Additional Questions</h3>
     <div id="questions">
-      <form id="question-a">
-        <p id="question-text">Does your company hold events to celebrate diversity and inclusion?</p>
+      <form>
+        <p class="question-text">Does your company hold events to celebrate diversity and inclusion?</p>
         <div class="radio">
           <label><input autocomplete="off" type="radio" name="optradio" value="Yes">Yes</label>
         </div>
@@ -140,11 +140,11 @@
           <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA">Do not wish to answer</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked="checked">Do not wish to answer</label>
         </div>
       </form>
-      <form id="question-b">
-        <p id="question-text">Does your company provide diversity and inclusion education or training for managers, staff or both?</p>
+      <form>
+        <p class="question-text">Does your company provide diversity and inclusion education or training for managers, staff or both?</p>
         <div class="radio">
           <label><input autocomplete="off" type="radio" name="optradio" value="Yes">Yes</label>
         </div>
@@ -152,11 +152,11 @@
           <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA">Do not wish to answer</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked="checked">Do not wish to answer</label>
         </div>
       </form>
-      <form id="question-c">
-        <p id="question-text">Does your management team meet to discuss your organization's diverse workforce or workplace culture?</p>
+      <form>
+        <p class="question-text">Does your management team meet to discuss your organization's diverse workforce or workplace culture?</p>
         <div class="radio">
           <label><input autocomplete="off" type="radio" name="optradio" value="Yes">Yes</label>
         </div>
@@ -164,11 +164,11 @@
           <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA">Do not wish to answer</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked="checked">Do not wish to answer</label>
         </div>
       </form>
-      <form id="question-d">
-        <p id="question-text">Does your CEO engage in or lead discussions on diversity and inclusion with your management team or with other business executives?</p>
+      <form>
+        <p class="question-text">Does your CEO engage in or lead discussions on diversity and inclusion with your management team or with other business executives?</p>
         <div class="radio">
           <label><input autocomplete="off" type="radio" name="optradio" value="Yes">Yes</label>
         </div>
@@ -176,7 +176,7 @@
           <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA">Do not wish to answer</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked="checked">Do not wish to answer</label>
         </div>
       </form>
     </div>
@@ -197,30 +197,75 @@
 
     </div>
   <br/>
-  <script type="text/javascript">
+  <script type="text/javascript"> 
     $(document).ready(function() {
-      var mainReq = $.ajax({
+      var req = $.ajax({
         type: "GET",
-        url: "../shared/templates/main.json",
+        url: "../shared/templates/tables.json",
         dataType: "json"
-      });
-
-      var boardReq = $.ajax({
-        type: "GET",
-        url: "../shared/templates/board.json",
-        dataType: "json"
-      });
-
-      $.when(mainReq, boardReq).then(function (mainConfig, boardConfig) {
-        var mainTableAndKeys = makeTable("#main-hot", mainConfig[0]),
-            boardTableAndKeys = makeTable("#board-hot", boardConfig[0]),
-            questionForms = $('#questions form'),
-            inputSources = {
-              "main": mainTableAndKeys,
-              "question": questionForms,
-              "board": boardTableAndKeys
-            };
-        submissionHandling(inputSources, '/');
+      }).then(function (tables_def) {
+        // Create the tables
+        var tables = make_tables(tables_def); window.scrollTo(0, 0);
+        var sums = [0, 0, 0, 0, 0, 0];
+        
+        // Custom validator that computes the totals
+        var afterChange = function(table) {
+          var index_map = {
+            "Number Of Employees": 0, 
+            "Total Annual Compensation (Dollars)": 1, 
+            "Total Annual Cash Performance Pay (Dollars)": 1, 
+            "Total Length of Service (Months)": 2
+          }
+            
+          var table_index = index_map[table._sail_meta.name];
+          var totals_table = tables[tables.length-1];
+          return function(changes, source) {
+            if(changes == null) return;
+            for(var i = 0; i < changes.length; i++) {
+              var change = changes[i];
+              var old = change[2]; var val = change[3];
+              
+              old = (old == '' || old == null) ? 0 : old;
+              val = (val == '' || val == null) ? 0 : val;
+              if(old == val) continue;
+              
+              var c = change[1];
+              var index = 2*table_index + (c % 2);
+              sums[index] += val - old;
+            }
+            
+            totals_table.loadData([sums, sums]);
+          }
+        }
+        
+        // Register when ready
+        for(var i = 0; i < tables.length-1; i++)
+          tables[i].addHook('afterChange', afterChange(tables[i]));
+        
+        // Button clicks handlers
+        $('#verify').click(function() {
+          validate(tables, function(result, msg) {
+            if(result) 
+              return $("#submit").prop('disabled', false);
+            
+            error(msg);
+            $('#verify').prop('checked', false);
+          });
+        });
+        
+        $("#submit").click(function() {
+          var la = Ladda.create(document.getElementById('submit'));
+          validate(tables, function(result, msg) {
+            if(!result) { 
+              la.stop(); 
+              error(msg); 
+              return; 
+            }
+            
+            construct_and_send(tables, la);
+          });
+        });
+        
       });
     });
   </script>
