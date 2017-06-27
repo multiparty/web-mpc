@@ -110,3 +110,47 @@ Instructions on how to operate the web-mpc application. All instructions from he
 * Click "Browse..." and upload the private key file that was downloaded when generating the session key.
 
 * Click "Unmask Data" and view the result
+
+Directories and File Structure
+----------------------------
+
+#### ./client
+
+* contains the code for data submission.
+
+* **./client/index.html** the html page for entering the data.
+
+* **./client/script/client.js** contains functions for validating, organizing, masking/encrypting, and submitting data to the server.
+
+#### ./server
+
+* contains the server side code.
+
+* **./server/index.js** contains API end-points and functions for storing submission, tracking number of participants, aggregating data, and retrieving public keys, data and masks. 
+
+* **./server/template.json** contains a json template of what a valid submission looks like. The template will be used with Joi to validate that requests abide by the template. 
+
+#### ./trusted
+
+* contains web pages for creating new sessions and viewing progress in existing sessions.
+
+#### ./unmask
+
+* contains the code for unmasking and displaying aggregates.
+
+* **./unmask/index.html** the webpage that unmasks the data.
+
+* **./unmask/script/unmask.js** mainly decrypts masks using browser-native encryption/decryption functions. 
+
+
+#### ./shared
+
+* contains files that are generic and are used by multiple parts of the application.
+
+* **.shared/mpc.js** contains an implementation of the mpc primitives used, in particular, masking and unmasking (recombining), operating on masked/shared data, and encryption using 3rd party libraries. This file is used by client, server, and unmask.
+
+* **.shared/sail_hot.js** a generic wrapper/library around HandsOnTable that simplifies validating, rendering, and defining HandsOnTables. This file is used by client and unmask.
+
+* **.shared/templates/tables.js** a json definition of the handsontable used in the application which includes rows and columns, cell types, validators, tooltips, etc. This file is used by client and unmask.
+
+
