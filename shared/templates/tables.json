@@ -76,10 +76,37 @@
         ]
       ],
       "types": [
-        { "range": { "row": "*", "col": "*" }, "type": "int", "max": 1000000, "min": 0, "default": 0, "placeholder": 0, "validators": [ "compute_totals" ] }
+        { "range": { "row": "*", "col": "*" }, "type": "int", "max": 1000000, "min": 0, "default": 0, "placeholder": 0 , "validators": [ "compute_totals" ] }
+      ],
+      "tooltips": [
+        {
+          "range": {
+            "row": "*",
+            "col": "0-2-4-6-8-10-12-14-16"
+          },
+          "tooltip": {
+            "promptTitle": "Number of Female Employees",
+            "prompt": "Please input the total number of female employees in this race/ethnicity and job category.",
+            "errorTitle": "Invalid Data Entry",
+            "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero."
+          }
+        },
+        {
+          "range": {
+            "row": "*",
+            "col": "1-3-5-7-9-11-13-15-17"
+          },
+          "tooltip": {
+            "promptTitle": "Number of Male Employees",
+            "prompt": "Please input the total number of male employees in this race/ethnicity and job category.",
+            "errorTitle": "Invalid Data Entry",
+            "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero."
+          }
+        }
       ]
+
     },
-    { 
+    {
       "name": "Total Annual Compensation (Dollars)",
       "element": "compensation-hot",
       "rows" : [
@@ -133,32 +160,58 @@
                 "colspan": 2
             }
         ],
-        [ 
-          { "label": "Female", "key": "hispF" }, 
+        [
+          { "label": "Female", "key": "hispF" },
           { "label": "Male", "key": "hispM" },
-          { "label": "Female", "key": "whiteF" }, 
+          { "label": "Female", "key": "whiteF" },
           { "label": "Male", "key": "whiteM" },
-          { "label": "Female", "key": "afrF" }, 
+          { "label": "Female", "key": "afrF" },
           { "label": "Male", "key": "afrM" },
-          { "label": "Female", "key": "hawaiiF" }, 
+          { "label": "Female", "key": "hawaiiF" },
           { "label": "Male", "key": "hawaiiM" },
-          { "label": "Female", "key": "asianF" }, 
+          { "label": "Female", "key": "asianF" },
           { "label": "Male", "key": "asianM" },
-          { "label": "Female", "key": "indF" }, 
+          { "label": "Female", "key": "indF" },
           { "label": "Male", "key": "indM" },
-          { "label": "Female", "key": "twoF" }, 
+          { "label": "Female", "key": "twoF" },
           { "label": "Male", "key": "twoM" },
-          { "label": "Female", "key": "othF" }, 
+          { "label": "Female", "key": "othF" },
           { "label": "Male", "key": "othM" },
-          { "label": "Female", "key": "unkF" }, 
+          { "label": "Female", "key": "unkF" },
           { "label": "Male", "key": "unkM" }
         ]
       ],
       "types": [
-        { "range": { "row": "*", "col": "*" }, "type": "currency", "max": 100000000, "min": 0, "default": 0, "placeholder": 0, "validators": [ "compute_totals" ] }
+        { "range": { "row": "*", "col": "*" }, "type": "currency", "max": 100000000, "min": 0, "default": 0, "placeholder": 0 , "validators": [ "compute_totals" ] }
+      ],
+      "tooltips": [
+        {
+          "range": {
+            "row": "*",
+            "col": "0-2-4-6-8-10-12-14-16"
+          },
+          "tooltip": {
+            "promptTitle": "Total Annual Compensation",
+            "prompt": "Please input the total annual compensation of female employees in this race/ethnicity and job category in dollars.",
+            "errorTitle": "Invalid Data Entry",
+            "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero."
+          }
+        },
+        {
+          "range": {
+            "row": "*",
+            "col": "1-3-5-7-9-11-13-15-17"
+          },
+          "tooltip": {
+            "promptTitle": "Total Annual Compensation",
+            "prompt": "Please input the total annual compensation of male employees in this race/ethnicity and job category in dollars.",
+            "errorTitle": "Invalid Data Entry",
+            "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero."
+          }
+        }
       ]
     },
-    { 
+    {
       "name": "Total Annual Cash Performance Pay (Dollars)",
       "element": "performance-pay-hot",
       "rows" : [
@@ -212,29 +265,55 @@
                 "colspan": 2
             }
         ],
-        [ 
-          { "label": "Female", "key": "hispF" }, 
+        [
+          { "label": "Female", "key": "hispF" },
           { "label": "Male", "key": "hispM" },
-          { "label": "Female", "key": "whiteF" }, 
+          { "label": "Female", "key": "whiteF" },
           { "label": "Male", "key": "whiteM" },
-          { "label": "Female", "key": "afrF" }, 
+          { "label": "Female", "key": "afrF" },
           { "label": "Male", "key": "afrM" },
-          { "label": "Female", "key": "hawaiiF" }, 
+          { "label": "Female", "key": "hawaiiF" },
           { "label": "Male", "key": "hawaiiM" },
-          { "label": "Female", "key": "asianF" }, 
+          { "label": "Female", "key": "asianF" },
           { "label": "Male", "key": "asianM" },
-          { "label": "Female", "key": "indF" }, 
+          { "label": "Female", "key": "indF" },
           { "label": "Male", "key": "indM" },
-          { "label": "Female", "key": "twoF" }, 
+          { "label": "Female", "key": "twoF" },
           { "label": "Male", "key": "twoM" },
-          { "label": "Female", "key": "othF" }, 
+          { "label": "Female", "key": "othF" },
           { "label": "Male", "key": "othM" },
-          { "label": "Female", "key": "unkF" }, 
+          { "label": "Female", "key": "unkF" },
           { "label": "Male", "key": "unkM" }
         ]
       ],
       "types": [
-        { "range": { "row": "*", "col": "*" }, "type": "currency", "max": 100000000, "min": 0, "default": 0, "placeholder": 0, "validators": [ "compute_totals" ] }
+        { "range": { "row": "*", "col": "*" }, "type": "currency", "max": 100000000, "min": 0, "default": 0, "placeholder": 0 , "validators": [ "compute_totals" ] }
+      ],
+      "tooltips": [
+        {
+          "range": {
+            "row": "*",
+            "col": "0-2-4-6-8-10-12-14-16"
+          },
+          "tooltip": {
+            "promptTitle": "Total Annual Performance Pay",
+            "prompt": "Please input the total annual cash performance pay of female employees in this race/ethnicity and job category in dollars.",
+            "errorTitle": "Invalid Data Entry",
+            "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero."
+          }
+        },
+        {
+          "range": {
+            "row": "*",
+            "col": "1-3-5-7-9-11-13-15-17"
+          },
+          "tooltip": {
+            "promptTitle": "Total Annual Performance Pay",
+            "prompt": "Please input the total annual cash performance pay of male employees in this race/ethnicity and job category in dollars.",
+            "errorTitle": "Invalid Data Entry",
+            "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero."
+          }
+        }
       ]
     },
     { 
@@ -314,7 +393,34 @@
       ],
       "types": [
         { "range": { "row": "*", "col": "*" }, "type": "int", "max": 100000000, "min": 0, "default": 0, "placeholder": 0, "validators": [ "compute_totals" ] }
+      ],
+      "tooltips": [
+        {
+          "range": {
+            "row": "*",
+            "col": "0-2-4-6-8-10-12-14-16"
+          },
+          "tooltip": {
+            "promptTitle": "Total Length of Service",
+            "prompt": "Please input the total length of service of female employees in this race/ethnicity and job category in months.",
+            "errorTitle": "Invalid Data Entry",
+            "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero."
+          }
+        },
+        {
+          "range": {
+            "row": "*",
+            "col": "1-3-5-7-9-11-13-15-17"
+          },
+          "tooltip": {
+            "promptTitle": "Total Length of Service",
+            "prompt": "Please input the total length of service of male employees in this race/ethnicity and job category in months.",
+            "errorTitle": "Invalid Data Entry",
+            "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero."
+          }
+        }
       ]
+
     },
     { 
       "name": "Totals Check",
