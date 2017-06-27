@@ -15,6 +15,8 @@
   <script type="text/javascript" src="script/ladda.min.js"></script>
   <script type="text/javascript" src="../shared/sail_hot.js"></script>
   <script type="text/javascript" src="script/client.js"></script>
+  <script type="text/javascript" src="script/xlsx.full.min.js"></script>
+  <script src="script/path.js"></script>
 
   <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="style/bootstrap/v3/css/bootstrap-theme.min.css">
@@ -61,6 +63,27 @@
     }
     .page-footer {
       padding-top: 50px;
+    }
+
+    /* for drop area */
+
+    #drop-area {
+      border: 10px dashed #666;
+      transition: border-color 0.5s;
+      text-align: center;
+      height: 300px;
+      display: table-cell;
+      vertical-align: middle;
+      font-size: 32px;
+      width: inherit;
+    }
+
+    #drop-area.dragenter {
+      border-color: #A6DE2A;
+    }
+
+    #drop-area.dragdefault {
+      border-color: #666;
     }
 
     /* for alerts and submission history*/
@@ -116,6 +139,9 @@
     <h3>Email Address to track participation</h3>
     <input autocomplete="off" type=text id="emailf" pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$" required/>
   </div>
+
+    <div id="drop-area">Drop your data to encrypt and secret-share.</div>
+    <div><input type="file" id="choose-file" accept=".xlsx,.xls">... or choose file here.</div>
 
   <h3 id="number-employees-hot-name"></h3>  
   <div id="number-employees-hot"></div>
@@ -197,6 +223,110 @@
 
     </div>
   <br/>
+    <script type="text/javascript">
+        if (!Object.keys) {
+            Object.keys = (function () {
+                var hasOwnProperty = Object.prototype.hasOwnProperty,
+                    hasDontEnumBug = !({toString: null}).propertyIsEnumerable('toString'),
+                    dontEnums = [
+                        'toString', 'toLocaleString', 'valueOf', 'hasOwnProperty',
+                        'isPrototypeOf', 'propertyIsEnumerable', 'constructor'
+                    ],
+                    dontEnumsLength = dontEnums.length;
+                return function (obj) {
+                    if (typeof obj !== 'object' && typeof obj !== 'function' || obj === null) throw new TypeError('Object.keys called on non-object');
+                    var result = [];
+                    for (var prop in obj)
+                        if (hasOwnProperty.call(obj, prop))
+                            result.push(prop);
+                    if (hasDontEnumBug)
+                        for (var i = 0; i < dontEnumsLength; i++)
+                            if (hasOwnProperty.call(obj, dontEnums[i])) result.push(dontEnums[i]);
+                    return result;
+                };
+            })();
+        }
+
+        if (!Array.prototype.filter) {
+            Array.prototype.filter = function (fun /*, thisp */) {
+                "use strict";
+                if (this == null)
+                    throw new TypeError();
+                var t = Object(this);
+                var len = t.length >>> 0;
+                if (typeof fun != "function")
+                    throw new TypeError();
+                var res = [];
+                var thisp = arguments[1];
+                for (var i = 0; i < len; i++) {
+                    if (i in t) {
+                        var val = t[i]; // in case fun mutates this
+                        if (fun.call(thisp, val, i, t))
+                            res.push(val);
+                    }
+                }
+                return res;
+            };
+        }
+
+        if (!Array.prototype.forEach) {
+            Array.prototype.forEach = function (fn, scope) {
+                for (var i = 0, len = this.length; i < len; ++i)
+                    fn.call(scope, this[i], i, this);
+            };
+        }
+
+        if (!Array.prototype.map) {
+            Array.prototype.map = function (callback, thisArg) {
+                var T, A, k;
+                if (this == null)
+                    throw new TypeError(" this is null or not defined");
+                var O = Object(this);
+                var len = O.length >>> 0;
+                if (typeof callback !== "function")
+                    throw new TypeError(callback + " is not a function");
+                if (thisArg)
+                    T = thisArg;
+                A = new Array(len);
+                k = 0;
+                while (k < len) {
+                    var kValue, mappedValue;
+                    if (k in O) {
+                        kValue = O[k];
+                        mappedValue = callback.call(T, kValue, k, O);
+                        A[k] = mappedValue;
+                    }
+                    k++;
+                }
+                return A;
+            };
+        }
+
+        // https://github.com/ttaubert/node-arraybuffer-slice
+        // (c) 2013 Tim Taubert <tim@timtaubert.de>
+        // arraybuffer-slice may be freely distributed under the MIT license.
+
+        "use strict";
+
+        if (typeof ArrayBuffer !== 'undefined' && !ArrayBuffer.prototype.slice) {
+            ArrayBuffer.prototype.slice = function (begin, end) {
+                begin = (begin | 0) || 0;
+                var num = this.byteLength;
+                end = end === (void 0) ? num : (end | 0);
+                // Handle negative values.
+                if (begin < 0) begin += num;
+                if (end < 0) end += num;
+                if (num === 0 || begin >= num || begin >= end)
+                    return new ArrayBuffer(0);
+                var length = Math.min(num - begin, end - begin);
+                var target = new ArrayBuffer(length);
+                var targetArray = new Uint8Array(target);
+                targetArray.set(new Uint8Array(this, begin, length));
+                return target;
+            };
+        }
+    </script>
+    <script type="text/javascript" src="script/drop_sheet.js"></script>
   <script type="text/javascript"> 
     $(document).ready(function() {
       var req = $.ajax({
@@ -237,6 +367,68 @@
             totals_table.loadData([sums, sums]);
           }
         }
+
+          // Alerts, page elements, etc. for drag-and-drop/choose file.
+          var workbook_js = null;
+
+          var _target = document.getElementById('drop-area');
+          var _choose = document.getElementById('choose-file');
+          var spinner;
+          var _workstart = function () {
+              spinner = new Spinner().spin(_target);
+          }
+          var _workend = function () {
+              spinner.stop();
+          }
+          var _badfile = function () {
+              alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", 'This file does not appear to be a valid Excel file.', function () {
+              });
+          };
+          var _pending = function () {
+              alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", 'Please wait until the current file is processed.', function () {
+              });
+          };
+          var _large = function (len, cb) {
+              alertify.confirm("<img src='style/cancel.png' alt='Error'>Error!", "This file is " + (len / (1024 * 1024)).toFixed(2) + " MB and may take a few moments. Your browser may lock up during this process. Continue?", cb);
+          };
+          var _failed = function (e) {
+              alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", 'This format is not supported.', function () {
+              });
+          };
+
+          var $window, availableWidth, availableHeight;
+          var calculateSize = function () {
+              availableWidth = Math.max($('#drop-area').width(), 600);
+              availableHeight = Math.max($window.height() - 250, 400);
+          };
+          $(document).ready(function () {
+              $window = $(window);
+              $window.on('resize', calculateSize);
+          });
+
+
+          var _onsheet = function (json, cols, sheetnames, select_sheet_cb) {
+              calculateSize();
+              if (!json) json = [];
+            /* add header row for table */
+              json.unshift(function (head) {
+                  var o = {};
+                  for (i = 0; i != head.length; ++i) o[head[i]] = head[i];
+                  return o;
+              }(cols));
+              calculateSize();
+          };
+
+
+
+          DropSheet({
+              drop: _target,
+              choose: _choose,
+              tables: tables,
+              tables_def: tables_def,
+              on: {workstart: _workstart, workend: _workend, sheet: _onsheet},
+              errors: {badfile: _badfile, pending: _pending, failed: _failed, large: _large}
+          });
         
         // Register when ready
         for(var i = 0; i < tables.length-1; i++)

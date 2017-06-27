@@ -77,6 +77,14 @@
       ],
       "types": [
         { "range": { "row": "*", "col": "*" }, "type": "int", "max": 1000000, "min": 0, "default": 0, "placeholder": 0, "validators": [ "compute_totals" ] }
+      ],
+      "excel": [
+        {
+          "sheet": "Number of Employees",
+          "start": "B7",
+          "end": "S16",
+          "firstrow": "Executive/Senior Level Officials and Managers"
+        }
       ]
     },
     { 
@@ -156,6 +164,14 @@
       ],
       "types": [
         { "range": { "row": "*", "col": "*" }, "type": "currency", "max": 100000000, "min": 0, "default": 0, "placeholder": 0, "validators": [ "compute_totals" ] }
+      ],
+      "excel": [
+        {
+          "sheet": "Compensation",
+          "start": "B6",
+          "end": "S15",
+          "firstrow": "Executive/Senior Level Officials and Managers"
+        }
       ]
     },
     { 
@@ -235,6 +251,14 @@
       ],
       "types": [
         { "range": { "row": "*", "col": "*" }, "type": "currency", "max": 100000000, "min": 0, "default": 0, "placeholder": 0, "validators": [ "compute_totals" ] }
+      ],
+      "excel": [
+        {
+          "sheet": "Performance Pay",
+          "start": "B6",
+          "end": "S15",
+          "firstrow": "Executive/Senior Level Officials and Managers"
+        }
       ]
     },
     { 
@@ -314,6 +338,14 @@
       ],
       "types": [
         { "range": { "row": "*", "col": "*" }, "type": "int", "max": 100000000, "min": 0, "default": 0, "placeholder": 0, "validators": [ "compute_totals" ] }
+      ],
+      "excel": [
+        {
+          "sheet": "Tenure",
+          "start": "B6",
+          "end": "S15",
+          "firstrow": "Executive/Senior Level Officials and Managers"
+        }
       ]
     },
     { 
