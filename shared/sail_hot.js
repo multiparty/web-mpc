@@ -115,13 +115,130 @@ var renderer = function(instance, TD, row, col, prop, value, cellProperties) {
   
   // Readonly
   if(cell.read_only != null) cellProperties.readOnly = cell.read_only;
-  
-  // Tooltip
-  var tooltip = cell.tooltip;
-  if(tooltip != null) {
-    if(cellProperties.valid === false) cellProperties.comment = { "value": tooltip.error };
-    else cellProperties.comment = { "value": tooltip.prompt };
-  }
+
+    // Tooltip
+    var tooltip = cell.tooltip;
+    var tableName = instance._sail_meta.element;   // Assumes each table has distinct name.
+
+    if(tooltip != null) {
+        var idName = tableName + row + "-" + col;
+        var element = $('#' + idName);
+
+        if (cellProperties.valid === false) {
+            // Error message with red-colored cell and tooltip.
+            TD.style.background = '#ff4c42';
+            TD.setAttribute('title', " ");
+            TD.setAttribute('id', idName);
+            if (tooltip.errorTitle != null) {
+                element.qtip(
+                    {
+                        style: {
+                            classes: 'qtip-red'
+                        }
+                    },
+                    {
+                        content: {
+                            title: tooltip.errorTitle,
+                            text: tooltip.error
+                        }
+                    },
+                    {
+                        show: {
+                            solo: true
+                        },
+                        hide: false
+                    }
+                );
+            } else {
+                element.qtip(
+                    {
+                        style: {
+                            classes: 'qtip-red'
+                        }
+                    },
+                    {
+                        content: {
+                            text: tooltip.error
+                        }
+                    },
+                    {
+                        show: {
+                            solo: true
+                        },
+                        hide: false
+                    }
+                );
+            }
+
+            // If tooltip already initialized.
+            if (element !== null && element.qtip('api') !== null) {
+                if (tooltip.errorTitle !== null) {
+                    element.qtip('api').set('content.title', tooltip.errorTitle);
+                }
+
+                element.qtip('api').set('content.text', tooltip.error);
+            }
+
+        } else {
+            // Prompt message with light-colored cell and tooltip.
+            // Shows on initial table load and
+            TD.style.background = '#ffffff';
+            TD.setAttribute('title', " ");
+            TD.setAttribute('id', idName);
+
+            if (tooltip.promptTitle != null) {
+                element.qtip(
+                    {
+                        style: {
+                            classes: 'qtip-light'
+                        }
+                    },
+                    {
+                        content: {
+                            title: tooltip.promptTitle,
+                            text: tooltip.prompt
+                        }
+                    },
+                    {
+                        show: {
+                            solo: true
+                        },
+                        hide: false
+                    }
+                );
+            } else {
+                element.qtip(
+                    {
+                        style: {
+                            classes: 'qtip-light'
+                        }
+                    },
+                    {
+                        content: {
+                            text: tooltip.prompt
+                        }
+                    },
+                    {
+                        show: {
+                            solo: true
+                        },
+                        hide: false
+                    }
+                );
+            }
+
+            // If tooltip already initialized.
+            if (element !== null && element.qtip('api') !== null) {
+                if (tooltip.promptTitle !== null) {
+                    element.qtip('api').set('content.title', tooltip.promptTitle);
+                }
+
+                element.qtip('api').set('content.text', tooltip.prompt);
+            }
+
+
+        }
+    }
   
   // call the default renderer
   var baseRenderer = Handsontable.cellTypes['text'].renderer;
