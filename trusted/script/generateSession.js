@@ -7,9 +7,9 @@
  *
  */
 
-function generateSession(hiddenDiv, sessionID, pubID, privID, linkID) {
+function generateSession(hiddenDiv, urlsID, pubID, privID, linkID, submitID, countID) {
     document.getElementById(hiddenDiv).style.visibility = "visible";
-    document.getElementById(sessionID).innerHTML = "Loading...";
+    document.getElementById(urlsID).innerHTML = "";
     document.getElementById(pubID).innerHTML = "Loading...";
     document.getElementById(privID).innerHTML = "Loading... (Remember: Do not share this)";
     var keyP, privateKey, publicKey;
@@ -47,17 +47,46 @@ function generateSession(hiddenDiv, sessionID, pubID, privID, linkID) {
                 success: function(resp) {
                     console.log(resp);
                     var rndSess = resp.sessionID;
+
                     document.getElementById(privID).innerHTML = privateKey;
                     document.getElementById(pubID).innerHTML = publicKey;
-                    document.getElementById(sessionID).innerHTML = rndSess;
                     document.getElementById(linkID).innerHTML =
                         "Go To Live Data Page for Session " + rndSess;
                     document.getElementById(linkID).href = "session_data.html?session=" + rndSess;
                     saveAs(priBlob,'Session_' + rndSess + '_private_key.pem');
+
+                    document.getElementById(submitID).onclick = function() {
+                      var count = document.getElementById(countID).value;
+                      count = parseInt(count);
+
+                      var reg = new RegExp('^[0-9]+$');
+                      if(!reg.test(count)) return;
+
+                      $.ajax({
+                          type: "POST",
+                          url: "/generate_client_urls",
+                          contentType: "application/json",
+                          data: JSON.stringify({count: count, session: rndSess}),
+
+                          success: function(resp) {
+                            var baseUrl = window.location.toString();
+                            baseUrl = baseUrl.substring(0,baseUrl.length-"trusted/".length);
+                            for(var i=0; i<resp.result.length; i++){
+                              resp.result[i] = baseUrl + resp.result[i];
+                            }
+                            document.getElementById(urlsID).innerHTML = resp.result.join('\n');
+                          },
+
+                          error: function() {
+                              var errmsg = "ERROR!";
+                              document.getElementById(urlsID).innerHTML = errmsg;
+                          }
+                      });
+                    };
                 },
+                
                 error: function() {
                     var errmsg = "ERROR!!!: failed to load public key to server, please try again";
-                    document.getElementById(sessionID).innerHTML = errmsg;
                     document.getElementById(privID).innerHTML = errmsg;
                     document.getElementById(pubID).innerHTML = errmsg;
                 }
@@ -67,7 +96,6 @@ function generateSession(hiddenDiv, sessionID, pubID, privID, linkID) {
             // TODO: double-check
             console.log(err);
             var errmsg = "ERROR!!!: failed to load public key to server, please try again";
-            document.getElementById(sessionID).innerHTML = errmsg;
             document.getElementById(privID).innerHTML = errmsg;
             document.getElementById(pubID).innerHTML = errmsg;
         });
