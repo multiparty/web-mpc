@@ -280,6 +280,57 @@ app.post('/create_session', function (req, res) {
     });
 });
 
+// endpoint for generating client unique urls
+app.post('/generate_client_urls', function (req, res) {
+    console.log('POST /generate_client_urls');
+    console.log(req.body);
+
+    // Max number of clients: 10 000
+    var schema = {
+      count: joi.number().integer().min(0).max(10000).required(),
+      session: joi.string().alphanum().required()
+    };
+
+    joi.validate(req.body, schema, function (valErr, body) {
+        if (valErr) {
+            console.log(valErr);
+            res.status(500).send('Invalid request.');
+            return;
+        }
+
+        var count = body.count;
+        var session = body.session;
+        var urls = [];
+        for(var i=0; i<count; i++){
+          var userid = crypto.randomBytes(16).toString('hex');
+          var url = "?sessionkey="+session+"&userkey="+userid;
+          urls.push(url);
+        }
+
+        // var newKey = new PublicKey({
+        //     _id: sessionID,
+        //     session: sessionID,
+        //     pub_key: publickey
+        // });
+
+        // newKey.save(function (err) {
+        //     if (err) {
+        //         console.log(err);
+        //         res.status(500).send("Error during session creation.");
+        //         return;
+        //     }
+        //     else {
+
+        console.log('URLs generated:', session);
+        res.json({result: urls});
+        return;
+
+        //     }
+        // });
+
+    });
+});
+
 // endpoint for returning the emails that have submitted already
 app.post('/get_data', function (req, res) {
     console.log('POST /get_data');
