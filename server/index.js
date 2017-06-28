@@ -133,6 +133,11 @@ var FinalAggregate = mongoose.model('FinalAggregate', {
     date: Number,
     session: String
 });
+var UserKey = mongoose.model('UserKey', {
+    _id: String, // concat of session + user.
+    session: String,
+    userkey: String
+});
 
 // for parsing application/json
 app.use(body_parser.json({limit: '50mb'}));
@@ -171,44 +176,57 @@ app.post('/', function (req, res) {
             session = body.session,
             user = body.user,
             ID = session + user; // will use concat of user + session for now
+        
+        // Ensure user key exists. 
+        UserKey.findOne({_id: ID}, function (err, data) {
+            if (err) {
+                console.log(err);
+                res.status(500).send('Error while verifying user key.');
+                return;
+            }
+            
+            if (data == null) {
+                res.status(500).send('Invalid user key');
+            } else { // User Key Found.
+                // save the mask and individual aggregate
+                var aggToSave = new Aggregate({
+                    _id: ID,
+                    fields: data,
+                    date: Date.now(),
+                    session: session,
+                    email: user
+                });
 
-        // save the mask and individual aggregate
-        var aggToSave = new Aggregate({
-            _id: ID,
-            fields: data,
-            date: Date.now(),
-            session: session,
-            email: user
-        });
+                var maskToSave = new Mask({
+                    _id: ID,
+                    fields: mask,
+                    session: session
+                });
 
-        var maskToSave = new Mask({
-            _id: ID,
-            fields: mask,
-            session: session
-        });
+                // for both the aggregate and the mask, update the old aggregate
+                // for the company with that email. Update or insert, hence the upsert flag
+                var aggPromise = Aggregate.update(
+                            {_id: ID},
+                            aggToSave.toObject(),
+                            {upsert: true}
+                        ),
+                    maskPromise = Mask.update(
+                            {_id: ID},
+                            maskToSave.toObject(),
+                            {upsert: true}
+                        );
 
-        // for both the aggregate and the mask, update the old aggregate
-        // for the company with that email. Update or insert, hence the upsert flag
-        var aggPromise = Aggregate.update(
-                    {_id: ID},
-                    aggToSave.toObject(),
-                    {upsert: true}
-                ),
-            maskPromise = Mask.update(
-                    {_id: ID},
-                    maskToSave.toObject(),
-                    {upsert: true}
-                );
-
-        Promise.join(aggPromise, maskPromise)
-        .then(function (aggStored, maskStored) {
-            res.send(body);
-            return;
-        })
-        .catch(function (err) {
-            console.log(err);
-            res.status(500).send('Unable to save aggregate, please try again');
-            return;
+                Promise.join(aggPromise, maskPromise)
+                .then(function (aggStored, maskStored) {
+                    res.send(body);
+                    return;
+                })
+                .catch(function (err) {
+                    console.log(err);
+                    res.status(500).send('Unable to save aggregate, please try again');
+                    return;
+                });
+            }
         });
     });
 });
@@ -291,43 +309,109 @@ app.post('/generate_client_urls', function (req, res) {
       session: joi.string().alphanum().required()
     };
 
+    // Validate request.
     joi.validate(req.body, schema, function (valErr, body) {
         if (valErr) {
             console.log(valErr);
             res.status(500).send('Invalid request.');
             return;
         }
+        
+        // Get all previously generated user keys.
+        UserKey.where({session: body.session}).find(function (err, data) {
+            if (err) {
+                console.log(err);
+                res.status(500).send('Error getting user keys.');
+                return;
+            }
+            
+            var count = body.count;
+            var session = body.session;
 
-        var count = body.count;
-        var session = body.session;
-        var urls = [];
-        for(var i=0; i<count; i++){
-          var userid = crypto.randomBytes(16).toString('hex');
-          var url = "?sessionkey="+session+"&userkey="+userid;
-          urls.push(url);
+            // Store the UserKeys, userKey models, and urls.
+            var urls = [];
+            var userkeys = [];
+            var models = [];
+            if (!data) data = [];
+            
+            for(var d in data)
+                userkeys.push(d.userkey);
+
+            // Create count many unique (per session) user keys.
+            for(var i = 0; i < count; i++) {
+                var userkey = crypto.randomBytes(16).toString('hex');
+                
+                // If user key already exists, repeat.
+                if(userkeys.indexOf(userkey) > -1) {
+                    i--;
+                    continue;
+                }
+                
+                // parameter portion of url.
+                var url = "?sessionkey="+session+"&userkey="+userkey;
+                urls.push(url);
+                
+                // UserKey model.
+                model = new UserKey({
+                    _id: session+userkey,
+                    session: session,
+                    userkey: userkey
+                });
+                models.push(model);
+            }
+            
+            console.log(urls);
+            // Save the userkeys into the db.
+            UserKey.insertMany(models, function(error, docs) {
+                if (err) {
+                    console.log(err);
+                    res.status(500).send("Error during storing keys.");
+                    return;
+                }
+                else {
+                    console.log('URLs generated:', session);
+                    res.json({result: urls});
+                    return;
+                }
+            });
+        });
+    });
+});
+
+// endpoint for getting already generated client unique urls
+app.post('/get_client_urls', function (req, res) {
+    console.log('POST /get_client_urls');
+    console.log(req.body);
+
+    var schema = { session: joi.string().alphanum().required() };
+
+    // Validate request.
+    joi.validate(req.body, schema, function (valErr, body) {
+        if (valErr) {
+            console.log(valErr);
+            res.status(500).send('Invalid request.');
+            return;
         }
-
-        // var newKey = new PublicKey({
-        //     _id: sessionID,
-        //     session: sessionID,
-        //     pub_key: publickey
-        // });
-
-        // newKey.save(function (err) {
-        //     if (err) {
-        //         console.log(err);
-        //         res.status(500).send("Error during session creation.");
-        //         return;
-        //     }
-        //     else {
-
-        console.log('URLs generated:', session);
-        res.json({result: urls});
-        return;
-
-        //     }
-        // });
-
+        
+        // Get all previously generated user keys.
+        UserKey.where({session: body.session}).find(function (err, data) {
+            if (err) {
+                console.log(err);
+                res.status(500).send('Error getting client urls.');
+                return;
+            }
+            
+            if (!data) data = [];
+            var urls = [];
+            for(var d in data) {
+                var url = "?sessionkey="+body.session+"&userkey="+data[d].userkey;
+                urls.push(url);
+            }
+            
+            console.log('URLs fetched:', body.session);
+            res.json({result: urls});
+            return;
+        });
     });
 });
 
