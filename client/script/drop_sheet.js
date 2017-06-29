@@ -307,11 +307,16 @@ var DropSheet = function DropSheet(opts) {
         $('#drop-area').removeClass('dragenter');
     }
 
+    function handleClick(e) {
+        $('#choose-file').click();
+    }
+
     if (opts.drop.addEventListener) {
         opts.drop.addEventListener('dragenter', handleDragover, false);
         opts.drop.addEventListener('dragleave', handleDragleave);
         opts.drop.addEventListener('dragover', handleDragover, false);
         opts.drop.addEventListener('drop', handleDrop, false);
+        opts.drop.addEventListener('click', handleClick, false);
     }
 
     // For choosing a file using <input> (ie Choose File button).
