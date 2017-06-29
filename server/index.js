@@ -176,15 +176,15 @@ app.post('/', function (req, res) {
             session = body.session,
             user = body.user,
             ID = session + user; // will use concat of user + session for now
-        
-        // Ensure user key exists. 
+
+        // Ensure user key exists.
         UserKey.findOne({_id: ID}, function (err, data) {
             if (err) {
                 console.log(err);
                 res.status(500).send('Error while verifying user key.');
                 return;
             }
-            
+
             if (data == null) {
                 res.status(500).send('Invalid user key');
             } else { // User Key Found.
@@ -316,7 +316,7 @@ app.post('/generate_client_urls', function (req, res) {
             res.status(500).send('Invalid request.');
             return;
         }
-        
+
         // Get all previously generated user keys.
         UserKey.where({session: body.session}).find(function (err, data) {
             if (err) {
@@ -324,7 +324,7 @@ app.post('/generate_client_urls', function (req, res) {
                 res.status(500).send('Error getting user keys.');
                 return;
             }
-            
+
             var count = body.count;
             var session = body.session;
 
@@ -333,33 +333,33 @@ app.post('/generate_client_urls', function (req, res) {
             var userkeys = [];
             var models = [];
             if (!data) data = [];
-            
+
             for(var d in data)
                 userkeys.push(d.userkey);
 
             // Create count many unique (per session) user keys.
             for(var i = 0; i < count; i++) {
                 var userkey = crypto.randomBytes(16).toString('hex');
-                
+
                 // If user key already exists, repeat.
                 if(userkeys.indexOf(userkey) > -1) {
                     i--;
                     continue;
                 }
-                
+
                 // parameter portion of url.
                 var url = "?sessionkey="+session+"&userkey="+userkey;
                 urls.push(url);
-                
+
                 // UserKey model.
-                model = new UserKey({
+                var model = new UserKey({
                     _id: session+userkey,
                     session: session,
                     userkey: userkey
                 });
                 models.push(model);
             }
-            
+
             console.log(urls);
             // Save the userkeys into the db.
             UserKey.insertMany(models, function(error, docs) {
@@ -392,7 +392,7 @@ app.post('/get_client_urls', function (req, res) {
             res.status(500).send('Invalid request.');
             return;
         }
-        
+
         // Get all previously generated user keys.
         UserKey.where({session: body.session}).find(function (err, data) {
             if (err) {
@@ -400,14 +400,14 @@ app.post('/get_client_urls', function (req, res) {
                 res.status(500).send('Error getting client urls.');
                 return;
             }
-            
+
             if (!data) data = [];
             var urls = [];
             for(var d in data) {
                 var url = "?sessionkey="+body.session+"&userkey="+data[d].userkey;
                 urls.push(url);
             }
-            
+
             console.log('URLs fetched:', body.session);
             res.json({result: urls});
             return;

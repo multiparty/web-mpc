@@ -38,16 +38,14 @@
     </div>
     <br/>
     <button class="btn btn-primary btn-lg" id="Generate"
-            onclick="generateSession('infoDiv','urlsID','pubkeyID','privkeyID','linkID', 'submitID', 'countID')">
+            onclick="generateSession('infoDiv','sessionID','pubkeyID','privkeyID','linkID')">
       Generate Session
     </button>
       <div id="infoDiv">
         <h3><a id="linkID" href="session_data.html"></a></h3>
         <br/>
-        <h3>Number of participants </h3>
-        <input autocomplete="off" type="text" id="countID" placeholder="Enter Number here" pattern="^[0-9]{1,5}$" size="5" required>
-        <input type="button" id="submitID" value="Submit"><br><br>
-        <pre id="urlsID"></pre>
+        <h3>Session Key (please email to participants)</h3>
+        <pre id="sessionID"></pre>
         <br/>
         <h3>Public Key</h3>
         <pre id="pubkeyID"></pre>

@@ -13,6 +13,16 @@
     #statusID {
       visibility: hidden;
     }
+    #urlsSection {
+      visibility: hidden;
+    }
+    #urlsID {
+      visibility: hidden;
+    }
+    input[type=text] {
+      height: 30px;
+      width: 300px;
+    }
   </style>
 </head>
 <body>
@@ -31,9 +41,11 @@
     </div>
     <form class="form-inline" role="form" id="inputform">
       <input type="text" id="sess" placeholder="Session Number"/>
-      <button id="submit" type="button" class="btn btn-primary" onclick="genT()" >SUBMIT</button>
+      <button id="submit" type="button" class="btn btn-primary" onclick="genT()">SUBMIT</button>
     </form>
     <div class="alert alert-success" id="statusID">LOADING...</div>
+
+    <h3>Tracking and Unmasking</h3>
     <div><a id="unmasklink"></a></div>
     <table class="table table-striped" id="table">
       <thead>
@@ -45,10 +57,28 @@
       <tbody id="participants">
       </tbody>
     </table>
+    <br />
+    <div id="urlsSection">
+      <h3>Links for Participants </h3>
+      <form class="form-inline" role="form">
+        <input autocomplete="off" type="text" id="countID" placeholder="Enter Number of new links needed" pattern="^[0-9]{1,5}$" size="5" required>
+        <button id="gen_button" type="button" class="btn" id="Generate">
+          Generate Links
+        </button>
+      </form>
+      <pre id="urlsID"></pre>
+
+      <div id="oldUrlsSection">
+        <h3>Previously Generated Links</h3>
+        <pre id="oldUrlsID"></pre>
+      </div>
+    </div>
     <script>
       window.genT = function(sessNum) {
         document.getElementById('table').style.visibility = "visible";
         document.getElementById('statusID').style.visibility = "visible";
+        document.getElementById('urlsSection').style.visibility = "visible";
+
         var val = sessNum === undefined ? document.getElementById('sess').value: sessNum;
         $('#inputform').remove();
 
@@ -56,6 +86,8 @@
         document.getElementById('unmasklink').href = "../unmask/index.html?session=" + val;
 
         generateTable('table', val, 'statusID');
+        fetchOldLinks(val, "oldUrlsID", "oldUrlsSection");
+        document.getElementById("gen_button").onclick = function() { generateUrls(val, 'urlsID', 'countID') };
       }
       window.getParameterByName = function(name) {
         name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
