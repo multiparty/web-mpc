@@ -126,7 +126,7 @@ var renderer = function(instance, TD, row, col, prop, value, cellProperties) {
 
         if (cellProperties.valid === false) {
             // Error message with red-colored cell and tooltip.
-            TD.style.background = '#ff4c42';
+            TD.style.background = '#F06D65';
             TD.setAttribute('title', " ");
             TD.setAttribute('id', idName);
             if (tooltip.errorTitle != null) {
@@ -139,14 +139,18 @@ var renderer = function(instance, TD, row, col, prop, value, cellProperties) {
                     {
                         content: {
                             title: tooltip.errorTitle,
-                            text: tooltip.error
+                            text: "<img src='style/cancel.png' alt='Error'>" + tooltip.error
                         }
                     },
                     {
                         show: {
-                            solo: true
+                            solo: true,
+                            delay: 50
                         },
-                        hide: false
+                        hide: {
+                          inactive: 50
+                        },
+                        prerender: true
                     }
                 );
             } else {
@@ -158,14 +162,18 @@ var renderer = function(instance, TD, row, col, prop, value, cellProperties) {
                     },
                     {
                         content: {
-                            text: tooltip.error
+                            text: "<img src='style/cancel.png' alt='Error'>" + tooltip.error
                         }
                     },
                     {
                         show: {
-                            solo: true
+                            solo: true,
+                            delay: 50
                         },
-                        hide: false
+                        hide: {
+                          inactive: 50
+                        },
+                        prerender: true
                     }
                 );
             }
@@ -176,7 +184,7 @@ var renderer = function(instance, TD, row, col, prop, value, cellProperties) {
                     element.qtip('api').set('content.title', tooltip.errorTitle);
                 }
 
-                element.qtip('api').set('content.text', tooltip.error);
+                element.qtip('api').set('content.text', "<img src='style/cancel.png' alt='Error'>" + tooltip.error);
             }
 
         } else {
@@ -201,9 +209,13 @@ var renderer = function(instance, TD, row, col, prop, value, cellProperties) {
                     },
                     {
                         show: {
-                            solo: true
+                            solo: true,
+                            delay: 50
                         },
-                        hide: false
+                        hide: {
+                          inactive: 50
+                        },
+                        prerender: true
                     }
                 );
             } else {
@@ -220,9 +232,13 @@ var renderer = function(instance, TD, row, col, prop, value, cellProperties) {
                     },
                     {
                         show: {
-                            solo: true
+                            solo: true,
+                            delay: 50
                         },
-                        hide: false
+                        hide: {
+                          inactive: 50
+                        },
+                        prerender: true
                     }
                 );
             }
