@@ -41,6 +41,7 @@
     </div>
     <form class="form-inline" role="form" id="inputform">
       <input type="text" id="sess" placeholder="Session Number"/>
+      <input type="password" id="pass" placeholder="Session Password"/>
       <button id="submit" type="button" class="btn btn-primary" onclick="genT()">SUBMIT</button>
     </form>
     <div class="alert alert-success" id="statusID">LOADING...</div>
@@ -74,20 +75,21 @@
       </div>
     </div>
     <script>
-      window.genT = function(sessNum) {
+      window.genT = function() {
         document.getElementById('table').style.visibility = "visible";
         document.getElementById('statusID').style.visibility = "visible";
         document.getElementById('urlsSection').style.visibility = "visible";
 
-        var val = sessNum === undefined ? document.getElementById('sess').value: sessNum;
+        var session = document.getElementById('sess').value;
+        var password = document.getElementById('pass').value;
         $('#inputform').remove();
 
-        document.getElementById('unmasklink').innerHTML = "Click here to unmask aggregate data Session " + val;
-        document.getElementById('unmasklink').href = "../unmask/index.html?session=" + val;
+        document.getElementById('unmasklink').innerHTML = "Click here to unmask aggregate data Session " + session;
+        document.getElementById('unmasklink').href = "../unmask/index.html?session=" + session;
 
-        generateTable('table', val, 'statusID');
-        fetchOldLinks(val, "oldUrlsID", "oldUrlsSection");
-        document.getElementById("gen_button").onclick = function() { generateUrls(val, 'urlsID', 'countID') };
+        generateTable('table', session, password, 'statusID');
+        fetchOldLinks(session, password, "oldUrlsID", "oldUrlsSection");
+        document.getElementById("gen_button").onclick = function() { generateUrls(session, password, 'urlsID', 'countID') };
       }
       window.getParameterByName = function(name) {
         name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
@@ -96,7 +98,8 @@
         return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
       }
       if(getParameterByName('session')) {
-        genT(getParameterByName('session'));
+        var session = getParameterByName('session');
+        document.getElementById("sess").value = session;
       }
     </script>
   </div>

@@ -38,7 +38,7 @@
     </div>
     <br/>
     <button class="btn btn-primary btn-lg" id="Generate"
-            onclick="generateSession('infoDiv','sessionID','pubkeyID','privkeyID','linkID')">
+            onclick="generateSession('infoDiv','sessionID', 'passwordID', 'pubkeyID','privkeyID','linkID')">
       Generate Session
     </button>
       <div id="infoDiv">
@@ -46,6 +46,8 @@
         <br/>
         <h3>Session Key (please email to participants)</h3>
         <pre id="sessionID"></pre>
+        <h3>Session Password (Keep to yourself to unmask and manage session)</h3>
+        <pre id="passwordID"></pre>
         <br/>
         <h3>Public Key</h3>
         <pre id="pubkeyID"></pre>

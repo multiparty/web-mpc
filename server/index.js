@@ -122,10 +122,11 @@ var Mask = mongoose.model('Mask', {
     fields: Object,
     session: String
 });
-var PublicKey = mongoose.model('PublicKey', {
+var SessionInfo = mongoose.model('SessionInfo', {
     _id: String,
     session: String,
-    pub_key: String
+    pub_key: String,
+    password: String
 });
 var FinalAggregate = mongoose.model('FinalAggregate', {
     _id: String,
@@ -138,6 +139,19 @@ var UserKey = mongoose.model('UserKey', {
     session: String,
     userkey: String
 });
+
+
+// Verifies that the given session and password match.
+function verify_password(session, password, success, fail) {
+    SessionInfo.findOne({session: session, password: password}, function (err, data) {
+        if (err)
+            fail('Error while verifying user key.');
+        else if (data == null)
+            fail('Invalid session/password');
+        else
+            success();  
+    }
+}
 
 // for parsing application/json
 app.use(body_parser.json({limit: '50mb'}));
@@ -243,7 +257,7 @@ app.post("/publickey", function (req, res) {
             res.status(500).send('Error while fetching key.');
             return;
         }
-        PublicKey.findOne({session: body.session}, function (err, data) {
+        SessionInfo.findOne({session: body.session}, function (err, data) {
             if (err) {
                 console.log(err);
                 res.status(500).send('Error while fetching key.');
@@ -275,14 +289,16 @@ app.post('/create_session', function (req, res) {
 
         var publickey = body.publickey;
         var sessionID = crypto.randomBytes(16).toString('hex');
+        var password = crypto.randomBytes(16).toString('hex');
 
-        var newKey = new PublicKey({
+        var sessInfo = new SessionInfo({
             _id: sessionID,
             session: sessionID,
-            pub_key: publickey
+            pub_key: publickey,
+            password: password
         });
 
-        newKey.save(function (err) {
+        sessInfo.save(function (err) {
             if (err) {
                 console.log(err);
                 res.status(500).send("Error during session creation.");
@@ -290,11 +306,10 @@ app.post('/create_session', function (req, res) {
             }
             else {
                 console.log('Session generated for:', sessionID);
-                res.json({sessionID: sessionID});
+                res.json({sessionID: sessionID, password: password});
                 return;
             }
         });
-
     });
 });
 
@@ -306,7 +321,92 @@ app.post('/generate_client_urls', function (req, res) {
     // Max number of clients: 10 000
     var schema = {
       count: joi.number().integer().min(0).max(10000).required(),
-      session: joi.string().alphanum().required()
+      session: joi.string().alphanum().required(),
+      password: joi.string().alphanum().required()
+    };
+
+    // Validate request.
+    joi.validate(req.body, schema, function (valErr, body) {
+        if (valErr) {
+            console.log(valErr);
+            res.status(500).send('Invalid request.');
+            return;
+        }
+        
+        // Get all previously generated user keys.
+        var fail = function(err) { console.log(err); res.status(500).send(err); };
+        var success = function() {
+            UserKey.where({session: body.session}).find(function (err, data) {
+                if (err) {
+                    console.log(err);
+                    res.status(500).send('Error getting user keys.');
+                    return;
+                }
+
+                var count = body.count;
+                var session = body.session;
+
+                // Store the UserKeys, userKey models, and urls.
+                var urls = [];
+                var userkeys = [];
+                var models = [];
+                if (!data) data = [];
+
+                for(var d in data)
+                    userkeys.push(d.userkey);
+
+                // Create count many unique (per session) user keys.
+                for(var i = 0; i < count; i++) {
+                    var userkey = crypto.randomBytes(16).toString('hex');
+
+                    // If user key already exists, repeat.
+                    if(userkeys.indexOf(userkey) > -1) {
+                        i--;
+                        continue;
+                    }
+
+                    // parameter portion of url.
+                    var url = "?sessionkey="+session+"&userkey="+userkey;
+                    urls.push(url);
+
+                    // UserKey model.
+                    var model = new UserKey({
+                        _id: session+userkey,
+                        session: session,
+                        userkey: userkey
+                    });
+                    models.push(model);
+                }
+
+                console.log(urls);
+                // Save the userkeys into the db.
+                UserKey.insertMany(models, function(error, docs) {
+                    if (err) {
+                        console.log(err);
+                        res.status(500).send("Error during storing keys.");
+                        return;
+                    }
+                    else {
+                        console.log('URLs generated:', session);
+                        res.json({result: urls});
+                        return;
+                    }
+                });
+            });
+        };
+
+        verify_password(body.session, body.password, success, fail);
+    });
+});
+
+// endpoint for getting already generated client unique urls
+app.post('/get_client_urls', function (req, res) {
+    console.log('POST /get_client_urls');
+    console.log(req.body);
+
+    var schema = { 
+        session: joi.string().alphanum().required(),
+        password: joi.string().alphanum().required()
     };
 
     // Validate request.
@@ -318,100 +418,29 @@ app.post('/generate_client_urls', function (req, res) {
         }
 
         // Get all previously generated user keys.
-        UserKey.where({session: body.session}).find(function (err, data) {
-            if (err) {
-                console.log(err);
-                res.status(500).send('Error getting user keys.');
-                return;
-            }
-
-            var count = body.count;
-            var session = body.session;
-
-            // Store the UserKeys, userKey models, and urls.
-            var urls = [];
-            var userkeys = [];
-            var models = [];
-            if (!data) data = [];
-
-            for(var d in data)
-                userkeys.push(d.userkey);
-
-            // Create count many unique (per session) user keys.
-            for(var i = 0; i < count; i++) {
-                var userkey = crypto.randomBytes(16).toString('hex');
-
-                // If user key already exists, repeat.
-                if(userkeys.indexOf(userkey) > -1) {
-                    i--;
-                    continue;
-                }
-
-                // parameter portion of url.
-                var url = "?sessionkey="+session+"&userkey="+userkey;
-                urls.push(url);
-
-                // UserKey model.
-                var model = new UserKey({
-                    _id: session+userkey,
-                    session: session,
-                    userkey: userkey
-                });
-                models.push(model);
-            }
-
-            console.log(urls);
-            // Save the userkeys into the db.
-            UserKey.insertMany(models, function(error, docs) {
+        var fail = function(err) { console.log(err); res.status(500).send(err); };
+        var success = function() {
+            UserKey.where({session: body.session}).find(function (err, data) {
                 if (err) {
                     console.log(err);
-                    res.status(500).send("Error during storing keys.");
+                    res.status(500).send('Error getting client urls.');
                     return;
                 }
-                else {
-                    console.log('URLs generated:', session);
-                    res.json({result: urls});
-                    return;
+
+                if (!data) data = [];
+                var urls = [];
+                for(var d in data) {
+                    var url = "?sessionkey="+body.session+"&userkey="+data[d].userkey;
+                    urls.push(url);
                 }
-            });
-        });
-    });
-});
 
-// endpoint for getting already generated client unique urls
-app.post('/get_client_urls', function (req, res) {
-    console.log('POST /get_client_urls');
-    console.log(req.body);
-
-    var schema = { session: joi.string().alphanum().required() };
-
-    // Validate request.
-    joi.validate(req.body, schema, function (valErr, body) {
-        if (valErr) {
-            console.log(valErr);
-            res.status(500).send('Invalid request.');
-            return;
-        }
-
-        // Get all previously generated user keys.
-        UserKey.where({session: body.session}).find(function (err, data) {
-            if (err) {
-                console.log(err);
-                res.status(500).send('Error getting client urls.');
+                console.log('URLs fetched:', body.session);
+                res.json({result: urls});
                 return;
-            }
-
-            if (!data) data = [];
-            var urls = [];
-            for(var d in data) {
-                var url = "?sessionkey="+body.session+"&userkey="+data[d].userkey;
-                urls.push(url);
-            }
-
-            console.log('URLs fetched:', body.session);
-            res.json({result: urls});
-            return;
-        });
+            });
+        };
+        
+        verify_password(body.session, body.password, success, fail);
     });
 });
 
@@ -422,6 +451,7 @@ app.post('/get_data', function (req, res) {
 
     var schema = {
         session: joi.string().alphanum().required(),
+        password: joi.string().alphanum().required(),
         last_fetch: joi.number().required() // TODO: enforce time stamp
     };
 
@@ -432,20 +462,25 @@ app.post('/get_data', function (req, res) {
             return;
         }
         // find all entries for a specific session and return the email and the time they submitted
-        Aggregate.where({session: body.session}).gt('date', body.last_fetch).find(function (err, data) {
-            if (err) {
-                console.log(err);
-                res.status(500).send('Failed to fetch contributors.');
-                return;
-            } else {
-                var to_send = {};
-                for (var row in data) {
-                    to_send[data[row].email] = data[row].date;
+        var fail = function(err) { console.log(err); res.status(500).send(err); };
+        var success = function() {
+            Aggregate.where({session: body.session}).gt('date', body.last_fetch).find(function (err, data) {
+                if (err) {
+                    console.log(err);
+                    res.status(500).send('Failed to fetch contributors.');
+                    return;
+                } else {
+                    var to_send = {};
+                    for (var row in data) {
+                        to_send[data[row].email] = data[row].date;
+                    }
+                    res.json(to_send);
+                    return;
                 }
-                res.json(to_send);
-                return;
-            }
-        });
+            });
+        };
+
+        verify_password(body.session, body.password, success, fail);
     });
 
 });
@@ -455,7 +490,10 @@ app.post('/get_masks', function (req, res) {
     console.log('POST to get_masks.');
     console.log(req.body);
 
-    var schema = {session: joi.string().alphanum().required()};
+    var schema = {
+      session: joi.string().alphanum().required(),
+      password: joi.string().alphanum().required()
+    };
 
     joi.validate(req.body, schema, function (valErr, body) {
         if (valErr) {
@@ -463,21 +501,27 @@ app.post('/get_masks', function (req, res) {
             res.status(500).send('Invalid or missing fields.');
             return;
         }
-        Mask.where({session: body.session}).find(function (err, data) {
-            if (err) {
-                console.log(err);
-                res.status(500).send('Error getting masks.');
-                return;
-            }
-            if (!data || data.length === 0) {
-                res.status(500).send('No submissions yet. Please come back later.');
-                return;
-            }
-            else {
-                res.send({data: JSON.stringify(data)});
-                return;
-            }
-        });
+        
+        var fail = function(err) { console.log(err); res.status(500).send(err); };
+        var success = function() {
+            Mask.where({session: body.session}).find(function (err, data) {
+                if (err) {
+                    console.log(err);
+                    res.status(500).send('Error getting masks.');
+                    return;
+                }
+                if (!data || data.length === 0) {
+                    res.status(500).send('No submissions yet. Please come back later.');
+                    return;
+                }
+                else {
+                    res.send({data: JSON.stringify(data)});
+                    return;
+                }
+            });
+        };
+        
+        verify_password(body.session, body.password, success, fail);
     });
 
 });
@@ -487,7 +531,10 @@ app.post('/get_aggregate', function (req, res) {
     console.log('POST /get_aggregate');
     console.log(req.body);
 
-    var schema = {session: joi.string().alphanum().required()};
+    var schema = {
+      session: joi.string().alphanum().required(),
+      password: joi.string().alphanum().required()
+    };
 
     joi.validate(req.body, schema, function (valErr, body) {
         if (valErr) {
@@ -495,8 +542,10 @@ app.post('/get_aggregate', function (req, res) {
             res.status(500).send('Invalid or missing fields.');
             return;
         }
-        Aggregate.where({session: body.session}).find(function (err, data) {
-
+        
+        var fail = function(err) { console.log(err); res.status(500).send(err); };
+        var success = function() {
+          Aggregate.where({session: body.session}).find(function (err, data) {
             if (err) {
                 console.log(err);
                 res.status(500).send('Error computing aggregate.');
@@ -523,8 +572,10 @@ app.post('/get_aggregate', function (req, res) {
                 res.status(500).send('No submissions yet. Please come back later.');
                 return;
             }
-        });
-
+          });
+        };
+        
+        verify_password(body.session, body.password, success, fail);
     });
 
 });

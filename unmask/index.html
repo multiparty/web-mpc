@@ -112,6 +112,9 @@
 
     <h4>Input Session Key</h4>
     <input type=text id="sessKey" placeholder="Session Key" pattern="^[a-z0-9]{32}$" required/>
+    
+    <h4>Input Session Password</h4>
+    <input type=password id="password" placeholder="Session Password" pattern="^[a-z0-9]{32}$" required/>
 
     <h4>Upload Private Key <small>(Note this does not upload the key to the network)</small></h4>
 
@@ -173,6 +176,7 @@
         $('#unmask').on('click', function() {        
           var maskKey = $('#maskKey').get(0),
               sessKey = $('#sessKey').val(),
+              password = $('#password').val(),
               la = Ladda.create(this),
               keyReader = new FileReader();
 
@@ -253,9 +257,9 @@
                 type: "POST",
                 url: "/get_masks",
                 contentType: "application/json",
-                data: JSON.stringify({session: sessKey}),
+                data: JSON.stringify({session: sessKey, password: password}),
                 success: function (data) {
-                  aggregate_and_unmask(data, privateKey, sessKey, callb);
+                  aggregate_and_unmask(data, privateKey, sessKey, password, callb);
                 },
                 error: function() {
                   callb(false, "Error: failed to load masks");
