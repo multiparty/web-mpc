@@ -120,8 +120,10 @@ var renderer = function(instance, TD, row, col, prop, value, cellProperties) {
     var tooltip = cell.tooltip;
     var tableName = instance._sail_meta.element;   // Assumes each table has distinct name.
 
-    if(tooltip != null) {
+    // Use qtip2 tooltips by default.
+    if(tooltip != null && (typeof jQuery !== 'undefined' && typeof jQuery().qtip !== 'undefined')) {
         var idName = tableName + row + "-" + col;
+
         var element = $('#' + idName);
 
         if (cellProperties.valid === false) {
@@ -254,9 +256,17 @@ var renderer = function(instance, TD, row, col, prop, value, cellProperties) {
 
 
         }
+
+      
+    }
+
+     // Fallback if no jQuery - use comments.
+    if (tooltip !== undefined && tooltip !== null && (typeof jQuery === 'undefined' || typeof jQuery().qtip === 'undefined')) {
+      if(cellProperties.valid === false) cellProperties.comment = { "value": tooltip.error };
+      else cellProperties.comment = { "value": tooltip.prompt };
     }
   
-  // call the default renderer
+  // Call the default renderer
   var baseRenderer = Handsontable.cellTypes['text'].renderer;
   var hot_cell_type = cell.type;
   if(types_map[cell.type] != null && types_map[cell.type].type != null) hot_cell_type = types_map[cell.type].type;
