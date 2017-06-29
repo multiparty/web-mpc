@@ -116,7 +116,7 @@ function generateSession(hiddenDiv, sessionID, passwordID, pubID, privID, linkID
                 success: function(resp) {
                     console.log(resp);
                     var rndSess = resp.sessionID;
-                    var passwod = resp.password;
+                    var password = resp.password;
                     document.getElementById(privID).innerHTML = privateKey;
                     document.getElementById(pubID).innerHTML = publicKey;
                     document.getElementById(sessionID).innerHTML = rndSess;
@@ -196,9 +196,7 @@ function generateTable(tableBody, sessionID, password, status, timestamp, counte
                     return a + b;
                 }, "");
             }
-            setTimeout(function () {
-                generateTable(tableBody, sessionID, status, date)
-            }, 10000);
+            setTimeout(function () { generateTable(tableBody, sessionID, password, status, date) }, 10000);
         },
         error: function (err) {
             var errmsg = "Error Connecting: Reconnect Attempt #" + counter.toString();
@@ -207,7 +205,7 @@ function generateTable(tableBody, sessionID, password, status, timestamp, counte
 
             document.getElementById(status).className = "alert alert-error";
             document.getElementById(status).innerHTML = errmsg;
-            setTimeout(function () { generateTable(tableBody, sessionID, status, date, counter + 1) }, 10000);
+            setTimeout(function () { generateTable(tableBody, sessionID, password, status, date, counter + 1) }, 10000);
         }
     });
 }

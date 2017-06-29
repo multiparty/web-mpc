@@ -150,7 +150,7 @@ function verify_password(session, password, success, fail) {
             fail('Invalid session/password');
         else
             success();  
-    }
+    });
 }
 
 // for parsing application/json
@@ -186,7 +186,7 @@ app.post('/', function (req, res) {
         console.log('Validation passed.');
 
         var mask = body.mask,
-            data = body.data,
+            req_data = body.data,
             session = body.session,
             user = body.user,
             ID = session + user; // will use concat of user + session for now
@@ -205,7 +205,7 @@ app.post('/', function (req, res) {
                 // save the mask and individual aggregate
                 var aggToSave = new Aggregate({
                     _id: ID,
-                    fields: data,
+                    fields: req_data,
                     date: Date.now(),
                     session: session,
                     email: user
@@ -474,7 +474,7 @@ app.post('/get_data', function (req, res) {
                     for (var row in data) {
                         to_send[data[row].email] = data[row].date;
                     }
-                    res.json(to_send);
+                    res.json(to_send);  
                     return;
                 }
             });

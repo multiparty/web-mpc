@@ -50,7 +50,7 @@ function aggregate_and_unmask(mOut, privateKey, session, password, callback) {
   .then(function (resultShares) {
     var analystResult = resultShares[0],
         serviceResult = resultShares[1],
-        finalResult = recombineValues(analystResult, serviceResult);
+        finalResult = recombineValues(serviceResult, analystResult);
     callback(true, finalResult);
   }).catch(function (err) {
     console.log(err);
