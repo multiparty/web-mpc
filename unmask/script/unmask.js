@@ -7,7 +7,7 @@
  */
 
 // Takes callback(true|false, data).
-function aggregate_and_unmask(mOut, privateKey, session, callback) {
+function aggregate_and_unmask(mOut, privateKey, session, password, callback) {
   mOut = JSON.parse(mOut.data);
   
   var skArrayBuffer;
@@ -44,13 +44,13 @@ function aggregate_and_unmask(mOut, privateKey, session, callback) {
   });
 
   // Request service to aggregate its shares and send us the result
-  var serviceResultShare = getServiceResultShare(session);
+  var serviceResultShare = getServiceResultShare(session, password);
 
   Promise.all([analystResultShare, serviceResultShare])
   .then(function (resultShares) {
     var analystResult = resultShares[0],
         serviceResult = resultShares[1],
-        finalResult = recombineValues(analystResult, serviceResult);
+        finalResult = recombineValues(serviceResult, analystResult);
     callback(true, finalResult);
   }).catch(function (err) {
     console.log(err);
@@ -58,13 +58,14 @@ function aggregate_and_unmask(mOut, privateKey, session, callback) {
   });
 }
 
-function getServiceResultShare (session) {
+function getServiceResultShare (session, password) {
   return $.ajax({
     type: "POST",
     url: "/get_aggregate",
     contentType: "application/json",
     data: JSON.stringify({
-      session: session
+      session: session,
+      password: password
     }),
     dataType: "json"
   });

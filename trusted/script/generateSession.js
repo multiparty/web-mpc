@@ -7,9 +7,78 @@
  *
  */
 
-function generateSession(hiddenDiv, sessionID, pubID, privID, linkID) {
+ function formatUrls(urls) {
+   var baseUrl = window.location.toString();
+   var end = baseUrl.indexOf("trusted/session_data.html");
+   baseUrl = baseUrl.substring(0, end);
+
+   var result = [];
+   for(var i = 0; i < urls.length; i++) {
+     result.push(baseUrl + urls[i]);
+   }
+
+   return result;
+ }
+
+function generateUrls(session, password, urlsID, countID) {
+  var old = document.getElementById(urlsID).innerHTML;
+  if(old.trim().length > 0) old = old + "\n";
+
+  document.getElementById(urlsID).innerHTML = old + "Loading...";
+
+  // Number of URLs that need to be generated
+  var count = document.getElementById(countID).value;
+  count = parseInt(count);
+
+  $.ajax({
+     type: "POST",
+     url: "/generate_client_urls",
+     contentType: "application/json",
+     data: JSON.stringify({count: count, session: session, password: password}),
+
+     success: function(resp) {
+       var urls = formatUrls(resp.result);
+       document.getElementById(urlsID).style.visibility = "visible";
+       document.getElementById(urlsID).innerHTML = old + urls.join('\n');
+     },
+     error: function(err) {
+         var errmsg = "ERROR!";
+         if(err && err.hasOwnProperty('responseText') && err.responseText != undefined)
+          errmsg = err.responeText;
+         document.getElementById(urlsID).style.visibility = "visible";
+         document.getElementById(urlsID).innerHTML += errmsg;
+     }
+   });
+}
+
+function fetchOldLinks(session, password, oldUrlsID, section) {
+  document.getElementById(oldUrlsID).innerHTML = "Loading...";
+
+  $.ajax({
+     type: "POST",
+     url: "/get_client_urls",
+     contentType: "application/json",
+     data: JSON.stringify({session: session, password: password}),
+
+     success: function(resp) {
+       var urls = formatUrls(resp.result);
+       document.getElementById(oldUrlsID).innerHTML = urls.join('\n');
+       if(urls.length == 0)
+        document.getElementById(section).style.display = "none";
+     },
+     error: function(err) {
+         var errmsg = "ERROR!";
+         if(err && err.hasOwnProperty('responseText') && err.responseText != undefined)
+          errmsg = err.responeText;
+         document.getElementById(oldUrlsID).innerHTML = errmsg;
+     }
+   });
+}
+
+function generateSession(hiddenDiv, sessionID, passwordID, pubID, privID, linkID) {
     document.getElementById(hiddenDiv).style.visibility = "visible";
     document.getElementById(sessionID).innerHTML = "Loading...";
+    document.getElementById(passwordID).innerHTML = "Loading...";
     document.getElementById(pubID).innerHTML = "Loading...";
     document.getElementById(privID).innerHTML = "Loading... (Remember: Do not share this)";
     var keyP, privateKey, publicKey;
@@ -47,9 +116,11 @@ function generateSession(hiddenDiv, sessionID, pubID, privID, linkID) {
                 success: function(resp) {
                     console.log(resp);
                     var rndSess = resp.sessionID;
+                    var password = resp.password;
                     document.getElementById(privID).innerHTML = privateKey;
                     document.getElementById(pubID).innerHTML = publicKey;
                     document.getElementById(sessionID).innerHTML = rndSess;
+                    document.getElementById(passwordID).innerHTML = password;
                     document.getElementById(linkID).innerHTML =
                         "Go To Live Data Page for Session " + rndSess;
                     document.getElementById(linkID).href = "session_data.html?session=" + rndSess;
@@ -60,6 +131,7 @@ function generateSession(hiddenDiv, sessionID, pubID, privID, linkID) {
                     document.getElementById(sessionID).innerHTML = errmsg;
                     document.getElementById(privID).innerHTML = errmsg;
                     document.getElementById(pubID).innerHTML = errmsg;
+                    document.getElementById(passwordID).innerHTML = errmsg;
                 }
             });
         })
@@ -100,7 +172,7 @@ function generateSession(hiddenDiv, sessionID, pubID, privID, linkID) {
 }
 
 // TODO: why two error handlers?
-function generateTable(tableBody, sessionID, status, timestamp, counter) {
+function generateTable(tableBody, sessionID, password, status, timestamp, counter) {
     if (timestamp === undefined) timestamp = 0;
     if (counter === undefined) counter = 1;
     var date = Date.now();
@@ -108,11 +180,8 @@ function generateTable(tableBody, sessionID, status, timestamp, counter) {
         type: "POST",
         url: "/get_data",
         contentType: "application/json",
-        data: JSON.stringify({session: sessionID, last_fetch: timestamp}),
+        data: JSON.stringify({session: sessionID, password: password, last_fetch: timestamp}),
         dataType: "json",
-        error: function () {
-            console.log("error connecting");
-        },
         success: function (data) {
             if (!_.isEmpty(data)) {
                 var rows = _.map(_.pairs(data), function (pair) {
@@ -127,16 +196,16 @@ function generateTable(tableBody, sessionID, status, timestamp, counter) {
                     return a + b;
                 }, "");
             }
-            setTimeout(function () {
-                generateTable(tableBody, sessionID, status, date)
-            }, 10000);
+            setTimeout(function () { generateTable(tableBody, sessionID, password, status, date) }, 10000);
         },
-        error: function () {
+        error: function (err) {
+            var errmsg = "Error Connecting: Reconnect Attempt #" + counter.toString();
+            if(err && err.hasOwnProperty('responseText') && err.responseText != undefined)
+                errmsg = err.responeText;
+
             document.getElementById(status).className = "alert alert-error";
-            document.getElementById(status).innerHTML = "Error Connecting: Reconnect Attempt #" + counter.toString();
-            setTimeout(function () {
-                generateTable(tableBody, sessionID, status, date, counter + 1)
-            }, 10000);
+            document.getElementById(status).innerHTML = errmsg;
+            setTimeout(function () { generateTable(tableBody, sessionID, password, status, date, counter + 1) }, 10000);
         }
     });
 }
