@@ -115,15 +115,142 @@ var renderer = function(instance, TD, row, col, prop, value, cellProperties) {
   
   // Readonly
   if(cell.read_only != null) cellProperties.readOnly = cell.read_only;
+
+    // Tooltip
+    var tooltip = cell.tooltip;
+    var tableName = instance._sail_meta.element;   // Assumes each table has distinct name.
+
+    // Use qtip2 tooltips by default.
+    if(tooltip != null && (typeof jQuery !== 'undefined' && typeof jQuery().qtip !== 'undefined')) {
+        var idName = tableName + row + "-" + col;
+
+        var element = $('#' + idName);
+
+        if (cellProperties.valid === false) {
+            // Error message with red-colored cell and tooltip.
+            TD.style.background = '#F06D65';
+            TD.setAttribute('title', " ");
+            TD.setAttribute('id', idName);
+            if (tooltip.errorTitle != null) {
+                 element.qtip({
+                  style: {
+                             classes: 'qtip-red'
+                        },
+                   content: {
+                            title: tooltip.errorTitle,
+                            text: "<img src='style/cancel.png' alt='Error'>" + tooltip.error
+                        },
+                   show: {
+                            solo: true,
+                            event: 'click',
+                            delay: 30
+                      },
+                   hide: {
+                           event: 'click',
+                          delay: 10
+                        }    
+                });
+
+            } else {
+
+              element.qtip({
+                  style: {
+                             classes: 'qtip-red'
+                        },
+                   content: {
+                            text: "<img src='style/cancel.png' alt='Error'>" + tooltip.error
+                        },
+                   show: {
+                            solo: true,
+                            event: 'click',
+                            delay: 30
+                      },
+                   hide: {
+                          event: 'click',
+                          delay: 10
+                        }
+                });
+          }
+            // If tooltip already initialized.
+            if (element !== null && element.qtip('api') !== null) {
+                if (tooltip.errorTitle !== null) {
+                    element.qtip('api').set('content.title', tooltip.errorTitle);
+                }
+
+                element.qtip('api').set('content.text', "<img src='style/cancel.png' alt='Error'>" + tooltip.error);
+            
+          }
+
+        } //else {
+        //     // Prompt message with light-colored cell and tooltip.
+        //     // Shows on initial table load and
+        //     TD.style.background = '#ffffff';
+        //     TD.setAttribute('title', " ");
+        //     TD.setAttribute('id', idName);
+
+        //     if (tooltip.promptTitle != null) {
+        //         element.qtip({
+        //           style: {
+        //                     classes: 'qtip-light'
+        //                 },
+        //            content: {
+        //                     title: tooltip.promptTitle,
+        //                     text: tooltip.prompt
+        //                 },
+        //            show: {
+        //                     solo: true,
+        //                     event: 'click',
+        //                     delay: 30
+        //               },
+        //            hide: {
+        //                  event: 'click',
+        //                   delay: 10
+        //                 }     
+        //         });
+
+        //     } else {
+        //         element.qtip({
+        //           style: {
+        //                     classes: 'qtip-light'
+        //                 },
+        //            content: {
+        //                     text: tooltip.prompt
+        //                 },
+        //            show: {
+        //                     solo: true,
+        //                     event: 'click',
+        //                     delay: 30
+        //               },
+        //            hide: {
+        //                   event: 'click',
+        //                   delay: 10
+        //                 }   
+        //         });
+             
+        //     }
+
+        //     // If tooltip already initialized.
+        //     if (element !== null && element.qtip('api') !== null) {
+        //         if (tooltip.promptTitle !== null) {
+        //             element.qtip('api').set('content.title', tooltip.promptTitle);
+        //         }
+
+        //         element.qtip('api').set('content.text', tooltip.prompt);
+        //     }
+
+
+        //}
+
+      
+    }
+
+     // Fallback if no jQuery - use comments.
+    if (tooltip !== undefined && tooltip !== null && (typeof jQuery === 'undefined' || typeof jQuery().qtip === 'undefined')) {
+      if(cellProperties.valid === false) cellProperties.comment = { "value": tooltip.errorTitle.toUpperCase() + ' - ' + tooltip.error };
+      //else cellProperties.comment = { "value": tooltip.promptTitle.toUpperCase() + ' - ' + tooltip.prompt };
+    }
   
-  // Tooltip
-  var tooltip = cell.tooltip;
-  if(tooltip != null) {
-    if(cellProperties.valid === false) cellProperties.comment = { "value": tooltip.error };
-    else cellProperties.comment = { "value": tooltip.prompt };
-  }
-  
-  // call the default renderer
+  // Call the default renderer
   var baseRenderer = Handsontable.cellTypes['text'].renderer;
   var hot_cell_type = cell.type;
   if(types_map[cell.type] != null && types_map[cell.type].type != null) hot_cell_type = types_map[cell.type].type;
