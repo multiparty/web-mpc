@@ -181,65 +181,65 @@ var renderer = function(instance, TD, row, col, prop, value, cellProperties) {
             
           }
 
-        } else {
-            // Prompt message with light-colored cell and tooltip.
-            // Shows on initial table load and
-            TD.style.background = '#ffffff';
-            TD.setAttribute('title', " ");
-            TD.setAttribute('id', idName);
+        } //else {
+        //     // Prompt message with light-colored cell and tooltip.
+        //     // Shows on initial table load and
+        //     TD.style.background = '#ffffff';
+        //     TD.setAttribute('title', " ");
+        //     TD.setAttribute('id', idName);
 
-            if (tooltip.promptTitle != null) {
-                element.qtip({
-                  style: {
-                            classes: 'qtip-light'
-                        },
-                   content: {
-                            title: tooltip.promptTitle,
-                            text: tooltip.prompt
-                        },
-                   show: {
-                            solo: true,
-                            event: 'click',
-                            delay: 30
-                      },
-                   hide: {
-                         event: 'click',
-                          delay: 10
-                        }     
-                });
+        //     if (tooltip.promptTitle != null) {
+        //         element.qtip({
+        //           style: {
+        //                     classes: 'qtip-light'
+        //                 },
+        //            content: {
+        //                     title: tooltip.promptTitle,
+        //                     text: tooltip.prompt
+        //                 },
+        //            show: {
+        //                     solo: true,
+        //                     event: 'click',
+        //                     delay: 30
+        //               },
+        //            hide: {
+        //                  event: 'click',
+        //                   delay: 10
+        //                 }     
+        //         });
 
-            } else {
-                element.qtip({
-                  style: {
-                            classes: 'qtip-light'
-                        },
-                   content: {
-                            text: tooltip.prompt
-                        },
-                   show: {
-                            solo: true,
-                            event: 'click',
-                            delay: 30
-                      },
-                   hide: {
-                          event: 'click',
-                          delay: 10
-                        }   
-                });
+        //     } else {
+        //         element.qtip({
+        //           style: {
+        //                     classes: 'qtip-light'
+        //                 },
+        //            content: {
+        //                     text: tooltip.prompt
+        //                 },
+        //            show: {
+        //                     solo: true,
+        //                     event: 'click',
+        //                     delay: 30
+        //               },
+        //            hide: {
+        //                   event: 'click',
+        //                   delay: 10
+        //                 }   
+        //         });
              
-            }
+        //     }
 
-            // If tooltip already initialized.
-            if (element !== null && element.qtip('api') !== null) {
-                if (tooltip.promptTitle !== null) {
-                    element.qtip('api').set('content.title', tooltip.promptTitle);
-                }
+        //     // If tooltip already initialized.
+        //     if (element !== null && element.qtip('api') !== null) {
+        //         if (tooltip.promptTitle !== null) {
+        //             element.qtip('api').set('content.title', tooltip.promptTitle);
+        //         }
 
-                element.qtip('api').set('content.text', tooltip.prompt);
-            }
+        //         element.qtip('api').set('content.text', tooltip.prompt);
+        //     }
 
 
-        }
+        //}
 
       
     }
@@ -247,7 +247,7 @@ var renderer = function(instance, TD, row, col, prop, value, cellProperties) {
      // Fallback if no jQuery - use comments.
     if (tooltip !== undefined && tooltip !== null && (typeof jQuery === 'undefined' || typeof jQuery().qtip === 'undefined')) {
       if(cellProperties.valid === false) cellProperties.comment = { "value": tooltip.errorTitle.toUpperCase() + ' - ' + tooltip.error };
-      else cellProperties.comment = { "value": tooltip.promptTitle.toUpperCase() + ' - ' + tooltip.prompt };
+      //else cellProperties.comment = { "value": tooltip.promptTitle.toUpperCase() + ' - ' + tooltip.prompt };
     }
   
   // Call the default renderer
