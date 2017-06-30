@@ -160,15 +160,10 @@ var DropSheet = function DropSheet(opts) {
         // Loop through xlsx worksheets and tables.
             for (sheetidx = 0; sheetidx < wb.SheetNames.length; sheetidx++) {
                 var current_sheet = wb.Sheets[wb.SheetNames[sheetidx]];
-                //console.log(current_sheet);
                 for (var tableidx = 0; tableidx < opts.tables_def.tables.length; tableidx++) {
-                    if (opts.tables_def.tables[tableidx].excel === undefined) {
-                        continue;
-                    }
+
                     if (opts.tables_def.tables[tableidx].excel !== undefined && opts.tables_def.tables[tableidx].excel !== null && opts.tables_def.tables[tableidx].excel[0] !== null) {
                         if (opts.tables_def.tables[tableidx].excel[0].sheet == wb.SheetNames[sheetidx]) {
-                            //console.log(current_sheet);
-                            //console.log(XLSX.utils.sheet_to_json(current_sheet, {raw: true, range: 4}));
                             checks[tableidx] = process_ws(current_sheet, opts.tables_def.tables[tableidx], opts.tables[tableidx]);
 
                         }
@@ -188,10 +183,12 @@ var DropSheet = function DropSheet(opts) {
     // Processes single XLSX JS worksheet and updates one Handsontable.
     function process_ws(ws, table_def, table) {
 
-        // Default ranges for input section of spreadsheet from tables.json.
+        // Clear existing values in case user is submitting updated sheet after error.
+        table.clear();
+
+        // Default range for input section of spreadsheet, obtained from tables.json.
         var sheet_start = table_def.excel[0].start;
         var sheet_end = table_def.excel[0].end;
-        var header_start = XLS.utils.decode_cell(sheet_start);
 
         // Ranges for handsontable.
         var table_start = XLS.utils.decode_cell(sheet_start);
@@ -204,29 +201,36 @@ var DropSheet = function DropSheet(opts) {
         // Keys of XLSX js worksheet.
         var ws_keys = Object.keys(ws);
 
-        // Check if default start and end are correct based on top row name.
-        if (!(ws[XLS.utils.encode_cell({r: header_start.r, c: header_start.c - 1})] !== undefined &&
-            ws[XLS.utils.encode_cell({r: header_start.r, c: header_start.c - 1})].v === table_def.excel[0].firstrow)){
+        // Default settings for matrix boundary.
+        var matrix = XLSX.utils.sheet_to_json(ws, {raw: true, range: table_start.r, header: 1});
+
+        // Check if default range is correct based on top row name.
+        if (!(ws[XLS.utils.encode_cell({r: table_start.r, c: table_start.c - 1})] !== undefined &&
+            ws[XLS.utils.encode_cell({r: table_start.r, c: table_start.c - 1})].v === table_def.excel[0].firstrow)){
 
 
-;           var found_row = false;
-            // Parse for location of top row name. Only works if extra rows/columns are inserted to left/above table.
+           var found_row = false;
+            
+            // If table is not in expected position, get new boundaries.
             for (var i = 0; i < ws_keys.length; i++) {
                 var key = ws_keys[i];
 
-
+                // Parse for location of top row name.
                 if (ws[key].v !== undefined && ws[key].v !== null && table_def.excel[0].firstrow.toString() === ws[key].v.toString()) {
+                    // Update to boundaries of table (start, end, etc.)
                     var new_start_row = Number(XLS.utils.decode_cell(key).r);
                     var new_start_col = Number(XLS.utils.decode_cell(key).c) + 1;
                     sheet_start = XLSX.utils.encode_cell({r: new_start_row, c: new_start_col});
                     sheet_end = XLSX.utils.encode_cell({r: new_start_row + num_rows - 1, c: new_start_col + num_cols - 1});
                     table_start = XLSX.utils.decode_cell(sheet_start);
                     table_end = XLSX.utils.decode_cell(sheet_end);
+                    matrix = XLSX.utils.sheet_to_json(ws, {raw: true, range: table_start.r, header: 1});
                     found_row = true;
                     break;
                 }
             }
 
+            // If expected row name not found.
             if (!found_row) {
                 alertify.alert("<img src='style/cancel.png' alt='Error'>Error!",
                     "Spreadsheet format does not match original template. Please copy-and-paste or type data into the '" +
@@ -235,19 +239,35 @@ var DropSheet = function DropSheet(opts) {
             }
         }
 
+        // Filter array to get rid of undefined values/any headers.
+        for (var i = 0; i < matrix.length; i++) {
+            matrix[i] = matrix[i].filter(function(cell){
+                return cell !== undefined && cell !== null && !isNaN(Number(cell));
+            })
+        }
 
-        // Check coordinates at four corners of input section.
-        // If any are undefined or non-numeric, emit error message.
-        var points =
-            [sheet_start,
-            XLS.utils.encode_cell({r: num_rows + table_start.r - 1, c: table_start.c}),
-            XLS.utils.encode_cell({r: table_start.r, c: table_start.c + num_cols - 1}),
-            sheet_end];
-        for (var p = 0; p < points.length; p++) {
-            if (ws[points[p]] === undefined || isNaN(Number(ws[points[p]].v))) {
-                alertify.alert("<img src='style/cancel.png' alt='Error'>Error!",
-                    "Spreadsheet format does not match original template. Please copy-and-paste or type data into the '" +
-                    table_def.name + "' table manually.");
+        // Parsing sometimes leads to empty rows, remove these.
+        for (var j = matrix.length - 1; j >= 0; j--) {
+            if (matrix[j].length === 0) {
+                matrix.splice(j, 1);
+            }
+        }
+
+        
+        // Check that number of expected numeric cells is correct. Otherwise alert user.
+        // Row and column checks.
+        if (matrix.length !== num_rows) {
+            alertify.alert("<img src='style/cancel.png' alt='Error'>Error!",
+                "Spreadsheet format does not match original template, or there are empty cells, or non-numeric data. Please copy-and-paste or type data into the '" +
+                table_def.name + "' table manually.");
+            return false;
+        }
+
+        for (var i = 0; i < matrix.length; i++) {
+            if (matrix[i].length !== num_cols) {
+            alertify.alert("<img src='style/cancel.png' alt='Error'>Error!",
+                "Spreadsheet format does not match original template, or there are empty cells, or non-numeric data. Please copy-and-paste or type data into the '" +
+                table_def.name + "' table manually.");
                 return false;
             }
         }
@@ -256,39 +276,26 @@ var DropSheet = function DropSheet(opts) {
         // For each sheet, set value in handsontable.
         for (var r = 0; r < num_rows; r++) {
             for (var c = 0; c < num_cols; c++) {
-                // Worksheet coordinates in Excel format.
-                var sheet_coord = XLS.utils.encode_cell({
-                    r: r + table_start.r,
-                    c: c + table_start.c
-                });
-
-                if (ws[sheet_coord] !== undefined && ws[sheet_coord] !== null) {
-                    changes.push([r, c, ws[sheet_coord].v]);
-                } else {
-                    // Undefined cell suggests empty cell(s).
-                    alertify.alert("<img src='style/cancel.png' alt='Error'>Error!",
-                        "Spreadsheet format does not match original template, or there is an empty cell in the spreadsheet. " +
-                        "Please copy-and-paste or type data into the '" +
-                        table_def.name + "' table manually.");
-                    return false;
-                }
-
+                changes.push([r, c, matrix[r][c]]);
             }
         }
 
-        // Only updates Handsontable for non-null values.
         if (changes.length > 0) {
             table.setDataAtCell(changes);
+            return true;
         }
 
-        return true;
+        alertify.alert("<img src='style/cancel.png' alt='Error'>Error!",
+            "Spreadsheet format does not match original template, or there are empty cells, or non-numeric data. Please copy-and-paste or type data into the '" +
+            table_def.name + "' table manually.");
+        return false;
 
     }
 
     // For drag-and-drop.
 
     function handleDrop(e) {
-        if (typeOf jQuery !== 'undefined') {
+        if (typeof jQuery !== 'undefined') {
             e.stopPropagation();
             e.preventDefault();
             if (pending) return opts.errors.pending();
