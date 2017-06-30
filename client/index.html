@@ -80,6 +80,7 @@
       vertical-align: middle;
       font-size: 32px;
       width: inherit;
+      cursor: pointer;
     }
 
     #drop-area.dragenter {
@@ -92,6 +93,10 @@
 
     #choose-area {
       padding-top: 30px;
+    }
+
+    #choose-file {
+      border:none;
     }
 
     /* for alerts and submission history*/
@@ -148,8 +153,8 @@
     <input autocomplete="off" type=text id="emailf" pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$" required/>
   </div>
 
-    <div id="drop-area">Drop your data to encrypt and secret-share.</div>
-    <div id="choose-area"><input type="file" id="choose-file" accept=".xlsx,.xls">... or choose file here.</div>
+    <div id="drop-area">Drop your data or click here to encrypt and secret-share.</div>
+    <div id="choose-area">Drag and drop not working? Choose file here. <input type="file" id="choose-file" accept=".xlsx,.xls"></div>
 
   <h3 id="number-employees-hot-name"></h3>  
   <div id="number-employees-hot"></div>

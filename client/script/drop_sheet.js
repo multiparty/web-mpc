@@ -216,9 +216,9 @@ var DropSheet = function DropSheet(opts) {
 
 
                 if (ws[key].v !== undefined && ws[key].v !== null && table_def.excel[0].firstrow.toString() === ws[key].v.toString()) {
-                    var new_start_row = Number(XLS.utils.decode_cell(key).r) + 0;
+                    var new_start_row = Number(XLS.utils.decode_cell(key).r);
                     var new_start_col = Number(XLS.utils.decode_cell(key).c) + 1;
-                    sheet_start = XLSX.utils.encode_cell({r: new_start_row + 0, c: new_start_col + 0});
+                    sheet_start = XLSX.utils.encode_cell({r: new_start_row, c: new_start_col});
                     sheet_end = XLSX.utils.encode_cell({r: new_start_row + num_rows - 1, c: new_start_col + num_cols - 1});
                     table_start = XLSX.utils.decode_cell(sheet_start);
                     table_end = XLSX.utils.decode_cell(sheet_end);
@@ -241,7 +241,7 @@ var DropSheet = function DropSheet(opts) {
         var points =
             [sheet_start,
             XLS.utils.encode_cell({r: num_rows + table_start.r - 1, c: table_start.c}),
-                XLS.utils.encode_cell({r: table_start.r, c: table_start.c + num_cols - 1}),
+            XLS.utils.encode_cell({r: table_start.r, c: table_start.c + num_cols - 1}),
             sheet_end];
         for (var p = 0; p < points.length; p++) {
             if (ws[points[p]] === undefined || isNaN(Number(ws[points[p]].v))) {
@@ -288,27 +288,45 @@ var DropSheet = function DropSheet(opts) {
     // For drag-and-drop.
 
     function handleDrop(e) {
-        e.stopPropagation();
-        e.preventDefault();
-        if (pending) return opts.errors.pending();
-        var files = e.dataTransfer.files;
-        readFile(files);
+        if (typeOf jQuery !== 'undefined') {
+            e.stopPropagation();
+            e.preventDefault();
+            if (pending) return opts.errors.pending();
+            var files = e.dataTransfer.files;
+            readFile(files);
+        } else {
+            alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
+        }
+       
     }
 
     function handleDragover(e) {
-        e.stopPropagation();
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'copy';
-        $('#drop-area').removeClass('dragdefault');
-        $('#drop-area').addClass('dragenter');
+        
+        if (typeof jQuery !== 'undefined') {
+            e.stopPropagation();
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+            $('#drop-area').removeClass('dragdefault');
+            $('#drop-area').addClass('dragenter');    
+        } else {
+            alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
+        }
     }
 
     function handleDragleave(e) {
-        $('#drop-area').removeClass('dragenter');
+        if (typeof jQuery !== 'undefined') {
+            $('#drop-area').removeClass('dragenter');
+        } else {
+            alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
+        }
     }
 
     function handleClick(e) {
-        $('#choose-file').click();
+        if (typeof jQuery !== 'undefined') {
+            $('#choose-file').click();
+        } else {
+            alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
+        }
     }
 
     if (opts.drop.addEventListener) {
