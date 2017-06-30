@@ -148,8 +148,7 @@ var renderer = function(instance, TD, row, col, prop, value, cellProperties) {
                    hide: {
                            event: 'click',
                           delay: 10
-                        },/*
-                  prerender: true      */
+                        }    
                 });
 
             } else {
@@ -169,8 +168,7 @@ var renderer = function(instance, TD, row, col, prop, value, cellProperties) {
                    hide: {
                           event: 'click',
                           delay: 10
-                        }/*,
-                  prerender: true      */
+                        }
                 });
           }
             // If tooltip already initialized.
@@ -207,8 +205,7 @@ var renderer = function(instance, TD, row, col, prop, value, cellProperties) {
                    hide: {
                          event: 'click',
                           delay: 10
-                        }/*,
-                  prerender: true      */
+                        }     
                 });
 
             } else {
@@ -227,8 +224,7 @@ var renderer = function(instance, TD, row, col, prop, value, cellProperties) {
                    hide: {
                           event: 'click',
                           delay: 10
-                        }/*,
-                  prerender: true      */
+                        }   
                 });
              
             }
