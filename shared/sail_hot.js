@@ -132,54 +132,47 @@ var renderer = function(instance, TD, row, col, prop, value, cellProperties) {
             TD.setAttribute('title', " ");
             TD.setAttribute('id', idName);
             if (tooltip.errorTitle != null) {
-                element.qtip(
-                    {
-                        style: {
-                            classes: 'qtip-red'
-                        }
-                    },
-                    {
-                        content: {
+                 element.qtip({
+                  style: {
+                             classes: 'qtip-red'
+                        },
+                   content: {
                             title: tooltip.errorTitle,
                             text: "<img src='style/cancel.png' alt='Error'>" + tooltip.error
-                        }
-                    },
-                    {
-                        show: {
+                        },
+                   show: {
                             solo: true,
-                            delay: 50
-                        },
-                        hide: {
-                          inactive: 50
-                        },
-                        prerender: true
-                    }
-                );
-            } else {
-                element.qtip(
-                    {
-                        style: {
-                            classes: 'qtip-red'
-                        }
-                    },
-                    {
-                        content: {
-                            text: "<img src='style/cancel.png' alt='Error'>" + tooltip.error
-                        }
-                    },
-                    {
-                        show: {
-                            solo: true,
-                            delay: 50
-                        },
-                        hide: {
-                          inactive: 50
-                        },
-                        prerender: true
-                    }
-                );
-            }
+                            event: 'click',
+                            delay: 30
+                      },
+                   hide: {
+                           event: 'click',
+                          delay: 10
+                        },/*
+                  prerender: true      */
+                });
 
+            } else {
+
+              element.qtip({
+                  style: {
+                             classes: 'qtip-red'
+                        },
+                   content: {
+                            text: "<img src='style/cancel.png' alt='Error'>" + tooltip.error
+                        },
+                   show: {
+                            solo: true,
+                            event: 'click',
+                            delay: 30
+                      },
+                   hide: {
+                          event: 'click',
+                          delay: 10
+                        }/*,
+                  prerender: true      */
+                });
+          }
             // If tooltip already initialized.
             if (element !== null && element.qtip('api') !== null) {
                 if (tooltip.errorTitle !== null) {
@@ -187,7 +180,8 @@ var renderer = function(instance, TD, row, col, prop, value, cellProperties) {
                 }
 
                 element.qtip('api').set('content.text', "<img src='style/cancel.png' alt='Error'>" + tooltip.error);
-            }
+            
+          }
 
         } else {
             // Prompt message with light-colored cell and tooltip.
@@ -197,52 +191,46 @@ var renderer = function(instance, TD, row, col, prop, value, cellProperties) {
             TD.setAttribute('id', idName);
 
             if (tooltip.promptTitle != null) {
-                element.qtip(
-                    {
-                        style: {
+                element.qtip({
+                  style: {
                             classes: 'qtip-light'
-                        }
-                    },
-                    {
-                        content: {
+                        },
+                   content: {
                             title: tooltip.promptTitle,
                             text: tooltip.prompt
-                        }
-                    },
-                    {
-                        show: {
+                        },
+                   show: {
                             solo: true,
-                            delay: 50
-                        },
-                        hide: {
-                          inactive: 50
-                        },
-                        prerender: true
-                    }
-                );
+                            event: 'click',
+                            delay: 30
+                      },
+                   hide: {
+                         event: 'click',
+                          delay: 10
+                        }/*,
+                  prerender: true      */
+                });
+
             } else {
-                element.qtip(
-                    {
-                        style: {
+                element.qtip({
+                  style: {
                             classes: 'qtip-light'
-                        }
-                    },
-                    {
-                        content: {
+                        },
+                   content: {
                             text: tooltip.prompt
-                        }
-                    },
-                    {
-                        show: {
+                        },
+                   show: {
                             solo: true,
-                            delay: 50
-                        },
-                        hide: {
-                          inactive: 50
-                        },
-                        prerender: true
-                    }
-                );
+                            event: 'click',
+                            delay: 30
+                      },
+                   hide: {
+                          event: 'click',
+                          delay: 10
+                        }/*,
+                  prerender: true      */
+                });
+             
             }
 
             // If tooltip already initialized.
@@ -262,8 +250,8 @@ var renderer = function(instance, TD, row, col, prop, value, cellProperties) {
 
      // Fallback if no jQuery - use comments.
     if (tooltip !== undefined && tooltip !== null && (typeof jQuery === 'undefined' || typeof jQuery().qtip === 'undefined')) {
-      if(cellProperties.valid === false) cellProperties.comment = { "value": tooltip.error };
-      else cellProperties.comment = { "value": tooltip.prompt };
+      if(cellProperties.valid === false) cellProperties.comment = { "value": tooltip.errorTitle.toUpperCase() + ' - ' + tooltip.error };
+      else cellProperties.comment = { "value": tooltip.promptTitle.toUpperCase() + ' - ' + tooltip.prompt };
     }
   
   // Call the default renderer
