@@ -141,6 +141,8 @@ var DropSheet = function DropSheet(opts) {
                 } else {
                     var current_sheet = opts.tables_def.tables[tableidx].excel[0].sheet;
                     if (wb.SheetNames.indexOf(current_sheet) === -1) {
+                        // Should override anything that was in HOT originally in case of reupload.
+                        opts.tables[tableidx].clear();
                         alertify.alert("<img src='style/cancel.png' alt='Error'>Error!",
                             "Please make sure spreadsheet tab names match those of original template. Tab '" + current_sheet
                             + "' not found.");
