@@ -76,11 +76,7 @@
             "colspan": 2
           },
           {
-            "label": "Other",
-            "colspan": 2
-          },
-          {
-            "label": "Unknown",
+            "label": "Unreported",
             "colspan": 2
           }
         ],
@@ -143,19 +139,11 @@
           },
           {
             "label": "Female",
-            "key": "othF"
+            "key": "unrF"
           },
           {
             "label": "Male",
-            "key": "othM"
-          },
-          {
-            "label": "Female",
-            "key": "unkF"
-          },
-          {
-            "label": "Male",
-            "key": "unkM"
+            "key": "unrhM"
           }
         ]
       ],
@@ -177,9 +165,9 @@
       ],
       "excel": [
         {
-          "sheet": "Number of Employees",
+          "sheet": "1.Number of Employees",
           "start": "B7",
-          "end": "S16",
+          "end": "Q16",
           "firstrow": "Executive/Senior Level Officials and Managers"
         }
       ],
@@ -187,7 +175,7 @@
         {
           "range": {
             "row": "*",
-            "col": "0-2-4-6-8-10-12-14-16"
+            "col": "0-2-4-6-8-10-12-14"
           },
           "tooltip": {
             "promptTitle": "Number of Female Employees",
@@ -199,7 +187,7 @@
         {
           "range": {
             "row": "*",
-            "col": "1-3-5-7-9-11-13-15-17"
+            "col": "1-3-5-7-9-11-13-15"
           },
           "tooltip": {
             "promptTitle": "Number of Male Employees",
@@ -286,11 +274,7 @@
             "colspan": 2
           },
           {
-            "label": "Other",
-            "colspan": 2
-          },
-          {
-            "label": "Unknown",
+            "label": "Unreported",
             "colspan": 2
           }
         ],
@@ -353,19 +337,11 @@
           },
           {
             "label": "Female",
-            "key": "othF"
+            "key": "unrF"
           },
           {
             "label": "Male",
-            "key": "othM"
-          },
-          {
-            "label": "Female",
-            "key": "unkF"
-          },
-          {
-            "label": "Male",
-            "key": "unkM"
+            "key": "unrhM"
           }
         ]
       ],
@@ -387,9 +363,9 @@
       ],
       "excel": [
         {
-          "sheet": "Compensation",
+          "sheet": "2.Compensation",
           "start": "B6",
-          "end": "S15",
+          "end": "Q15",
           "firstrow": "Executive/Senior Level Officials and Managers"
         }
       ],
@@ -397,7 +373,7 @@
         {
           "range": {
             "row": "*",
-            "col": "0-2-4-6-8-10-12-14-16"
+            "col": "0-2-4-6-8-10-12-14"
           },
           "tooltip": {
             "promptTitle": "Total Annual Compensation",
@@ -409,7 +385,7 @@
         {
           "range": {
             "row": "*",
-            "col": "1-3-5-7-9-11-13-15-17"
+            "col": "1-3-5-7-9-11-13-15"
           },
           "tooltip": {
             "promptTitle": "Total Annual Compensation",
@@ -423,93 +399,179 @@
     {
       "name": "Total Annual Cash Performance Pay (Dollars)",
       "element": "performance-pay-hot",
-      "rows" : [
-        { "key": "Ex/Sen", "label": "Executive/Senior Level <br> Officials and Managers" },
-        { "key": "F/M", "label": "First/Mid-Level Officials <br> and Managers" },
-        { "key": "Profs", "label": "Professionals" },
-        { "key": "Techs", "label": "Technicians" },
-        { "key": "Sales", "label": "Sales Workers" },
-        { "key": "Adminis", "label": "Administrative Support Workers" },
-        { "key": "Craft", "label": "Craft Workers" },
-        { "key": "Operatives", "label": "Operatives" },
-        { "key": "Laborers", "label": "Laborers and Helpers" },
-        { "key": "Service", "label": "Service Workers" }
+      "rows": [
+        {
+          "key": "Ex/Sen",
+          "label": "Executive/Senior Level <br> Officials and Managers"
+        },
+        {
+          "key": "F/M",
+          "label": "First/Mid-Level Officials <br> and Managers"
+        },
+        {
+          "key": "Profs",
+          "label": "Professionals"
+        },
+        {
+          "key": "Techs",
+          "label": "Technicians"
+        },
+        {
+          "key": "Sales",
+          "label": "Sales Workers"
+        },
+        {
+          "key": "Adminis",
+          "label": "Administrative Support Workers"
+        },
+        {
+          "key": "Craft",
+          "label": "Craft Workers"
+        },
+        {
+          "key": "Operatives",
+          "label": "Operatives"
+        },
+        {
+          "key": "Laborers",
+          "label": "Laborers and Helpers"
+        },
+        {
+          "key": "Service",
+          "label": "Service Workers"
+        }
       ],
       "cols": [
         [
-            {
-                "label": "Hispanic or Latinx",
-                "colspan": 2
-            },
-            {
-                "label": "White",
-                "colspan": 2
-            },
-            {
-                "label": "Black/African American",
-                "colspan": 2
-            },
-            {
-                "label": "Native Hawaiian or <br> Pacific Islander",
-                "colspan": 2
-            },
-            {
-                "label": "Asian",
-                "colspan": 2
-            },
-            {
-                "label": "American Indian/Alaska <br> Native",
-                "colspan": 2
-            },
-            {
-                "label": "Two or More Races <br> (Not Hispanic or Latinx)",
-                "colspan": 2
-            },
-            {
-                "label": "Other",
-                "colspan": 2
-            },
-            {
-                "label": "Unknown",
-                "colspan": 2
-            }
+          {
+            "label": "Hispanic or Latinx",
+            "colspan": 2
+          },
+          {
+            "label": "White",
+            "colspan": 2
+          },
+          {
+            "label": "Black/African American",
+            "colspan": 2
+          },
+          {
+            "label": "Native Hawaiian or <br> Pacific Islander",
+            "colspan": 2
+          },
+          {
+            "label": "Asian",
+            "colspan": 2
+          },
+          {
+            "label": "American Indian/Alaska <br> Native",
+            "colspan": 2
+          },
+          {
+            "label": "Two or More Races <br> (Not Hispanic or Latinx)",
+            "colspan": 2
+          },
+          {
+            "label": "Unreported",
+            "colspan": 2
+          }
         ],
         [
-          { "label": "Female", "key": "hispF" },
-          { "label": "Male", "key": "hispM" },
-          { "label": "Female", "key": "whiteF" },
-          { "label": "Male", "key": "whiteM" },
-          { "label": "Female", "key": "afrF" },
-          { "label": "Male", "key": "afrM" },
-          { "label": "Female", "key": "hawaiiF" },
-          { "label": "Male", "key": "hawaiiM" },
-          { "label": "Female", "key": "asianF" },
-          { "label": "Male", "key": "asianM" },
-          { "label": "Female", "key": "indF" },
-          { "label": "Male", "key": "indM" },
-          { "label": "Female", "key": "twoF" },
-          { "label": "Male", "key": "twoM" },
-          { "label": "Female", "key": "othF" },
-          { "label": "Male", "key": "othM" },
-          { "label": "Female", "key": "unkF" },
-          { "label": "Male", "key": "unkM" }
+          {
+            "label": "Female",
+            "key": "hispF"
+          },
+          {
+            "label": "Male",
+            "key": "hispM"
+          },
+          {
+            "label": "Female",
+            "key": "whiteF"
+          },
+          {
+            "label": "Male",
+            "key": "whiteM"
+          },
+          {
+            "label": "Female",
+            "key": "afrF"
+          },
+          {
+            "label": "Male",
+            "key": "afrM"
+          },
+          {
+            "label": "Female",
+            "key": "hawaiiF"
+          },
+          {
+            "label": "Male",
+            "key": "hawaiiM"
+          },
+          {
+            "label": "Female",
+            "key": "asianF"
+          },
+          {
+            "label": "Male",
+            "key": "asianM"
+          },
+          {
+            "label": "Female",
+            "key": "indF"
+          },
+          {
+            "label": "Male",
+            "key": "indM"
+          },
+          {
+            "label": "Female",
+            "key": "twoF"
+          },
+          {
+            "label": "Male",
+            "key": "twoM"
+          },
+          {
+            "label": "Female",
+            "key": "unrF"
+          },
+          {
+            "label": "Male",
+            "key": "unrhM"
+          }
         ]
       ],
       "types": [
-        { "range": { "row": "*", "col": "*" }, "type": "currency", "max": 100000000, "min": 0, "default": 0, "placeholder": 0, "validators": [ "compute_totals" ] }
-      ],
-      "excel": [
-        {
-          "sheet": "Performance Pay",
-          "start": "B6",
-          "end": "S15",
-          "firstrow": "Executive/Senior Level Officials and Managers"
-        }],
-        "tooltips": [
         {
           "range": {
             "row": "*",
-            "col": "0-2-4-6-8-10-12-14-16"
+            "col": "*"
+          },
+          "type": "currency",
+          "max": 100000000,
+          "min": 0,
+          "default": 0,
+          "placeholder": 0,
+          "validators": [
+            "compute_totals"
+          ]
+        }
+      ],
+      "excel": [
+        {
+          "sheet": "3.Performance Pay",
+          "start": "B6",
+          "end": "Q15",
+          "firstrow": "Executive/Senior Level Officials and Managers"
+        }
+      ],
+      "tooltips": [
+        {
+          "range": {
+            "row": "*",
+            "col": "0-2-4-6-8-10-12-14"
           },
           "tooltip": {
             "promptTitle": "Total Annual Performance Pay",
@@ -521,7 +583,7 @@
         {
           "range": {
             "row": "*",
-            "col": "1-3-5-7-9-11-13-15-17"
+            "col": "1-3-5-7-9-11-13-15"
           },
           "tooltip": {
             "promptTitle": "Total Annual Performance Pay",
@@ -535,93 +597,179 @@
     {
       "name": "Total Length of Service (Months)",
       "element": "service-length-hot",
-      "rows" : [
-        { "key": "Ex/Sen", "label": "Executive/Senior Level <br> Officials and Managers" },
-        { "key": "F/M", "label": "First/Mid-Level Officials <br> and Managers" },
-        { "key": "Profs", "label": "Professionals" },
-        { "key": "Techs", "label": "Technicians" },
-        { "key": "Sales", "label": "Sales Workers" },
-        { "key": "Adminis", "label": "Administrative Support Workers" },
-        { "key": "Craft", "label": "Craft Workers" },
-        { "key": "Operatives", "label": "Operatives" },
-        { "key": "Laborers", "label": "Laborers and Helpers" },
-        { "key": "Service", "label": "Service Workers" }
+      "rows": [
+        {
+          "key": "Ex/Sen",
+          "label": "Executive/Senior Level <br> Officials and Managers"
+        },
+        {
+          "key": "F/M",
+          "label": "First/Mid-Level Officials <br> and Managers"
+        },
+        {
+          "key": "Profs",
+          "label": "Professionals"
+        },
+        {
+          "key": "Techs",
+          "label": "Technicians"
+        },
+        {
+          "key": "Sales",
+          "label": "Sales Workers"
+        },
+        {
+          "key": "Adminis",
+          "label": "Administrative Support Workers"
+        },
+        {
+          "key": "Craft",
+          "label": "Craft Workers"
+        },
+        {
+          "key": "Operatives",
+          "label": "Operatives"
+        },
+        {
+          "key": "Laborers",
+          "label": "Laborers and Helpers"
+        },
+        {
+          "key": "Service",
+          "label": "Service Workers"
+        }
       ],
       "cols": [
         [
-            {
-                "label": "Hispanic or Latinx",
-                "colspan": 2
-            },
-            {
-                "label": "White",
-                "colspan": 2
-            },
-            {
-                "label": "Black/African American",
-                "colspan": 2
-            },
-            {
-                "label": "Native Hawaiian or <br> Pacific Islander",
-                "colspan": 2
-            },
-            {
-                "label": "Asian",
-                "colspan": 2
-            },
-            {
-                "label": "American Indian/Alaska <br> Native",
-                "colspan": 2
-            },
-            {
-                "label": "Two or More Races <br> (Not Hispanic or Latinx)",
-                "colspan": 2
-            },
-            {
-                "label": "Other",
-                "colspan": 2
-            },
-            {
-                "label": "Unknown",
-                "colspan": 2
-            }
+          {
+            "label": "Hispanic or Latinx",
+            "colspan": 2
+          },
+          {
+            "label": "White",
+            "colspan": 2
+          },
+          {
+            "label": "Black/African American",
+            "colspan": 2
+          },
+          {
+            "label": "Native Hawaiian or <br> Pacific Islander",
+            "colspan": 2
+          },
+          {
+            "label": "Asian",
+            "colspan": 2
+          },
+          {
+            "label": "American Indian/Alaska <br> Native",
+            "colspan": 2
+          },
+          {
+            "label": "Two or More Races <br> (Not Hispanic or Latinx)",
+            "colspan": 2
+          },
+          {
+            "label": "Unreported",
+            "colspan": 2
+          }
         ],
         [
-          { "label": "Female", "key": "hispF" },
-          { "label": "Male", "key": "hispM" },
-          { "label": "Female", "key": "whiteF" },
-          { "label": "Male", "key": "whiteM" },
-          { "label": "Female", "key": "afrF" },
-          { "label": "Male", "key": "afrM" },
-          { "label": "Female", "key": "hawaiiF" },
-          { "label": "Male", "key": "hawaiiM" },
-          { "label": "Female", "key": "asianF" },
-          { "label": "Male", "key": "asianM" },
-          { "label": "Female", "key": "indF" },
-          { "label": "Male", "key": "indM" },
-          { "label": "Female", "key": "twoF" },
-          { "label": "Male", "key": "twoM" },
-          { "label": "Female", "key": "othF" },
-          { "label": "Male", "key": "othM" },
-          { "label": "Female", "key": "unkF" },
-          { "label": "Male", "key": "unkM" }
+          {
+            "label": "Female",
+            "key": "hispF"
+          },
+          {
+            "label": "Male",
+            "key": "hispM"
+          },
+          {
+            "label": "Female",
+            "key": "whiteF"
+          },
+          {
+            "label": "Male",
+            "key": "whiteM"
+          },
+          {
+            "label": "Female",
+            "key": "afrF"
+          },
+          {
+            "label": "Male",
+            "key": "afrM"
+          },
+          {
+            "label": "Female",
+            "key": "hawaiiF"
+          },
+          {
+            "label": "Male",
+            "key": "hawaiiM"
+          },
+          {
+            "label": "Female",
+            "key": "asianF"
+          },
+          {
+            "label": "Male",
+            "key": "asianM"
+          },
+          {
+            "label": "Female",
+            "key": "indF"
+          },
+          {
+            "label": "Male",
+            "key": "indM"
+          },
+          {
+            "label": "Female",
+            "key": "twoF"
+          },
+          {
+            "label": "Male",
+            "key": "twoM"
+          },
+          {
+            "label": "Female",
+            "key": "unrF"
+          },
+          {
+            "label": "Male",
+            "key": "unrhM"
+          }
         ]
       ],
       "types": [
-        { "range": { "row": "*", "col": "*" }, "type": "int", "max": 100000000, "min": 0, "default": 0, "placeholder": 0, "validators": [ "compute_totals" ] }
+        {
+          "range": {
+            "row": "*",
+            "col": "*"
+          },
+          "type": "int",
+          "max": 100000000,
+          "min": 0,
+          "default": 0,
+          "placeholder": 0,
+          "validators": [
+            "compute_totals"
+          ]
+        }
       ],
       "excel": [
         {
-          "sheet": "Tenure",
+          "sheet": "4.Tenure",
           "start": "B6",
-          "end": "S15",
+          "end": "Q15",
           "firstrow": "Executive/Senior Level Officials and Managers"
-}],
+        }
+      ],
       "tooltips": [
         {
           "range": {
             "row": "*",
-            "col": "0-2-4-6-8-10-12-14-16"
+            "col": "0-2-4-6-8-10-12-14"
           },
           "tooltip": {
             "promptTitle": "Total Length of Service",
@@ -633,7 +781,7 @@
         {
           "range": {
             "row": "*",
-            "col": "1-3-5-7-9-11-13-15-17"
+            "col": "1-3-5-7-9-11-13-15"
           },
           "tooltip": {
             "promptTitle": "Total Length of Service",
@@ -648,36 +796,65 @@
       "name": "Totals Check",
       "element": "totals-hot",
       "submit": false,
-      "rows" : [
-        { "label": "By Job Category" },
-        { "label": "By Race/Ethnicity" }
+      "rows": [
+        {
+          "label": "By Job Category"
+        },
+        {
+          "label": "By Race/Ethnicity"
+        }
       ],
       "cols": [
         [
-            {
-                "label": "Total Number of <br> Employees",
-                "colspan": 2
-            },
-            {
-                "label": "Compensation and <br> Performance Pay <br> (Dollars)",
-                "colspan": 2
-            },
-            {
-                "label": "Length of Service <br> (Months)",
-                "colspan": 2
-            }
+          {
+            "label": "Total Number of <br> Employees",
+            "colspan": 2
+          },
+          {
+            "label": "Compensation and <br> Performance Pay <br> (Dollars)",
+            "colspan": 2
+          },
+          {
+            "label": "Length of Service <br> (Months)",
+            "colspan": 2
+          }
         ],
         [
-          { "label": "Female", "key": "" },
-          { "label": "Male", "key": "" },
-          { "label": "Female", "key": "" },
-          { "label": "Male", "key": "" },
-          { "label": "Female", "key": "" },
-          { "label": "Male", "key": "" }
+          {
+            "label": "Female",
+            "key": ""
+          },
+          {
+            "label": "Male",
+            "key": ""
+          },
+          {
+            "label": "Female",
+            "key": ""
+          },
+          {
+            "label": "Male",
+            "key": ""
+          },
+          {
+            "label": "Female",
+            "key": ""
+          },
+          {
+            "label": "Male",
+            "key": ""
+          }
         ]
       ],
       "types": [
-        { "range": { "row": "*", "col": "*" }, "type": "int", "read_only": true }
+        {
+          "range": {
+            "row": "*",
+            "col": "*"
+          },
+          "type": "int",
+          "read_only": true
+        }
       ]
     }
   ]
