@@ -71,6 +71,10 @@
       padding-right: 1em;
     }
 
+    .instructions {
+      font-size: large;
+    }
+
     .page-footer {
       padding-top: 50px;
     }
@@ -88,7 +92,7 @@
       height: 300px;
       display: table-cell;
       vertical-align: middle;
-      font-size: 32px;
+      font-size: x-large;
       width: inherit;
       cursor: pointer;
     }
@@ -163,36 +167,38 @@
     <input autocomplete="off" type=text id="emailf" pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$" required/>
   </div>
 
-    <div id="drop-area">Drop your data or click here to encrypt and secret-share.</div>
-    <div id="choose-area">Drag and drop not working? Choose file here. <input type="file" id="choose-file" accept=".xlsx,.xls"></div>
+  <h3> Find your data or enter information in manually.</h3>
 
-    <div>Didn't use the template? Enter in data manually by clicking on this button and filling out the tables that appear. <button class="btn btn-default" type="button" id="input-button" aria-expanded="false" aria-controls="tableCollapse"> Manual input</button></div>
+    <div id="drop-area">Drop your data or click here to encrypt and secret-share.</div>
+    <div class="instructions" id="choose-area">Drag and drop not working? Choose file here. <input type="file" id="choose-file" accept=".xlsx,.xls"></div>
+
+    <div class="instructions">Didn't use the template? Enter in data manually by clicking on this button and filling out the tables that appear. <button class="btn btn-default" type="button" id="input-button" aria-expanded="false" aria-controls="tableCollapse"> Manual input</button></div>
 
     <div id="tables-area">
+     <h3>Entered Data</h3>
       <div>
-          <h3 id="number-employees-hot-name"></h3>
+          <h4 id="number-employees-hot-name"></h4>
           <div id="number-employees-hot"></div>
       </div>
 
     <div>
-          <h3 id="compensation-hot-name"></h3>
+          <h4 id="compensation-hot-name"></h4>
           <div id="compensation-hot"></div>
       </div>
 
       <div>
-          <h3 id="performance-pay-hot-name"></h3>
+          <h4 id="performance-pay-hot-name"></h4>
           <div id="performance-pay-hot"></div>
       </div>
 
        <div>
-        <h3 class="panel-title" id="service-length-hot-name"></h3>
+        <h4 class="panel-title" id="service-length-hot-name"></h4>
         <div id="service-length-hot"></div>
     </div>
 
-    <div>
-        <h3 id="totals-hot-name"></h3>
+       <div id="totals-check">
+        <h4 id="totals-hot-name"></h4>
         <div id="totals-hot"></div>
-    </div>
 
     </div>
 
@@ -410,7 +416,6 @@
             construct_and_send(tables, la);
           });
         }); 
-
 
 
      
