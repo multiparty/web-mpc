@@ -11,6 +11,7 @@
   <script type="text/javascript" src="style/bootstrap/js/bootstrap.js"></script>
   <script type="text/javascript" src="style/alertify/alertify.js"></script>
   <script type="text/javascript" src="style/alertify/alertify-defaults.js"></script>
+  <script type="text/javascript" src="style/qtip/jquery.qtip.min.js"></script>
   <script type="text/javascript" src="script/spin.min.js"></script>
   <script type="text/javascript" src="script/ladda.min.js"></script>
   <script type="text/javascript" src="../shared/sail_hot.js"></script>
@@ -20,6 +21,7 @@
 
   <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="style/bootstrap/v3/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" type="text/css" href="style/qtip/jquery.qtip.min.css">
   <link rel="stylesheet" type="text/css" href="../shared/handsontable-pro/dist/handsontable.full.css">
   <link rel="stylesheet" type="text/css" href="style/alertify/css/alertify.css">
   <link rel="stylesheet" type="text/css" href="style/alertify/css/themes/alertify-bootstrap.css">
@@ -79,7 +81,6 @@
       padding-top: 50px;
     }
 
-
     .session-area {
       padding-bottom: 50px;
     }
@@ -110,7 +111,11 @@
     }
 
     #choose-file {
-      border:none;
+      border: none;
+    }
+
+    .handsontable td.htInvalid {
+      background-color: #F06D65 !important;
     }
 
     /* for alerts and submission history*/
@@ -123,6 +128,16 @@
     }
 
     .error img {
+      padding-right: 0.5em;
+    }
+
+    /* for qtip */
+    .qtip-red {
+      color: #5B1515;
+      background-color: #FDD3D0;
+    }
+
+    .qtip-red img {
       padding-right: 0.5em;
     }
 
@@ -163,9 +178,8 @@
   <div class="session-area">
     <h3>Enter Session Key</h3>
     <input autocomplete="off" type="text" id="sess" pattern="^[a-z0-9]{32}$" size="32" required/>
-    <h3>Email Address to track participation</h3>
-    <input autocomplete="off" type=text id="emailf" pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$" required/>
   </div>
+
 
   <h3> Find your data or enter information in manually.</h3>
 
@@ -176,6 +190,7 @@
 
     <div id="tables-area">
      <h3>Entered Data</h3>
+      <div>Any red cells indicate an error - click on the cell to see the error message.</div>
       <div>
           <h4 id="number-employees-hot-name"></h4>
           <div id="number-employees-hot"></div>
@@ -196,12 +211,12 @@
         <div id="service-length-hot"></div>
     </div>
 
-       <div id="totals-check">
+      <div>
+
         <h4 id="totals-hot-name"></h4>
         <div id="totals-hot"></div>
-
+      </div>
     </div>
-
 
 
      <div id="additional-questions">
@@ -274,8 +289,21 @@
     </div>
   <br/>
     <script type="text/javascript" src="script/drop_sheet.js"></script>
+
   <script type="text/javascript">
     $(document).ready(function() {
+
+      //Copied from trusted/session_data
+      window.getParameterByName = function(name) {
+        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+            results = regex.exec(location.search);
+        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+      }
+
+      var userkey = getParameterByName('userkey');
+      $('#sess').val(getParameterByName('sessionkey'));
+
       var req = $.ajax({
         type: "GET",
         url: "../shared/templates/tables.json",
@@ -389,6 +417,7 @@
           $('#tables-area').slideToggle();
         });
 
+
         // Register when ready
         for(var i = 0; i < tables.length-1; i++)
           tables[i].addHook('afterChange', afterChange(tables[i]));
@@ -413,13 +442,9 @@
               return;
             }
 
-            construct_and_send(tables, la);
+            construct_and_send(tables, la, userkey);
           });
-        }); 
-
-
-     
-
+        });
 
       });
     });
