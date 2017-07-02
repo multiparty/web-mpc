@@ -34,35 +34,62 @@
     .handsontable .ht_clone_top_left_corner {
       display: none;
     }
+
     .handsontable col.rowHeader {
       width: 200px !important;
     }
-    #body_wrap {
-      padding-left: 8%;
-      padding-right: 8%;
-      padding-bottom: 50px;
-    }
-    #body_wrap input {
-      margin-bottom: 0px;
-    }
-    #submit {
-      float: left;
-      text-align:right;
-    }
 
-    #sess {
-      width:25em;
+    .handsontable td.htInvalid {
+      background-color: #F06D65 !important;
     }
 
     .handsontable th:first-child {
       text-align: left;
       white-space: normal;
     }
+
     .handsontable th {
-      font-size:12px;
+      font-size: 12px;
       white-space: pre-line;
       max-width: 110px;
       vertical-align: middle;
+    }
+
+    body {
+      background-color: #EEE;
+    }
+
+    .card {
+      background: #fff;
+      box-shadow: 0 2px 4px 0 rgba(153, 153, 153, .75);
+      transition: height .4s, box-shadow 1s linear;
+      padding: 30px;
+      margin-bottom: 25px;
+    }
+
+    .divider {
+      display: block;
+      width: 100%;
+      border-top: 1px solid #d6d6d6;
+    }
+
+    #body_wrap {
+      padding-left: 8%;
+      padding-right: 8%;
+      padding-bottom: 50px;
+    }
+
+    #body_wrap input {
+      margin-bottom: 0px;
+    }
+
+    #submit {
+      float: left;
+      text-align: right;
+    }
+
+    #sess {
+      width: 25em;
     }
 
     .panel-heading h3 {
@@ -85,10 +112,14 @@
     .session-area {
       padding-bottom: 50px;
     }
+
     /* for drop area */
 
     #drop-area {
-      border: 10px dashed #666;
+      border: 5px dashed #CCC;
+      border-radius: 0;
+      padding: 30px;
+      background-color: #F0F0F0;
       transition: border-color 0.5s;
       text-align: center;
       height: 300px;
@@ -115,10 +146,6 @@
       border: none;
     }
 
-    .handsontable td.htInvalid {
-      background-color: #F06D65 !important;
-    }
-
     /* for alerts and submission history*/
     .ajs-header img {
       padding-right: 0.5em;
@@ -142,85 +169,80 @@
       padding-right: 0.5em;
     }
 
-    p {
-      font-weight: 400 !important;
-      font-size: 1rem !important;
-      color: #444;
-    }
-    form label {
-      font-weight: 400 !important;
-      font-size: 1rem !important;
-      color: #444;
-    }
-
-    input:invalid {
-      border: 1px solid red;
-    }
-
-    input:valid {
-      border: 1px solid green;
+    #questions form {
+      margin-top: 30px;
+      margin-bottom: 30px;
     }
   </style>
 </head>
 <body>
-  <div id="body_wrap">
+<div class="container">
   <div class="page-header">
     <table width="100%">
-    <tr>
-      <td>
-      <h1>Financial Services D&amp;I Scorecard<br/><small>DRAFT</small></h1>
-      </td>
-      <td align="right">
-      <img src="../shared/bu.png" width="110px"/>
-      </td>
-    </tr>
+      <tr>
+        <td>
+          <h1>Financial Services D&amp;I Scorecard<br/>
+            <small>DRAFT</small>
+          </h1>
+        </td>
+        <td align="right">
+          <img src="../shared/bu.png" width="110px"/>
+        </td>
+      </tr>
     </table>
   </div>
-  <div class="session-area">
-    <h3>Enter Session Key</h3>
+  <div class="card session-area">
+    <h3>Session Key</h3>
     <input autocomplete="off" type="text" id="sess" pattern="^[a-z0-9]{32}$" size="32" required/>
   </div>
 
+  <div class="card">
+    <h3>Load your data</h3>
+    <div id="drop-area">Drag and drop your spreadsheet here, or click to browse</div>
+    <div class="instructions" id="choose-area">Drag and drop not working? Choose file here. <input type="file"
+                                                                                                   id="choose-file"
+                                                                                                   accept=".xlsx,.xls"></div>
+  </div>
 
-  <h3> Find your data or enter information in manually.</h3>
+  <div class="instructions">Didn't use the template? Enter in data manually by clicking on this button and filling out
+    the tables that appear.
+    <button class="btn btn-default" type="button" id="input-button" aria-expanded="false" aria-controls="tableCollapse">
+      Manual input
+    </button>
+  </div>
 
-    <div id="drop-area">Drop your data or click here to encrypt and secret-share.</div>
-    <div class="instructions" id="choose-area">Drag and drop not working? Choose file here. <input type="file" id="choose-file" accept=".xlsx,.xls"></div>
-
-    <div class="instructions">Didn't use the template? Enter in data manually by clicking on this button and filling out the tables that appear. <button class="btn btn-default" type="button" id="input-button" aria-expanded="false" aria-controls="tableCollapse"> Manual input</button></div>
-
-    <div id="tables-area">
-     <h3>Entered Data</h3>
-      <div>Any red cells indicate an error - click on the cell to see the error message.</div>
-      <div>
-          <h4 id="number-employees-hot-name"></h4>
-          <div id="number-employees-hot"></div>
-      </div>
+  <div id="tables-area" class="card">
+    <h3>Entered Data</h3>
+    <div>Any red cells indicate an error - click on the cell to see the error message.</div>
+    <div>
+      <h4 id="number-employees-hot-name"></h4>
+      <div id="number-employees-hot"></div>
+    </div>
 
     <div>
-          <h4 id="compensation-hot-name"></h4>
-          <div id="compensation-hot"></div>
-      </div>
-
-      <div>
-          <h4 id="performance-pay-hot-name"></h4>
-          <div id="performance-pay-hot"></div>
-      </div>
-
-       <div>
-        <h4 class="panel-title" id="service-length-hot-name"></h4>
-        <div id="service-length-hot"></div>
+      <h4 id="compensation-hot-name"></h4>
+      <div id="compensation-hot"></div>
     </div>
 
-      <div>
-
-        <h4 id="totals-hot-name"></h4>
-        <div id="totals-hot"></div>
-      </div>
+    <div>
+      <h4 id="performance-pay-hot-name"></h4>
+      <div id="performance-pay-hot"></div>
     </div>
 
+    <div>
+      <h4 class="panel-title" id="service-length-hot-name"></h4>
+      <div id="service-length-hot"></div>
+    </div>
 
-     <div id="additional-questions">
+    <div>
+
+      <h4 id="totals-hot-name"></h4>
+      <div id="totals-hot"></div>
+    </div>
+  </div>
+
+
+  <div id="additional-questions" class="card">
     <h3>Additional Questions</h3>
     <div id="questions">
       <form>
@@ -232,11 +254,14 @@
           <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked="checked">Do not wish to answer</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked="checked">Do not wish to
+            answer</label>
         </div>
       </form>
+      <div class="divider"></div>
       <form>
-        <p class="question-text">Does your company provide diversity and inclusion education or training for managers, staff or both?</p>
+        <p class="question-text">Does your company provide diversity and inclusion education or training for managers,
+          staff or both?</p>
         <div class="radio">
           <label><input autocomplete="off" type="radio" name="optradio" value="Yes">Yes</label>
         </div>
@@ -244,11 +269,14 @@
           <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked="checked">Do not wish to answer</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked="checked">Do not wish to
+            answer</label>
         </div>
       </form>
+      <div class="divider"></div>
       <form>
-        <p class="question-text">Does your management team meet to discuss your organization's diverse workforce or workplace culture?</p>
+        <p class="question-text">Does your management team meet to discuss your organization's diverse workforce or
+          workplace culture?</p>
         <div class="radio">
           <label><input autocomplete="off" type="radio" name="optradio" value="Yes">Yes</label>
         </div>
@@ -256,11 +284,14 @@
           <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked="checked">Do not wish to answer</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked="checked">Do not wish to
+            answer</label>
         </div>
       </form>
+      <div class="divider"></div>
       <form>
-        <p class="question-text">Does your CEO engage in or lead discussions on diversity and inclusion with your management team or with other business executives?</p>
+        <p class="question-text">Does your CEO engage in or lead discussions on diversity and inclusion with your
+          management team or with other business executives?</p>
         <div class="radio">
           <label><input autocomplete="off" type="radio" name="optradio" value="Yes">Yes</label>
         </div>
@@ -268,7 +299,8 @@
           <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked="checked">Do not wish to answer</label>
+          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked="checked">Do not wish to
+            answer</label>
         </div>
       </form>
     </div>
@@ -276,29 +308,29 @@
   <div>
     <form>
       <div class="checkbox">
-      <label>
-        <input autocomplete="off" type="checkbox" id="verify" name="verify"> All information is verified and correct
-      </label>
+        <label>
+          <input autocomplete="off" type="checkbox" id="verify" name="verify"> All information is verified and correct
+        </label>
       </div>
     </form>
   </div>
   <button name="dump" id="submit" class="btn btn-primary ladda-button" data-style="zoom-out">
     <span class="ladda-label">Submit</span>
   </button>
-    <div class="page-footer">
+  <div class="page-footer">
 
-    </div>
+  </div>
   <br/>
-    <script type="text/javascript" src="script/drop_sheet.js"></script>
+  <script type="text/javascript" src="script/drop_sheet.js"></script>
 
   <script type="text/javascript">
-    $(document).ready(function() {
+    $(document).ready(function () {
 
       //Copied from trusted/session_data
-      window.getParameterByName = function(name) {
+      window.getParameterByName = function (name) {
         name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
         var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-            results = regex.exec(location.search);
+          results = regex.exec(location.search);
         return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
       }
 
@@ -311,11 +343,12 @@
         dataType: "json"
       }).then(function (tables_def) {
         // Create the tables
-        var tables = make_tables(tables_def); window.scrollTo(0, 0);
+        var tables = make_tables(tables_def);
+        window.scrollTo(0, 0);
         var sums = [0, 0, 0, 0, 0, 0];
 
         // Custom validator that computes the totals
-        var afterChange = function(table) {
+        var afterChange = function (table) {
           var index_map = {
             "Number Of Employees": 0,
             "Total Annual Compensation (Dollars)": 1,
@@ -324,19 +357,20 @@
           }
 
           var table_index = index_map[table._sail_meta.name];
-          var totals_table = tables[tables.length-1];
-          return function(changes, source) {
-            if(changes == null) return;
-            for(var i = 0; i < changes.length; i++) {
+          var totals_table = tables[tables.length - 1];
+          return function (changes, source) {
+            if (changes == null) return;
+            for (var i = 0; i < changes.length; i++) {
               var change = changes[i];
-              var old = change[2]; var val = change[3];
+              var old = change[2];
+              var val = change[3];
 
               old = (old == '' || old == null) ? 0 : old;
               val = (val == '' || val == null) ? 0 : val;
-              if(old == val) continue;
+              if (old == val) continue;
 
               var c = change[1];
-              var index = 2*table_index + (c % 2);
+              var index = 2 * table_index + (c % 2);
               sums[index] += val - old;
             }
 
@@ -344,89 +378,88 @@
           }
         }
 
-          // Alerts, page elements, etc. for drag-and-drop/choose file.
-          var workbook_js = null;
+        // Alerts, page elements, etc. for drag-and-drop/choose file.
+        var workbook_js = null;
 
-          var _target = document.getElementById('drop-area');
-          var _choose = document.getElementById('choose-file');
-          var spinner;
-          var _workstart = function () {
-              if ($('#tables-area').css('display') !== 'none') {
-                $('#tables-area').hide();
-              }
-              spinner = new Spinner().spin(_target);
+        var _target = document.getElementById('drop-area');
+        var _choose = document.getElementById('choose-file');
+        var spinner;
+        var _workstart = function () {
+          if ($('#tables-area').css('display') !== 'none') {
+            $('#tables-area').hide();
           }
-          var _workend = function () {
-              spinner.stop();
-              $('#tables-area').slideToggle();
-          }
-          var _badfile = function () {
-              alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", 'This file does not appear to be a valid Excel file.', function () {
-              });
-          };
-          var _pending = function () {
-              alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", 'Please wait until the current file is processed.', function () {
-              });
-          };
-          var _large = function (len, cb) {
-              alertify.confirm("<img src='style/cancel.png' alt='Error'>Error!", "This file is " + (len / (1024 * 1024)).toFixed(2) + " MB and may take a few moments. Your browser may lock up during this process. Continue?", cb);
-          };
-          var _failed = function (e) {
-              alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", 'This format is not supported.', function () {
-              });
-          };
-
-          var $window, availableWidth, availableHeight;
-          var calculateSize = function () {
-              availableWidth = Math.max($('#drop-area').width(), 600);
-              availableHeight = Math.max($window.height() - 250, 400);
-          };
-          $(document).ready(function () {
-              $window = $(window);
-              $window.on('resize', calculateSize);
+          spinner = new Spinner().spin(_target);
+        }
+        var _workend = function () {
+          spinner.stop();
+          $('#tables-area').slideToggle();
+        }
+        var _badfile = function () {
+          alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", 'This file does not appear to be a valid Excel file.', function () {
           });
-
-
-          var _onsheet = function (json, cols, sheetnames, select_sheet_cb) {
-              calculateSize();
-              if (!json) json = [];
-            /* add header row for table */
-              json.unshift(function (head) {
-                  var o = {};
-                  for (i = 0; i != head.length; ++i) o[head[i]] = head[i];
-                  return o;
-              }(cols));
-              calculateSize();
-          };
-
-
-
-          DropSheet({
-              drop: _target,
-              choose: _choose,
-              tables: tables,
-              tables_def: tables_def,
-              on: {workstart: _workstart, workend: _workend, sheet: _onsheet},
-              errors: {badfile: _badfile, pending: _pending, failed: _failed, large: _large}
+        };
+        var _pending = function () {
+          alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", 'Please wait until the current file is processed.', function () {
           });
+        };
+        var _large = function (len, cb) {
+          alertify.confirm("<img src='style/cancel.png' alt='Error'>Error!", "This file is " + (len / (1024 * 1024)).toFixed(2) + " MB and may take a few moments. Your browser may lock up during this process. Continue?", cb);
+        };
+        var _failed = function (e) {
+          alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", 'This format is not supported.', function () {
+          });
+        };
+
+        var $window, availableWidth, availableHeight;
+        var calculateSize = function () {
+          availableWidth = Math.max($('#drop-area').width(), 600);
+          availableHeight = Math.max($window.height() - 250, 400);
+        };
+        $(document).ready(function () {
+          $window = $(window);
+          $window.on('resize', calculateSize);
+        });
+
+
+        var _onsheet = function (json, cols, sheetnames, select_sheet_cb) {
+          calculateSize();
+          if (!json) json = [];
+          /* add header row for table */
+          json.unshift(function (head) {
+            var o = {};
+            for (i = 0; i != head.length; ++i) o[head[i]] = head[i];
+            return o;
+          }(cols));
+          calculateSize();
+        };
+
+
+        DropSheet({
+          drop: _target,
+          choose: _choose,
+          tables: tables,
+          tables_def: tables_def,
+          on: {workstart: _workstart, workend: _workend, sheet: _onsheet},
+          errors: {badfile: _badfile, pending: _pending, failed: _failed, large: _large}
+        });
 
 
         // Table accordion.
         $('#tables-area').hide();
 
-        $('#input-button').click(function() {
+        $('#input-button').click(function () {
           $('#tables-area').slideToggle();
         });
 
 
         // Register when ready
-        for(var i = 0; i < tables.length-1; i++)
+        for (var i = 0; i < tables.length - 1; i++)
           tables[i].addHook('afterChange', afterChange(tables[i]));
 
         // Button clicks handlers
-        $('#verify').click(function() {
-          validate(tables, function(result, msg) {
-            if(result)
+        $('#verify').click(function () {
+          validate(tables, function (result, msg) {
+            if (result)
               return $("#submit").prop('disabled', false);
 
             error(msg);
@@ -434,10 +467,10 @@
           });
         });
 
-        $("#submit").click(function() {
+        $("#submit").click(function () {
           var la = Ladda.create(document.getElementById('submit'));
-          validate(tables, function(result, msg) {
-            if(!result) {
+          validate(tables, function (result, msg) {
+            if (!result) {
               la.stop();
               error(msg);
               return;
@@ -450,6 +483,6 @@
       });
     });
   </script>
-  </div>
+</div>
 </body>
 </html>
