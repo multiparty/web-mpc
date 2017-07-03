@@ -338,7 +338,7 @@
         return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
       }
 
-      var userkey = getParameterByName('userkey');
+      $('key').val(getParameterByName('participationcode'));
       $('#sess').val(getParameterByName('sessionkey'));
 
       var req = $.ajax({
@@ -480,7 +480,7 @@
               return;
             }
 
-            construct_and_send(tables, la, userkey);
+            construct_and_send(tables, la);
           });
         });
 

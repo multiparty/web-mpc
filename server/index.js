@@ -366,7 +366,7 @@ app.post('/generate_client_urls', function (req, res) {
                     }
 
                     // parameter portion of url.
-                    var url = "?sessionkey="+session+"&userkey="+userkey;
+                    var url = "?sessionkey="+session+"&participationcode="+userkey;
                     urls.push(url);
 
                     // UserKey model.
