@@ -349,7 +349,8 @@
         // Create the tables
         var tables = make_tables(tables_def);
         window.scrollTo(0, 0);
-        var sums = [0, 0, 0, 0, 0, 0];
+        var sums = [0, 0, 0, 0, 0, 0]; // Internal total of Non NaNs values.
+        var NaNs = [0, 0, 0, 0, 0, 0]; // Counts how many NaNs exist for every cell participating in a total.
 
         // Custom validator that computes the totals
         var afterChange = function (table) {
@@ -364,21 +365,36 @@
           var totals_table = tables[tables.length - 1];
           return function (changes, source) {
             if (changes == null) return;
+            
             for (var i = 0; i < changes.length; i++) {
               var change = changes[i];
               var old = change[2];
               var val = change[3];
-
-              old = (old == '' || old == null) ? 0 : old;
-              val = (val == '' || val == null) ? 0 : val;
-              if (old == val) continue;
-
+              
               var c = change[1];
               var index = 2 * table_index + (c % 2);
+              
+              if(old === undefined) old = null;
+              if(val === undefined) val = null;
+              
+              // Keep track of how many NaNs there are.
+              if(isNaN(old) && !isNaN(val)) NaNs[index]--;
+              if(!isNaN(old) && isNaN(val)) NaNs[index]++;
+
+              // If either values is a NaN, discard it when computing internal sum.
+              old = (old == '' || old == null || isNaN(old)) ? 0 : old;
+              val = (val == '' || val == null || isNaN(val)) ? 0 : val;
               sums[index] += val - old;
             }
+            
+            // Display a NaN in the totals Column if you need too.
+            var totals = [];
+            for(var i = 0; i < sums.length; i++) {
+              totals[i] = sums[i];
+              if(NaNs[i] > 0) totals[i] = NaN;
+            }
 
-            totals_table.loadData([sums, sums]);
+            totals_table.loadData([totals, totals]);
           }
         }
 
