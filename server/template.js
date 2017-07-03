@@ -11,22 +11,22 @@ module.exports = {
       "Does your company hold events to celebrate diversity and inclusion?":{
          "Yes":0,
          "No":0,
-         "NA":0
+         "Do not wish to answer":0
       },
       "Does your company provide diversity and inclusion education or training for managers, staff or both?":{
          "Yes":0,
          "No":0,
-         "NA":0
+         "Do not wish to answer":0
       },
       "Does your management team meet to discuss your organization's diverse workforce or workplace culture?":{
          "Yes":0,
          "No":0,
-         "NA":0
+         "Do not wish to answer":0
       },
       "Does your CEO engage in or lead discussions on diversity and inclusion with your management team or with other business executives?":{
          "Yes":0,
          "No":0,
-         "NA":0
+         "Do not wish to answer":0
       }
    },
    "Number Of Employees":{

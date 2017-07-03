@@ -338,7 +338,7 @@
         return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
       }
 
-      $('key').val(getParameterByName('participationcode'));
+      $('#key').val(getParameterByName('participationcode'));
       $('#sess').val(getParameterByName('sessionkey'));
 
       var req = $.ajax({

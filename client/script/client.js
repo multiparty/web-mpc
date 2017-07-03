@@ -89,10 +89,14 @@ function construct_and_send(tables, la) {
   for(var q = 0; q < questions.length; q++) {
     var question_data = {};
     var radios = $(questions[q]).find('input[type=radio]');
-    for(var r = 0; r < radios.length; r++)
-      question_data[radios[r].value] = (radios[r].checked ? 1 : 0);
+    for(var r = 0; r < radios.length; r++) {
+      var value = radios[r].value;
+      value = value.replace(/\s+/g, ' ');
+      question_data[value] = (radios[r].checked ? 1 : 0);
+    }
 
     var text = $(questions_text[q]).text();
+    text = text.replace(/\s+/g, ' '); // Replace many white spaces with just one space.
     data_submission['questions'][text] = question_data;
   }
 

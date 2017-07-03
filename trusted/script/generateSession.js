@@ -184,20 +184,20 @@ function generateTable(tableBody, sessionID, password, status, timestamp, counte
         dataType: "json",
         success: function (data) {
             var res = data.result;
-                document.getElementById(status).innerHTML = "LOADING...";
-                document.getElementById(status).className = "alert alert-success";
+            document.getElementById(status).innerHTML = "LOADING...";
+            document.getElementById(status).className = "alert alert-success";
+            
+            for(var i = 0; i < res.length; i++) {
+              var submissionHTML = "<tr>\
+                  <td>" + (i+1+global_submission_counter) + "</td>\
+                  <td>" + new Date(res[i]).toLocaleString() + "</td>\
+                </tr>";
                 
-                for(var i = 0; i < res.length; i++) {
-                  var submissionHTML = "<tr>\
-                      <td>" + (i+1+global_submission_counter) + "</td>\
-                      <td>" + new Date(res[i]).toLocaleString() + "</td>\
-                    </tr>";
-                    
-                  document.getElementById(tableBody).innerHTML += submissionHTML;
-                }
-                
-                global_submission_counter += res.length;
+              document.getElementById(tableBody).innerHTML += submissionHTML;
             }
+            
+            global_submission_counter += res.length;
+            
             setTimeout(function () { generateTable(tableBody, sessionID, password, status, date) }, 10000);
         },
         error: function (err) {
