@@ -125,6 +125,9 @@ function generateSession(hiddenDiv, sessionID, passwordID, pubID, privID, linkID
                         "Go To Live Data Page for Session " + rndSess;
                     document.getElementById(linkID).href = "session_data.html?session=" + rndSess;
                     saveAs(priBlob,'Session_' + rndSess + '_private_key.pem');
+                    
+                    var text = "Session Key:\n"+rndSess+"\nPassword:\n"+password;
+                    saveAs(new Blob([text], {type: "text/plain;charset=utf-8"}),'Session_' + rndSess + '_password.txt');
                 },
                 error: function() {
                     var errmsg = "ERROR!!!: failed to load public key to server, please try again";
