@@ -38,6 +38,7 @@ var mpc = require('../shared/mpc');
 var crypto = require('crypto');
 var joi = require('joi');
 var Promise = require('bluebird');
+var base32Encode = require('base32-encode');
 var maskSchema = templateToJoiSchema(template, joi.string().required());
 var dataSchema = templateToJoiSchema(template, joi.number().required());
 
@@ -149,7 +150,7 @@ function verify_password(session, password, success, fail) {
         else if (data == null)
             fail('Invalid session/password');
         else
-            success();  
+            success();
     });
 }
 
@@ -288,8 +289,8 @@ app.post('/create_session', function (req, res) {
         }
 
         var publickey = body.publickey;
-        var sessionID = crypto.randomBytes(16).toString('hex');
-        var password = crypto.randomBytes(16).toString('hex');
+        var sessionID = base32Encode(crypto.randomBytes(16), 'Crockford');
+        var password = base32Encode(crypto.randomBytes(16), 'Crockford');
 
         var sessInfo = new SessionInfo({
             _id: sessionID,
@@ -332,7 +333,7 @@ app.post('/generate_client_urls', function (req, res) {
             res.status(500).send('Invalid request.');
             return;
         }
-        
+
         // Get all previously generated user keys.
         var fail = function(err) { console.log(err); res.status(500).send(err); };
         var success = function() {
@@ -357,7 +358,7 @@ app.post('/generate_client_urls', function (req, res) {
 
                 // Create count many unique (per session) user keys.
                 for(var i = 0; i < count; i++) {
-                    var userkey = crypto.randomBytes(16).toString('hex');
+                    var userkey = base32Encode(crypto.randomBytes(16), "Crockford");
 
                     // If user key already exists, repeat.
                     if(userkeys.indexOf(userkey) > -1) {
@@ -404,7 +405,7 @@ app.post('/get_client_urls', function (req, res) {
     console.log('POST /get_client_urls');
     console.log(req.body);
 
-    var schema = { 
+    var schema = {
         session: joi.string().alphanum().required(),
         password: joi.string().alphanum().required()
     };
@@ -439,7 +440,7 @@ app.post('/get_client_urls', function (req, res) {
                 return;
             });
         };
-        
+
         verify_password(body.session, body.password, success, fail);
     });
 });
@@ -474,7 +475,7 @@ app.post('/get_data', function (req, res) {
                     for (var row in data) {
                         to_send[data[row].email] = data[row].date;
                     }
-                    res.json(to_send);  
+                    res.json(to_send);
                     return;
                 }
             });
@@ -501,7 +502,7 @@ app.post('/get_masks', function (req, res) {
             res.status(500).send('Invalid or missing fields.');
             return;
         }
-        
+
         var fail = function(err) { console.log(err); res.status(500).send(err); };
         var success = function() {
             Mask.where({session: body.session}).find(function (err, data) {
@@ -520,7 +521,7 @@ app.post('/get_masks', function (req, res) {
                 }
             });
         };
-        
+
         verify_password(body.session, body.password, success, fail);
     });
 
@@ -542,7 +543,7 @@ app.post('/get_aggregate', function (req, res) {
             res.status(500).send('Invalid or missing fields.');
             return;
         }
-        
+
         var fail = function(err) { console.log(err); res.status(500).send(err); };
         var success = function() {
           Aggregate.where({session: body.session}).find(function (err, data) {
@@ -574,7 +575,7 @@ app.post('/get_aggregate', function (req, res) {
             }
           });
         };
-        
+
         verify_password(body.session, body.password, success, fail);
     });
 
