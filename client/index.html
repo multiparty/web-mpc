@@ -57,12 +57,16 @@
 
     body {
       background-color: #EEE;
+      color: #555;
+    }
+
+    h1, h2, h3 {
+      color: #333;
     }
 
     .card {
       background: #fff;
-      box-shadow: 0 2px 4px 0 rgba(153, 153, 153, .75);
-      transition: height .4s, box-shadow 1s linear;
+      box-shadow: 0 2px 4px 0 rgba(170, 170, 170, .80);
       padding: 30px;
       margin-bottom: 25px;
     }
@@ -71,12 +75,12 @@
       display: block;
       width: 100%;
       border-top: 1px solid #d6d6d6;
+      margin-top: 30px;
+      margin-bottom: 30px;
     }
 
-    #body_wrap {
-      padding-left: 8%;
-      padding-right: 8%;
-      padding-bottom: 50px;
+    form .form-group-lg label {
+      font-size: 18px;
     }
 
     #body_wrap input {
@@ -86,10 +90,6 @@
     #submit {
       float: left;
       text-align: right;
-    }
-
-    #sess {
-      width: 25em;
     }
 
     .panel-heading h3 {
@@ -109,10 +109,6 @@
       padding-top: 50px;
     }
 
-    .session-area {
-      padding-bottom: 50px;
-    }
-
     /* for drop area */
 
     #drop-area {
@@ -122,7 +118,7 @@
       background-color: #F0F0F0;
       transition: border-color 0.5s;
       text-align: center;
-      height: 300px;
+      height: 250px;
       display: table-cell;
       vertical-align: middle;
       font-size: x-large;
@@ -138,12 +134,9 @@
       border-color: #666;
     }
 
-    #choose-area {
-      padding-top: 30px;
-    }
-
     #choose-file {
       border: none;
+      visibility: hidden;
     }
 
     /* for alerts and submission history*/
@@ -168,11 +161,6 @@
     .qtip-red img {
       padding-right: 0.5em;
     }
-
-    #questions form {
-      margin-top: 30px;
-      margin-bottom: 30px;
-    }
   </style>
 </head>
 <body>
@@ -191,17 +179,28 @@
       </tr>
     </table>
   </div>
-  <div class="card session-area">
-    <h3>Session Key</h3>
-    <input autocomplete="off" type="text" id="sess" pattern="^[a-zA-Z0-9]{26}$" size="26" required/>
-  </div>
-
-  <div class="card">
-    <h3>Load your data</h3>
-    <div id="drop-area">Drag and drop your spreadsheet here, or click to browse</div>
-    <div class="instructions" id="choose-area">Drag and drop not working? Choose file here. <input type="file"
-                                                                                                   id="choose-file"
-                                                                                                   accept=".xlsx,.xls"></div>
+  <div id="session-area" class="card">
+    <h2 class="text-center">Title</h2>
+    <p class="text-center">Some explanation about what to do.</p>
+    <div class="divider"></div>
+    <div class="row">
+      <div class="col-md-6">
+        <form>
+          <div class="form-group">
+            <label class="control-label" for="sess">Session key</label>
+            <input type="text" id="sess" class="form-control" placeholder="Session key" pattern="^[a-zA-Z0-9]{26}$" autocomplete="off" required/>
+          </div>
+          <div class="form-group">
+            <label class="control-label" for="key">Participation code</label>
+            <input type="text" id="key" class="form-control" placeholder="Participation code" pattern="^[a-zA-Z0-9]{26}$" autocomplete="off" required>
+          </div>
+        </form>
+      </div>
+      <div class="col-md-6">
+        <div id="drop-area">Drag and drop your spreadsheet here, or click to browse</div>
+        <input type="file" id="choose-file" accept=".xlsx,.xls">
+      </div>
+    </div>
   </div>
 
   <div class="instructions">Didn't use the template? Enter in data manually by clicking on this button and filling out
@@ -243,7 +242,12 @@
 
 
   <div id="additional-questions" class="card">
-    <h3>Additional Questions</h3>
+    <h2 class="text-center">Additional Questions</h2>
+    <p class="text-center">
+      Explain that additional questions should be answered if possible, they are sent securely, and no information about the
+      participant is available. However, the results are collected individually and not on an aggregate basis.
+    </p>
+    <div class="divider"></div>
     <div id="questions">
       <form>
         <p class="question-text">Does your company hold events to celebrate diversity and inclusion?</p>
@@ -436,7 +440,7 @@
 
         DropSheet({
           drop: _target,
-          choose: _choose,
+          choose: _target,
           tables: tables,
           tables_def: tables_def,
           on: {workstart: _workstart, workend: _workend, sheet: _onsheet},
