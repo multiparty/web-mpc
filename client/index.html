@@ -8,7 +8,9 @@
   <script type="text/javascript" src="../shared/handsontable-pro/dist/handsontable.full.js"></script>
   <script type="text/javascript" src="../shared/forge.min.js"></script>
   <script type="text/javascript" src="../shared/mpc.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+          integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+          crossorigin="anonymous"></script>
   <script type="text/javascript" src="style/alertify/alertify.js"></script>
   <script type="text/javascript" src="style/alertify/alertify-defaults.js"></script>
   <script type="text/javascript" src="style/qtip/jquery.qtip.min.js"></script>
@@ -20,8 +22,10 @@
   <script src="script/path.js"></script>
 
 
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+        integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
   <link rel="stylesheet" type="text/css" href="style/qtip/jquery.qtip.min.css">
   <link rel="stylesheet" type="text/css" href="../shared/handsontable-pro/dist/handsontable.full.css">
   <link rel="stylesheet" type="text/css" href="style/alertify/css/alertify.css">
@@ -64,14 +68,41 @@
       color: #333;
     }
 
+    header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 100px;
+      background: #fff;
+      box-shadow: 0 2px 4px 0 rgba(170, 170, 170, .80);
+    }
+
+    header h1,
+    header #logos {
+      display: inline-block;
+    }
+
+    header #logos {
+      float: right;
+      line-height: 100px;
+    }
+
+    #content {
+      margin-top: 150px;
+    }
+
     .card {
       background: #fff;
       box-shadow: 0 2px 4px 0 rgba(170, 170, 170, .80);
       padding: 30px;
       margin-bottom: 25px;
+      margin-left: auto;
+      margin-right: auto;
+      max-width: 950px;
     }
 
-    .divider {
+    hr {
       display: block;
       width: 100%;
       border-top: 1px solid #d6d6d6;
@@ -85,11 +116,6 @@
 
     #body_wrap input {
       margin-bottom: 0px;
-    }
-
-    #submit {
-      float: left;
-      text-align: right;
     }
 
     .panel-heading h3 {
@@ -164,35 +190,33 @@
   </style>
 </head>
 <body>
-<div class="container">
-  <div class="page-header">
-    <table width="100%">
-      <tr>
-        <td>
-          <h1>Financial Services D&amp;I Scorecard<br/>
-            <small>DRAFT</small>
-          </h1>
-        </td>
-        <td align="right">
-          <img src="../shared/bu.png" width="110px"/>
-        </td>
-      </tr>
-    </table>
+<header>
+  <div class="container">
+    <h1>Financial Services D&amp;I Scorecard<br/>
+      <small>DRAFT</small>
+    </h1>
+    <div id="logos">
+      <img src="../shared/bu.gif" alt="BU Logo"/>
+    </div>
   </div>
-  <div id="session-area" class="card">
+</header>
+<main id="content" class="container">
+  <section id="session-area" class="card">
     <h2 class="text-center">Title</h2>
     <p class="text-center">Some explanation about what to do.</p>
-    <div class="divider"></div>
+    <hr/>
     <div class="row">
       <div class="col-md-6">
         <form>
           <div class="form-group">
             <label class="control-label" for="sess">Session key</label>
-            <input type="text" id="sess" class="form-control" placeholder="Session key" pattern="^[a-z0-9]{32}$" autocomplete="off" required/>
+            <input type="text" id="sess" class="form-control" placeholder="Session key" pattern="^[a-z0-9]{32}$"
+                   autocomplete="off" required/>
           </div>
           <div class="form-group">
             <label class="control-label" for="key">Participation code</label>
-            <input type="text" id="key" class="form-control" placeholder="Participation code" pattern="^[a-z0-9]{32}$" autocomplete="off" required>
+            <input type="text" id="key" class="form-control" placeholder="Participation code" pattern="^[a-z0-9]{32}$"
+                   autocomplete="off" required>
           </div>
         </form>
       </div>
@@ -201,16 +225,18 @@
         <input type="file" id="choose-file" accept=".xlsx,.xls">
       </div>
     </div>
-  </div>
+  </section>
 
-  <div class="instructions">Didn't use the template? Enter in data manually by clicking on this button and filling out
-    the tables that appear.
-    <button class="btn btn-default" type="button" id="input-button" aria-expanded="false" aria-controls="tableCollapse">
+  <section id="instructions" class="card">
+    <h2 class="text-center">Didn't use the template?</h2>
+    <p class="text-center">Enter in data manually by clicking on this button and filling out
+      the tables that appear.</p>
+    <button class="btn btn-default" type="button" id="input-button" aria-expanded="false">
       Manual input
     </button>
-  </div>
+  </section>
 
-  <div id="tables-area" class="card">
+  <section id="tables-area" class="card">
     <h3>Entered Data</h3>
     <div>Any red cells indicate an error - click on the cell to see the error message.</div>
     <div>
@@ -229,101 +255,96 @@
     </div>
 
     <div>
-      <h4 class="panel-title" id="service-length-hot-name"></h4>
+      <h4 id="service-length-hot-name"></h4>
       <div id="service-length-hot"></div>
     </div>
 
-    <div>
-
-      <h4 id="totals-hot-name"></h4>
-      <div id="totals-hot"></div>
-    </div>
-  </div>
+  </section>
 
 
-  <div id="additional-questions" class="card">
+  <section id="additional-questions" class="card">
     <h2 class="text-center">Additional Questions</h2>
     <p class="text-center">
-      Explain that additional questions should be answered if possible, they are sent securely, and no information about the
+      Explain that additional questions should be answered if possible, they are sent securely, and no information about
+      the
       participant is available. However, the results are collected individually and not on an aggregate basis.
     </p>
-    <div class="divider"></div>
+    <hr/>
     <div id="questions">
       <form>
         <p class="question-text">Does your company hold events to celebrate diversity and inclusion?</p>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="Yes">Yes</label>
+          <label><input type="radio" name="optradio" value="Yes">Yes</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
+          <label><input type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked="checked">Do not wish to
+          <label><input type="radio" name="optradio" value="NA" checked="checked">Do not wish to
             answer</label>
         </div>
       </form>
-      <div class="divider"></div>
+      <hr/>
       <form>
         <p class="question-text">Does your company provide diversity and inclusion education or training for managers,
           staff or both?</p>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="Yes">Yes</label>
+          <label><input type="radio" name="optradio" value="Yes">Yes</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
+          <label><input type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked="checked">Do not wish to
+          <label><input type="radio" name="optradio" value="NA" checked="checked">Do not wish to
             answer</label>
         </div>
       </form>
-      <div class="divider"></div>
+      <hr/>
       <form>
         <p class="question-text">Does your management team meet to discuss your organization's diverse workforce or
           workplace culture?</p>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="Yes">Yes</label>
+          <label><input type="radio" name="optradio" value="Yes">Yes</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
+          <label><input type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked="checked">Do not wish to
+          <label><input type="radio" name="optradio" value="NA" checked="checked">Do not wish to
             answer</label>
         </div>
       </form>
-      <div class="divider"></div>
+      <hr/>
       <form>
         <p class="question-text">Does your CEO engage in or lead discussions on diversity and inclusion with your
           management team or with other business executives?</p>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="Yes">Yes</label>
+          <label><input type="radio" name="optradio" value="Yes">Yes</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
+          <label><input type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked="checked">Do not wish to
+          <label><input type="radio" name="optradio" value="NA" checked="checked">Do not wish to
             answer</label>
         </div>
       </form>
     </div>
-  </div>
-  <div>
+  </section>
+  <section class="card">
+    <div>
+      <h4 id="totals-hot-name"></h4>
+      <div id="totals-hot"></div>
+    </div>
     <form>
       <div class="checkbox">
         <label>
-          <input autocomplete="off" type="checkbox" id="verify" name="verify"> All information is verified and correct
+          <input type="checkbox" id="verify" name="verify"> All information is verified and correct
         </label>
       </div>
+      <button type="submit" id="submit" class="btn btn-primary ladda-button">Submit</button>
     </form>
-  </div>
-  <button name="dump" id="submit" class="btn btn-primary ladda-button" data-style="zoom-out">
-    <span class="ladda-label">Submit</span>
-  </button>
-  <div class="page-footer">
-
-  </div>
+  </section>
   <br/>
   <script type="text/javascript" src="script/drop_sheet.js"></script>
 
@@ -358,7 +379,7 @@
             "Total Annual Compensation (Dollars)": 1,
             "Total Annual Cash Performance Pay (Dollars)": 1,
             "Total Length of Service (Months)": 2
-          }
+          };
 
           var table_index = index_map[table._sail_meta.name];
           var totals_table = tables[tables.length - 1];
@@ -380,7 +401,7 @@
 
             totals_table.loadData([sums, sums]);
           }
-        }
+        };
 
         // Alerts, page elements, etc. for drag-and-drop/choose file.
         var workbook_js = null;
@@ -393,11 +414,11 @@
             $('#tables-area').hide();
           }
           spinner = new Spinner().spin(_target);
-        }
+        };
         var _workend = function () {
           spinner.stop();
           $('#tables-area').slideToggle();
-        }
+        };
         var _badfile = function () {
           alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", 'This file does not appear to be a valid Excel file.', function () {
           });
@@ -487,6 +508,6 @@
       });
     });
   </script>
-</div>
+</main>
 </body>
 </html>
