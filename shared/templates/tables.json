@@ -156,11 +156,7 @@
           "type": "int",
           "max": 1000000,
           "min": 0,
-          "default": 0,
-          "placeholder": 0,
-          "validators": [
-            "compute_totals"
-          ]
+          "empty": false
         }
       ],
       "excel": [
@@ -354,11 +350,7 @@
           "type": "currency",
           "max": 100000000,
           "min": 0,
-          "default": 0,
-          "placeholder": 0,
-          "validators": [
-            "compute_totals"
-          ]
+          "empty": false
         }
       ],
       "excel": [
@@ -552,11 +544,7 @@
           "type": "currency",
           "max": 100000000,
           "min": 0,
-          "default": 0,
-          "placeholder": 0,
-          "validators": [
-            "compute_totals"
-          ]
+          "empty": false
         }
       ],
       "excel": [
@@ -750,11 +738,7 @@
           "type": "int",
           "max": 100000000,
           "min": 0,
-          "default": 0,
-          "placeholder": 0,
-          "validators": [
-            "compute_totals"
-          ]
+          "empty": false
         }
       ],
       "excel": [

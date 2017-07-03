@@ -379,7 +379,7 @@ function make_hot_table(table) {
       var type = cell_def.type;
       var empty = true;
       var read_only = false;
-      var placeholder = '';
+      var placeholder = null;
 
       if (cell_def.empty != null) empty = cell_def.empty;
       if (cell_def.read_only != null) read_only = cell_def.read_only;
