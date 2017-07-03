@@ -11,22 +11,22 @@ module.exports = {
       "Does your company hold events to celebrate diversity and inclusion?":{
          "Yes":0,
          "No":0,
-         "Do not wish to answer":0
+         "NA":0
       },
       "Does your company provide diversity and inclusion education or training for managers, staff or both?":{
          "Yes":0,
          "No":0,
-         "Do not wish to answer":0
+         "NA":0
       },
       "Does your management team meet to discuss your organization's diverse workforce or workplace culture?":{
          "Yes":0,
          "No":0,
-         "Do not wish to answer":0
+         "NA":0
       },
       "Does your CEO engage in or lead discussions on diversity and inclusion with your management team or with other business executives?":{
          "Yes":0,
          "No":0,
-         "Do not wish to answer":0
+         "NA":0
       }
    },
    "Number Of Employees":{
@@ -45,10 +45,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "F/M":{
          "hispF":0,
@@ -65,10 +63,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Profs":{
          "hispF":0,
@@ -85,10 +81,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Techs":{
          "hispF":0,
@@ -105,10 +99,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Sales":{
          "hispF":0,
@@ -125,10 +117,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Adminis":{
          "hispF":0,
@@ -145,10 +135,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Craft":{
          "hispF":0,
@@ -165,10 +153,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Operatives":{
          "hispF":0,
@@ -185,10 +171,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Laborers":{
          "hispF":0,
@@ -205,10 +189,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Service":{
          "hispF":0,
@@ -225,10 +207,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       }
    },
    "Total Annual Compensation (Dollars)":{
@@ -247,10 +227,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "F/M":{
          "hispF":0,
@@ -267,10 +245,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Profs":{
          "hispF":0,
@@ -287,10 +263,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Techs":{
          "hispF":0,
@@ -307,10 +281,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Sales":{
          "hispF":0,
@@ -327,10 +299,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Adminis":{
          "hispF":0,
@@ -347,10 +317,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Craft":{
          "hispF":0,
@@ -367,10 +335,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Operatives":{
          "hispF":0,
@@ -387,10 +353,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Laborers":{
          "hispF":0,
@@ -407,10 +371,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Service":{
          "hispF":0,
@@ -427,10 +389,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       }
    },
    "Total Annual Cash Performance Pay (Dollars)":{
@@ -449,10 +409,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "F/M":{
          "hispF":0,
@@ -469,10 +427,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Profs":{
          "hispF":0,
@@ -489,10 +445,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Techs":{
          "hispF":0,
@@ -509,10 +463,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Sales":{
          "hispF":0,
@@ -529,10 +481,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Adminis":{
          "hispF":0,
@@ -549,10 +499,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Craft":{
          "hispF":0,
@@ -569,10 +517,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Operatives":{
          "hispF":0,
@@ -589,10 +535,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Laborers":{
          "hispF":0,
@@ -609,10 +553,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Service":{
          "hispF":0,
@@ -629,10 +571,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       }
    },
    "Total Length of Service (Months)":{
@@ -651,10 +591,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "F/M":{
          "hispF":0,
@@ -671,10 +609,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Profs":{
          "hispF":0,
@@ -691,10 +627,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Techs":{
          "hispF":0,
@@ -711,10 +645,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Sales":{
          "hispF":0,
@@ -731,10 +663,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Adminis":{
          "hispF":0,
@@ -751,10 +681,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Craft":{
          "hispF":0,
@@ -771,10 +699,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Operatives":{
          "hispF":0,
@@ -791,10 +717,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Laborers":{
          "hispF":0,
@@ -811,10 +735,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       },
       "Service":{
          "hispF":0,
@@ -831,10 +753,8 @@ module.exports = {
          "indM":0,
          "twoF":0,
          "twoM":0,
-         "othF":0,
-         "othM":0,
-         "unkF":0,
-         "unkM":0
+         "unrF":0,
+         "unrM":0
       }
    }
 }
