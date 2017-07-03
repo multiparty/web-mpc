@@ -171,7 +171,7 @@ function generateSession(hiddenDiv, sessionID, passwordID, pubID, privID, linkID
     }
 }
 
-// TODO: why two error handlers?
+var global_submission_counter = 0;
 function generateTable(tableBody, sessionID, password, status, timestamp, counter) {
     if (timestamp === undefined) timestamp = 0;
     if (counter === undefined) counter = 1;
@@ -183,18 +183,20 @@ function generateTable(tableBody, sessionID, password, status, timestamp, counte
         data: JSON.stringify({session: sessionID, password: password, last_fetch: timestamp}),
         dataType: "json",
         success: function (data) {
-            if (!_.isEmpty(data)) {
-                var rows = _.map(_.pairs(data), function (pair) {
-                    return "<tr>\
-                            <td>" + pair[0] + "</td>\
-                            <td>" + new Date(pair[1]).toLocaleString() + "</td>\
-                        </tr>"
-                });
+            var res = data.result;
                 document.getElementById(status).innerHTML = "LOADING...";
                 document.getElementById(status).className = "alert alert-success";
-                document.getElementById(tableBody).innerHTML += _.foldr(rows, function (a, b) {
-                    return a + b;
-                }, "");
+                
+                for(var i = 0; i < res.length; i++) {
+                  var submissionHTML = "<tr>\
+                      <td>" + (i+1+global_submission_counter) + "</td>\
+                      <td>" + new Date(res[i]).toLocaleString() + "</td>\
+                    </tr>";
+                    
+                  document.getElementById(tableBody).innerHTML += submissionHTML;
+                }
+                
+                global_submission_counter += res.length;
             }
             setTimeout(function () { generateTable(tableBody, sessionID, password, status, date) }, 10000);
         },

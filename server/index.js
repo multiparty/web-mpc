@@ -470,11 +470,11 @@ app.post('/get_data', function (req, res) {
                     res.status(500).send('Failed to fetch contributors.');
                     return;
                 } else {
-                    var to_send = {};
+                    var to_send = [];
                     for (var row in data) {
-                        to_send[data[row].email] = data[row].date;
+                        to_send.push(data[row].date);
                     }
-                    res.json(to_send);  
+                    res.json( { result: to_send } );  
                     return;
                 }
             });
