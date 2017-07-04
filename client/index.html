@@ -209,14 +209,26 @@
       <div class="col-md-6">
         <form>
           <div class="form-group">
-            <label class="control-label" for="sess">Session key</label>
-            <input type="text" id="sess" class="form-control" placeholder="Session key" pattern="^[a-z0-9]{32}$"
+            <label class="control-label" for="session">Session key</label>
+            <input type="text" id="session" class="form-control" placeholder="Session key" pattern="^[a-z0-9]{32}$"
                    autocomplete="off" required/>
+            <span id="sessionSuccess" class="successIcon glyphicon glyphicon-ok form-control-feedback hidden"
+                  aria-hidden="true"></span>
+            <span id="sessionFail" class="failIcon glyphicon glyphicon-remove form-control-feedback hidden"
+                  aria-hidden="true"></span>
+            <span id="sessionFailHelp"
+                  class="failHelp help-block hidden">Please input the 32-character session key.</span>
           </div>
           <div class="form-group">
             <label class="control-label" for="key">Participation code</label>
             <input type="text" id="key" class="form-control" placeholder="Participation code" pattern="^[a-z0-9]{32}$"
                    autocomplete="off" required>
+            <span id="keySuccess" class="successIcon glyphicon glyphicon-ok form-control-feedback hidden"
+                  aria-hidden="true"></span>
+            <span id="keyFail" class="failIcon glyphicon glyphicon-remove form-control-feedback hidden"
+                  aria-hidden="true"></span>
+            <span id="keyFailHelp"
+                  class="failHelp help-block hidden">Please input the 32-character participation code.</span>
           </div>
         </form>
       </div>
@@ -351,16 +363,51 @@
   <script type="text/javascript">
     $(document).ready(function () {
 
+      var $session = $('#session');
+      var $key = $('#key');
+
+      /**
+       * Validate the session and participation code input fields.
+       */
+      var validateSessionInput = function (e) {
+        if (!e.target.validity) {
+          return false;
+        }
+
+        // Validate immediately once blur has been fired
+        $('#session, #key')
+          .off('input')
+          .on('input', validateSessionInput);
+
+        var $parent = $(e.target).parent();
+        if (e.target.validity.valid) {
+
+          $parent.removeClass('has-error').addClass('has-success has-feedback');
+          $parent.find('.successIcon').removeClass('hidden').addClass('show');
+          $parent.find('.failIcon').removeClass('show').addClass('hidden');
+          $parent.find('.failHelp').removeClass('show').addClass('hidden');
+        } else {
+
+          $parent.removeClass('has-success').addClass('has-error has-feedback');
+          $parent.find('.successIcon').removeClass('show').addClass('hidden');
+          $parent.find('.failIcon').removeClass('hidden').addClass('show');
+          $parent.find('.failHelp').removeClass('hidden').addClass('show');
+        }
+      };
+
+      $('#session, #key').on('blur', validateSessionInput);
+
+
       //Copied from trusted/session_data
-      window.getParameterByName = function (name) {
+      var getParameterByName = function (name) {
         name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
         var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
           results = regex.exec(location.search);
         return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-      }
+      };
 
       var userkey = getParameterByName('userkey');
-      $('#sess').val(getParameterByName('sessionkey'));
+      $session.val(getParameterByName('sessionkey'));
 
       var req = $.ajax({
         type: "GET",
