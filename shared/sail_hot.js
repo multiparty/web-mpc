@@ -414,7 +414,7 @@ function make_hot_table(table) {
     rowHeaders: table.rows,
     nestedHeaders: table.cols,
     // Styling information
-    width: width,
+    width: table.width,
     // Per cell properties
     cell: cells,
     // Workaround for handsontable undo issue for readOnly tables
@@ -424,7 +424,7 @@ function make_hot_table(table) {
   };
   
   // other parameters from config 
-  Object.assign(hotSettigns, table.hot_parameters);
+  Object.assign(hotSettings, table.hot_parameters);
 
   // Create the Handsontable
   var handsOnTable = new Handsontable(element, hotSettings);

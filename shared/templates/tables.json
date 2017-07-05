@@ -796,6 +796,10 @@
       "name": "Totals Check",
       "element": "totals-hot",
       "submit": false,
+      "hot_parameters": {
+        "preventOverflow": "horizontal",
+        "rowHeaderWidth": 200
+      },
       "rows": [
         {
           "label": "By Job Category"
