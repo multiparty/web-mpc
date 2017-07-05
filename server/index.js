@@ -135,9 +135,14 @@ var FinalAggregate = mongoose.model('FinalAggregate', {
     session: String
 });
 var UserKey = mongoose.model('UserKey', {
-    _id: String, // concat of session + user.
-    session: String,
-    userkey: String
+  _id: String, // concat of session + user.
+  session: String,
+  userkey: String
+});
+
+var SessionStatus = mongoose.model('SessionStatus', {
+    _id: String, // = session
+    status: String
 });
 
 
@@ -149,7 +154,24 @@ function verify_password(session, password, success, fail) {
         else if (data == null)
             fail('Invalid session/password');
         else
-            success();  
+            success();
+    });
+}
+
+// Verifies that the given session and password match.
+function verify_status(session, status, success, fail) {
+    SessionStatus.findOne({_id: session}, function (err, data) {
+        if (err)
+            fail('Error while verifying user key.');
+
+        var db_status = "START";
+        if (data != null)
+            db_status = data.status;
+
+        if(status == db_status)
+            success();
+        else
+            fail("Session status is " + db_status);
     });
 }
 
@@ -183,6 +205,8 @@ app.post('/', function (req, res) {
             return;
         }
 
+        var fail = function(err) { console.log(err); res.status(500).send(err); };
+        var success = function() {
         console.log('Validation passed.');
 
         var mask = body.mask,
@@ -242,6 +266,9 @@ app.post('/', function (req, res) {
                 });
             }
         });
+      };
+
+      verify_status(body.session, "START", success, fail);
     });
 });
 
@@ -332,7 +359,7 @@ app.post('/generate_client_urls', function (req, res) {
             res.status(500).send('Invalid request.');
             return;
         }
-        
+
         // Get all previously generated user keys.
         var fail = function(err) { console.log(err); res.status(500).send(err); };
         var success = function() {
@@ -404,7 +431,7 @@ app.post('/get_client_urls', function (req, res) {
     console.log('POST /get_client_urls');
     console.log(req.body);
 
-    var schema = { 
+    var schema = {
         session: joi.string().alphanum().required(),
         password: joi.string().alphanum().required()
     };
@@ -439,7 +466,7 @@ app.post('/get_client_urls', function (req, res) {
                 return;
             });
         };
-        
+
         verify_password(body.session, body.password, success, fail);
     });
 });
@@ -474,7 +501,7 @@ app.post('/get_data', function (req, res) {
                     for (var row in data) {
                         to_send.push(data[row].date);
                     }
-                    res.json( { result: to_send } );  
+                    res.json( { result: to_send } );
                     return;
                 }
             });
@@ -501,7 +528,7 @@ app.post('/get_masks', function (req, res) {
             res.status(500).send('Invalid or missing fields.');
             return;
         }
-        
+
         var fail = function(err) { console.log(err); res.status(500).send(err); };
         var success = function() {
             Mask.where({session: body.session}).find(function (err, data) {
@@ -520,7 +547,7 @@ app.post('/get_masks', function (req, res) {
                 }
             });
         };
-        
+
         verify_password(body.session, body.password, success, fail);
     });
 
@@ -542,7 +569,7 @@ app.post('/get_aggregate', function (req, res) {
             res.status(500).send('Invalid or missing fields.');
             return;
         }
-        
+
         var fail = function(err) { console.log(err); res.status(500).send(err); };
         var success = function() {
           Aggregate.where({session: body.session}).find(function (err, data) {
@@ -574,7 +601,7 @@ app.post('/get_aggregate', function (req, res) {
             }
           });
         };
-        
+
         verify_password(body.session, body.password, success, fail);
     });
 
@@ -590,6 +617,71 @@ app.post('/submit_agg', function (req, res) {
     res.status(500).send('Not implemented.');
 });
 
+// status
+app.post("/controlpanel", function (req, res) {
+  console.log('POST /controlpanel');
+  console.log(req.body);
+  var schema = {
+    session: joi.string().alphanum().required(),
+    password: joi.string().alphanum().required(),
+    status: joi.string().alphanum().required()
+  };
+
+  // Validate request.
+  joi.validate(req.body, schema, function (valErr, body) {
+      if (valErr) {
+          console.log(valErr);
+          res.status(500).send('Invalid request.');
+          return;
+      }
+
+      // Get all previously generated user keys.
+      var fail = function(err) { console.log(err); res.status(500).send(err); };
+      var success = function() {
+          SessionStatus.findOne({_id: body.session}, function (err, data) {
+              if (err) {
+                  console.log(err);
+                  res.status(500).send('Error getting session status.');
+                  return;
+              }
+
+              if(data != null && data.status == "STOP"){
+                res.status(500).send('Session already stoped.');
+                return;
+              }
+              var status = body.status;
+              if (status != "START" && status != "PAUSE" && status != "STOP"){
+                res.status(500).send('Illegal Session Status');
+                return;
+              }
+              var session = body.session;
+              var pass = body.password;
+
+              var model = new SessionStatus({
+                  _id: session,
+                  status: status
+              });
+
+              SessionStatus.update(
+                  {_id: session},
+                  model,
+                  {upsert: true}
+              ).then(function(status) {
+                console.log('Current Session Status:', status);
+                res.json({result: status});
+                return;
+              }).catch(function(error) {
+                console.log(error);
+                res.status(500).send("Error during session status update.");
+                return;
+              });
+
+          });
+      };
+
+      verify_password(body.session, body.password, success, fail);
+  });
+});
 // if the page isn't found, return 404 error
 app.get(/.*/, function (req, res) {
     res.status(404).send('Page not found');
