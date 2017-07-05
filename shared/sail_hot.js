@@ -284,8 +284,9 @@ function make_tables(tables_def) {
 function make_table_obj(table_def) {
   var table_name = table_def.name;
   var element = table_def.element;
-  var width = table_def.width || HOT_DEFAULT_WIDTH;
+  var width = table_def.width;
   var submit = table_def.submit;
+  var hot_parameters = table_def.hot_parameters;
 
   if (!(table_def.submit === true || table_def.submit === false))
     submit = true;
@@ -355,7 +356,8 @@ function make_table_obj(table_def) {
     "name": table_name, "submit": submit,
     "element": element, "width": width,
     "rows": rows, "cols": cols, "cells": table,
-    "rowsCount": rows_len, "colsCount": cols_len
+    "rowsCount": rows_len, "colsCount": cols_len,
+    "hot_parameters": hot_parameters
   };
 }
 
@@ -401,7 +403,7 @@ function make_hot_table(table) {
   var data = new Array(table.rowsCount);
   for (var r = 0; r < table.rowsCount; r++)
     data[r] = [];
-
+    
   var hotSettings = {
     // Enable tooltips
     comments: true,
@@ -414,9 +416,8 @@ function make_hot_table(table) {
     // Row and column headers and span
     rowHeaders: table.rows,
     nestedHeaders: table.cols,
-    // TODO Make this part of config, re-add width but without default setting
-    preventOverflow: 'horizontal',
-    rowHeaderWidth: 200,
+    // Styling information
+    width: width,
     // Per cell properties
     cell: cells,
     // Workaround for handsontable undo issue for readOnly tables
@@ -424,6 +425,9 @@ function make_hot_table(table) {
       return !(this.readOnly);
     }
   };
+  
+  // other parameters from config 
+  Object.assign(hotSettigns, table.hot_parameters);
 
   // Create the Handsontable
   var handsOnTable = new Handsontable(element, hotSettings);
