@@ -1,0 +1,221 @@
+.handsontable td.htInvalid {
+  background-color: #F06D65 !important;
+}
+
+.handsontable th:first-child {
+  text-align: left;
+  white-space: normal;
+}
+
+.handsontable th {
+  font-size: 13px;
+  white-space: pre-line;
+  max-width: 110px;
+  vertical-align: middle;
+}
+
+body {
+  background-color: #EEE;
+  color: #555;
+}
+
+h1, h2, h3 {
+  color: #333;
+}
+
+h1 {
+  font-size: 50px;
+  font-weight: bold;
+  color: rgba(51, 51, 51, 0.8);
+  text-shadow: 1px 4px 6px #fff, 0 0 0 #000, 1px 4px 6px #fff;
+}
+
+::-moz-selection {
+  background: #5af;
+  color: #fff;
+  text-shadow: none;
+}
+
+::selection {
+  background: #5af;
+  color: #fff;
+  text-shadow: none;
+}
+
+header,
+#shadow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 170px;
+  background: #fff;
+  z-index: 2;
+}
+
+#shadow {
+  box-shadow: 0 2px 4px 0 rgba(170, 170, 170, .80);
+  z-index: -1;
+}
+
+header h1,
+header #logos {
+  display: inline-block;
+}
+
+header #logos {
+  float: right;
+  line-height: 170px;
+}
+
+header #logos img {
+  margin-left: 50px;
+}
+
+#content {
+  margin-top: 270px;
+}
+
+.card {
+  background: #fff;
+  box-shadow: 0 2px 4px 0 rgba(170, 170, 170, .80);
+  padding: 30px;
+  margin-bottom: 35px;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 950px;
+}
+
+#expand-table-button {
+  width: 100%;
+  height: 35px;
+  display: block;
+  margin-top: 35px;
+}
+
+#expand-table-button:hover {
+  background-color: #F3F3F3;
+}
+
+#tables-area h4 {
+  margin-top: 30px;
+}
+
+hr {
+  display: block;
+  width: 100%;
+  border-top: 1px solid #d6d6d6;
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+hr.short {
+  width: 30%;
+}
+
+form .form-group-lg label {
+  font-size: 18px;
+}
+
+.panel-heading h3 {
+  text-align: center;
+}
+
+.panel-body {
+  padding-left: 1em;
+  padding-right: 1em;
+}
+
+.instructions {
+  font-size: large;
+}
+
+.page-footer {
+  padding-top: 50px;
+}
+
+/* for drop area */
+
+#drop-area {
+  border: 5px dashed #CCC;
+  border-radius: 0;
+  padding: 30px;
+  background-color: #F0F0F0;
+  transition: border-color 0.5s;
+  text-align: center;
+  height: 250px;
+  display: table-cell;
+  vertical-align: middle;
+  font-size: x-large;
+  width: inherit;
+  cursor: pointer;
+}
+
+#drop-area.dragenter {
+  border-color: #A6DE2A;
+}
+
+#drop-area.dragdefault {
+  border-color: #666;
+}
+
+#choose-file {
+  border: none;
+  visibility: hidden;
+}
+
+/* Additional Questions */
+#questions {
+  font-size: 16px;
+}
+
+/* for alerts and submission history*/
+.ajs-header img {
+  padding-right: 0.5em;
+}
+
+.success img {
+  padding-right: 0.5em;
+}
+
+.error img {
+  padding-right: 0.5em;
+}
+
+/* for qtip */
+.qtip-red {
+  color: #5B1515;
+  background-color: #FDD3D0;
+}
+
+.qtip-red img {
+  padding-right: 0.5em;
+}
+
+/* Triangles, based on https://tympanus.net/codrops/2013/10/03/a-collection-of-separator-styles/ */
+#shadow::after {
+  position: absolute;
+  content: '';
+  pointer-events: none;
+}
+
+.ss-style-multitriangles::after {
+  left: 50%;
+  width: 50px;
+  height: 50px;
+  -webkit-transform: translateX(-50%) rotate(45deg);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.ss-style-multitriangles::after {
+  bottom: -25px;
+  z-index: 1;
+  background: inherit;
+  box-shadow: -50px 50px 0 #fff, 50px -50px 0 #fff, 2px 2px 4px 0 rgba(170, 170, 170, .80), -48px 52px 4px 0 rgba(170, 170, 170, .80), 52px -48px 4px 0 rgba(170, 170, 170, .80);
+}
+
+/* Arrow down, from https://css-tricks.com/snippets/css/css-triangle/ */
+.arrow-down {
+  background: transparent url('../../shared/expand.png') no-repeat center;
+  cursor: pointer;
+}

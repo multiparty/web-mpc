@@ -406,8 +406,6 @@ function make_hot_table(table) {
     // Enable tooltips
     comments: true,
     data: data,
-    // Table width in pixels
-    width: table.width,
     // Columns types
     columns: hot_cols,
     // Sizes
@@ -416,6 +414,9 @@ function make_hot_table(table) {
     // Row and column headers and span
     rowHeaders: table.rows,
     nestedHeaders: table.cols,
+    // TODO Make this part of config, re-add width but without default setting
+    preventOverflow: 'horizontal',
+    rowHeaderWidth: 200,
     // Per cell properties
     cell: cells,
     // Workaround for handsontable undo issue for readOnly tables
