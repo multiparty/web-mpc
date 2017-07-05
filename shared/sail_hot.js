@@ -1,6 +1,3 @@
-// Default width of a table (in pixels).
-var HOT_DEFAULT_WIDTH = 900;
-
 // A Map from names to validator functions.
 // The name can be used in the json template to assign
 // the corresponding validator to a cell.
