@@ -20,7 +20,7 @@ function success(msg) {
  */
 function validate(tables, callback) {
   // Verify session key
-  var session = $('#sess').val().trim();
+  var session = $('#session').val().trim();
   if(!session.match(/^[a-z0-9]{32}$/))
     return callback(false, SESSION_KEY_ERROR);
 
