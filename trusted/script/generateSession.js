@@ -7,6 +7,31 @@
  *
  */
 
+ function statusResponse(session, status, password){
+   console.log("hello");
+
+   if(status == "START" || status == "PAUSE" || status == "STOP" ){
+     $.ajax({
+        type: "POST",
+        url: "/controlpanel",
+        contentType: "application/json",
+        data: JSON.stringify({status: status, session: session, password: password}),
+
+        success: function(resp) {
+          console.log(resp);
+          alert("updated");
+        },
+        error: function(err) {
+          alert("error");
+        }
+      });
+   }
+   else{
+     console.log("Error not status");
+     return;
+   }
+ }
+
  function formatUrls(urls) {
    var baseUrl = window.location.toString();
    var end = baseUrl.indexOf("trusted/session_data.html");
@@ -125,7 +150,7 @@ function generateSession(hiddenDiv, sessionID, passwordID, pubID, privID, linkID
                         "Go To Live Data Page for Session " + rndSess;
                     document.getElementById(linkID).href = "session_data.html?session=" + rndSess;
                     saveAs(priBlob,'Session_' + rndSess + '_private_key.pem');
-                    
+
                     var text = "Session Key:\n"+rndSess+"\nPassword:\n"+password;
                     saveAs(new Blob([text], {type: "text/plain;charset=utf-8"}),'Session_' + rndSess + '_password.txt');
                 },
@@ -189,18 +214,18 @@ function generateTable(tableBody, sessionID, password, status, timestamp, counte
             var res = data.result;
             document.getElementById(status).innerHTML = "LOADING...";
             document.getElementById(status).className = "alert alert-success";
-            
+
             for(var i = 0; i < res.length; i++) {
               var submissionHTML = "<tr>\
                   <td>" + (i+1+global_submission_counter) + "</td>\
                   <td>" + new Date(res[i]).toLocaleString() + "</td>\
                 </tr>";
-                
+
               document.getElementById(tableBody).innerHTML += submissionHTML;
             }
-            
+
             global_submission_counter += res.length;
-            
+
             setTimeout(function () { generateTable(tableBody, sessionID, password, status, date) }, 10000);
         },
         error: function (err) {
