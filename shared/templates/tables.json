@@ -160,7 +160,8 @@
           "type": "int",
           "max": 1000000,
           "min": 0,
-          "empty": false
+          "empty": false,
+          "validators": ["discrepancies"]
         }
       ],
       "excel": [
@@ -358,7 +359,8 @@
           "type": "currency",
           "max": 100000000,
           "min": 0,
-          "empty": false
+          "empty": false,
+          "validators": ["discrepancies"]
         }
       ],
       "excel": [
@@ -556,7 +558,8 @@
           "type": "currency",
           "max": 100000000,
           "min": 0,
-          "empty": false
+          "empty": false,
+          "validators": ["discrepancies"]
         }
       ],
       "excel": [
@@ -754,7 +757,8 @@
           "type": "int",
           "max": 100000000,
           "min": 0,
-          "empty": false
+          "empty": false,
+          "validators": ["discrepancies"]
         }
       ],
       "excel": [

@@ -261,7 +261,7 @@
         var sums = [0, 0, 0, 0, 0, 0]; // Internal total of Non NaNs values.
         var NaNs = [0, 0, 0, 0, 0, 0]; // Counts how many NaNs exist for every cell participating in a total.
 
-        // Custom validator that computes the totals
+        // Custom afterChange hook that computes the totals
         var afterChange = function (table) {
           var index_map = {
             "Number Of Employees": 0,
@@ -306,6 +306,57 @@
             totals_table.loadData([totals, totals]);
           }
         };
+        
+        // Custom validator that checks for semantic discrepancies across many tables. In particular:
+        // 1. For all tables except bonus (3rd table), the cell must be either zero in all tables, or non-zero in all tables.
+        // 2. For the bonus table (3rd table), it can only be non-zero if the other tables are non-zero.
+        var discrepancies_validator = function(table, cell, value, callback) {
+          var bonus_table = tables[2];
+          var name = table._sail_meta.name;
+          var r = cell.row_index;
+          var c = cell.col_index;
+          
+          // bonus can only be non-zero if the other tables are non-zero.
+          if(name == bonus_table._sail_meta.name) {
+            // bonus can only be non-zero if the other tables are non-zero.
+            if(value > 0) {
+              for(var i = 0; i < tables.length-1; i++) { // length-1 because of the totals table
+                if(i == 2) continue;
+                
+                if(!(tables[i].getDataAtCell(r, c) > 0)) {
+                  console.log("Semantic error in '" + table._sail_meta.name + "' at ("+r+", "+c+")");
+                  // callback(false); // No need to invalidate other cells here.
+                }
+              }
+            }
+          }
+          
+          // Not bonus table
+          else {
+            // the cell must be either zero in all tables, or non-zero in all tables
+            var compare = value > 0;
+            var error = false;
+            for(var i = 0; i < tables.length-1; i++) { // length-1 because of the totals table
+              if(i == 2 || name == tables[i]._sail_meta.name) continue;
+              
+              if((tables[i].getDataAtCell(r, c) > 0) !== compare) {
+                console.log("Semantic error in '" + table._sail_meta.name + "' at ("+r+", "+c+")");
+                error = true;
+                // callback(false);
+              }
+            }
+          }
+
+          // find a way to validate/invalidate the other cells to also have the same error.
+          // probably should use _sail_meta of the other tables to store if their is an error
+          // and render it using custom renderer. Calling the validators of other cells will
+          // cause an infinite loop unless something smart was done about it.          
+          
+          // Validate the other cells so that if this update resolves their issue, they will be notified.
+          callback(true);
+        };
+        
+        register_validator("discrepancies", discrepancies_validator);
 
         // Alerts, page elements, etc. for drag-and-drop/choose file.
         var workbook_js = null;
