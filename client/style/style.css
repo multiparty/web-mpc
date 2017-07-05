@@ -214,6 +214,26 @@ form .form-group-lg label {
   box-shadow: -50px 50px 0 #fff, 50px -50px 0 #fff, 2px 2px 4px 0 rgba(170, 170, 170, .80), -48px 52px 4px 0 rgba(170, 170, 170, .80), 52px -48px 4px 0 rgba(170, 170, 170, .80);
 }
 
+.submit_panel {
+  width: 50%;
+  float: left;
+  padding-left: 10px;
+  height: 235px;
+}
+
+.errors, .previous_submits {
+  max-height: 90px;
+  overflow-x: hidden;
+}
+
+.errors > li > p {
+  color: red;
+}
+.previous_submits > li > p {
+  color: #4F8A10;
+}
+
+
 /* Arrow down, from https://css-tricks.com/snippets/css/css-triangle/ */
 .arrow-down {
   background: transparent url('../../shared/expand.png') no-repeat center;
