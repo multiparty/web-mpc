@@ -40,17 +40,32 @@ h1 {
   text-shadow: 1px 4px 6px #fff, 0 0 0 #000, 1px 4px 6px #fff;
 }
 
-::-moz-selection { background: #5af; color: #fff; text-shadow: none; }
-::selection { background: #5af; color: #fff; text-shadow: none; }
+::-moz-selection {
+  background: #5af;
+  color: #fff;
+  text-shadow: none;
+}
 
-header {
+::selection {
+  background: #5af;
+  color: #fff;
+  text-shadow: none;
+}
+
+header,
+#shadow {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 170px;
   background: #fff;
+  z-index: 2;
+}
+
+#shadow {
   box-shadow: 0 2px 4px 0 rgba(170, 170, 170, .80);
+  z-index: -1;
 }
 
 header h1,
@@ -165,4 +180,32 @@ form .form-group-lg label {
 
 .qtip-red img {
   padding-right: 0.5em;
+}
+
+/* Triangles, based on https://tympanus.net/codrops/2013/10/03/a-collection-of-separator-styles/ */
+#shadow::after {
+  position: absolute;
+  content: '';
+  pointer-events: none;
+}
+
+.ss-style-multitriangles::after {
+  left: 50%;
+  width: 50px;
+  height: 50px;
+  -webkit-transform: translateX(-50%) rotate(45deg);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.ss-style-multitriangles::after {
+  bottom: -25px;
+  z-index: 1;
+  background: inherit;
+  box-shadow: -50px 50px 0 #fff, 50px -50px 0 #fff, 2px 2px 4px 0 rgba(170, 170, 170, .80), -48px 52px 4px 0 rgba(170, 170, 170, .80), 52px -48px 4px 0 rgba(170, 170, 170, .80);
+}
+
+/* Arrow down, from https://css-tricks.com/snippets/css/css-triangle/ */
+.arrow-down {
+  background: transparent url('../../shared/expand.png') no-repeat center;
+  cursor: pointer;
 }
