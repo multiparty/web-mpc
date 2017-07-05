@@ -19,15 +19,20 @@ function success(msg) {
  * Called when the submit button is pressed.
  */
 function validate(tables, callback) {
+  var errors = [];
   // Verify session key
-  var session = $('#sess').val().trim();
-  if(!session.match(/^[a-z0-9]{32}$/))
-    return callback(false, SESSION_KEY_ERROR);
+  var session = $('#session').val().trim();
+  if(!session.match(/^[a-z0-9]{32}$/)) {
+    errors = errors.concat(SESSION_KEY_ERROR);
+    //return callback(false, SESSION_KEY_ERROR);
+  }
 
   // Verify confirmation check box was checked
   var verifyChecked = $('#verify').is(':checked');
-  if(!verifyChecked)
-    return callback(false, UNCHECKED_ERR);
+  if(!verifyChecked) {
+    errors = errors.concat(UNCHECKED_ERR);
+    //return callback(false, UNCHECKED_ERR);
+  }
 
   // Verify additional questions
   var questionsValid = true;
@@ -47,8 +52,14 @@ function validate(tables, callback) {
     }
   }
 
-  if(!questionsValid)
-    return callback(false, ADD_QUESTIONS_ERR);
+  if (errors.length !== 0) {
+    return callback(false, errors);
+  }
+
+  if(!questionsValid) {
+    errors = errors.concat(ADD_QUESTIONS_ERR);
+    //return callback(false, ADD_QUESTIONS_ERR);
+  }
 
   // Validate tables (callback chaining)
   (function validate_callback(i) {
@@ -58,10 +69,15 @@ function validate(tables, callback) {
     if(tables[i]._sail_meta.submit === false) return validate_callback(i+1);
 
     tables[i].validateCells(function(result) { // Validate table
-      if(!result) return callback(false, GENERIC_TABLE_ERR + tables[i]._sail_meta.name + " spreadsheet");
-      validate_callback(i+1);
+      if(!result) {
+        //errors = errors.concat(GENERIC_TABLE_ERR + tables[i]._sail_meta.name + " spreadsheet");
+        return callback(false, GENERIC_TABLE_ERR + tables[i]._sail_meta.name + " spreadsheet");
+      } else {
+        validate_callback(i + 1);
+      }
     });
-  })(0)
+  })(0);
+
 }
 
 /**
