@@ -1,14 +1,16 @@
 <!doctype html>
 <html>
 <head>
-  <title>Financial Services D&amp;I Scorecard</title>
+  <title>Boston Women's Workforce Council</title>
 
   <script type="text/javascript" src="../shared/jquery-3.1.1.min.js"></script>
   <script type="text/javascript" src="../shared/underscore.js"></script>
   <script type="text/javascript" src="../shared/handsontable-pro/dist/handsontable.full.js"></script>
   <script type="text/javascript" src="../shared/forge.min.js"></script>
   <script type="text/javascript" src="../shared/mpc.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+          integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+          crossorigin="anonymous"></script>
   <script type="text/javascript" src="style/alertify/alertify.js"></script>
   <script type="text/javascript" src="style/alertify/alertify-defaults.js"></script>
   <script type="text/javascript" src="style/qtip/jquery.qtip.min.js"></script>
@@ -20,179 +22,60 @@
   <script src="script/path.js"></script>
 
 
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+        integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
   <link rel="stylesheet" type="text/css" href="style/qtip/jquery.qtip.min.css">
   <link rel="stylesheet" type="text/css" href="../shared/handsontable-pro/dist/handsontable.full.css">
   <link rel="stylesheet" type="text/css" href="style/alertify/css/alertify.css">
   <link rel="stylesheet" type="text/css" href="style/alertify/css/themes/alertify-bootstrap.css">
   <link rel="stylesheet" href="style/ladda-themeless.min.css">
+  <link rel="stylesheet" href="style/style.css">
 
-  <style type="text/css">
-    .handsontable .ht_clone_top,
-    .handsontable .ht_clone_top_left,
-    .handsontable .ht_clone_top_left_corner {
-      display: none;
-    }
-
-    .handsontable col.rowHeader {
-      width: 200px !important;
-    }
-
-    .handsontable td.htInvalid {
-      background-color: #F06D65 !important;
-    }
-
-    .handsontable th:first-child {
-      text-align: left;
-      white-space: normal;
-    }
-
-    .handsontable th {
-      font-size: 12px;
-      white-space: pre-line;
-      max-width: 110px;
-      vertical-align: middle;
-    }
-
-    body {
-      background-color: #EEE;
-      color: #555;
-    }
-
-    h1, h2, h3 {
-      color: #333;
-    }
-
-    .card {
-      background: #fff;
-      box-shadow: 0 2px 4px 0 rgba(170, 170, 170, .80);
-      padding: 30px;
-      margin-bottom: 25px;
-    }
-
-    .divider {
-      display: block;
-      width: 100%;
-      border-top: 1px solid #d6d6d6;
-      margin-top: 30px;
-      margin-bottom: 30px;
-    }
-
-    form .form-group-lg label {
-      font-size: 18px;
-    }
-
-    #body_wrap input {
-      margin-bottom: 0px;
-    }
-
-    #submit {
-      float: left;
-      text-align: right;
-    }
-
-    .panel-heading h3 {
-      text-align: center;
-    }
-
-    .panel-body {
-      padding-left: 1em;
-      padding-right: 1em;
-    }
-
-    .instructions {
-      font-size: large;
-    }
-
-    .page-footer {
-      padding-top: 50px;
-    }
-
-    /* for drop area */
-
-    #drop-area {
-      border: 5px dashed #CCC;
-      border-radius: 0;
-      padding: 30px;
-      background-color: #F0F0F0;
-      transition: border-color 0.5s;
-      text-align: center;
-      height: 250px;
-      display: table-cell;
-      vertical-align: middle;
-      font-size: x-large;
-      width: inherit;
-      cursor: pointer;
-    }
-
-    #drop-area.dragenter {
-      border-color: #A6DE2A;
-    }
-
-    #drop-area.dragdefault {
-      border-color: #666;
-    }
-
-    #choose-file {
-      border: none;
-      visibility: hidden;
-    }
-
-    /* for alerts and submission history*/
-    .ajs-header img {
-      padding-right: 0.5em;
-    }
-
-    .success img {
-      padding-right: 0.5em;
-    }
-
-    .error img {
-      padding-right: 0.5em;
-    }
-
-    /* for qtip */
-    .qtip-red {
-      color: #5B1515;
-      background-color: #FDD3D0;
-    }
-
-    .qtip-red img {
-      padding-right: 0.5em;
-    }
-  </style>
 </head>
 <body>
-<div class="container">
-  <div class="page-header">
-    <table width="100%">
-      <tr>
-        <td>
-          <h1>Financial Services D&amp;I Scorecard<br/>
-            <small>DRAFT</small>
-          </h1>
-        </td>
-        <td align="right">
-          <img src="../shared/bu.png" width="110px"/>
-        </td>
-      </tr>
-    </table>
+<header>
+  <div class="container">
+    <h1>Workforce Survey<br/>
+      <small>Boston Women's Workforce Council</small>
+    </h1>
+    <div id="logos">
+      <img src="../shared/bwwc.png" width="130" alt="BWWC Logo"/>
+      <img src="../shared/bu.gif" alt="BU Logo"/>
+    </div>
   </div>
-  <div id="session-area" class="card">
+</header>
+<div id="shadow" class="ss-style-multitriangles"></div>
+<main id="content" class="container">
+  <section id="session-area" class="card">
     <h2 class="text-center">Title</h2>
     <p class="text-center">Some explanation about what to do.</p>
-    <div class="divider"></div>
+    <hr/>
     <div class="row">
       <div class="col-md-6">
         <form>
           <div class="form-group">
-            <label class="control-label" for="sess">Session key</label>
-            <input type="text" id="sess" class="form-control" placeholder="Session key" pattern="^[a-zA-Z0-9]{26}$" autocomplete="off" required/>
+            <label class="control-label" for="session">Session key</label>
+            <input type="text" id="session" class="form-control" placeholder="Session key" pattern="^[a-z0-9]{32}$"
+                   autocomplete="off" required/>
+            <span id="sessionSuccess" class="successIcon glyphicon glyphicon-ok form-control-feedback hidden"
+                  aria-hidden="true"></span>
+            <span id="sessionFail" class="failIcon glyphicon glyphicon-remove form-control-feedback hidden"
+                  aria-hidden="true"></span>
+            <span id="sessionFailHelp"
+                  class="failHelp help-block hidden">Please input the 32-character session key.</span>
           </div>
           <div class="form-group">
             <label class="control-label" for="key">Participation code</label>
-            <input type="text" id="key" class="form-control" placeholder="Participation code" pattern="^[a-zA-Z0-9]{26}$" autocomplete="off" required>
+            <input type="text" id="key" class="form-control" placeholder="Participation code" pattern="^[a-z0-9]{32}$"
+                   autocomplete="off" required>
+            <span id="keySuccess" class="successIcon glyphicon glyphicon-ok form-control-feedback hidden"
+                  aria-hidden="true"></span>
+            <span id="keyFail" class="failIcon glyphicon glyphicon-remove form-control-feedback hidden"
+                  aria-hidden="true"></span>
+            <span id="keyFailHelp"
+                  class="failHelp help-block hidden">Please input the 32-character participation code.</span>
           </div>
         </form>
       </div>
@@ -201,145 +84,174 @@
         <input type="file" id="choose-file" accept=".xlsx,.xls">
       </div>
     </div>
-  </div>
+  </section>
 
-  <div class="instructions">Didn't use the template? Enter in data manually by clicking on this button and filling out
-    the tables that appear.
-    <button class="btn btn-default" type="button" id="input-button" aria-expanded="false" aria-controls="tableCollapse">
-      Manual input
-    </button>
-  </div>
+  <section id="instructions" class="card">
+    <h2 class="text-center">Didn't use the template?</h2>
+    <p class="text-center">Enter in data manually by clicking on this button and filling out
+      the tables that appear.</p>
+    <span id="expand-table-button" class="arrow-down"></span>
 
-  <div id="tables-area" class="card">
-    <h3>Entered Data</h3>
-    <div>Any red cells indicate an error - click on the cell to see the error message.</div>
-    <div>
-      <h4 id="number-employees-hot-name"></h4>
-      <div id="number-employees-hot"></div>
+    <div id="tables-area">
+      <hr/>
+      <h3>Entered Data</h3>
+      <div>Any red cells indicate an error - click on the cell to see the error message.</div>
+      <div>
+        <h4 id="number-employees-hot-name"></h4>
+        <div id="number-employees-hot"></div>
+      </div>
+
+      <div>
+        <h4 id="compensation-hot-name"></h4>
+        <div id="compensation-hot"></div>
+      </div>
+
+      <div>
+        <h4 id="performance-pay-hot-name"></h4>
+        <div id="performance-pay-hot"></div>
+      </div>
+
+      <div>
+        <h4 id="service-length-hot-name"></h4>
+        <div id="service-length-hot"></div>
+      </div>
     </div>
+  </section>
 
-    <div>
-      <h4 id="compensation-hot-name"></h4>
-      <div id="compensation-hot"></div>
-    </div>
-
-    <div>
-      <h4 id="performance-pay-hot-name"></h4>
-      <div id="performance-pay-hot"></div>
-    </div>
-
-    <div>
-      <h4 class="panel-title" id="service-length-hot-name"></h4>
-      <div id="service-length-hot"></div>
-    </div>
-
-    <div>
-
-      <h4 id="totals-hot-name"></h4>
-      <div id="totals-hot"></div>
-    </div>
-  </div>
-
-
-  <div id="additional-questions" class="card">
+  <section id="additional-questions" class="card">
     <h2 class="text-center">Additional Questions</h2>
     <p class="text-center">
-      Explain that additional questions should be answered if possible, they are sent securely, and no information about the
+      Explain that additional questions should be answered if possible, they are sent securely, and no information about
+      the
       participant is available. However, the results are collected individually and not on an aggregate basis.
     </p>
-    <div class="divider"></div>
+    <hr/>
     <div id="questions">
       <form>
         <p class="question-text">Does your company hold events to celebrate diversity and inclusion?</p>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="Yes">Yes</label>
+          <label><input type="radio" name="optradio" value="Yes">Yes</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
+          <label><input type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked="checked">Do not wish to
+          <label><input type="radio" name="optradio" value="NA" checked="checked">Do not wish to
             answer</label>
         </div>
       </form>
-      <div class="divider"></div>
+      <hr class="short"/>
       <form>
         <p class="question-text">Does your company provide diversity and inclusion education or training for managers,
           staff or both?</p>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="Yes">Yes</label>
+          <label><input type="radio" name="optradio" value="Yes">Yes</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
+          <label><input type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked="checked">Do not wish to
+          <label><input type="radio" name="optradio" value="NA" checked="checked">Do not wish to
             answer</label>
         </div>
       </form>
-      <div class="divider"></div>
+      <hr class="short"/>
       <form>
         <p class="question-text">Does your management team meet to discuss your organization's diverse workforce or
           workplace culture?</p>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="Yes">Yes</label>
+          <label><input type="radio" name="optradio" value="Yes">Yes</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
+          <label><input type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked="checked">Do not wish to
+          <label><input type="radio" name="optradio" value="NA" checked="checked">Do not wish to
             answer</label>
         </div>
       </form>
-      <div class="divider"></div>
+      <hr class="short"/>
       <form>
         <p class="question-text">Does your CEO engage in or lead discussions on diversity and inclusion with your
           management team or with other business executives?</p>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="Yes">Yes</label>
+          <label><input type="radio" name="optradio" value="Yes">Yes</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="No">No</label>
+          <label><input type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input autocomplete="off" type="radio" name="optradio" value="NA" checked="checked">Do not wish to
+          <label><input type="radio" name="optradio" value="NA" checked="checked">Do not wish to
             answer</label>
         </div>
       </form>
     </div>
-  </div>
-  <div>
+  </section>
+  <section class="card">
+    <div>
+      <h4 id="totals-hot-name"></h4>
+      <div id="totals-hot"></div>
+    </div>
     <form>
       <div class="checkbox">
         <label>
-          <input autocomplete="off" type="checkbox" id="verify" name="verify"> All information is verified and correct
+          <input type="checkbox" id="verify" name="verify"> All information is verified and correct
         </label>
       </div>
+      <button type="submit" id="submit" class="btn btn-primary ladda-button">Submit</button>
     </form>
-  </div>
-  <button name="dump" id="submit" class="btn btn-primary ladda-button" data-style="zoom-out">
-    <span class="ladda-label">Submit</span>
-  </button>
-  <div class="page-footer">
-
-  </div>
+  </section>
   <br/>
   <script type="text/javascript" src="script/drop_sheet.js"></script>
 
   <script type="text/javascript">
     $(document).ready(function () {
 
+      var $session = $('#session');
+      var $key = $('#key');
+
+      /**
+       * Validate the session and participation code input fields.
+       */
+      var validateSessionInput = function (e) {
+        if (!e.target.validity) {
+          return false;
+        }
+
+        // Validate immediately once blur has been fired
+        $('#session, #key')
+          .off('input')
+          .on('input', validateSessionInput);
+
+        var $parent = $(e.target).parent();
+        if (e.target.validity.valid) {
+
+          $parent.removeClass('has-error').addClass('has-success has-feedback');
+          $parent.find('.successIcon').removeClass('hidden').addClass('show');
+          $parent.find('.failIcon').removeClass('show').addClass('hidden');
+          $parent.find('.failHelp').removeClass('show').addClass('hidden');
+        } else {
+
+          $parent.removeClass('has-success').addClass('has-error has-feedback');
+          $parent.find('.successIcon').removeClass('show').addClass('hidden');
+          $parent.find('.failIcon').removeClass('hidden').addClass('show');
+          $parent.find('.failHelp').removeClass('hidden').addClass('show');
+        }
+      };
+
+      $('#session, #key').on('blur', validateSessionInput);
+
+
       //Copied from trusted/session_data
-      window.getParameterByName = function (name) {
+      var getParameterByName = function (name) {
         name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
         var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
           results = regex.exec(location.search);
         return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-      }
+      };
 
       var userkey = getParameterByName('userkey');
-      $('#sess').val(getParameterByName('sessionkey'));
+      $session.val(getParameterByName('sessionkey'));
 
       var req = $.ajax({
         type: "GET",
@@ -358,7 +270,7 @@
             "Total Annual Compensation (Dollars)": 1,
             "Total Annual Cash Performance Pay (Dollars)": 1,
             "Total Length of Service (Months)": 2
-          }
+          };
 
           var table_index = index_map[table._sail_meta.name];
           var totals_table = tables[tables.length - 1];
@@ -380,7 +292,7 @@
 
             totals_table.loadData([sums, sums]);
           }
-        }
+        };
 
         // Alerts, page elements, etc. for drag-and-drop/choose file.
         var workbook_js = null;
@@ -393,11 +305,11 @@
             $('#tables-area').hide();
           }
           spinner = new Spinner().spin(_target);
-        }
+        };
         var _workend = function () {
           spinner.stop();
           $('#tables-area').slideToggle();
-        }
+        };
         var _badfile = function () {
           alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", 'This file does not appear to be a valid Excel file.', function () {
           });
@@ -451,7 +363,7 @@
         // Table accordion.
         $('#tables-area').hide();
 
-        $('#input-button').click(function () {
+        $('#expand-table-button').click(function () {
           $('#tables-area').slideToggle();
         });
 
@@ -487,6 +399,6 @@
       });
     });
   </script>
-</div>
+</main>
 </body>
 </html>
