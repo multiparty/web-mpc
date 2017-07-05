@@ -90,36 +90,33 @@
     <h2 class="text-center">Didn't use the template?</h2>
     <p class="text-center">Enter in data manually by clicking on this button and filling out
       the tables that appear.</p>
-    <button class="btn btn-default" type="button" id="input-button" aria-expanded="false">
-      Manual input
-    </button>
+    <span id="expand-table-button" class="arrow-down"></span>
+
+    <div id="tables-area">
+      <hr/>
+      <h3>Entered Data</h3>
+      <div>Any red cells indicate an error - click on the cell to see the error message.</div>
+      <div>
+        <h4 id="number-employees-hot-name"></h4>
+        <div id="number-employees-hot"></div>
+      </div>
+
+      <div>
+        <h4 id="compensation-hot-name"></h4>
+        <div id="compensation-hot"></div>
+      </div>
+
+      <div>
+        <h4 id="performance-pay-hot-name"></h4>
+        <div id="performance-pay-hot"></div>
+      </div>
+
+      <div>
+        <h4 id="service-length-hot-name"></h4>
+        <div id="service-length-hot"></div>
+      </div>
+    </div>
   </section>
-
-  <section id="tables-area" class="card">
-    <h3>Entered Data</h3>
-    <div>Any red cells indicate an error - click on the cell to see the error message.</div>
-    <div>
-      <h4 id="number-employees-hot-name"></h4>
-      <div id="number-employees-hot"></div>
-    </div>
-
-    <div>
-      <h4 id="compensation-hot-name"></h4>
-      <div id="compensation-hot"></div>
-    </div>
-
-    <div>
-      <h4 id="performance-pay-hot-name"></h4>
-      <div id="performance-pay-hot"></div>
-    </div>
-
-    <div>
-      <h4 id="service-length-hot-name"></h4>
-      <div id="service-length-hot"></div>
-    </div>
-
-  </section>
-
 
   <section id="additional-questions" class="card">
     <h2 class="text-center">Additional Questions</h2>
@@ -143,7 +140,7 @@
             answer</label>
         </div>
       </form>
-      <hr/>
+      <hr class="short"/>
       <form>
         <p class="question-text">Does your company provide diversity and inclusion education or training for managers,
           staff or both?</p>
@@ -158,7 +155,7 @@
             answer</label>
         </div>
       </form>
-      <hr/>
+      <hr class="short"/>
       <form>
         <p class="question-text">Does your management team meet to discuss your organization's diverse workforce or
           workplace culture?</p>
@@ -173,7 +170,7 @@
             answer</label>
         </div>
       </form>
-      <hr/>
+      <hr class="short"/>
       <form>
         <p class="question-text">Does your CEO engage in or lead discussions on diversity and inclusion with your
           management team or with other business executives?</p>
@@ -366,7 +363,7 @@
         // Table accordion.
         $('#tables-area').hide();
 
-        $('#input-button').click(function () {
+        $('#expand-table-button').click(function () {
           $('#tables-area').slideToggle();
         });
 
