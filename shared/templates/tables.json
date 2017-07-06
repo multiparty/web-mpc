@@ -161,7 +161,9 @@
           "max": 1000000,
           "min": 0,
           "empty": false,
-          "validators": ["discrepancies"]
+          "validators": [
+            "discrepancies"
+          ]
         }
       ],
       "excel": [
@@ -360,7 +362,9 @@
           "max": 100000000,
           "min": 0,
           "empty": false,
-          "validators": ["discrepancies"]
+          "validators": [
+            "discrepancies"
+          ]
         }
       ],
       "excel": [
@@ -559,7 +563,9 @@
           "max": 100000000,
           "min": 0,
           "empty": false,
-          "validators": ["discrepancies"]
+          "validators": [
+            "discrepancies"
+          ]
         }
       ],
       "excel": [
@@ -758,7 +764,9 @@
           "max": 100000000,
           "min": 0,
           "empty": false,
-          "validators": ["discrepancies"]
+          "validators": [
+            "discrepancies"
+          ]
         }
       ],
       "excel": [

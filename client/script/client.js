@@ -5,7 +5,7 @@ var UNCHECKED_ERR = 'Please acknowledge that all data is correct and verified.';
 var ADD_QUESTIONS_ERR = 'Please answer all Additional Questions.';
 
 var GENERIC_TABLE_ERR = 'Please double-check the ';
-var SERVER_ERR =  "Server not reachable.";
+var SERVER_ERR = "Server not reachable.";
 var GENERIC_SUBMISSION_ERR = 'Something went wrong with submission! Please try again.';
 
 function error(msg) {
@@ -22,49 +22,49 @@ function success(msg) {
 function validate(tables, callback) {
   // Verify session key
   var session = $('#session').val().trim();
-  if(!session.match(/^[a-z0-9]{32}$/))
+  if (!session.match(/^[a-z0-9]{32}$/))
     return callback(false, SESSION_KEY_ERROR);
-    
-  var participationcode = $('#key').val().trim();
-  if(!participationcode.match(/^[a-z0-9]{32}$/))
+
+  var participationCode = $('#participation-code').val().trim();
+  if (!participationCode.match(/^[a-z0-9]{32}$/))
     return callback(false, PARTICIPATION_CODE_ERROR);
 
   // Verify confirmation check box was checked
   var verifyChecked = $('#verify').is(':checked');
-  if(!verifyChecked)
+  if (!verifyChecked)
     return callback(false, UNCHECKED_ERR);
 
   // Verify additional questions
   var questionsValid = true;
   var questions = $('#questions form');
-  for(var q = 0; q < questions.length; q++) {
+  for (var q = 0; q < questions.length; q++) {
     var thisQuestionIsValid = false;
     var radios = $(questions[q]).find('input[type=radio]');
-    for(var r = 0; r < radios.length; r++)
-      if(radios[r].checked) {
+    for (var r = 0; r < radios.length; r++)
+      if (radios[r].checked) {
         thisQuestionIsValid = true;
         break;
       }
 
-    if(!thisQuestionIsValid) {
+    if (!thisQuestionIsValid) {
       questionsValid = false;
       break;
     }
   }
 
-  if(!questionsValid)
+  if (!questionsValid)
     return callback(false, ADD_QUESTIONS_ERR);
 
   // Validate tables (callback chaining)
   (function validate_callback(i) {
-    if(i >= tables.length) return callback(true, "");
+    if (i >= tables.length) return callback(true, "");
 
     // Dont validate tables that are not going to be submitted
-    if(tables[i]._sail_meta.submit === false) return validate_callback(i+1);
+    if (tables[i]._sail_meta.submit === false) return validate_callback(i + 1);
 
-    tables[i].validateCells(function(result) { // Validate table
-      if(!result) return callback(false, GENERIC_TABLE_ERR + tables[i]._sail_meta.name + " spreadsheet");
-      validate_callback(i+1);
+    tables[i].validateCells(function (result) { // Validate table
+      if (!result) return callback(false, GENERIC_TABLE_ERR + tables[i]._sail_meta.name + " spreadsheet");
+      validate_callback(i + 1);
     });
   })(0)
 }
@@ -77,19 +77,19 @@ function construct_and_send(tables, la) {
   la.start();
 
   // Begin constructing the data
-  var data_submission = { questions: {} };
+  var data_submission = {questions: {}};
 
-  var session = $('#sess').val().trim();
-  var participationcode = $('#participationcode').val().trim();
+  var session = $('#session').val().trim();
+  var participationCode = $('#participation-code').val().trim();
 
   // Add questions data, each question has three parts:
   //  'YES', 'NO', and 'NA' and each one has value 0 or 1
   var questions = $('#questions form');
   var questions_text = questions.find('.question-text');
-  for(var q = 0; q < questions.length; q++) {
+  for (var q = 0; q < questions.length; q++) {
     var question_data = {};
     var radios = $(questions[q]).find('input[type=radio]');
-    for(var r = 0; r < radios.length; r++) {
+    for (var r = 0; r < radios.length; r++) {
       var value = radios[r].value;
       value = value.replace(/\s+/g, ' ');
       question_data[value] = (radios[r].checked ? 1 : 0);
@@ -103,7 +103,7 @@ function construct_and_send(tables, la) {
   // Handle table data, tables are represented as 2D associative arrays
   // with the first index being the row key, and the second being the column key
   var tables_data = construct_data_tables(tables);
-  for(var i = 0; i < tables_data.length; i++)
+  for (var i = 0; i < tables_data.length; i++)
     data_submission[tables_data[i].name] = tables_data[i].data;
 
   // Secret share / mask the data.
@@ -111,11 +111,11 @@ function construct_and_send(tables, la) {
   var data = shares['data'];
   var mask = shares['mask'];
 
-  encrypt_and_send(session, participationcode, data, mask, la);
+  encrypt_and_send(session, participationCode, data, mask, la);
 }
 
 var submitEntries = [];
-function encrypt_and_send(session, participationcode, data, mask, la) {
+function encrypt_and_send(session, participationCode, data, mask, la) {
   // Get the public key to encrypt with
   var pkey_request = $.ajax({
     type: "POST",
@@ -125,24 +125,24 @@ function encrypt_and_send(session, participationcode, data, mask, la) {
     dataType: "text"
   });
 
-  pkey_request.then(function(public_key) {
-      mask = encryptWithKey(mask, public_key);
-      var submission = {
-        data: data,
-        mask: mask,
-        user: participationcode,
-        session: session
-      };
+  pkey_request.then(function (public_key) {
+    mask = encryptWithKey(mask, public_key);
+    var submission = {
+      data: data,
+      mask: mask,
+      user: participationCode,
+      session: session
+    };
 
-      return $.ajax({
-        type: "POST",
-        url: "/",
-        data: JSON.stringify(submission),
-        contentType: 'application/json'
-      });
-  }).then(function(response) {
+    return $.ajax({
+      type: "POST",
+      url: "/",
+      data: JSON.stringify(submission),
+      contentType: 'application/json'
+    });
+  }).then(function (response) {
     var submitTime = new Date();
-    submitEntries.push( { time: submitTime, submitted: true } );
+    submitEntries.push({time: submitTime, submitted: true});
 
     success("Submitted data.");
     convertToHTML(submitEntries);
@@ -151,12 +151,12 @@ function encrypt_and_send(session, participationcode, data, mask, la) {
     la.stop();
   }).catch(function (err) {
     var submitTime = new Date();
-    submitEntries.push( { time: submitTime, submitted: false } );
+    submitEntries.push({time: submitTime, submitted: false});
 
     if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined)
       error(err.responseText);
     else if (err && (err.status === 0 || err.status === 500))
-      // check for status 0 or status 500 (Server not reachable.)
+    // check for status 0 or status 500 (Server not reachable.)
       error(SERVER_ERR);
     else
       error(GENERIC_SUBMISSION_ERR);
@@ -177,7 +177,7 @@ function convertToHTML(entries) {
   for (var i = 0; i < entries.length; i++) {
     if (entries[i]['submitted']) {
       // append success line
-      htmlConcat += "<p class='success' alt='Success'><img src='style/accept.png'>Successful - "  + entries[i]['time'] + "</p>";
+      htmlConcat += "<p class='success' alt='Success'><img src='style/accept.png'>Successful - " + entries[i]['time'] + "</p>";
     } else {
       htmlConcat += "<p class='error' alt='Error'><img src='style/cancel.png'>Unsuccessful - " + entries[i]['time'] + "</p>";
     }

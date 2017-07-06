@@ -57,23 +57,25 @@
             <label class="control-label" for="session">Session key</label>
             <input type="text" id="session" class="form-control" placeholder="Session key" pattern="^[a-z0-9]{32}$"
                    autocomplete="off" required/>
-            <span id="sessionSuccess" class="successIcon glyphicon glyphicon-ok form-control-feedback hidden"
+            <span id="session-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
                   aria-hidden="true"></span>
-            <span id="sessionFail" class="failIcon glyphicon glyphicon-remove form-control-feedback hidden"
+            <span id="session-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
                   aria-hidden="true"></span>
-            <span id="sessionFailHelp"
-                  class="failHelp help-block hidden">Please input the 32-character session key.</span>
+            <span id="session-fail-help"
+                  class="fail-help help-block hidden">Please input the 32-character session key.</span>
           </div>
           <div class="form-group">
-            <label class="control-label" for="participationcode">Participation code</label>
-            <input type="text" id="participationcode" class="form-control" placeholder="Participation code" pattern="^[a-z0-9]{32}$"
+            <label class="control-label" for="participation-code">Participation code</label>
+            <input type="text" id="participation-code" class="form-control" placeholder="Participation code"
+                   pattern="^[a-z0-9]{32}$"
                    autocomplete="off" required>
-            <span id="participationcodeSuccess" class="successIcon glyphicon glyphicon-ok form-control-feedback hidden"
+            <span id="participation-code-success"
+                  class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
                   aria-hidden="true"></span>
-            <span id="participationcodeFail" class="failIcon glyphicon glyphicon-remove form-control-feedback hidden"
+            <span id="participation-code-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
                   aria-hidden="true"></span>
-            <span id="participationcodeFailHelp"
-                  class="failHelp help-block hidden">Please input the 32-character participation code.</span>
+            <span id="participation-code-fail-help"
+                  class="fail-help help-block hidden">Please input the 32-character participation code.</span>
           </div>
         </form>
       </div>
@@ -206,7 +208,7 @@
     $(document).ready(function () {
 
       var $session = $('#session');
-      var $participationcode = $('#participationcode');
+      var $participationCode = $('#participation-code');
 
       /**
        * Validate the session and participation code input fields.
@@ -217,7 +219,7 @@
         }
 
         // Validate immediately once blur has been fired
-        $('#session, #participationcode')
+        $('#session, #participation-code')
           .off('input')
           .on('input', validateSessionInput);
 
@@ -225,19 +227,19 @@
         if (e.target.validity.valid) {
 
           $parent.removeClass('has-error').addClass('has-success has-feedback');
-          $parent.find('.successIcon').removeClass('hidden').addClass('show');
-          $parent.find('.failIcon').removeClass('show').addClass('hidden');
-          $parent.find('.failHelp').removeClass('show').addClass('hidden');
+          $parent.find('.success-icon').removeClass('hidden').addClass('show');
+          $parent.find('.fail-icon').removeClass('show').addClass('hidden');
+          $parent.find('.fail-help').removeClass('show').addClass('hidden');
         } else {
 
           $parent.removeClass('has-success').addClass('has-error has-feedback');
-          $parent.find('.successIcon').removeClass('show').addClass('hidden');
-          $parent.find('.failIcon').removeClass('hidden').addClass('show');
-          $parent.find('.failHelp').removeClass('hidden').addClass('show');
+          $parent.find('.success-icon').removeClass('show').addClass('hidden');
+          $parent.find('.fail-icon').removeClass('hidden').addClass('show');
+          $parent.find('.fail-help').removeClass('hidden').addClass('show');
         }
       };
 
-      $('#session, #participationcode').on('blur', validateSessionInput);
+      $('#session, #participation-code').on('blur', validateSessionInput);
 
       //Copied from trusted/session_data
       var getParameterByName = function (name) {
@@ -247,8 +249,8 @@
         return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
       };
 
-      $participationcode.val(getParameterByName('participationcode'));
-      $session.val(getParameterByName('sessionkey'));
+      $participationCode.val(getParameterByName('participationCode'));
+      $session.val(getParameterByName('session'));
 
       var req = $.ajax({
         type: "GET",
@@ -274,73 +276,73 @@
           var totals_table = tables[tables.length - 1];
           return function (changes, source) {
             if (changes == null) return;
-            
+
             for (var i = 0; i < changes.length; i++) {
               var change = changes[i];
               var old = change[2];
               var val = change[3];
-              
+
               var c = change[1];
               var index = 2 * table_index + (c % 2);
-              
-              if(old === undefined) old = null;
-              if(val === undefined) val = null;
-              
+
+              if (old === undefined) old = null;
+              if (val === undefined) val = null;
+
               // Keep track of how many NaNs there are.
-              if(isNaN(old) && !isNaN(val)) NaNs[index]--;
-              if(!isNaN(old) && isNaN(val)) NaNs[index]++;
+              if (isNaN(old) && !isNaN(val)) NaNs[index]--;
+              if (!isNaN(old) && isNaN(val)) NaNs[index]++;
 
               // If either values is a NaN, discard it when computing internal sum.
               old = (old == '' || old == null || isNaN(old)) ? 0 : old;
               val = (val == '' || val == null || isNaN(val)) ? 0 : val;
               sums[index] += val - old;
             }
-            
+
             // Display a NaN in the totals Column if you need too.
             var totals = [];
-            for(var i = 0; i < sums.length; i++) {
+            for (var i = 0; i < sums.length; i++) {
               totals[i] = sums[i];
-              if(NaNs[i] > 0) totals[i] = NaN;
+              if (NaNs[i] > 0) totals[i] = NaN;
             }
 
             totals_table.loadData([totals, totals]);
           }
         };
-        
+
         // Custom validator that checks for semantic discrepancies across many tables. In particular:
         // 1. For all tables except bonus (3rd table), the cell must be either zero in all tables, or non-zero in all tables.
         // 2. For the bonus table (3rd table), it can only be non-zero if the other tables are non-zero.
-        var discrepancies_validator = function(table, cell, value, callback) {
+        var discrepancies_validator = function (table, cell, value, callback) {
           var bonus_table = tables[2];
           var name = table._sail_meta.name;
           var r = cell.row_index;
           var c = cell.col_index;
-          
+
           // bonus can only be non-zero if the other tables are non-zero.
-          if(name == bonus_table._sail_meta.name) {
+          if (name == bonus_table._sail_meta.name) {
             // bonus can only be non-zero if the other tables are non-zero.
-            if(value > 0) {
-              for(var i = 0; i < tables.length-1; i++) { // length-1 because of the totals table
-                if(i == 2) continue;
-                
-                if(!(tables[i].getDataAtCell(r, c) > 0)) {
-                  console.log("Semantic error in '" + table._sail_meta.name + "' at ("+r+", "+c+")");
+            if (value > 0) {
+              for (var i = 0; i < tables.length - 1; i++) { // length-1 because of the totals table
+                if (i == 2) continue;
+
+                if (!(tables[i].getDataAtCell(r, c) > 0)) {
+                  console.log("Semantic error in '" + table._sail_meta.name + "' at (" + r + ", " + c + ")");
                   // callback(false); // No need to invalidate other cells here.
                 }
               }
             }
           }
-          
+
           // Not bonus table
           else {
             // the cell must be either zero in all tables, or non-zero in all tables
             var compare = value > 0;
             var error = false;
-            for(var i = 0; i < tables.length-1; i++) { // length-1 because of the totals table
-              if(i == 2 || name == tables[i]._sail_meta.name) continue;
-              
-              if((tables[i].getDataAtCell(r, c) > 0) !== compare) {
-                console.log("Semantic error in '" + table._sail_meta.name + "' at ("+r+", "+c+")");
+            for (var i = 0; i < tables.length - 1; i++) { // length-1 because of the totals table
+              if (i == 2 || name == tables[i]._sail_meta.name) continue;
+
+              if ((tables[i].getDataAtCell(r, c) > 0) !== compare) {
+                console.log("Semantic error in '" + table._sail_meta.name + "' at (" + r + ", " + c + ")");
                 error = true;
                 // callback(false);
               }
@@ -350,12 +352,12 @@
           // find a way to validate/invalidate the other cells to also have the same error.
           // probably should use _sail_meta of the other tables to store if their is an error
           // and render it using custom renderer. Calling the validators of other cells will
-          // cause an infinite loop unless something smart was done about it.          
-          
+          // cause an infinite loop unless something smart was done about it.
+
           // Validate the other cells so that if this update resolves their issue, they will be notified.
           callback(true);
         };
-        
+
         register_validator("discrepancies", discrepancies_validator);
 
         // Alerts, page elements, etc. for drag-and-drop/choose file.

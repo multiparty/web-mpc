@@ -400,7 +400,7 @@ function make_hot_table(table) {
   var data = new Array(table.rowsCount);
   for (var r = 0; r < table.rowsCount; r++)
     data[r] = [];
-    
+
   var hotSettings = {
     // Enable tooltips
     comments: true,
@@ -422,8 +422,8 @@ function make_hot_table(table) {
       return !(this.readOnly);
     }
   };
-  
-  // other parameters from config 
+
+  // other parameters from config
   Object.assign(hotSettings, table.hot_parameters);
 
   // Create the Handsontable
