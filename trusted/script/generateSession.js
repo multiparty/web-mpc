@@ -94,7 +94,10 @@ function fetchOldLinks(session, password, oldUrlsID, section) {
   });
 }
 
-function generateSession(hiddenDiv, sessionID, passwordID, pubID, privID, linkID) {
+function generateSession(hiddenDiv, sessionID, passwordID, pubID, privID, linkID, titleID, descriptionID) {
+  var title = document.getElementById(titleID).value;
+  var description = document.getElementById(descriptionID).value;
+
   document.getElementById(hiddenDiv).style.visibility = "visible";
   document.getElementById(sessionID).innerHTML = "Loading...";
   document.getElementById(passwordID).innerHTML = "Loading...";
@@ -131,7 +134,7 @@ function generateSession(hiddenDiv, sessionID, passwordID, pubID, privID, linkID
         type: "POST",
         url: "/create_session",
         contentType: "application/json",
-        data: JSON.stringify({publickey: publicKey}),
+        data: JSON.stringify({publickey: publicKey, title: title, description: description}),
         success: function (resp) {
           console.log(resp);
           var rndSess = resp.sessionID;
