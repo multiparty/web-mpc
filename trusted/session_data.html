@@ -7,19 +7,15 @@
   <script type="text/javascript" src="script/generateSession.js"></script>
   <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.css">
   <style>
-    #table {
-      visibility: hidden;
-    }
-
-    #statusID {
-      visibility: hidden;
-    }
-
-    #urlsSection {
+    #hidden-content {
       visibility: hidden;
     }
 
     #urlsID {
+      visibility: hidden;
+    }
+
+    #confirmation {
       visibility: hidden;
     }
 
@@ -31,6 +27,21 @@
     input[type=password] {
       height: 30px;
       width: 300px;
+    }
+
+    .modal {
+      visibility: hidden;
+      padding: 30px;
+      text-align: center;
+      background-color: #AAAAAA;
+    }
+
+    .modal input {
+      margin-bottom: 10px;
+    }
+
+    #modal_error_msg {
+      color: #FF0000;
     }
   </style>
 </head>
@@ -55,62 +66,123 @@
     <input type="password" id="pass" placeholder="Session Password"/>
     <button id="submit" type="button" class="btn btn-primary" onclick="genT()">SUBMIT</button>
   </form>
-  <div class="alert alert-success" id="statusID">LOADING...</div>
 
-  <h3>Tracking and Unmasking</h3>
-  <div><a id="unmasklink"></a></div>
-  <table class="table table-striped" id="table">
-    <thead>
-    <tr>
-      <th>Email</th>
-      <th>Posted</th>
-    </tr>
-    </thead>
-    <tbody id="participants">
-    </tbody>
-  </table>
-  <br/>
-  <div id="urlsSection">
-    <h3>Links for Participants </h3>
-    <form class="form-inline" role="form">
-      <input autocomplete="off" type="text" id="countID" placeholder="Enter Number of new links needed"
-             pattern="^[0-9]{1,5}$" size="5" required>
-      <button id="gen_button" type="button" class="btn" id="Generate">
-        Generate Links
-      </button>
-    </form>
-    <pre id="urlsID"></pre>
+  <div id="hidden-content">
+    <div class="alert alert-success" id="statusID">LOADING...</div>
+    <div>
+      <h3>Control Panel</h3>
+      <input type="button" class="btn btn-primary" id="start" value="START">
+      <input type="button" class="btn btn-primary" id="pause" value="PAUSE">
+      <input type="button" class="btn btn-primary" id="stop" value="STOP">
+    </div>
 
-    <div id="oldUrlsSection">
-      <h3>Previously Generated Links</h3>
-      <pre id="oldUrlsID"></pre>
+    <div id="confirmation" class="modal">
+      <h3>Please confirm Session termination</h3>
+      <form class="form-inline" role="form" id="confirmationform">
+        <input type="text" id="sess_s" placeholder="Session Number"/> <br/>
+        <input type="password" id="pass_s" placeholder="Session Password"/> <br/>
+        <button id="confirm" type="button" class="btn btn-primary">SUBMIT</button>
+        <button id="cancel" type="button" class="btn btn-primary">CANCEL</button>
+        <br/>
+        <h4 id="modal_error_msg"></h4>
+      </form>
+    </div>
+
+    <h3>Tracking and Unmasking</h3>
+    <div><a id="unmasklink"></a></div>
+    <table class="table table-striped" id="table">
+      <thead>
+      <tr>
+        <th>Email</th>
+        <th>Posted</th>
+      </tr>
+      </thead>
+      <tbody id="participants">
+      </tbody>
+    </table>
+    <br/>
+    <div id="urlsSection">
+      <h3>Links for Participants </h3>
+      <form class="form-inline" role="form">
+        <input autocomplete="off" type="text" id="countID" placeholder="Enter Number of new links needed"
+               pattern="^[0-9]{1,5}$" size="5" required>
+        <button id="gen_button" type="button" class="btn" id="Generate">
+          Generate Links
+        </button>
+      </form>
+      <pre id="urlsID"></pre>
+
+      <div id="oldUrlsSection">
+        <h3>Previously Generated Links</h3>
+        <pre id="oldUrlsID"></pre>
+      </div>
     </div>
   </div>
   <script>
-    window.genT = function () {
-      document.getElementById('table').style.visibility = "visible";
-      document.getElementById('statusID').style.visibility = "visible";
-      document.getElementById('urlsSection').style.visibility = "visible";
-
-      var session = document.getElementById('sess').value;
-      var password = document.getElementById('pass').value;
-      $('#inputform').remove();
-
-      document.getElementById('unmasklink').innerHTML = "Click here to unmask aggregate data Session " + session;
-      document.getElementById('unmasklink').href = "../unmask/index.html?session=" + session;
-
-      generateTable('table', session, password, 'statusID');
-      fetchOldLinks(session, password, "oldUrlsID", "oldUrlsSection");
-      document.getElementById("gen_button").onclick = function () {
-        generateUrls(session, password, 'urlsID', 'countID')
-      };
-    };
     window.getParameterByName = function (name) {
       name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
       var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
         results = regex.exec(location.search);
       return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
     };
+    if (getParameterByName('session')) {
+      var session = getParameterByName('session');
+      document.getElementById("sess").value = session;
+    }
+    window.genT = function () {
+      document.getElementById('hidden-content').style.visibility = "visible";
+
+      var session = document.getElementById('sess').value;
+      var password = document.getElementById('pass').value;
+      var start = document.getElementById('start').value;
+      var pause = document.getElementById('pause').value;
+      var stop = document.getElementById('stop').value;
+      $('#inputform').remove();
+
+      document.getElementById('unmasklink').innerHTML = "Click here to unmask aggregate data Session " + session;
+      document.getElementById('unmasklink').href = "../unmask/index.html?session=" + session;
+
+      generateTable('table', session, password, 'statusID');
+
+      fetchOldLinks(session, password, "oldUrlsID", "oldUrlsSection");
+      document.getElementById("gen_button").onclick = function () {
+        generateUrls(session, password, 'urlsID', 'countID')
+      };
+
+      document.getElementById("start").onclick = function () {
+        statusResponse(session, start, password)
+      };
+      document.getElementById("pause").onclick = function () {
+        statusResponse(session, pause, password)
+      };
+      document.getElementById("stop").onclick = function () {
+        document.getElementById('modal_error_msg').innerHTML = "";
+        document.getElementById('confirmation').style.visibility = "visible";
+
+        document.getElementById("cancel").onclick = function () {
+          document.getElementById('confirmation').style.visibility = "hidden";
+        };
+
+        document.getElementById("confirm").onclick = function () {
+          var modal_session = document.getElementById('sess_s').value;
+          var modal_password = document.getElementById('pass_s').value;
+          if (modal_session === session && modal_password === password) {
+            document.getElementById('confirmation').style.visibility = "hidden";
+            statusResponse(session, stop, password);
+          } else {
+            document.getElementById('modal_error_msg').innerHTML = "Session and Password do not match!";
+          }
+        };
+      };
+    };
+
+    window.getParameterByName = function (name) {
+      name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+      var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+      return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+    };
+
     if (getParameterByName('session')) {
       var session = getParameterByName('session');
       document.getElementById("sess").value = session;

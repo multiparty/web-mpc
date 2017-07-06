@@ -7,6 +7,29 @@
  *
  */
 
+function statusResponse(session, status, password) {
+
+  if (status === "START" || status === "PAUSE" || status === "STOP") {
+    $.ajax({
+      type: "POST",
+      url: "/control_panel",
+      contentType: "application/json",
+      data: JSON.stringify({status: status, session: session, password: password}),
+
+      success: function (resp) {
+        console.log(resp);
+        alert("updated");
+      },
+      error: function (err) {
+        alert("error");
+      }
+    });
+  }
+  else {
+    console.log("Error not status");
+  }
+}
+
 function formatUrls(urls) {
   var baseUrl = window.location.toString();
   var end = baseUrl.indexOf("trusted/session_data.html");
@@ -43,7 +66,7 @@ function generateUrls(session, password, urlsID, countID) {
     },
     error: function (err) {
       var errmsg = "ERROR!";
-      if (err && err.hasOwnProperty('responseText') && err.responseText != undefined)
+      if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined)
         errmsg = err.responeText;
       document.getElementById(urlsID).style.visibility = "visible";
       document.getElementById(urlsID).innerHTML += errmsg;
@@ -63,12 +86,12 @@ function fetchOldLinks(session, password, oldUrlsID, section) {
     success: function (resp) {
       var urls = formatUrls(resp.result);
       document.getElementById(oldUrlsID).innerHTML = urls.join('\n');
-      if (urls.length == 0)
+      if (urls.length === 0)
         document.getElementById(section).style.display = "none";
     },
     error: function (err) {
       var errmsg = "ERROR!";
-      if (err && err.hasOwnProperty('responseText') && err.responseText != undefined)
+      if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined)
         errmsg = err.responeText;
       document.getElementById(oldUrlsID).innerHTML = errmsg;
     }
@@ -207,7 +230,7 @@ function generateTable(tableBody, sessionID, password, status, timestamp, counte
     },
     error: function (err) {
       var errmsg = "Error Connecting: Reconnect Attempt #" + counter.toString();
-      if (err && err.hasOwnProperty('responseText') && err.responseText != undefined)
+      if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined)
         errmsg = err.responeText;
 
       document.getElementById(status).className = "alert alert-error";

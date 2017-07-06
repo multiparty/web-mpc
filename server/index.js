@@ -140,6 +140,11 @@ var UserKey = mongoose.model('UserKey', {
   userkey: String
 });
 
+var SessionStatus = mongoose.model('SessionStatus', {
+  _id: String, // = session
+  status: String
+});
+
 
 // Verifies that the given session and password match.
 function verify_password(session, password, success, fail) {
@@ -150,6 +155,23 @@ function verify_password(session, password, success, fail) {
       fail('Invalid session/password');
     else
       success();
+  });
+}
+
+// Verifies that the given session and password match.
+function verify_status(session, status, success, fail) {
+  SessionStatus.findOne({_id: session}, function (err, data) {
+    if (err)
+      fail('Error while verifying user key.');
+
+    var db_status = "START";
+    if (data != null)
+      db_status = data.status;
+
+    if (status == db_status)
+      success();
+    else
+      fail("Session status is " + db_status);
   });
 }
 
@@ -183,65 +205,73 @@ app.post('/', function (req, res) {
       return;
     }
 
-    console.log('Validation passed.');
+    var fail = function (err) {
+      console.log(err);
+      res.status(500).send(err);
+    };
+    var success = function () {
+      console.log('Validation passed.');
 
-    var mask = body.mask,
-      req_data = body.data,
-      session = body.session,
-      user = body.user,
-      ID = session + user; // will use concat of user + session for now
+      var mask = body.mask,
+        req_data = body.data,
+        session = body.session,
+        user = body.user,
+        ID = session + user; // will use concat of user + session for now
 
-    // Ensure user key exists.
-    UserKey.findOne({_id: ID}, function (err, data) {
-      if (err) {
-        console.log(err);
-        res.status(500).send('Error while verifying user key.');
-        return;
-      }
+      // Ensure user key exists.
+      UserKey.findOne({_id: ID}, function (err, data) {
+        if (err) {
+          console.log(err);
+          res.status(500).send('Error while verifying user key.');
+          return;
+        }
 
-      if (data == null) {
-        res.status(500).send('Invalid user key');
-      } else { // User Key Found.
-        // save the mask and individual aggregate
-        var aggToSave = new Aggregate({
-          _id: ID,
-          fields: req_data,
-          date: Date.now(),
-          session: session,
-          email: user
-        });
-
-        var maskToSave = new Mask({
-          _id: ID,
-          fields: mask,
-          session: session
-        });
-
-        // for both the aggregate and the mask, update the old aggregate
-        // for the company with that email. Update or insert, hence the upsert flag
-        var aggPromise = Aggregate.update(
-          {_id: ID},
-          aggToSave.toObject(),
-          {upsert: true}
-          ),
-          maskPromise = Mask.update(
-            {_id: ID},
-            maskToSave.toObject(),
-            {upsert: true}
-          );
-
-        Promise.join(aggPromise, maskPromise)
-          .then(function (aggStored, maskStored) {
-            res.send(body);
-            return;
-          })
-          .catch(function (err) {
-            console.log(err);
-            res.status(500).send('Unable to save aggregate, please try again');
-            return;
+        if (data == null) {
+          res.status(500).send('Invalid user key');
+        } else { // User Key Found.
+          // save the mask and individual aggregate
+          var aggToSave = new Aggregate({
+            _id: ID,
+            fields: req_data,
+            date: Date.now(),
+            session: session,
+            email: user
           });
-      }
-    });
+
+          var maskToSave = new Mask({
+            _id: ID,
+            fields: mask,
+            session: session
+          });
+
+          // for both the aggregate and the mask, update the old aggregate
+          // for the company with that email. Update or insert, hence the upsert flag
+          var aggPromise = Aggregate.update(
+            {_id: ID},
+            aggToSave.toObject(),
+            {upsert: true}
+            ),
+            maskPromise = Mask.update(
+              {_id: ID},
+              maskToSave.toObject(),
+              {upsert: true}
+            );
+
+          Promise.join(aggPromise, maskPromise)
+            .then(function (aggStored, maskStored) {
+              res.send(body);
+              return;
+            })
+            .catch(function (err) {
+              console.log(err);
+              res.status(500).send('Unable to save aggregate, please try again');
+              return;
+            });
+        }
+      });
+    };
+
+    verify_status(body.session, "START", success, fail);
   });
 });
 
@@ -605,6 +635,70 @@ app.post('/submit_agg', function (req, res) {
   res.status(500).send('Not implemented.');
 });
 
+// status
+app.post("/control_panel", function (req, res) {
+  console.log('POST /control_panel');
+  var schema = {
+    session: joi.string().alphanum().required(),
+    password: joi.string().alphanum().required(),
+    status: joi.string().alphanum().required()
+  };
+
+  // Validate request.
+  joi.validate(req.body, schema, function (valErr, body) {
+    if (valErr) {
+      console.log(valErr);
+      res.status(500).send('Invalid request.');
+      return;
+    }
+
+    // Get all previously generated user keys.
+    var fail = function (err) {
+      console.log(err);
+      res.status(500).send(err);
+    };
+    var success = function () {
+      SessionStatus.findOne({_id: body.session}, function (err, data) {
+        if (err) {
+          console.log(err);
+          res.status(500).send('Error getting session status.');
+          return;
+        }
+
+        if (data !== null && data.status === "STOP") {
+          res.status(500).send('Session already stoped.');
+          return;
+        }
+        var status = body.status;
+        if (status !== 'START' && status !== 'PAUSE' && status !== 'STOP') {
+          res.status(500).send('Illegal Session Status');
+          return;
+        }
+        var session = body.session;
+
+        var model = new SessionStatus({
+          _id: session,
+          status: status
+        });
+
+        SessionStatus.update(
+          {_id: session},
+          model,
+          {upsert: true}
+        ).then(function (status) {
+          console.log('Current Session Status:', status);
+          res.json({result: status});
+        }).catch(function (error) {
+          console.log(error);
+          res.status(500).send('Error during session status update.');
+        });
+
+      });
+    };
+
+    verify_password(body.session, body.password, success, fail);
+  });
+});
 // if the page isn't found, return 404 error
 app.get(/.*/, function (req, res) {
   res.status(404).send('Page not found');
