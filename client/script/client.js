@@ -1,5 +1,5 @@
 var SESSION_KEY_ERROR = 'Invalid session number: must be 32 character combination of letters and numbers';
-var SESSION_KEY_ERROR = 'Invalid participation code: must be 32 character combination of letters and numbers';
+var PARTICIPATION_CODE_ERROR = 'Invalid participation code: must be 32 character combination of letters and numbers';
 
 var UNCHECKED_ERR = 'Please acknowledge that all data is correct and verified.';
 var ADD_QUESTIONS_ERR = 'Please answer all Additional Questions.';
@@ -21,13 +21,13 @@ function success(msg) {
  */
 function validate(tables, callback) {
   // Verify session key
-  var session = $('#sess').val().trim();
+  var session = $('#session').val().trim();
   if(!session.match(/^[a-z0-9]{32}$/))
     return callback(false, SESSION_KEY_ERROR);
     
-  var userkey = $('#key').val().trim();
-  if(!session.match(/^[a-z0-9]{32}$/))
-    return callback(false, USER_KEY_ERROR);
+  var participationcode = $('#key').val().trim();
+  if(!participationcode.match(/^[a-z0-9]{32}$/))
+    return callback(false, PARTICIPATION_CODE_ERROR);
 
   // Verify confirmation check box was checked
   var verifyChecked = $('#verify').is(':checked');
@@ -80,7 +80,7 @@ function construct_and_send(tables, la) {
   var data_submission = { questions: {} };
 
   var session = $('#sess').val().trim();
-  var userkey = $('#key').val().trim();
+  var participationcode = $('#participationcode').val().trim();
 
   // Add questions data, each question has three parts:
   //  'YES', 'NO', and 'NA' and each one has value 0 or 1
@@ -111,16 +111,11 @@ function construct_and_send(tables, la) {
   var data = shares['data'];
   var mask = shares['mask'];
 
-  encrypt_and_send(session, userkey, data, mask, la);
+  encrypt_and_send(session, participationcode, data, mask, la);
 }
 
 var submitEntries = [];
-function encrypt_and_send(session, userkey, data, mask, la) {
-  // Hash userkey address for submission
-  // var md = forge.md.sha1.create();
-  // md.update(userkey);
-  // userkey = md.digest().toHex().toString();
-
+function encrypt_and_send(session, participationcode, data, mask, la) {
   // Get the public key to encrypt with
   var pkey_request = $.ajax({
     type: "POST",
@@ -135,7 +130,7 @@ function encrypt_and_send(session, userkey, data, mask, la) {
       var submission = {
         data: data,
         mask: mask,
-        user: userkey,
+        user: participationcode,
         session: session
       };
 

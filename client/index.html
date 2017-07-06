@@ -65,14 +65,14 @@
                   class="failHelp help-block hidden">Please input the 32-character session key.</span>
           </div>
           <div class="form-group">
-            <label class="control-label" for="key">Participation code</label>
-            <input type="text" id="key" class="form-control" placeholder="Participation code" pattern="^[a-z0-9]{32}$"
+            <label class="control-label" for="participationcode">Participation code</label>
+            <input type="text" id="participationcode" class="form-control" placeholder="Participation code" pattern="^[a-z0-9]{32}$"
                    autocomplete="off" required>
-            <span id="keySuccess" class="successIcon glyphicon glyphicon-ok form-control-feedback hidden"
+            <span id="participationcodeSuccess" class="successIcon glyphicon glyphicon-ok form-control-feedback hidden"
                   aria-hidden="true"></span>
-            <span id="keyFail" class="failIcon glyphicon glyphicon-remove form-control-feedback hidden"
+            <span id="participationcodeFail" class="failIcon glyphicon glyphicon-remove form-control-feedback hidden"
                   aria-hidden="true"></span>
-            <span id="keyFailHelp"
+            <span id="participationcodeFailHelp"
                   class="failHelp help-block hidden">Please input the 32-character participation code.</span>
           </div>
         </form>
@@ -206,7 +206,7 @@
     $(document).ready(function () {
 
       var $session = $('#session');
-      var $key = $('#key');
+      var $participationcode = $('#participationcode');
 
       /**
        * Validate the session and participation code input fields.
@@ -217,7 +217,7 @@
         }
 
         // Validate immediately once blur has been fired
-        $('#session, #key')
+        $('#session, #participationcode')
           .off('input')
           .on('input', validateSessionInput);
 
@@ -237,7 +237,7 @@
         }
       };
 
-      $('#session, #key').on('blur', validateSessionInput);
+      $('#session, #participationcode').on('blur', validateSessionInput);
 
       //Copied from trusted/session_data
       var getParameterByName = function (name) {
@@ -247,7 +247,7 @@
         return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
       };
 
-      $key.val(getParameterByName('userkey'));
+      $participationcode.val(getParameterByName('participationcode'));
       $session.val(getParameterByName('sessionkey'));
 
       var req = $.ajax({
