@@ -9,16 +9,16 @@
 // Takes callback(true|false, data).
 function aggregate_and_unmask(mOut, privateKey, session, password, callback) {
   mOut = JSON.parse(mOut.data);
-  
+
   var skArrayBuffer;
   try {
-    skArrayBuffer = str2ab(atob(privateKey));  
+    skArrayBuffer = str2ab(atob(privateKey));
   }
   catch (err) {
     callback(false, "Error: invalid key file.");
     return;
   }
-  
+
   // Import key, returns a promise
   var sk = window.crypto.subtle.importKey(
     "pkcs8", // (private only)
@@ -40,7 +40,7 @@ function aggregate_and_unmask(mOut, privateKey, session, password, callback) {
     // TODO: we should set a threshold and abort if there are too
     // many invalid shares
     console.log('Invalid share count:', invalidShareCount);
-    return aggregateShares(analystShares); 
+    return aggregateShares(analystShares);
   });
 
   // Request service to aggregate its shares and send us the result
@@ -64,25 +64,25 @@ function getServiceResultShare (session, password) {
     url: "/get_aggregate",
     contentType: "application/json",
     data: JSON.stringify({
-      session: session,
-      password: password
+      session: session.toLowerCase(),
+      password: password.toLowerCase()
     }),
     dataType: "json"
   });
 }
 
 function construct_tuple(key, buffer) {
-  if(buffer) 
-    return function (decryptedShare) { 
+  if(buffer)
+    return function (decryptedShare) {
       var tuple = {}; tuple[key] = arrayBufferToString(decryptedShare);
       return tuple;
     };
-    
+
   else
-    return function (decryptedShare) { 
+    return function (decryptedShare) {
       var tuple = {}; tuple[key] = decryptedShare;
       return tuple;
-    } 
+    }
 }
 
 /**
@@ -92,24 +92,24 @@ function construct_tuple(key, buffer) {
 function _decryptWithKey (obj, importedKey) {
   // decrypt one level of obj, decrypt nested object recursively
   var resultTuples = [];
-  
+
   for(var key in obj) {
     if (obj.hasOwnProperty(key)) {
       //console.log(key);
       var value = obj[key];
       if(typeof(value) == "number" || typeof(value) == "string" || typeof(value) == "String") {
-        // decrypt atomic value          
+        // decrypt atomic value
         var resultTuple = window.crypto.subtle.decrypt({name: "RSA-OAEP"}, importedKey, str2ab(value))
           .then(construct_tuple(key, true));
-          
+
         resultTuples.push(resultTuple);
       }
-      else 
+      else
         resultTuples.push(_decryptWithKey(value, importedKey)
           .then(construct_tuple(key, false)));
     }
   }
-  
+
   return Promise.all(resultTuples).then(function (tuples) {
     // recombine individual key-value pairs into single object
     return Object.assign(...tuples);

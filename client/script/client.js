@@ -101,7 +101,7 @@ function construct_and_send(tables, la, userkey) {
   var data = shares['data'];
   var mask = shares['mask'];
 
-  encrypt_and_send(session, userkey, data, mask, la);
+  encrypt_and_send(session.toLowerCase(), userkey.toLowerCase(), data, mask, la);
 }
 
 var submitEntries = [];

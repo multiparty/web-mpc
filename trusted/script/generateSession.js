@@ -34,7 +34,7 @@ function generateUrls(session, password, urlsID, countID) {
      type: "POST",
      url: "/generate_client_urls",
      contentType: "application/json",
-     data: JSON.stringify({count: count, session: session, password: password}),
+     data: JSON.stringify({count: count, session: session.toLowerCase(), password: password.toLowerCase()}),
 
      success: function(resp) {
        var urls = formatUrls(resp.result);
@@ -44,7 +44,7 @@ function generateUrls(session, password, urlsID, countID) {
      error: function(err) {
          var errmsg = "ERROR!";
          if(err && err.hasOwnProperty('responseText') && err.responseText != undefined)
-          errmsg = err.responeText;
+          errmsg = err.responseText;
          document.getElementById(urlsID).style.visibility = "visible";
          document.getElementById(urlsID).innerHTML += errmsg;
      }
@@ -69,7 +69,7 @@ function fetchOldLinks(session, password, oldUrlsID, section) {
      error: function(err) {
          var errmsg = "ERROR!";
          if(err && err.hasOwnProperty('responseText') && err.responseText != undefined)
-          errmsg = err.responeText;
+          errmsg = err.responseText;
          document.getElementById(oldUrlsID).innerHTML = errmsg;
      }
    });
@@ -180,7 +180,7 @@ function generateTable(tableBody, sessionID, password, status, timestamp, counte
         type: "POST",
         url: "/get_data",
         contentType: "application/json",
-        data: JSON.stringify({session: sessionID, password: password, last_fetch: timestamp}),
+        data: JSON.stringify({session: sessionID.toLowerCase(), password: password.toLowerCase(), last_fetch: timestamp}),
         dataType: "json",
         success: function (data) {
             if (!_.isEmpty(data)) {
@@ -201,7 +201,7 @@ function generateTable(tableBody, sessionID, password, status, timestamp, counte
         error: function (err) {
             var errmsg = "Error Connecting: Reconnect Attempt #" + counter.toString();
             if(err && err.hasOwnProperty('responseText') && err.responseText != undefined)
-                errmsg = err.responeText;
+                errmsg = err.responseText;
 
             document.getElementById(status).className = "alert alert-error";
             document.getElementById(status).innerHTML = errmsg;

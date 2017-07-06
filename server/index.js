@@ -144,7 +144,7 @@ var UserKey = mongoose.model('UserKey', {
 
 // Verifies that the given session and password match.
 function verify_password(session, password, success, fail) {
-    SessionInfo.findOne({session: session, password: password}, function (err, data) {
+    SessionInfo.findOne({session: session.toLowerCase(), password: password.toLowerCase()}, function (err, data) {
         if (err)
             fail('Error while verifying user key.');
         else if (data == null)
@@ -188,12 +188,12 @@ app.post('/', function (req, res) {
 
         var mask = body.mask,
             req_data = body.data,
-            session = body.session,
-            user = body.user,
+            session = body.session.toLowerCase(),
+            user = body.user.toLowerCase(),
             ID = session + user; // will use concat of user + session for now
 
         // Ensure user key exists.
-        UserKey.findOne({_id: ID}, function (err, data) {
+        UserKey.findOne({_id: ID.toLowerCase()}, function (err, data) {
             if (err) {
                 console.log(err);
                 res.status(500).send('Error while verifying user key.');
@@ -258,7 +258,7 @@ app.post("/publickey", function (req, res) {
             res.status(500).send('Error while fetching key.');
             return;
         }
-        SessionInfo.findOne({session: body.session}, function (err, data) {
+        SessionInfo.findOne({session: body.session.toLowerCase()}, function (err, data) {
             if (err) {
                 console.log(err);
                 res.status(500).send('Error while fetching key.');
@@ -289,8 +289,8 @@ app.post('/create_session', function (req, res) {
         }
 
         var publickey = body.publickey;
-        var sessionID = base32Encode(crypto.randomBytes(16), 'Crockford');
-        var password = base32Encode(crypto.randomBytes(16), 'Crockford');
+        var sessionID = base32Encode(crypto.randomBytes(16), 'Crockford').toLowerCase();
+        var password = base32Encode(crypto.randomBytes(16), 'Crockford').toLowerCase();
 
         var sessInfo = new SessionInfo({
             _id: sessionID,
@@ -337,7 +337,7 @@ app.post('/generate_client_urls', function (req, res) {
         // Get all previously generated user keys.
         var fail = function(err) { console.log(err); res.status(500).send(err); };
         var success = function() {
-            UserKey.where({session: body.session}).find(function (err, data) {
+            UserKey.where({session: body.session.toLowerCase()}).find(function (err, data) {
                 if (err) {
                     console.log(err);
                     res.status(500).send('Error getting user keys.');
@@ -354,11 +354,11 @@ app.post('/generate_client_urls', function (req, res) {
                 if (!data) data = [];
 
                 for(var d in data)
-                    userkeys.push(d.userkey);
+                    userkeys.push(d.userkey.toLowerCase());
 
                 // Create count many unique (per session) user keys.
                 for(var i = 0; i < count; i++) {
-                    var userkey = base32Encode(crypto.randomBytes(16), "Crockford");
+                    var userkey = base32Encode(crypto.randomBytes(16), 'Crockford').toLowerCase();
 
                     // If user key already exists, repeat.
                     if(userkeys.indexOf(userkey) > -1) {
@@ -431,7 +431,7 @@ app.post('/get_client_urls', function (req, res) {
                 if (!data) data = [];
                 var urls = [];
                 for(var d in data) {
-                    var url = "?sessionkey="+body.session+"&userkey="+data[d].userkey;
+                    var url = "?sessionkey="+body.session.toLowerCase()+"&userkey="+data[d].userkey.toLowerCase();
                     urls.push(url);
                 }
 
@@ -465,7 +465,7 @@ app.post('/get_data', function (req, res) {
         // find all entries for a specific session and return the email and the time they submitted
         var fail = function(err) { console.log(err); res.status(500).send(err); };
         var success = function() {
-            Aggregate.where({session: body.session}).gt('date', body.last_fetch).find(function (err, data) {
+            Aggregate.where({session: body.session.toLowerCase()}).gt('date', body.last_fetch).find(function (err, data) {
                 if (err) {
                     console.log(err);
                     res.status(500).send('Failed to fetch contributors.');
@@ -505,7 +505,7 @@ app.post('/get_masks', function (req, res) {
 
         var fail = function(err) { console.log(err); res.status(500).send(err); };
         var success = function() {
-            Mask.where({session: body.session}).find(function (err, data) {
+            Mask.where({session: body.session.toLowerCase()}).find(function (err, data) {
                 if (err) {
                     console.log(err);
                     res.status(500).send('Error getting masks.');
@@ -546,7 +546,7 @@ app.post('/get_aggregate', function (req, res) {
 
         var fail = function(err) { console.log(err); res.status(500).send(err); };
         var success = function() {
-          Aggregate.where({session: body.session}).find(function (err, data) {
+          Aggregate.where({session: body.session.toLowerCase()}).find(function (err, data) {
             if (err) {
                 console.log(err);
                 res.status(500).send('Error computing aggregate.');
