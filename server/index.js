@@ -38,6 +38,7 @@ var mpc = require('../shared/mpc');
 var crypto = require('crypto');
 var joi = require('joi');
 var Promise = require('bluebird');
+var base32Encode = require('base32-encode');
 var maskSchema = templateToJoiSchema(template, joi.string().required());
 var dataSchema = templateToJoiSchema(template, joi.number().required());
 
@@ -318,8 +319,8 @@ app.post('/create_session', function (req, res) {
     }
 
     var publickey = body.publickey;
-    var sessionID = crypto.randomBytes(16).toString('hex');
-    var password = crypto.randomBytes(16).toString('hex');
+    var sessionID = base32Encode(crypto.randomBytes(16), 'Crockford').toString().toLowerCase();
+    var password = base32Encode(crypto.randomBytes(16), 'Crockford').toString().toLowerCase();
 
     var sessInfo = new SessionInfo({
       _id: sessionID,
@@ -331,13 +332,11 @@ app.post('/create_session', function (req, res) {
     sessInfo.save(function (err) {
       if (err) {
         console.log(err);
-        res.status(500).send("Error during session creation.");
-        return;
+        res.status(500).send('Error during session creation.');
       }
       else {
         console.log('Session generated for:', sessionID);
         res.json({sessionID: sessionID, password: password});
-        return;
       }
     });
   });
@@ -390,7 +389,7 @@ app.post('/generate_client_urls', function (req, res) {
 
         // Create count many unique (per session) user keys.
         for (var i = 0; i < count; i++) {
-          var userkey = crypto.randomBytes(16).toString('hex');
+          var userkey = base32Encode(crypto.randomBytes(16), 'Crockford').toString().toLowerCase();
 
           // If user key already exists, repeat.
           if (userkeys.indexOf(userkey) > -1) {
@@ -417,12 +416,10 @@ app.post('/generate_client_urls', function (req, res) {
           if (err) {
             console.log(err);
             res.status(500).send("Error during storing keys.");
-            return;
           }
           else {
             console.log('URLs generated:', session);
             res.json({result: urls});
-            return;
           }
         });
       });
@@ -466,13 +463,12 @@ app.post('/get_client_urls', function (req, res) {
         if (!data) data = [];
         var urls = [];
         for (var d in data) {
-          var url = "?sessionkey=" + body.session + "&userkey=" + data[d].userkey;
+          var url = "?session=" + body.session + "&participantCode=" + data[d].userkey;
           urls.push(url);
         }
 
         console.log('URLs fetched:', body.session);
         res.json({result: urls});
-        return;
       });
     };
 
