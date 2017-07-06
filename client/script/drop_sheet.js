@@ -84,6 +84,7 @@ var DropSheet = function DropSheet(opts) {
                 case 'e':
                     pending = false;
                     console.error(e.data.d);
+                    opts.errors.badfile(e);
                     break;
                 case 'xls':
                 case 'xlsx':

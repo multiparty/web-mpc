@@ -1,4 +1,4 @@
-var SESSION_KEY_ERROR = 'Invalid session number: must be 32 character combination of letters and numbers';
+var SESSION_KEY_ERROR = 'Invalid session number: must be 26 character combination of letters and numbers';
 
 var UNCHECKED_ERR = 'Please acknowledge that all data is correct and verified.';
 var ADD_QUESTIONS_ERR = 'Please answer all Additional Questions.';
@@ -21,7 +21,7 @@ function success(msg) {
 function validate(tables, callback) {
   // Verify session key
   var session = $('#session').val().trim();
-  if(!session.match(/^[a-z0-9]{32}$/))
+  if(!session.match(/^[a-z0-9]{26}$/))
     return callback(false, SESSION_KEY_ERROR);
 
   // Verify confirmation check box was checked
@@ -101,7 +101,7 @@ function construct_and_send(tables, la, userkey) {
   var data = shares['data'];
   var mask = shares['mask'];
 
-  encrypt_and_send(session, userkey, data, mask, la);
+  encrypt_and_send(session.toLowerCase(), userkey.toLowerCase(), data, mask, la);
 }
 
 var submitEntries = [];

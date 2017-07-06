@@ -12,7 +12,7 @@
   <script type="text/javascript" src="script/ladda.min.js"></script>
   <script type="text/javascript" src="script/unmask.js"></script>
   <script type="text/javascript" src="../shared/sail_hot.js"></script>
-  
+
   <link rel="stylesheet" type="text/css" href="../shared/handsontable-pro/dist/handsontable.full.css">
   <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.css">
   <link rel="stylesheet" href="style/ladda-themeless.min.css">
@@ -68,27 +68,27 @@
     input:valid {
       border: 1px solid green;
     }
-    
+
     #friendly {
       margin-left: 150px;
       margin-right:1 50px;
     }
-    
+
     #friendly div.head_element {
       margin-bottom: 30px;
       display: none;
     }
-    
+
     #friendly h3.head_element {
       display: none;
     }
-    
+
     #friendly pre.head_element {
       margin: 0;
       display: none;
       margin-right: 100px;
     }
-    
+
     #my_container {
       margin-left: 150px;
       margin-right: 150px;
@@ -111,10 +111,10 @@
     </div>
 
     <h4>Input Session Key</h4>
-    <input type=text id="sessKey" placeholder="Session Key" pattern="^[a-z0-9]{32}$" required/>
-    
+    <input type=text id="sessKey" placeholder="Session Key" pattern="^[a-zA-Z0-9]{26}$" required/>
+
     <h4>Input Session Password</h4>
-    <input type=password id="password" placeholder="Session Password" pattern="^[a-z0-9]{32}$" required/>
+    <input type=password id="password" placeholder="Session Password" pattern="^[a-zA-Z0-9]{26}$" required/>
 
     <h4>Upload Private Key <small>(Note this does not upload the key to the network)</small></h4>
 
@@ -136,9 +136,9 @@
     <br/>
     <br/>
   </div>
-    
+
   <div id="friendly">
-    <h3 id="number-employees-hot-name" class="head_element"></h3>  
+    <h3 id="number-employees-hot-name" class="head_element"></h3>
     <div id="number-employees-hot" class="head_element"></div> <br>
     <h3 id="compensation-hot-name" class="head_element"></h3>
     <div id="compensation-hot" class="head_element"></div> <br>
@@ -148,17 +148,17 @@
     <div id="service-length-hot" class="head_element"></div> <br>
     <h3 id="totals-hot-name" class="head_element"></h3>
     <div id="totals-hot" class="head_element"></div> <br>
-    
+
     <div id="questions" class="head_element"></div>
     <pre id="result" class="head_element"></pre>
     <pre id="error" class="head_element"></pre>
   </div>
-  
-  <script type="text/javascript">    
+
+  <script type="text/javascript">
     // Get the handsontable scheme
     $(document).ready(function() {
       //$('#friendly').hide();
-      
+
       var req = $.ajax({
         type: "GET",
         url: "../shared/templates/tables.json",
@@ -168,12 +168,12 @@
         var tables_map = {};
         for(var v = 0; v < tables.length; v++)
           tables_map[tables[v]._sail_meta.name] = tables[v];
-        
+
         //$('#friendly').hide();
         $('#unmask').removeAttr("disabled");
 
         // Handler for unmasking
-        $('#unmask').on('click', function() {        
+        $('#unmask').on('click', function() {
           var maskKey = $('#maskKey').get(0),
               sessKey = $('#sessKey').val(),
               password = $('#password').val(),
@@ -185,48 +185,48 @@
             keyReader.readAsText(maskKey.files[0]);
             $(keyReader).on('load', function(e) {
               var privateKey = e.target.result;
-              
+
               // Callback: display results in HOT
               var callb = function (success, data) {
                 la.stop();
-                
+
                 if (success) { // Display result
                   for(var name in data) {
                     if(!(data.hasOwnProperty(name))) continue;
-                    
-                    var table = tables_map[name]; 
+
+                    var table = tables_map[name];
                     if(table != null) { // This is a table field
-                    
+
                       var table_data = data[name];
                       remove_validators(table);
                       fill_data(table_data, table);
                       read_only_table(table, true);
-                      
+
                       // Show tables
                       $('#' + table._sail_meta.element).show();
-                      $('#' + table._sail_meta.element + "-name").show(); 
+                      $('#' + table._sail_meta.element + "-name").show();
                     }
-                    
+
                     else { // Not a table, questions
                       var fields = data[name];
-                      
+
                       var h3 = $('<h3>').text(toTitleCase(name));
                       $('#'+name).append(h3);
                       h3.show();
-                      
+
                       for(var field in fields) {
                         if(!(fields.hasOwnProperty(field))) continue;
-                        
+
 
                         var ul = $('<ul>');
                         var answers = fields[field];
                         for(var option in answers) {
                           if(!(answers.hasOwnProperty(option))) continue;
-                          
+
                           var text = option + ": " + answers[option];
                           ul.append($('<li>').text(text));
                         }
-                        
+
                         $('#'+name).append($('<h4>').text(field));
                         $('#'+name).append(ul);
                         $('#'+name).append($('<br>'));
@@ -234,7 +234,7 @@
                       }
                     }
                   }
-                  
+
                   // Display raw data.
                   //$('#result').text(JSON.stringify(data, null, 4));
                   //$('#result').show();
@@ -242,14 +242,14 @@
                   $('#unmask').prop('disabled', true);
                   $('#unmask').hide();
                 }
-                
+
                 else { // !success, display error
                   console.log(data);
                   $('#error').text(data);
                   $('#error').show();
                 }
               };
-              
+
               // Remove top and bottom line of pem file
               privateKey = privateKey.split('\n')[1];
 
@@ -257,9 +257,9 @@
                 type: "POST",
                 url: "/get_masks",
                 contentType: "application/json",
-                data: JSON.stringify({session: sessKey, password: password}),
+                data: JSON.stringify({session: sessKey.toLowerCase(), password: password.toLowerCase()}),
                 success: function (data) {
-                  aggregate_and_unmask(data, privateKey, sessKey, password, callb);
+                  aggregate_and_unmask(data, privateKey, sessKey.toLowerCase(), password.toLowerCase(), callb);
                 },
                 error: function() {
                   callb(false, "Error: failed to load masks");
@@ -272,7 +272,7 @@
         });
       });
     });
-    
+
     // Capitalize the first letter of every word
     function toTitleCase(str) {
         return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
@@ -286,7 +286,7 @@
           results = regex.exec(location.search);
       return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
     }
-    
+
     if (getParameterByName('session')) {
       $('#sessKey').val(getParameterByName('session'));
     }
