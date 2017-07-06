@@ -20,8 +20,8 @@ function success(msg) {
  */
 function validate(tables, callback) {
   // Verify session key
-  var session = $('#sess').val().trim();
-  if(!session.match(/^[a-zA-Z0-9]{26}$/))
+  var session = $('#session').val().trim();
+  if(!session.match(/^[a-z0-9]{26}$/))
     return callback(false, SESSION_KEY_ERROR);
 
   // Verify confirmation check box was checked

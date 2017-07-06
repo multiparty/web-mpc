@@ -344,7 +344,7 @@ var DropSheet = function DropSheet(opts) {
         opts.drop.addEventListener('dragleave', handleDragleave);
         opts.drop.addEventListener('dragover', handleDragover, false);
         opts.drop.addEventListener('drop', handleDrop, false);
-        opts.drop.addEventListener('click', handleClick, false);
+        opts.choose.addEventListener('click', handleClick, false);
     }
 
     // For choosing a file using <input> (ie Choose File button).
