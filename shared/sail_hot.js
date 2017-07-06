@@ -1,3 +1,10 @@
+// Bug in handsontable with two screens.
+// If you move the window between two screen, the document fires a 
+// focus/mouse over event. Handsontable handles that event and uses 
+// the classList attribute without checking if it is undefined. 
+// document has no classList attribute.
+document.classList = [];
+
 // A Map from names to validator functions.
 // The name can be used in the json template to assign
 // the corresponding validator to a cell.

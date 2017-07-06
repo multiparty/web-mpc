@@ -106,7 +106,7 @@
       <form class="form-inline" role="form">
         <input autocomplete="off" type="text" id="countID" placeholder="Enter Number of new links needed"
                pattern="^[0-9]{1,5}$" size="5" required>
-        <button id="gen_button" type="button" class="btn" id="Generate">
+        <button id="gen_button" type="button" class="btn">
           Generate Links
         </button>
       </form>
@@ -146,7 +146,15 @@
 
       fetchOldLinks(session, password, "oldUrlsID", "oldUrlsSection");
       document.getElementById("gen_button").onclick = function () {
-        generateUrls(session, password, 'urlsID', 'countID')
+        var count = document.getElementById(countID).value;
+        count = parseInt(count);
+        
+        if(isNaN(count)) { // fail gracefully
+          alert("Please enter the number of desired links");
+          return;
+        }
+        
+        generateUrls(session, password, 'urlsID', count);
       };
 
       document.getElementById("start").onclick = function () {

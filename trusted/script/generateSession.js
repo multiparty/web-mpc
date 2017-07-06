@@ -43,15 +43,11 @@ function formatUrls(urls) {
   return result;
 }
 
-function generateUrls(session, password, urlsID, countID) {
+function generateUrls(session, password, urlsID, count) {
   var old = document.getElementById(urlsID).innerHTML;
   if (old.trim().length > 0) old = old + "\n";
 
   document.getElementById(urlsID).innerHTML = old + "Loading...";
-
-  // Number of URLs that need to be generated
-  var count = document.getElementById(countID).value;
-  count = parseInt(count);
 
   $.ajax({
     type: "POST",

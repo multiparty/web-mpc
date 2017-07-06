@@ -814,25 +814,14 @@
       },
       "rows": [
         {
-          "label": "By Job Category"
-        },
-        {
-          "label": "By Race/Ethnicity"
+          "label": "Total"
         }
       ],
       "cols": [
         [
           {
-            "label": "Total Number of <br> Employees",
-            "colspan": 2
-          },
-          {
-            "label": "Compensation and <br> Performance Pay <br> (Dollars)",
-            "colspan": 2
-          },
-          {
-            "label": "Length of Service <br> (Months)",
-            "colspan": 2
+            "label": "Total Number of Employees",
+            "colspan": 3
           }
         ],
         [
@@ -845,19 +834,7 @@
             "key": ""
           },
           {
-            "label": "Female",
-            "key": ""
-          },
-          {
-            "label": "Male",
-            "key": ""
-          },
-          {
-            "label": "Female",
-            "key": ""
-          },
-          {
-            "label": "Male",
+            "label": "All",
             "key": ""
           }
         ]
