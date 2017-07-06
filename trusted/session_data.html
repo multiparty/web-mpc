@@ -146,14 +146,14 @@
 
       fetchOldLinks(session, password, "oldUrlsID", "oldUrlsSection");
       document.getElementById("gen_button").onclick = function () {
-        var count = document.getElementById(countID).value;
+        var count = document.getElementById("countID").value;
         count = parseInt(count);
-        
+
         if(isNaN(count)) { // fail gracefully
           alert("Please enter the number of desired links");
           return;
         }
-        
+
         generateUrls(session, password, 'urlsID', count);
       };
 

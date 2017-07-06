@@ -269,7 +269,7 @@
 
       $participationCode.val(getParameterByName('participationCode'));
       $session.val(getParameterByName('session'));
-      verify_keys_and_fetch_description();
+      $('#session, #participation-code').blur(); // Verify
 
       var req = $.ajax({
         type: "GET",

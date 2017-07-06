@@ -380,8 +380,8 @@ app.post('/create_session', function (req, res) {
     var sessionID = crypto.randomBytes(16).toString('hex');
     var password = crypto.randomBytes(16).toString('hex');
 
-    var title = body.title.replace("<", "&lt;").replace(">", "&gt;");
-    var description = body.description.replace("<", "&lt;").replace(">", "&gt;");
+    var title = body.title.split("<").join("&lt;").split(">").join("&gt;");
+    var description = body.description.split("<").join("&lt;").split(">").join("&gt;");
 
     var sessInfo = new SessionInfo({
       _id: sessionID,
