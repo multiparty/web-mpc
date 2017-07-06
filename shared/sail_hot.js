@@ -1,6 +1,3 @@
-// Default width of a table (in pixels).
-var HOT_DEFAULT_WIDTH = 900;
-
 // A Map from names to validator functions.
 // The name can be used in the json template to assign
 // the corresponding validator to a cell.
@@ -284,8 +281,9 @@ function make_tables(tables_def) {
 function make_table_obj(table_def) {
   var table_name = table_def.name;
   var element = table_def.element;
-  var width = table_def.width || HOT_DEFAULT_WIDTH;
+  var width = table_def.width;
   var submit = table_def.submit;
+  var hot_parameters = table_def.hot_parameters;
 
   if (!(table_def.submit === true || table_def.submit === false))
     submit = true;
@@ -355,7 +353,8 @@ function make_table_obj(table_def) {
     "name": table_name, "submit": submit,
     "element": element, "width": width,
     "rows": rows, "cols": cols, "cells": table,
-    "rowsCount": rows_len, "colsCount": cols_len
+    "rowsCount": rows_len, "colsCount": cols_len,
+    "hot_parameters": hot_parameters
   };
 }
 
@@ -379,7 +378,7 @@ function make_hot_table(table) {
       var type = cell_def.type;
       var empty = true;
       var read_only = false;
-      var placeholder = '';
+      var placeholder = null;
 
       if (cell_def.empty != null) empty = cell_def.empty;
       if (cell_def.read_only != null) read_only = cell_def.read_only;
@@ -414,9 +413,8 @@ function make_hot_table(table) {
     // Row and column headers and span
     rowHeaders: table.rows,
     nestedHeaders: table.cols,
-    // TODO Make this part of config, re-add width but without default setting
-    preventOverflow: 'horizontal',
-    rowHeaderWidth: 200,
+    // Styling information
+    width: table.width,
     // Per cell properties
     cell: cells,
     // Workaround for handsontable undo issue for readOnly tables
@@ -424,6 +422,9 @@ function make_hot_table(table) {
       return !(this.readOnly);
     }
   };
+
+  // other parameters from config
+  Object.assign(hotSettings, table.hot_parameters);
 
   // Create the Handsontable
   var handsOnTable = new Handsontable(element, hotSettings);
