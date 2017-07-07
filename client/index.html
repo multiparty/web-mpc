@@ -47,8 +47,8 @@
 <div id="shadow" class="ss-style-multitriangles"></div>
 <main id="content" class="container">
   <section id="session-area" class="card">
-    <h2 class="text-center" id="session-title"></h2>
-    <pre class="text-center" id="session-description"></pre>
+    <h2 class="text-center">Title</h2>
+    <p class="text-center">Some explanation about what to do.</p>
     <hr/>
     <div class="row">
       <div class="col-md-6">
@@ -269,7 +269,8 @@
 
       $participationCode.val(getParameterByName('participationCode'));
       $session.val(getParameterByName('session'));
-      $('#session, #participation-code').blur(); // Verify
+      if($session.val().trim() !== "") $session.blur();
+      if($participationCode.val().trim() !== "") $participationCode.blur();
 
       var req = $.ajax({
         type: "GET",

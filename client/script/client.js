@@ -21,10 +21,6 @@ function verify_keys_and_fetch_description() {
   var session = $("#session").val().trim();
   var participationCode = $("#participation-code").val().trim();
 
-  // Do not fetch things from server that do not match the format (Why waste internet!?)
-  if (!participationCode.match(/^[a-z0-9]{32}$/) || !session.match(/^[a-z0-9]{32}$/))
-    return;
-
   $.ajax({
     type: "POST",
     url: "/sessioninfo",
@@ -36,8 +32,8 @@ function verify_keys_and_fetch_description() {
     var title = response.title;
     var description = response.description;
 
-    $("#session-title").html(title);
-    $("#session-description").html(description);
+    //$("#session-title").html(title);
+    //$("#session-description").html(description);
 
     var $parent = $('#session, #participation-code').parent();
     $parent.removeClass('has-error').addClass('has-success has-feedback');
@@ -56,8 +52,6 @@ function verify_keys_and_fetch_description() {
     $parent.find('.fail-icon').removeClass('hidden').addClass('show');
     $parent.find('.fail-help').removeClass('show').addClass('hidden');
     $parent.find('.fail-custom').removeClass('hidden').addClass('show').html(errorMsg);
-
-    console.log("ERROR " + errorMsg);
   });
 }
 
