@@ -63,18 +63,23 @@ function validate(tables, callback) {
 
   // Validate tables (callback chaining)
   (function validate_callback(i) {
-    if(i >= tables.length) return callback(true, "");
+    if(i >= tables.length) {
+      if(errors.length == 0)
+        return callback(true, "");
+      else
+        return callback(false, errors);
+    }
 
     // Dont validate tables that are not going to be submitted
     if(tables[i]._sail_meta.submit === false) return validate_callback(i+1);
 
     tables[i].validateCells(function(result) { // Validate table
       if(!result) {
-        //errors = errors.concat(GENERIC_TABLE_ERR + tables[i]._sail_meta.name + " spreadsheet");
-        return callback(false, GENERIC_TABLE_ERR + tables[i]._sail_meta.name + " spreadsheet");
-      } else {
-        validate_callback(i + 1);
+        errors = errors.concat(GENERIC_TABLE_ERR + tables[i]._sail_meta.name + " spreadsheet");
+        //return callback(false, GENERIC_TABLE_ERR + tables[i]._sail_meta.name + " spreadsheet");
       }
+
+      validate_callback(i + 1);
     });
   })(0);
 
@@ -183,15 +188,17 @@ function encrypt_and_send(session, userkey, data, mask, la) {
  * Convert the list of submissions into html for display.
  */
 function convertToHTML(entries) {
-  var htmlConcat = "<h3>Submission History</h3>";
+  // var htmlConcat = "<h3>Submission History</h3>";
 
   for (var i = 0; i < entries.length; i++) {
     if (entries[i]['submitted']) {
       // append success line
-      htmlConcat += "<p class='success' alt='Success'><img src='style/accept.png'>Successful - "  + entries[i]['time'] + "</p>";
+      $('.previous_submits').append("<li><p class='success' alt='Success'><img src='style/accept.png'>Successful - "  + entries[i]['time'] + "</p></li>")
+      // htmlConcat += "<p class='success' alt='Success'><img src='style/accept.png'>Successful - "  + entries[i]['time'] + "</p>";
     } else {
-      htmlConcat += "<p class='error' alt='Error'><img src='style/cancel.png'>Unsuccessful - " + entries[i]['time'] + "</p>";
+      $('.previous_submits').append("<li><p class='error' alt='Error'><img src='style/cancel.png'>Unsuccessful - " + entries[i]['time'] + "</p></li>")
+      // htmlConcat += "<p class='error' alt='Error'><img src='style/cancel.png'>Unsuccessful - " + entries[i]['time'] + "</p>";
     }
   }
-  $('.page-footer').html(htmlConcat);
+  // $('.page-footer').html(htmlConcat);
 }
