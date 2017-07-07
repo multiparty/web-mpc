@@ -183,7 +183,12 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
 
       }
 
-    } //else {
+    } else { // Remove tooltip if it was already initialized
+      if (element !== null && element.qtip('api') !== null) {
+        element.qtip('api').destroy();
+      }
+    }
+    //else {
     //     // Prompt message with light-colored cell and tooltip.
     //     // Shows on initial table load and
     //     TD.style.background = '#ffffff';
