@@ -343,6 +343,7 @@ app.post('/create_session', function (req, res) {
   });
 });
 
+
 // endpoint for generating client unique urls
 app.post('/generate_client_urls', function (req, res) {
   console.log('POST /generate_client_urls');
@@ -699,6 +700,41 @@ app.post("/control_panel", function (req, res) {
     verify_password(body.session, body.password, success, fail);
   });
 });
+
+// endpoint for storing the encrypted result
+app.post('/fetch_status', function (req, res) {
+  console.log('POST /fetch_status');
+  console.log(req.body);
+
+  var schema = {
+    session: joi.string().alphanum().required()
+  };
+
+  // Validate request.
+  joi.validate(req.body, schema, function (valErr, body) {
+    if (valErr) {
+      console.log(valErr);
+      res.status(500).send('Invalid request.');
+      return;
+    }
+
+    SessionStatus.findOne({_id: body.session}, function (err, data) {
+      if (err) {
+        console.log(err);
+        res.status(500).send('Error getting session status.');
+        return;
+      }
+
+      if (data.status == null) {
+        res.status(500).send('Session not found.');
+        return;
+      }
+
+      res.send(data.status);
+    });
+  });
+});
+
 // if the page isn't found, return 404 error
 app.get(/.*/, function (req, res) {
   res.status(404).send('Page not found');
