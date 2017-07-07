@@ -21,6 +21,8 @@ function verify_keys_and_fetch_description() {
   var session = $("#session").val().trim().toLowerCase();
   var participationCode = $("#participation-code").val().trim().toLowerCase();
 
+  if(session == "" || participationCode == "") return;
+
   $.ajax({
     type: "POST",
     url: "/sessioninfo",

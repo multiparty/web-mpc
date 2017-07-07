@@ -184,7 +184,7 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
       }
 
     } else { // Remove tooltip if it was already initialized
-      if (element !== null && element.qtip('api') !== null) {
+      if (element !== null && element.qtip('api') != null) {
         element.qtip('api').destroy();
       }
     }
@@ -254,6 +254,7 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
   // Fallback if no jQuery - use comments.
   if (tooltip !== undefined && tooltip !== null && (typeof jQuery === 'undefined' || typeof jQuery().qtip === 'undefined')) {
     if (cellProperties.valid === false) cellProperties.comment = {"value": tooltip.errorTitle.toUpperCase() + ' - ' + tooltip.error};
+    else cellProperties.comment = null;
     //else cellProperties.comment = { "value": tooltip.promptTitle.toUpperCase() + ' - ' + tooltip.prompt };
   }
 
