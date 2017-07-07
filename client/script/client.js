@@ -18,8 +18,8 @@ function success(msg) {
 
 // When the session and/or participation code is modified, fetch session info from server.
 function verify_keys_and_fetch_description() {
-  var session = $("#session").val().trim();
-  var participationCode = $("#participation-code").val().trim();
+  var session = $("#session").val().trim().toLowerCase();
+  var participationCode = $("#participation-code").val().trim().toLowerCase();
 
   $.ajax({
     type: "POST",
