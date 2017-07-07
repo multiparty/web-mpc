@@ -80,7 +80,7 @@ function generateUrls(session, password, urlsID, count) {
     error: function (err) {
       var errmsg = "ERROR!";
       if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined)
-        errmsg = err.responeText;
+        errmsg = err.responseText;
       document.getElementById(urlsID).style.visibility = "visible";
       document.getElementById(urlsID).innerHTML += errmsg;
     }
@@ -105,7 +105,7 @@ function fetchOldLinks(session, password, oldUrlsID, section) {
     error: function (err) {
       var errmsg = "ERROR!";
       if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined)
-        errmsg = err.responeText;
+        errmsg = err.responseText;
       document.getElementById(oldUrlsID).innerHTML = errmsg;
     }
   });
@@ -244,7 +244,7 @@ function generateTable(tableBody, sessionID, password, status, timestamp, counte
     error: function (err) {
       var errmsg = "Error Connecting: Reconnect Attempt #" + counter.toString();
       if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined)
-        errmsg = err.responeText;
+        errmsg = err.responseText;
 
       document.getElementById(status).className = "alert alert-error";
       document.getElementById(status).innerHTML = errmsg;
