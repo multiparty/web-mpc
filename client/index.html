@@ -419,7 +419,9 @@
           validate(tables, function (result, msg) {
             if (!result) {
               la.stop();
-              error(msg);
+              for (var i = 0; i<msg.length; i++) {
+                $('.errors').append('<li><p>' + msg[i] + '</p></li>');
+              }
               return;
             }
 
