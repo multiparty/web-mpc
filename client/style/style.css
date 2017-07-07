@@ -24,10 +24,11 @@ h1, h2, h3 {
 }
 
 h1 {
-  font-size: 50px;
+  font-size: 40px;
   font-weight: bold;
   color: rgba(51, 51, 51, 0.8);
   text-shadow: 1px 4px 6px #fff, 0 0 0 #000, 1px 4px 6px #fff;
+  margin-top: 38px;
 }
 
 ::-moz-selection {

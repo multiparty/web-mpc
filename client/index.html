@@ -35,8 +35,8 @@
 <body>
 <header>
   <div class="container">
-    <h1>Workforce Survey<br/>
-      <small>Boston Women's Workforce Council</small>
+    <h1>Boston Women's Workforce Council<br/>
+      <small>100% Talent Data Submission</small>
     </h1>
     <div id="logos">
       <img src="../shared/bwwc.png" width="130" alt="BWWC Logo"/>
@@ -47,8 +47,10 @@
 <div id="shadow" class="ss-style-multitriangles"></div>
 <main id="content" class="container">
   <section id="session-area" class="card">
-    <h2 class="text-center">Title</h2>
-    <p class="text-center">Some explanation about what to do.</p>
+    <h2 class="text-center">Submit your data</h2>
+    <p class="text-center">Please make sure your session key and participation code match the ones provided in the email
+      sent to you by the BWWC. Drag and drop your completed template file to encrypt and include your submission in the
+      aggregate data.</p>
     <hr/>
     <div class="row">
       <div class="col-md-6">
@@ -81,8 +83,9 @@
       </div>
       <div class="col-md-6">
         <div id="drop-area">
-          Drag and drop spreadsheet here
-          <br/><p>&mdash;or&mdash;</p><br/>
+          Drag and drop your completed template file
+          <br/>
+          <p>&mdash;or&mdash;</p><br/>
           <button id="choose-file-button" class="btn btn-primary">Choose file</button>
         </div>
         <input type="file" id="choose-file" accept=".xlsx,.xls">
@@ -125,8 +128,9 @@
   <section id="additional-questions" class="card">
     <h2 class="text-center">Additional Questions</h2>
     <p class="text-center">
-      Explain that additional questions should be answered if possible, they are sent securely, and no information about
-      the participant is available. However, the results are collected individually and not on an aggregate basis.
+      We have included these questions to get instant feedback as to how this process went in order to improve the
+      process in future years. Please know that the answers to these questions will be anonymous, and they will be
+      considered separately from the encrypted and aggregated data above.
     </p>
     <hr/>
     <div id="questions">
@@ -300,9 +304,9 @@
           }
 
           // Display a NaN in the totals Column if you need too.
-          var totals = [ sums[0], sums[1], sums[0] + sums[1] ];
+          var totals = [sums[0], sums[1], sums[0] + sums[1]];
           if (NaNs[0] + NaNs[1] > 0) { // If there is at least one NaN, change every thing to Excel's NaN equivalent.
-            totals = [ "#VALUE!", "#VALUE!", "#VALUE!" ];
+            totals = ["#VALUE!", "#VALUE!", "#VALUE!"];
           }
           tables[4].loadData([totals]);
         };
