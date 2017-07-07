@@ -1,5 +1,5 @@
-var SESSION_KEY_ERROR = 'Invalid session number: must be 32 character combination of letters and numbers';
-var PARTICIPATION_CODE_ERROR = 'Invalid participation code: must be 32 character combination of letters and numbers';
+var SESSION_KEY_ERROR = 'Invalid session number: must be 26-character combination of letters and numbers';
+var PARTICIPATION_CODE_ERROR = 'Invalid participation code: must be 26-character combination of letters and numbers';
 
 var UNCHECKED_ERR = 'Please acknowledge that all data is correct and verified.';
 var ADD_QUESTIONS_ERR = 'Please answer all Additional Questions.';
@@ -61,11 +61,11 @@ function verify_keys_and_fetch_description() {
 function validate(tables, callback) {
   // Verify session key
   var session = $('#session').val().trim();
-  if (!session.match(/^[a-z0-9]{32}$/))
+  if (!session.match(/^[a-zA-Z0-9]{26}$/))
     return callback(false, SESSION_KEY_ERROR);
 
   var participationCode = $('#participation-code').val().trim();
-  if (!participationCode.match(/^[a-z0-9]{32}$/))
+  if (!participationCode.match(/^[a-zA-Z0-9]{26}$/))
     return callback(false, PARTICIPATION_CODE_ERROR);
 
   // Verify confirmation check box was checked
@@ -118,8 +118,8 @@ function construct_and_send(tables, la) {
   // Begin constructing the data
   var data_submission = {questions: {}};
 
-  var session = $('#session').val().trim();
-  var participationCode = $('#participation-code').val().trim();
+  var session = $('#session').val().trim().toLowerCase();
+  var participationCode = $('#participation-code').val().trim().toLowerCase();
 
   // Add questions data, each question has three parts:
   //  'YES', 'NO', and 'NA' and each one has value 0 or 1
