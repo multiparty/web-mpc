@@ -187,43 +187,41 @@
       </form>
     </div>
   </section>
+
   <section class="card">
-    <h2 class="text-center">Submit Confirmation</h2>
+    <h2 class="text-center">Submit your data</h2>
     <p class="text-center">
       Instructions on how to fill out this section.
     </p>
-    <hr>
+    <hr/>
     <!-- Submit panel is split up into two halves -->
     <!-- Left Half -->
-    <div class="submit_panel">
-      <h4 id="totals-hot-name"></h4>
-      <div id="totals-hot"></div>
-    </div>
-    <!-- Right Half -->
-    <div class="submit_panel" style="padding-left: 10%">
-      <div>
+    <div class="row">
+      <div class="col-md-6">
+        <h4 id="totals-hot-name"></h4>
+        <div id="totals-hot"></div>
+        <form>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" id="verify" name="verify">All information is verified and correct
+            </label>
+          </div>
+        </form>
+      </div>
+      <div class="col-md-6">
         <h4>Errors</h4>
         <ul class="errors">
-          <li><p style="color: green">No Errors!</p></li>
+          <li>No Errors!</li>
         </ul>
-      </div>
-      <div>
-        <h4>Previous Submits</h4>
+        <h4>Submission history</h4>
         <ul class="previous_submits">
         </ul>
       </div>
     </div>
-    <form style="clear: both;">
-      <div class="checkbox">
-        <label>
-          <input type="checkbox" id="verify" name="verify"> All information is verified and correct
-        </label>
+    <div class="row">
+      <div class="col-md-12">
+        <button type="submit" id="submit" class="btn btn-primary ladda-button btn-lg btn-block">Submit</button>
       </div>
-      <button type="submit" id="submit" class="btn btn-primary ladda-button btn-lg btn-block">Submit</button>
-    </form>
-
-    <div>
-
     </div>
   </section>
   <br/>
@@ -400,13 +398,12 @@
         // Button clicks handlers
         $('#verify').click(function () {
           validate(tables, function (result, msg) {
+            $('.errors').empty();
             if (result) {
-              $('.errors').empty();
               return $("#submit").prop('disabled', false);
             }
-            $('.errors').empty();
             for (var i = 0; i < msg.length; i++) {
-              $('.errors').append('<li><p>' + msg[i] + '</p></li>');
+              $('.errors').append('<li>' + msg[i] + '</li>');
               //error(msg);
             }
             $('#verify').prop('checked', false);
@@ -416,9 +413,10 @@
         $("#submit").click(function () {
           var la = Ladda.create(document.getElementById('submit'));
           validate(tables, function (result, msg) {
+            $('.errors').empty();
             if (!result) {
               la.stop();
-              for (var i = 0; i<msg.length; i++) {
+              for (var i = 0; i < msg.length; i++) {
                 $('.errors').append('<li><p>' + msg[i] + '</p></li>');
               }
               return;

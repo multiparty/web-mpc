@@ -225,10 +225,10 @@ form .form-group-lg label {
   overflow-x: hidden;
 }
 
-.errors > li > p {
+.errors > li {
   color: red;
 }
-.previous_submits > li > p {
+.previous_submits > li {
   color: #4F8A10;
 }
 

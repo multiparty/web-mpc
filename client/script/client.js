@@ -24,14 +24,12 @@ function validate(tables, callback) {
   var session = $('#session').val().trim();
   if(!session.match(/^[a-z0-9]{32}$/)) {
     errors = errors.concat(SESSION_KEY_ERROR);
-    //return callback(false, SESSION_KEY_ERROR);
   }
 
   // Verify confirmation check box was checked
   var verifyChecked = $('#verify').is(':checked');
   if(!verifyChecked) {
     errors = errors.concat(UNCHECKED_ERR);
-    //return callback(false, UNCHECKED_ERR);
   }
 
   // Verify additional questions
@@ -52,19 +50,14 @@ function validate(tables, callback) {
     }
   }
 
-  if (errors.length !== 0) {
-    return callback(false, errors);
-  }
-
   if(!questionsValid) {
     errors = errors.concat(ADD_QUESTIONS_ERR);
-    //return callback(false, ADD_QUESTIONS_ERR);
   }
 
   // Validate tables (callback chaining)
   (function validate_callback(i) {
     if(i >= tables.length) {
-      if(errors.length == 0)
+      if(errors.length === 0)
         return callback(true, "");
       else
         return callback(false, errors);
@@ -76,7 +69,6 @@ function validate(tables, callback) {
     tables[i].validateCells(function(result) { // Validate table
       if(!result) {
         errors = errors.concat(GENERIC_TABLE_ERR + tables[i]._sail_meta.name + " spreadsheet");
-        //return callback(false, GENERIC_TABLE_ERR + tables[i]._sail_meta.name + " spreadsheet");
       }
 
       validate_callback(i + 1);
