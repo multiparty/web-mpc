@@ -226,22 +226,17 @@ form .form-group-lg label {
   box-shadow: -50px 50px 0 #fff, 50px -50px 0 #fff, 2px 2px 4px 0 rgba(170, 170, 170, .80), -48px 52px 4px 0 rgba(170, 170, 170, .80), 52px -48px 4px 0 rgba(170, 170, 170, .80);
 }
 
-.submit_panel {
-  width: 50%;
-  float: left;
-  padding-left: 10px;
-  min-height: 235px;
+#validation-errors li {
+  margin-bottom: 10px;
 }
 
-.errors, .previous_submits {
-  overflow-x: hidden;
+#validation-errors span {
+  color: rgb(240, 71, 68);
 }
 
-.errors > li {
-  color: red;
-}
-.previous_submits > li {
+#submission-history li {
   color: #4F8A10;
+  margin-bottom: 10px;
 }
 
 

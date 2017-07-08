@@ -191,9 +191,9 @@ function convertToHTML(entries) {
   for (var i = 0; i < entries.length; i++) {
     if (entries[i]['submitted']) {
       // append success line
-      $('.previous_submits').append("<li><p class='success' alt='Success'><img src='style/accept.png'>Successful - "  + entries[i]['time'] + "</p></li>")
+      $('#submission-history').append("<li><span class='success' alt='Success'><img src='style/accept.png'>Successful - "  + entries[i]['time'] + "</span></li>")
     } else {
-      $('.previous_submits').append("<li><p class='error' alt='Error'><img src='style/cancel.png'>Unsuccessful - " + entries[i]['time'] + "</p></li>")
+      $('#submission-history').append("<li><span class='error' alt='Error'><img src='style/cancel.png'>Unsuccessful - " + entries[i]['time'] + "</span></li>")
     }
   }
 }

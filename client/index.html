@@ -144,7 +144,7 @@
         </div>
         <div class="radio">
           <label>
-            <input type="radio" name="optradio" value="NA" checked="checked">
+            <input type="radio" name="optradio" value="NA">
             Do not wish to answer
           </label>
         </div>
@@ -161,7 +161,7 @@
         </div>
         <div class="radio">
           <label>
-            <input type="radio" name="optradio" value="NA" checked="checked">
+            <input type="radio" name="optradio" value="NA">
             Do not wish to answer
           </label>
         </div>
@@ -178,7 +178,7 @@
         </div>
         <div class="radio">
           <label>
-            <input type="radio" name="optradio" value="NA" checked="checked">
+            <input type="radio" name="optradio" value="NA">
             Do not wish to answer
           </label>
         </div>
@@ -195,7 +195,7 @@
         </div>
         <div class="radio">
           <label>
-            <input type="radio" name="optradio" value="NA" checked="checked">
+            <input type="radio" name="optradio" value="NA">
             Do not wish to answer
           </label>
         </div>
@@ -225,17 +225,17 @@
       </div>
       <div class="col-md-6">
         <h4>Errors</h4>
-        <ul class="errors">
+        <ul id="validation-errors">
           <li>No Errors!</li>
         </ul>
         <h4>Submission history</h4>
-        <ul class="previous_submits">
+        <ul id="submission-errors">
         </ul>
       </div>
     </div>
     <div class="row">
       <div class="col-md-12">
-        <button type="submit" id="submit" class="btn btn-primary ladda-button btn-lg btn-block">Submit</button>
+        <button type="submit" id="submit" class="btn btn-primary ladda-button btn-lg btn-block" disabled>Submit</button>
       </div>
     </div>
   </section>
@@ -466,26 +466,30 @@
         // Button clicks handlers
         $('#verify').click(function () {
           validate(tables, function (result, msg) {
-            $('.errors').empty();
+            $('#validation-errors').empty();
             if (result) {
-              return $("#submit").prop('disabled', false);
+              $("#submit").prop('disabled', false);
+              return;
+            } else {
+              $('#verify').prop('checked', false);
+              $("#submit").prop('disabled', true);
             }
             for (var i = 0; i < msg.length; i++) {
-              $('.errors').append('<li>' + msg[i] + '</li>');
-              //error(msg);
+              $('#validation-errors').append('<li><span>' + msg[i] + '</span></li>');
             }
-            $('#verify').prop('checked', false);
           });
         });
 
         $("#submit").click(function () {
           var la = Ladda.create(document.getElementById('submit'));
           validate(tables, function (result, msg) {
-            $('.errors').empty();
+            $('#validation-errors').empty();
             if (!result) {
               la.stop();
+              $('#verify').prop('checked', false);
+              $("#submit").prop('disabled', true);
               for (var i = 0; i < msg.length; i++) {
-                $('.errors').append('<li><p>' + msg[i] + '</p></li>');
+                $('#validation-errors').append('<li><span>' + msg[i] + '</span></li>');
               }
               return;
             }

@@ -810,7 +810,7 @@
       "submit": false,
       "hot_parameters": {
         "preventOverflow": "horizontal",
-        "rowHeaderWidth": 200
+        "rowHeaderWidth": 100
       },
       "rows": [
         {
