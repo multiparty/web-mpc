@@ -21,7 +21,6 @@
   <script type="text/javascript" src="script/xlsx.full.min.js"></script>
   <script src="script/path.js"></script>
 
-
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
         integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
@@ -32,13 +31,12 @@
   <link rel="stylesheet" type="text/css" href="style/alertify/css/themes/alertify-bootstrap.css">
   <link rel="stylesheet" href="style/ladda-themeless.min.css">
   <link rel="stylesheet" href="style/style.css">
-
 </head>
 <body>
 <header>
   <div class="container">
-    <h1>Workforce Survey<br/>
-      <small>Boston Women's Workforce Council</small>
+    <h1>Boston Women's Workforce Council<br/>
+      <small>100% Talent Data Submission</small>
     </h1>
     <div id="logos">
       <img src="../shared/bwwc.png" width="130" alt="BWWC Logo"/>
@@ -49,38 +47,47 @@
 <div id="shadow" class="ss-style-multitriangles"></div>
 <main id="content" class="container">
   <section id="session-area" class="card">
-    <h2 class="text-center">Title</h2>
-    <p class="text-center">Some explanation about what to do.</p>
+    <h2 class="text-center">Submit your data</h2>
+    <p class="text-center">Please make sure your session key and participation code match the ones provided in the email
+      sent to you by the BWWC. Drag and drop your completed template file to encrypt and include your submission in the
+      aggregate data.</p>
     <hr/>
     <div class="row">
       <div class="col-md-6">
         <form>
           <div class="form-group">
             <label class="control-label" for="session">Session key</label>
-            <input type="text" id="session" class="form-control" placeholder="Session key" pattern="^[a-z0-9]{32}$"
+            <input type="text" id="session" class="form-control" placeholder="Session key" pattern="^[a-zA-Z0-9]{26}$"
                    autocomplete="off" required/>
-            <span id="sessionSuccess" class="successIcon glyphicon glyphicon-ok form-control-feedback hidden"
+            <span id="session-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
                   aria-hidden="true"></span>
-            <span id="sessionFail" class="failIcon glyphicon glyphicon-remove form-control-feedback hidden"
+            <span id="session-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
                   aria-hidden="true"></span>
-            <span id="sessionFailHelp"
-                  class="failHelp help-block hidden">Please input the 32-character session key.</span>
+            <span id="session-fail-help"
+                  class="fail-help help-block hidden">Please input the 26-character session key.</span>
           </div>
           <div class="form-group">
-            <label class="control-label" for="key">Participation code</label>
-            <input type="text" id="key" class="form-control" placeholder="Participation code" pattern="^[a-z0-9]{32}$"
+            <label class="control-label" for="participation-code">Participation code</label>
+            <input type="text" id="participation-code" class="form-control" placeholder="Participation code"
+                   pattern="^[a-zA-Z0-9]{26}$"
                    autocomplete="off" required>
-            <span id="keySuccess" class="successIcon glyphicon glyphicon-ok form-control-feedback hidden"
+            <span id="participation-code-success"
+                  class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
                   aria-hidden="true"></span>
-            <span id="keyFail" class="failIcon glyphicon glyphicon-remove form-control-feedback hidden"
+            <span id="participation-code-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
                   aria-hidden="true"></span>
-            <span id="keyFailHelp"
-                  class="failHelp help-block hidden">Please input the 32-character participation code.</span>
+            <span id="participation-code-fail-help"
+                  class="fail-help help-block hidden">Please input the 26-character participation code.</span>
           </div>
         </form>
       </div>
       <div class="col-md-6">
-        <div id="drop-area">Drag and drop your spreadsheet here, or click to browse</div>
+        <div id="drop-area">
+          Drag and drop your completed template file
+          <br/>
+          <p>&mdash;or&mdash;</p><br/>
+          <button id="choose-file-button" class="btn btn-primary">Choose file</button>
+        </div>
         <input type="file" id="choose-file" accept=".xlsx,.xls">
       </div>
     </div>
@@ -121,9 +128,9 @@
   <section id="additional-questions" class="card">
     <h2 class="text-center">Additional Questions</h2>
     <p class="text-center">
-      Explain that additional questions should be answered if possible, they are sent securely, and no information about
-      the
-      participant is available. However, the results are collected individually and not on an aggregate basis.
+      We have included these questions to get instant feedback as to how this process went in order to improve the
+      process in future years. Please know that the answers to these questions will be anonymous, and they will be
+      considered separately from the encrypted and aggregated data above.
     </p>
     <hr/>
     <div id="questions">
@@ -136,8 +143,10 @@
           <label><input type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input type="radio" name="optradio" value="NA" checked="checked">Do not wish to
-            answer</label>
+          <label>
+            <input type="radio" name="optradio" value="NA" checked="checked">
+            Do not wish to answer
+          </label>
         </div>
       </form>
       <hr class="short"/>
@@ -151,8 +160,10 @@
           <label><input type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input type="radio" name="optradio" value="NA" checked="checked">Do not wish to
-            answer</label>
+          <label>
+            <input type="radio" name="optradio" value="NA" checked="checked">
+            Do not wish to answer
+          </label>
         </div>
       </form>
       <hr class="short"/>
@@ -166,8 +177,10 @@
           <label><input type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input type="radio" name="optradio" value="NA" checked="checked">Do not wish to
-            answer</label>
+          <label>
+            <input type="radio" name="optradio" value="NA" checked="checked">
+            Do not wish to answer
+          </label>
         </div>
       </form>
       <hr class="short"/>
@@ -181,8 +194,10 @@
           <label><input type="radio" name="optradio" value="No">No</label>
         </div>
         <div class="radio">
-          <label><input type="radio" name="optradio" value="NA" checked="checked">Do not wish to
-            answer</label>
+          <label>
+            <input type="radio" name="optradio" value="NA" checked="checked">
+            Do not wish to answer
+          </label>
         </div>
       </form>
     </div>
@@ -231,7 +246,7 @@
     $(document).ready(function () {
 
       var $session = $('#session');
-      var $key = $('#key');
+      var $participationCode = $('#participation-code');
 
       /**
        * Validate the session and participation code input fields.
@@ -242,7 +257,7 @@
         }
 
         // Validate immediately once blur has been fired
-        $('#session, #key')
+        $('#session, #participation-code')
           .off('input')
           .on('input', validateSessionInput);
 
@@ -250,20 +265,19 @@
         if (e.target.validity.valid) {
 
           $parent.removeClass('has-error').addClass('has-success has-feedback');
-          $parent.find('.successIcon').removeClass('hidden').addClass('show');
-          $parent.find('.failIcon').removeClass('show').addClass('hidden');
-          $parent.find('.failHelp').removeClass('show').addClass('hidden');
+          $parent.find('.success-icon').removeClass('hidden').addClass('show');
+          $parent.find('.fail-icon').removeClass('show').addClass('hidden');
+          $parent.find('.fail-help').removeClass('show').addClass('hidden');
         } else {
 
           $parent.removeClass('has-success').addClass('has-error has-feedback');
-          $parent.find('.successIcon').removeClass('show').addClass('hidden');
-          $parent.find('.failIcon').removeClass('hidden').addClass('show');
-          $parent.find('.failHelp').removeClass('hidden').addClass('show');
+          $parent.find('.success-icon').removeClass('show').addClass('hidden');
+          $parent.find('.fail-icon').removeClass('hidden').addClass('show');
+          $parent.find('.fail-help').removeClass('hidden').addClass('show');
         }
       };
 
-      $('#session, #key').on('blur', validateSessionInput);
-
+      $('#session, #participation-code').on('blur', validateSessionInput);
 
       //Copied from trusted/session_data
       var getParameterByName = function (name) {
@@ -273,8 +287,8 @@
         return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
       };
 
-      var userkey = getParameterByName('userkey');
-      $session.val(getParameterByName('sessionkey'));
+      $participationCode.val(getParameterByName('participationCode'));
+      $session.val(getParameterByName('session'));
 
       var req = $.ajax({
         type: "GET",
@@ -284,44 +298,98 @@
         // Create the tables
         var tables = make_tables(tables_def);
         window.scrollTo(0, 0);
-        var sums = [0, 0, 0, 0, 0, 0];
+        var sums = [0, 0]; // Internal total of Non NaNs values.
+        var NaNs = [0, 0]; // Counts how many NaNs exist for every cell participating in a total.
 
-        // Custom validator that computes the totals
-        var afterChange = function (table) {
-          var index_map = {
-            "Number Of Employees": 0,
-            "Total Annual Compensation (Dollars)": 1,
-            "Total Annual Cash Performance Pay (Dollars)": 1,
-            "Total Length of Service (Months)": 2
-          };
+        // Custom afterChange hook that computes the totals
+        var afterChange = function (changes, source) {
+          if (changes == null) return;
 
-          var table_index = index_map[table._sail_meta.name];
-          var totals_table = tables[tables.length - 1];
-          return function (changes, source) {
-            if (changes == null) return;
-            for (var i = 0; i < changes.length; i++) {
-              var change = changes[i];
-              var old = change[2];
-              var val = change[3];
+          for (var i = 0; i < changes.length; i++) {
+            var change = changes[i];
+            var old = change[2];
+            var val = change[3];
 
-              old = (old == '' || old == null) ? 0 : old;
-              val = (val == '' || val == null) ? 0 : val;
-              if (old == val) continue;
+            var c = change[1];
+            var index = c % 2; // Even columns are for females, odd are for males.
 
-              var c = change[1];
-              var index = 2 * table_index + (c % 2);
-              sums[index] += val - old;
-            }
+            if (old === undefined) old = null;
+            if (val === undefined) val = null;
 
-            totals_table.loadData([sums, sums]);
+            // Keep track of how many NaNs there are.
+            if (isNaN(old) && !isNaN(val)) NaNs[index]--;
+            if (!isNaN(old) && isNaN(val)) NaNs[index]++;
+
+            // If either values is a NaN, discard it when computing internal sum.
+            old = (old == '' || old == null || isNaN(old)) ? 0 : old;
+            val = (val == '' || val == null || isNaN(val)) ? 0 : val;
+            sums[index] += val - old;
           }
+
+          // Display a NaN in the totals Column if you need too.
+          var totals = [sums[0], sums[1], sums[0] + sums[1]];
+          if (NaNs[0] + NaNs[1] > 0) { // If there is at least one NaN, change every thing to Excel's NaN equivalent.
+            totals = ["#VALUE!", "#VALUE!", "#VALUE!"];
+          }
+          tables[4].loadData([totals]);
         };
+
+        // Custom validator that checks for semantic discrepancies across many tables. In particular:
+        // 1. For all tables except bonus (3rd table), the cell must be either zero in all tables, or non-zero in all tables.
+        // 2. For the bonus table (3rd table), it can only be non-zero if the other tables are non-zero.
+        var discrepancies_validator = function (table, cell, value, callback) {
+          var bonus_table = tables[2];
+          var name = table._sail_meta.name;
+          var r = cell.row_index;
+          var c = cell.col_index;
+
+          // bonus can only be non-zero if the other tables are non-zero.
+          if (name == bonus_table._sail_meta.name) {
+            // bonus can only be non-zero if the other tables are non-zero.
+            if (value > 0) {
+              for (var i = 0; i < tables.length - 1; i++) { // length-1 because of the totals table
+                if (i == 2) continue;
+
+                if (!(tables[i].getDataAtCell(r, c) > 0)) {
+                  console.log("Semantic error in '" + table._sail_meta.name + "' at (" + r + ", " + c + ")");
+                  // callback(false); // No need to invalidate other cells here.
+                }
+              }
+            }
+          }
+
+          // Not bonus table
+          else {
+            // the cell must be either zero in all tables, or non-zero in all tables
+            var compare = value > 0;
+            var error = false;
+            for (var i = 0; i < tables.length - 1; i++) { // length-1 because of the totals table
+              if (i == 2 || name == tables[i]._sail_meta.name) continue;
+
+              if ((tables[i].getDataAtCell(r, c) > 0) !== compare) {
+                console.log("Semantic error in '" + table._sail_meta.name + "' at (" + r + ", " + c + ")");
+                error = true;
+                // callback(false);
+              }
+            }
+          }
+
+          // find a way to validate/invalidate the other cells to also have the same error.
+          // probably should use _sail_meta of the other tables to store if their is an error
+          // and render it using custom renderer. Calling the validators of other cells will
+          // cause an infinite loop unless something smart was done about it.
+
+          // Validate the other cells so that if this update resolves their issue, they will be notified.
+          callback(true);
+        };
+
+        register_validator("discrepancies", discrepancies_validator);
 
         // Alerts, page elements, etc. for drag-and-drop/choose file.
         var workbook_js = null;
 
         var _target = document.getElementById('drop-area');
-        var _choose = document.getElementById('choose-file');
+        var _choose = document.getElementById('choose-file-button');
         var spinner;
         var _workstart = function () {
           if ($('#tables-area').css('display') !== 'none') {
@@ -375,7 +443,7 @@
 
         DropSheet({
           drop: _target,
-          choose: _target,
+          choose: _choose,
           tables: tables,
           tables_def: tables_def,
           on: {workstart: _workstart, workend: _workend, sheet: _onsheet},
@@ -386,14 +454,14 @@
         // Table accordion.
         $('#tables-area').hide();
 
-        $('#expand-table-button').click(function () {
+        $('#expand-table-button').click(function (e) {
           $('#tables-area').slideToggle();
+          $(e.target).toggleClass('flip');
         });
 
 
         // Register when ready
-        for (var i = 0; i < tables.length - 1; i++)
-          tables[i].addHook('afterChange', afterChange(tables[i]));
+        tables[0].addHook('afterChange', afterChange);
 
         // Button clicks handlers
         $('#verify').click(function () {
@@ -422,7 +490,7 @@
               return;
             }
 
-            construct_and_send(tables, la, userkey);
+            construct_and_send(tables, la);
           });
         });
 

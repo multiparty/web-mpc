@@ -3,6 +3,10 @@
     {
       "name": "Number Of Employees",
       "element": "number-employees-hot",
+      "hot_parameters": {
+        "preventOverflow": "horizontal",
+        "rowHeaderWidth": 200
+      },
       "rows": [
         {
           "key": "Ex/Sen",
@@ -143,7 +147,7 @@
           },
           {
             "label": "Male",
-            "key": "unrhM"
+            "key": "unrM"
           }
         ]
       ],
@@ -156,10 +160,9 @@
           "type": "int",
           "max": 1000000,
           "min": 0,
-          "default": 0,
-          "placeholder": 0,
+          "empty": false,
           "validators": [
-            "compute_totals"
+            "discrepancies"
           ]
         }
       ],
@@ -201,6 +204,10 @@
     {
       "name": "Total Annual Compensation (Dollars)",
       "element": "compensation-hot",
+      "hot_parameters": {
+        "preventOverflow": "horizontal",
+        "rowHeaderWidth": 200
+      },
       "rows": [
         {
           "key": "Ex/Sen",
@@ -341,7 +348,7 @@
           },
           {
             "label": "Male",
-            "key": "unrhM"
+            "key": "unrM"
           }
         ]
       ],
@@ -354,10 +361,9 @@
           "type": "currency",
           "max": 100000000,
           "min": 0,
-          "default": 0,
-          "placeholder": 0,
+          "empty": false,
           "validators": [
-            "compute_totals"
+            "discrepancies"
           ]
         }
       ],
@@ -399,6 +405,10 @@
     {
       "name": "Total Annual Cash Performance Pay (Dollars)",
       "element": "performance-pay-hot",
+      "hot_parameters": {
+        "preventOverflow": "horizontal",
+        "rowHeaderWidth": 200
+      },
       "rows": [
         {
           "key": "Ex/Sen",
@@ -539,7 +549,7 @@
           },
           {
             "label": "Male",
-            "key": "unrhM"
+            "key": "unrM"
           }
         ]
       ],
@@ -552,10 +562,9 @@
           "type": "currency",
           "max": 100000000,
           "min": 0,
-          "default": 0,
-          "placeholder": 0,
+          "empty": false,
           "validators": [
-            "compute_totals"
+            "discrepancies"
           ]
         }
       ],
@@ -597,6 +606,10 @@
     {
       "name": "Total Length of Service (Months)",
       "element": "service-length-hot",
+      "hot_parameters": {
+        "preventOverflow": "horizontal",
+        "rowHeaderWidth": 200
+      },
       "rows": [
         {
           "key": "Ex/Sen",
@@ -737,7 +750,7 @@
           },
           {
             "label": "Male",
-            "key": "unrhM"
+            "key": "unrM"
           }
         ]
       ],
@@ -750,10 +763,9 @@
           "type": "int",
           "max": 100000000,
           "min": 0,
-          "default": 0,
-          "placeholder": 0,
+          "empty": false,
           "validators": [
-            "compute_totals"
+            "discrepancies"
           ]
         }
       ],
@@ -796,27 +808,20 @@
       "name": "Totals Check",
       "element": "totals-hot",
       "submit": false,
+      "hot_parameters": {
+        "preventOverflow": "horizontal",
+        "rowHeaderWidth": 200
+      },
       "rows": [
         {
-          "label": "By Job Category"
-        },
-        {
-          "label": "By Race/Ethnicity"
+          "label": "Total"
         }
       ],
       "cols": [
         [
           {
-            "label": "Total Number of <br> Employees",
-            "colspan": 2
-          },
-          {
-            "label": "Compensation and <br> Performance Pay <br> (Dollars)",
-            "colspan": 2
-          },
-          {
-            "label": "Length of Service <br> (Months)",
-            "colspan": 2
+            "label": "Total Number of Employees",
+            "colspan": 3
           }
         ],
         [
@@ -829,19 +834,7 @@
             "key": ""
           },
           {
-            "label": "Female",
-            "key": ""
-          },
-          {
-            "label": "Male",
-            "key": ""
-          },
-          {
-            "label": "Female",
-            "key": ""
-          },
-          {
-            "label": "Male",
+            "label": "All",
             "key": ""
           }
         ]

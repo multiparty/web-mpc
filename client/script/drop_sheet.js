@@ -84,6 +84,7 @@ var DropSheet = function DropSheet(opts) {
                 case 'e':
                     pending = false;
                     console.error(e.data.d);
+                    opts.errors.badfile(e);
                     break;
                 case 'xls':
                 case 'xlsx':
@@ -212,7 +213,7 @@ var DropSheet = function DropSheet(opts) {
 
 
            var found_row = false;
-            
+
             // If table is not in expected position, get new boundaries.
             for (var i = 0; i < ws_keys.length; i++) {
                 var key = ws_keys[i];
@@ -255,7 +256,7 @@ var DropSheet = function DropSheet(opts) {
             }
         }
 
-        
+
         // Check that number of expected numeric cells is correct. Otherwise alert user.
         // Row and column checks.
         if (matrix.length !== num_rows) {
@@ -306,17 +307,17 @@ var DropSheet = function DropSheet(opts) {
         } else {
             alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
         }
-       
+
     }
 
     function handleDragover(e) {
-        
+
         if (typeof jQuery !== 'undefined') {
             e.stopPropagation();
             e.preventDefault();
             e.dataTransfer.dropEffect = 'copy';
             $('#drop-area').removeClass('dragdefault');
-            $('#drop-area').addClass('dragenter');    
+            $('#drop-area').addClass('dragenter');
         } else {
             alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
         }
@@ -343,7 +344,7 @@ var DropSheet = function DropSheet(opts) {
         opts.drop.addEventListener('dragleave', handleDragleave);
         opts.drop.addEventListener('dragover', handleDragover, false);
         opts.drop.addEventListener('drop', handleDrop, false);
-        opts.drop.addEventListener('click', handleClick, false);
+        opts.choose.addEventListener('click', handleClick, false);
     }
 
     // For choosing a file using <input> (ie Choose File button).

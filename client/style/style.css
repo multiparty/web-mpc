@@ -24,10 +24,11 @@ h1, h2, h3 {
 }
 
 h1 {
-  font-size: 50px;
+  font-size: 40px;
   font-weight: bold;
   color: rgba(51, 51, 51, 0.8);
   text-shadow: 1px 4px 6px #fff, 0 0 0 #000, 1px 4px 6px #fff;
+  margin-top: 38px;
 }
 
 ::-moz-selection {
@@ -137,18 +138,29 @@ form .form-group-lg label {
 /* for drop area */
 
 #drop-area {
-  border: 5px dashed #CCC;
-  border-radius: 0;
+  border: 3px dashed #CCC;
+  border-radius: 8px;
   padding: 30px;
   background-color: #F0F0F0;
   transition: border-color 0.5s;
   text-align: center;
-  height: 250px;
+  height: 200px;
   display: table-cell;
   vertical-align: middle;
-  font-size: x-large;
+  font-size: 22px;
   width: inherit;
-  cursor: pointer;
+}
+
+#drop-area p {
+  font-size: 13px;
+  margin-top: 25px;
+}
+
+#drop-area button {
+  margin-top: -25px;
+  padding-left: 25px;
+  padding-right: 25px;
+  border-radius: 20px;
 }
 
 #drop-area.dragenter {
@@ -237,4 +249,8 @@ form .form-group-lg label {
 .arrow-down {
   background: transparent url('../../shared/expand.png') no-repeat center;
   cursor: pointer;
+}
+
+.flip {
+  transform: scaleY(-1);
 }
