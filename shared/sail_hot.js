@@ -183,7 +183,12 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
 
       }
 
-    } //else {
+    } else { // Remove tooltip if it was already initialized
+      if (element !== null && element.qtip('api') != null) {
+        element.qtip('api').destroy();
+      }
+    }
+    //else {
     //     // Prompt message with light-colored cell and tooltip.
     //     // Shows on initial table load and
     //     TD.style.background = '#ffffff';
@@ -249,6 +254,7 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
   // Fallback if no jQuery - use comments.
   if (tooltip !== undefined && tooltip !== null && (typeof jQuery === 'undefined' || typeof jQuery().qtip === 'undefined')) {
     if (cellProperties.valid === false) cellProperties.comment = {"value": tooltip.errorTitle.toUpperCase() + ' - ' + tooltip.error};
+    else cellProperties.comment = null;
     //else cellProperties.comment = { "value": tooltip.promptTitle.toUpperCase() + ' - ' + tooltip.prompt };
   }
 

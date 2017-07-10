@@ -16,6 +16,47 @@ function success(msg) {
   alertify.alert("<img src='style/accept.png' alt='Success'>Success!", msg);
 }
 
+// When the session and/or participation code is modified, fetch session info from server.
+function verify_keys_and_fetch_description() {
+  var session = $("#session").val().trim().toLowerCase();
+  var participationCode = $("#participation-code").val().trim().toLowerCase();
+
+  if(session == "" || participationCode == "") return;
+
+  $.ajax({
+    type: "POST",
+    url: "/sessioninfo",
+    contentType: "application/json",
+    data: JSON.stringify({session: session, userkey: participationCode}),
+    dataType: "text"
+  }).then(function(response) {
+    response = JSON.parse(response);
+    var title = response.title;
+    var description = response.description;
+
+    //$("#session-title").html(title);
+    //$("#session-description").html(description);
+
+    var $parent = $('#session, #participation-code').parent();
+    $parent.removeClass('has-error').addClass('has-success has-feedback');
+    $parent.find('.success-icon').removeClass('hidden').addClass('show');
+    $parent.find('.fail-icon').removeClass('show').addClass('hidden');
+    $parent.find('.fail-help').removeClass('show').addClass('hidden');
+    $parent.find('.fail-custom').removeClass('show').addClass('hidden');
+  }).catch(function(err) {
+    var errorMsg = SERVER_ERR;
+    if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined)
+      errorMsg = err.responseText;
+
+    var $parent = $('#session, #participation-code').parent();
+    $parent.removeClass('has-success').addClass('has-error has-feedback');
+    $parent.find('.success-icon').removeClass('show').addClass('hidden');
+    $parent.find('.fail-icon').removeClass('hidden').addClass('show');
+    $parent.find('.fail-help').removeClass('show').addClass('hidden');
+    $parent.find('.fail-custom').removeClass('hidden').addClass('show').html(errorMsg);
+  });
+}
+
 /**
  * Called when the submit button is pressed.
  */
