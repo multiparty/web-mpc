@@ -186,14 +186,14 @@ function encrypt_and_send(session, participationCode, data, mask, la) {
  * Convert the list of submissions into html for display.
  */
 function convertToHTML(entries) {
-  // var htmlConcat = "<h3>Submission History</h3>";
-
+  var $submissionHistory = $('#submission-history');
+  $submissionHistory.empty();
   for (var i = 0; i < entries.length; i++) {
     if (entries[i]['submitted']) {
       // append success line
-      $('#submission-history').append("<li><span class='success' alt='Success'><img src='style/accept.png'>Successful - "  + entries[i]['time'] + "</span></li>")
+      $submissionHistory.append("<li><span class='success'><img src='style/accept.png' alt='Success'>Successful - "  + entries[i]['time'] + "</span></li>")
     } else {
-      $('#submission-history').append("<li><span class='error' alt='Error'><img src='style/cancel.png'>Unsuccessful - " + entries[i]['time'] + "</span></li>")
+      $submissionHistory.append("<li><span class='error'><img src='style/cancel.png' alt='Error'>Unsuccessful - " + entries[i]['time'] + "</span></li>")
     }
   }
 }

@@ -43,6 +43,23 @@ h1 {
   text-shadow: none;
 }
 
+.checkbox, .radio {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  line-height: 165%;
+}
+
+.checkbox input[type=checkbox],
+.checkbox-inline input[type=checkbox],
+.radio input[type=radio],
+.radio-inline input[type=radio] {
+  margin-left: -30px;
+}
+
+.checkbox label, .radio label {
+  padding-left: 30px;
+}
+
 header,
 #shadow {
   position: absolute;
@@ -177,8 +194,13 @@ form .form-group-lg label {
 }
 
 /* Additional Questions */
-#questions {
+#questions,
+#review-and-submit form {
   font-size: 16px;
+}
+
+.question-text {
+  font-weight: 500;
 }
 
 /* for alerts and submission history*/
@@ -204,6 +226,28 @@ form .form-group-lg label {
   padding-right: 0.5em;
 }
 
+#errors {
+  display: none;
+}
+
+#validation-errors li,
+#submission-history li {
+  margin-bottom: 10px;
+}
+
+#validation-errors span,
+span.error {
+  color: #F04744;
+}
+
+span.success {
+  color: #5cb85c;
+}
+
+#submit {
+  margin-top: 20px;
+}
+
 /* Triangles, based on https://tympanus.net/codrops/2013/10/03/a-collection-of-separator-styles/ */
 #shadow::after {
   position: absolute;
@@ -226,21 +270,8 @@ form .form-group-lg label {
   box-shadow: -50px 50px 0 #fff, 50px -50px 0 #fff, 2px 2px 4px 0 rgba(170, 170, 170, .80), -48px 52px 4px 0 rgba(170, 170, 170, .80), 52px -48px 4px 0 rgba(170, 170, 170, .80);
 }
 
-#validation-errors li {
-  margin-bottom: 10px;
-}
+/* *** */
 
-#validation-errors span {
-  color: rgb(240, 71, 68);
-}
-
-#submission-history li {
-  color: #4F8A10;
-  margin-bottom: 10px;
-}
-
-
-/* Arrow down, from https://css-tricks.com/snippets/css/css-triangle/ */
 .arrow-down {
   background: transparent url('../../shared/expand.png') no-repeat center;
   cursor: pointer;

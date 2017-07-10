@@ -47,7 +47,7 @@
 <div id="shadow" class="ss-style-multitriangles"></div>
 <main id="content" class="container">
   <section id="session-area" class="card">
-    <h2 class="text-center">Submit your data</h2>
+    <h2 class="text-center">Load your data</h2>
     <p class="text-center">Please make sure your session key and participation code match the ones provided in the email
       sent to you by the BWWC. Drag and drop your completed template file to encrypt and include your submission in the
       aggregate data.</p>
@@ -239,14 +239,12 @@
     </div>
   </section>
 
-  <section class="card">
-    <h2 class="text-center">Submit your data</h2>
+  <section id="review-and-submit" class="card">
+    <h2 class="text-center">Review and submit your data</h2>
     <p class="text-center">
       Instructions on how to fill out this section.
     </p>
     <hr/>
-    <!-- Submit panel is split up into two halves -->
-    <!-- Left Half -->
     <div class="row">
       <div class="col-md-6">
         <h4 id="totals-hot-name"></h4>
@@ -260,12 +258,15 @@
         </form>
       </div>
       <div class="col-md-6">
-        <h4>Errors</h4>
-        <ul id="validation-errors">
-          <li>No Errors!</li>
-        </ul>
+        <div id="errors">
+          <h4>Errors</h4>
+          <ul id="validation-errors">
+            <li>No Errors!</li>
+          </ul>
+        </div>
         <h4>Submission history</h4>
-        <ul id="submission-errors">
+        <ul id="submission-history">
+          <li>You have not submitted yet</li>
         </ul>
       </div>
     </div>
@@ -505,10 +506,12 @@
             $('#validation-errors').empty();
             if (result) {
               $("#submit").prop('disabled', false);
+              $("#errors").css('display', 'none');
               return;
             } else {
               $('#verify').prop('checked', false);
               $("#submit").prop('disabled', true);
+              $("#errors").css('display', 'initial');
             }
             for (var i = 0; i < msg.length; i++) {
               $('#validation-errors').append('<li><span>' + msg[i] + '</span></li>');
@@ -524,6 +527,7 @@
               la.stop();
               $('#verify').prop('checked', false);
               $("#submit").prop('disabled', true);
+              $("#errors").css('display', 'initial');
               for (var i = 0; i < msg.length; i++) {
                 $('#validation-errors').append('<li><span>' + msg[i] + '</span></li>');
               }
