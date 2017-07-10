@@ -8,25 +8,42 @@
 
 module.exports = {
   "questions": {
-    "Does your company hold events to celebrate diversity and inclusion?": {
-      "Yes": 0,
-      "No": 0,
-      "NA": 0
+    "Which department are you in?": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
     },
-    "Does your company provide diversity and inclusion education or training for managers, staff or both?": {
-      "Yes": 0,
-      "No": 0,
-      "NA": 0
+    "What kind of HRIS or organizational system does your company/organization use?": {
+      "1": 0,
+      "2": 0,
+      "3": 0
     },
-    "Does your management team meet to discuss your organization's diverse workforce or workplace culture?": {
-      "Yes": 0,
-      "No": 0,
-      "NA": 0
+    "How easy was it to understand what data was required given the template and instructions?": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0,
+      "6": 0,
+      "7": 0
     },
-    "Does your CEO engage in or lead discussions on diversity and inclusion with your management team or with other business executives?": {
-      "Yes": 0,
-      "No": 0,
-      "NA": 0
+    "How easy was it to prepare the data for submission given your organizational system?": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0,
+      "6": 0,
+      "7": 0
+    },
+    "How long did it take to prepare the data for submission given your organizational system?": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
     }
   },
   "Number Of Employees": {
