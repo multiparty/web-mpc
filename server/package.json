@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "base32-encode": "^0.1.0",
+    "bluebird": "^3.5.0",
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
     "greenlock-express": "^2.0.10",
