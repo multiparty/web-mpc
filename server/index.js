@@ -127,7 +127,9 @@ var SessionInfo = mongoose.model('SessionInfo', {
   _id: String,
   session: String,
   pub_key: String,
-  password: String
+  password: String,
+  title: String,
+  description: String
 });
 var FinalAggregate = mongoose.model('FinalAggregate', {
   _id: String,
@@ -151,7 +153,7 @@ var SessionStatus = mongoose.model('SessionStatus', {
 function verify_password(session, password, success, fail) {
   SessionInfo.findOne({session: session, password: password}, function (err, data) {
     if (err)
-      fail('Error while verifying user key.');
+      fail('Error while verifying password.');
     else if (data == null)
       fail('Invalid session/password');
     else
@@ -163,7 +165,7 @@ function verify_password(session, password, success, fail) {
 function verify_status(session, status, success, fail) {
   SessionStatus.findOne({_id: session}, function (err, data) {
     if (err)
-      fail('Error while verifying user key.');
+      fail('Error while verifying participation code.');
 
     var db_status = "START";
     if (data != null)
@@ -202,7 +204,7 @@ app.post('/', function (req, res) {
   joi.validate(body, bodySchema, function (err, body) {
     if (err) {
       console.log(err);
-      res.status(500).send('Missing or invalid fields');
+      res.status(500).send('Missing or invalid fields.');
       return;
     }
 
@@ -223,12 +225,12 @@ app.post('/', function (req, res) {
       UserKey.findOne({_id: ID}, function (err, data) {
         if (err) {
           console.log(err);
-          res.status(500).send('Error while verifying user key.');
+          res.status(500).send('Error while verifying participation code.');
           return;
         }
 
         if (data == null) {
-          res.status(500).send('Invalid user key');
+          res.status(500).send('Invalid participation code.');
         } else { // User Key Found.
           // save the mask and individual aggregate
           var aggToSave = new Aggregate({
@@ -265,7 +267,7 @@ app.post('/', function (req, res) {
             })
             .catch(function (err) {
               console.log(err);
-              res.status(500).send('Unable to save aggregate, please try again');
+              res.status(500).send('Unable to save aggregate, please try again.');
               return;
             });
         }
@@ -285,19 +287,72 @@ app.post("/publickey", function (req, res) {
   joi.validate(req.body, schema, function (valErr, body) {
     if (valErr) {
       console.log(valErr);
-      res.status(500).send('Error while fetching key.');
+      res.status(500).send('Invalid request.');
       return;
     }
+
+    var mask = body.mask,
+        req_data = body.data,
+        session = body.session,
+        user = body.user;
+
     SessionInfo.findOne({session: body.session}, function (err, data) {
       if (err) {
         console.log(err);
-        res.status(500).send('Error while fetching key.');
+        res.status(500).send('Error while fetching session.');
         return;
       }
       if (data == null) {
-        res.status(500).send('No key found with the specified session ID');
+        res.status(500).send('Session is not found.');
       } else {
         res.send(data.pub_key);
+      }
+    });
+  });
+});
+
+// endpoint for verifying user and session key and getting the session info.
+app.post("/sessioninfo", function (req, res) {
+  console.log('POST /sessioninfo');
+  console.log(req.body);
+  var schema = {
+    session: joi.string().alphanum().required(),
+    userkey: joi.string().alphanum().required()
+  };
+
+  joi.validate(req.body, schema, function (valErr, body) {
+    if (valErr) {
+      console.log(valErr);
+      res.status(500).send('Invalid request.');
+      return;
+    }
+
+    var session = body.session;
+    var userkey = body.userkey;
+    var ID = session + userkey;
+
+    UserKey.findOne({_id: ID}, function (err, data) {
+      if (err) {
+        console.log(err);
+        res.status(500).send('Error while fetching data.');
+        return;
+      }
+
+      if (data == null) {
+        res.status(500).send('Invalid session key or participation code key');
+      } else {
+        SessionInfo.findOne({session: session}, function (err, data) {
+          if (err) {
+            console.log(err);
+            res.status(500).send('Error while fetching data.');
+            return;
+          }
+          if (data == null) {
+            res.status(500).send('Invalid session key.');
+          } else {
+            res.send( { title: data.title, description: data.description } );
+          }
+        });
       }
     });
   });
@@ -309,7 +364,11 @@ app.post('/create_session', function (req, res) {
   console.log(req.body);
 
   // TODO: should be more restrictive here
-  var schema = {publickey: joi.string().required()};
+  var schema = {
+    publickey: joi.string().required(),
+    title: joi.string().required(),
+    description: joi.string().required()
+  };
 
   joi.validate(req.body, schema, function (valErr, body) {
     if (valErr) {
@@ -322,11 +381,16 @@ app.post('/create_session', function (req, res) {
     var sessionID = base32Encode(crypto.randomBytes(16), 'Crockford').toString().toLowerCase();
     var password = base32Encode(crypto.randomBytes(16), 'Crockford').toString().toLowerCase();
 
+    var title = body.title.split("<").join("&lt;").split(">").join("&gt;");
+    var description = body.description.split("<").join("&lt;").split(">").join("&gt;");
+
     var sessInfo = new SessionInfo({
       _id: sessionID,
       session: sessionID,
       pub_key: publickey,
-      password: password
+      password: password,
+      title: title,
+      description: description
     });
 
     sessInfo.save(function (err) {
@@ -371,7 +435,7 @@ app.post('/generate_client_urls', function (req, res) {
       UserKey.where({session: body.session}).find(function (err, data) {
         if (err) {
           console.log(err);
-          res.status(500).send('Error getting user keys.');
+          res.status(500).send('Error getting participation codes.');
           return;
         }
 

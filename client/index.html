@@ -66,6 +66,8 @@
                   aria-hidden="true"></span>
             <span id="session-fail-help"
                   class="fail-help help-block hidden">Please input the 26-character session key.</span>
+            <span id="session-fail-custom-help"
+                  class="fail-custom help-block hidden"></span>
           </div>
           <div class="form-group">
             <label class="control-label" for="participation-code">Participation code</label>
@@ -79,6 +81,8 @@
                   aria-hidden="true"></span>
             <span id="participation-code-fail-help"
                   class="fail-help help-block hidden">Please input the 26-character participation code.</span>
+            <span id="participation-code-fail-custom-help"
+                  class="fail-custom help-block hidden"></span>
           </div>
         </form>
       </div>
@@ -314,12 +318,15 @@
           $parent.find('.success-icon').removeClass('hidden').addClass('show');
           $parent.find('.fail-icon').removeClass('show').addClass('hidden');
           $parent.find('.fail-help').removeClass('show').addClass('hidden');
+          $parent.find('.fail-custom').removeClass('show').addClass('hidden');
+          client.verifyKeysAndFetchDescription();
         } else {
 
           $parent.removeClass('has-success').addClass('has-error has-feedback');
           $parent.find('.success-icon').removeClass('show').addClass('hidden');
           $parent.find('.fail-icon').removeClass('hidden').addClass('show');
           $parent.find('.fail-help').removeClass('hidden').addClass('show');
+          $parent.find('.fail-custom').removeClass('show').addClass('hidden');
         }
       };
 
@@ -335,6 +342,8 @@
 
       $participationCode.val(getParameterByName('participationCode'));
       $session.val(getParameterByName('session'));
+      if($session.val().trim() !== "") $session.blur();
+      if($participationCode.val().trim() !== "") $participationCode.blur();
 
       var req = $.ajax({
         type: "GET",

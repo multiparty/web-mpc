@@ -187,7 +187,7 @@ var DropSheet = function DropSheet(opts) {
     function process_ws(ws, table_def, table) {
 
         // Clear existing values in case user is submitting updated sheet after error.
-        table.clear();
+        //table.clear();
 
         // Default range for input section of spreadsheet, obtained from tables.json.
         var sheet_start = table_def.excel[0].start;

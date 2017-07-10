@@ -17,10 +17,51 @@ var client = (function () {
     alertify.alert("<img src='style/accept.png' alt='Success'>Success!", msg);
   }
 
+  function verifyKeysAndFetchDescription() {
+    var session = $("#session").val().trim().toLowerCase();
+    var participationCode = $("#participation-code").val().trim().toLowerCase();
+
+    if (session === "" || participationCode === "") return;
+
+    $.ajax({
+      type: "POST",
+      url: "/sessioninfo",
+      contentType: "application/json",
+      data: JSON.stringify({session: session, userkey: participationCode}),
+      dataType: "text"
+    }).then(function (response) {
+      response = JSON.parse(response);
+      var title = response.title;
+      var description = response.description;
+
+      //$("#session-title").html(title);
+      //$("#session-description").html(description);
+
+      var $parent = $('#session, #participation-code').parent();
+      $parent.removeClass('has-error').addClass('has-success has-feedback');
+      $parent.find('.success-icon').removeClass('hidden').addClass('show');
+      $parent.find('.fail-icon').removeClass('show').addClass('hidden');
+      $parent.find('.fail-help').removeClass('show').addClass('hidden');
+      $parent.find('.fail-custom').removeClass('show').addClass('hidden');
+    }).catch(function (err) {
+      var errorMsg = SERVER_ERR;
+      if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined)
+        errorMsg = err.responseText;
+
+      var $parent = $('#session, #participation-code').parent();
+      $parent.removeClass('has-success').addClass('has-error has-feedback');
+      $parent.find('.success-icon').removeClass('show').addClass('hidden');
+      $parent.find('.fail-icon').removeClass('hidden').addClass('show');
+      $parent.find('.fail-help').removeClass('show').addClass('hidden');
+      $parent.find('.fail-custom').removeClass('hidden').addClass('show').html(errorMsg);
+    });
+  }
+
+  var errors = [];
+
   /**
    * Called when the submit button is pressed.
    */
-  var errors = [];
   function validate(tables, callback) {
     errors = [];
     // Verify session key
@@ -36,7 +77,7 @@ var client = (function () {
 
     // Verify confirmation check box was checked
     var verifyChecked = $('#verify').is(':checked');
-    if(!verifyChecked) {
+    if (!verifyChecked) {
       errors = errors.concat(UNCHECKED_ERR);
     }
 
@@ -58,14 +99,14 @@ var client = (function () {
       }
     }
 
-    if(!questionsValid) {
+    if (!questionsValid) {
       errors = errors.concat(ADD_QUESTIONS_ERR);
     }
 
     // Validate tables (callback chaining)
     (function validate_callback(i) {
-      if(i >= tables.length) {
-        if(errors.length === 0)
+      if (i >= tables.length) {
+        if (errors.length === 0)
           return callback(true, "");
         else
           return callback(false, errors);
@@ -74,8 +115,8 @@ var client = (function () {
       // Dont validate tables that are not going to be submitted
       if (tables[i]._sail_meta.submit === false) return validate_callback(i + 1);
 
-      tables[i].validateCells(function(result) { // Validate table
-        if(!result) {
+      tables[i].validateCells(function (result) { // Validate table
+        if (!result) {
           errors = errors.concat(GENERIC_TABLE_ERR + tables[i]._sail_meta.name + " spreadsheet");
         }
 
@@ -131,6 +172,7 @@ var client = (function () {
   }
 
   var submitEntries = [];
+
   function encrypt_and_send(session, participationCode, data, mask, la) {
     // Get the public key to encrypt with
     var pkey_request = $.ajax({
@@ -193,7 +235,7 @@ var client = (function () {
     for (var i = 0; i < entries.length; i++) {
       if (entries[i]['submitted']) {
         // append success line
-        $submissionHistory.append("<li><span class='success'><img src='style/accept.png' alt='Success'>Successful - "  + entries[i]['time'] + "</span></li>")
+        $submissionHistory.append("<li><span class='success'><img src='style/accept.png' alt='Success'>Successful - " + entries[i]['time'] + "</span></li>")
       } else {
         $submissionHistory.append("<li><span class='error'><img src='style/cancel.png' alt='Error'>Unsuccessful - " + entries[i]['time'] + "</span></li>")
       }
@@ -204,7 +246,8 @@ var client = (function () {
     errors: errors,
     submitEntries: submitEntries,
     validate: validate,
-    constructAndSend: construct_and_send
+    constructAndSend: construct_and_send,
+    verifyKeysAndFetchDescription: verifyKeysAndFetchDescription
   }
 
 })();
