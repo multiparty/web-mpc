@@ -38,9 +38,9 @@ function _secretShare (value, n) {
   var uvalue = _uint32(value),
       shares = new Uint32Array(n),
       cryptoObj = window.crypto || window.msCrypto; // IE 11 fix
-  
+
   cryptoObj.getRandomValues(shares);
-  
+
   shares[n - 1] = _uint32(0);
   var sumRandomShares = shares.reduce(function (e1, e2) {
     return _uint32(e1 + e2);
@@ -64,7 +64,7 @@ function _addShares (share1, share2) {
  */
 function _recombine (shares) {
   return shares.reduce(function (e1, e2) {
-    return _uint32(e1 + e2); 
+    return _uint32(e1 + e2);
   });
 }
 
@@ -81,11 +81,11 @@ function secretShareValues (obj) {
       var value = obj[key];
       if(typeof(value) == "number") {
         var shares = _secretShare(value, 2);
-        
+
         dataTuples[key] = shares[0];
         maskTuples[key] = shares[1];
       }
-      
+
       else {
         // value is a nested object.
         var tmp = secretShareValues (value);
@@ -103,7 +103,7 @@ function secretShareValues (obj) {
 
 /**
  * Helper used in countInvalidShares and aggregate shares.
- * Makes a (deep) copy of the passed javascript object, and initializes every 
+ * Makes a (deep) copy of the passed javascript object, and initializes every
  * value to the passed value.
  * @param {json/mongo module} obj - the object to copy.
  * @param {} init_value - the desired initial value.
@@ -119,7 +119,7 @@ function initialize(obj, init_value, fields) {
         result[key] = initialize(fields(obj)[key], init_value, fields);
     }
   }
-  
+
   return result;
 }
 
@@ -145,14 +145,14 @@ function accumulate(obj, accumulator, fields, convert, f) {
         accumulate(fields(obj)[key], accumulator[key], fields, convert, f);
     }
   }
-  
+
   return accumulator;
 }
 
 /**
  * Counts how many invalid (NaN or out-of-range) shares are in data.
  * @param data {array} - the data to look into.
- * @param db {boolean} - true if this is a server-side invocation with 
+ * @param db {boolean} - true if this is a server-side invocation with
  *                       data being an array of mongo modules, false if front-end
  *                       with data being an array of json/javascript objects.
  *
@@ -162,30 +162,30 @@ function countInvalidShares (data, db) {
   if (db == null) {
     db = false;
   }
-  
+
   // Access fields in JSON object or in DB object.
   var fields = function(x) { return x; }; // if !db, return the object as it is for access.
   if(db) { // if db, then the passed object may be a mongo module, use .fields to access its fields.
-    fields = function(x) { 
-      if(x.fields !== undefined) 
-        return x.fields; 
-      else 
+    fields = function(x) {
+      if(x.fields !== undefined)
+        return x.fields;
+      else
         return x;
     };
   }
-  
+
   // Criteria for being invalid for a value (being outside of range).
   var isInvalid = function (x) { // The node.js way.
     return (!_inUint32Range(x) ? 1 : 0);
   };
-    
+
   if(!db) { // The front-end way.
     isInvalid = function (x) {
       var result = parseInt(x, 10);
       var invalid = 0;
       if (isNaN(result) || !_inUint32Range(result))
         invalid = 1;
-        
+
       return invalid;
     };
   }
@@ -193,26 +193,26 @@ function countInvalidShares (data, db) {
   // Ensure we are always working with an array.
   if (db) { // if db, then what is passed is a collection of mongo modules (not exactly an array).
     var arr = [];
-    for (let row in data)
+    for (var row in data)
       arr.push(data[row]);
-    
+
     data = arr;
   }
-  
+
   // initialize the invalid count object according to the template
   var invalidCount = initialize(data[0], 0, fields);
-    
+
   // accummulate invalid count
   for(var i = 0; i < data.length; i++)
     invalidCount = accumulate(data[i], invalidCount, fields, function(v) { return v; }, function(acc, v) { return acc + v; });
-  
+
   return invalidCount;
 }
 
 /**
  * Aggregates (sums up) the shares.
  * @param data {array} - the data to aggregate.
- * @param db {boolean} - true if this is a server-side invocation with 
+ * @param db {boolean} - true if this is a server-side invocation with
  *                       data being an array of mongo modules, false if front-end
  *                       with data being an array of json/javascript objects.
  *
@@ -221,18 +221,18 @@ function aggregateShares (data, db) {
   // By default, this is not for the database calculation.
   if (db == null)
     db = false;
-  
+
   // Access fields in JSON object or in DB object.
   var fields = function(x) { return x; }; // if !db, return the object as it is for access.
   if(db) { // if db, then the passed object may be a mongo module, use .fields to access its fields.
-    fields = function(x) { 
-      if(x.fields !== undefined) 
-        return x.fields; 
-      else 
+    fields = function(x) {
+      if(x.fields !== undefined)
+        return x.fields;
+      else
         return x;
     };
   }
-  
+
   // Convert numbers to unsigned 32-bits integers.
   var convert = function(x) { return _uint32(x); } // node.js way.
   if(!db) { // front end way.
@@ -253,19 +253,19 @@ function aggregateShares (data, db) {
   // Ensure we are always working with an array.
   if (db) { // if db, then what is passed is a collection of mongo modules (not exactly an array).
     var arr = [];
-    for (let row in data)
+    for (var row in data)
       arr.push(data[row]);
-    
+
     data = arr;
   }
-  
+
   // initialize the aggregate object according to the template
   var agg = initialize(data[0], _uint32(0), fields);
-      
+
   // aggregate
   for(var i = 0; i < data.length; i++)
     agg = accumulate(data[i], agg, fields, convert, function(acc, v) { return _addShares(acc, v); });
-  
+
   return agg;
 }
 
@@ -287,10 +287,10 @@ function recombineValues (serviceTuples, analystTuples) {
 function encryptWithKey (obj, key) {
   var pki = forge.pki;
   var publicKey = pki.publicKeyFromPem(key);
-  
+
   return _encryptWithKey(obj, publicKey);
 }
-  
+
 function _encryptWithKey (obj, publicKey) {
   var encrypted = {};
   for (var key in obj) {
@@ -298,12 +298,12 @@ function _encryptWithKey (obj, publicKey) {
       var value = obj[key];
       if(typeof(value) == "number" || typeof(value) == "string" || typeof(value) == "String")
         encrypted[key] = publicKey.encrypt(value.toString(), 'RSA-OAEP', { md: forge.md.sha256.create() });
-      
-      else 
+
+      else
         encrypted[key] = _encryptWithKey(value, publicKey);
     }
   }
-  
+
   return encrypted;
 }
 
