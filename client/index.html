@@ -1,6 +1,7 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="utf-8">
   <title>Boston Women's Workforce Council</title>
 
   <script type="text/javascript" src="../shared/jquery-3.1.1.min.js"></script>
@@ -98,9 +99,9 @@
   </section>
 
   <section id="instructions" class="card">
-    <h2 class="text-center">Didn't use the template?</h2>
-    <p class="text-center">Enter in data manually by clicking on this button and filling out
-      the tables that appear.</p>
+    <h2 class="text-center">View your data</h2>
+    <p class="text-center">Your data will appear here after you drag/drop or browse to find your completed Excel
+      template file above. Errors will appear in red.</p>
     <span id="expand-table-button" class="arrow-down"></span>
 
     <div id="tables-area">
@@ -130,7 +131,7 @@
   </section>
 
   <section id="additional-questions" class="card">
-    <h2 class="text-center">Additional Questions</h2>
+    <h2 class="text-center">Additional questions</h2>
     <p class="text-center">
       We have included these questions to get instant feedback as to how this process went in order to improve the
       process in future years. Please know that the answers to these questions will be anonymous, and they will be
@@ -306,7 +307,7 @@
         }
 
         // Validate immediately once blur has been fired
-        $('#session, #participation-code')
+        $(e.target)
           .off('input')
           .on('input', validateSessionInput);
 
@@ -318,7 +319,7 @@
           $parent.find('.fail-icon').removeClass('show').addClass('hidden');
           $parent.find('.fail-help').removeClass('show').addClass('hidden');
           $parent.find('.fail-custom').removeClass('show').addClass('hidden');
-          verify_keys_and_fetch_description();
+          client.verifyKeysAndFetchDescription();
         } else {
 
           $parent.removeClass('has-success').addClass('has-error has-feedback');
@@ -357,7 +358,7 @@
 
         // Custom afterChange hook that computes the totals
         var afterChange = function (changes, source) {
-          if (changes == null) return;
+          if (changes === null) return;
 
           for (var i = 0; i < changes.length; i++) {
             var change = changes[i];
@@ -375,8 +376,8 @@
             if (!isNaN(old) && isNaN(val)) NaNs[index]++;
 
             // If either values is a NaN, discard it when computing internal sum.
-            old = (old == '' || old == null || isNaN(old)) ? 0 : old;
-            val = (val == '' || val == null || isNaN(val)) ? 0 : val;
+            old = (old === '' || old === null || isNaN(old)) ? 0 : old;
+            val = (val === '' || val === null || isNaN(val)) ? 0 : val;
             sums[index] += val - old;
           }
 
@@ -398,7 +399,7 @@
           var c = cell.col_index;
 
           // bonus can only be non-zero if the other tables are non-zero.
-          if (name == bonus_table._sail_meta.name) {
+          if (name === bonus_table._sail_meta.name) {
             // bonus can only be non-zero if the other tables are non-zero.
             if (value > 0) {
               for (var i = 0; i < tables.length - 1; i++) { // length-1 because of the totals table
@@ -418,10 +419,10 @@
             var compare = value > 0;
             var error = false;
             for (var i = 0; i < tables.length - 1; i++) { // length-1 because of the totals table
-              if (i == 2 || name == tables[i]._sail_meta.name) continue;
+              if (i === 2 || name === tables[i]._sail_meta.name) continue;
 
               if ((tables[i].getDataAtCell(r, c) > 0) !== compare) {
-                console.log("Semantic error in '" + table._sail_meta.name + "' at (" + r + ", " + c + ")");
+                client.errors.concat("Semantic error in '" + table._sail_meta.name + "' at (" + r + ", " + c + ")");
                 error = true;
                 // callback(false);
               }
@@ -488,7 +489,7 @@
           /* add header row for table */
           json.unshift(function (head) {
             var o = {};
-            for (i = 0; i != head.length; ++i) o[head[i]] = head[i];
+            for (i = 0; i !== head.length; ++i) o[head[i]] = head[i];
             return o;
           }(cols));
           calculateSize();
@@ -519,7 +520,7 @@
 
         // Button clicks handlers
         $('#verify').click(function () {
-          validate(tables, function (result, msg) {
+          client.validate(tables, function (result, msg) {
             $('#validation-errors').empty();
             if (result) {
               $("#submit").prop('disabled', false);
@@ -538,7 +539,7 @@
 
         $("#submit").click(function () {
           var la = Ladda.create(document.getElementById('submit'));
-          validate(tables, function (result, msg) {
+          client.validate(tables, function (result, msg) {
             $('#validation-errors').empty();
             if (!result) {
               la.stop();
@@ -551,7 +552,7 @@
               return;
             }
 
-            construct_and_send(tables, la);
+            client.constructAndSend(tables, la);
           });
         });
 
