@@ -13,6 +13,19 @@
 
 'use strict';
 
+const LEX = require('greenlock-express');
+const http = require('http');
+const express = require('express');
+const app = express();
+const body_parser = require('body-parser');
+const mongoose = require('mongoose');
+const template = require('./template');
+const mpc = require('../shared/mpc');
+const crypto = require('crypto');
+const joi = require('joi');
+const Promise = require('bluebird');
+const base32Encode = require('base32-encode');
+
 function templateToJoiSchema(template, joiFieldType) {
   var schema = {};
   for (var key in template) {
@@ -23,24 +36,11 @@ function templateToJoiSchema(template, joiFieldType) {
         schema[key] = templateToJoiSchema(template[key], joiFieldType);
     }
   }
-  var joiSchema = joi.object().keys(schema);
-  return joiSchema;
+  return joi.object().keys(schema);
 }
 
-var LEX = require('greenlock-express');
-var http = require('http');
-var express = require('express');
-var app = express();
-var body_parser = require('body-parser');
-var mongoose = require('mongoose');
-var template = require('./template');
-var mpc = require('../shared/mpc');
-var crypto = require('crypto');
-var joi = require('joi');
-var Promise = require('bluebird');
-var base32Encode = require('base32-encode');
-var maskSchema = templateToJoiSchema(template, joi.string().required());
-var dataSchema = templateToJoiSchema(template, joi.number().required());
+const maskSchema = templateToJoiSchema(template, joi.string().required());
+const dataSchema = templateToJoiSchema(template, joi.number().required());
 
 // Override deprecated mpromise
 mongoose.Promise = Promise;
@@ -58,12 +58,12 @@ if (process.env.NODE_ENV === 'production') {
 
 var lex = LEX.create({
   server: serverUrl,
-  acme: require('le-acme-core').ACME.create(),
-  challenge: require('le-challenge-fs').create({
-    webrootPath: '~/letsencrypt/var/:hostname'
-  }),
+  challenges: {
+    'http-01': require('le-challenge-fs').create({
+      webrootPath: '~/letsencrypt/var/:hostname'
+    })
+  },
   store: require('le-store-certbot').create({
-    configDir: '~/letsencrypt/etc',
     webrootPath: '~/letsencrypt/var/:hostname'
   }),
   approveDomains: approveDomains,
@@ -103,12 +103,18 @@ function approveDomains(opts, certs, cb) {
   cb(null, {options: opts, certs: certs});
 }
 
-try {
-  mongoose.connect('mongodb://localhost/aggregate');
-} catch (err) {
-  console.log('Could not connect to MongoDB server.\n');
-  console.log(err);
+async function createConnection () {
+  try {
+    await mongoose.connect('mongodb://localhost/aggregate', {
+      useMongoClient: true
+    });
+  } catch (err) {
+    console.log('Could not connect to MongoDB server.\n');
+    console.log(err);
+  }
 }
+
+createConnection();
 
 // model for aggregate data
 var Aggregate = mongoose.model('Aggregate', {
@@ -292,9 +298,9 @@ app.post("/publickey", function (req, res) {
     }
 
     var mask = body.mask,
-        req_data = body.data,
-        session = body.session,
-        user = body.user;
+      req_data = body.data,
+      session = body.session,
+      user = body.user;
 
     SessionInfo.findOne({session: body.session}, function (err, data) {
       if (err) {
@@ -350,7 +356,7 @@ app.post("/sessioninfo", function (req, res) {
           if (data == null) {
             res.status(500).send('Invalid session key.');
           } else {
-            res.send( { title: data.title, description: data.description } );
+            res.send({title: data.title, description: data.description});
           }
         });
       }

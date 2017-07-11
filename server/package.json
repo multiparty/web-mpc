@@ -1,21 +1,21 @@
 {
-  "name": "data-aggregator",
-  "version": "1.0.0",
+  "name": "web-mpc",
+  "version": "2.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Boston University Software & Application Innovation Lab",
+  "license": "MIT",
   "dependencies": {
     "base32-encode": "^0.1.0",
     "bluebird": "^3.5.0",
-    "body-parser": "^1.15.2",
-    "express": "^4.14.0",
-    "greenlock-express": "^2.0.10",
-    "joi": "^10.2.2",
-    "mongoose": "^4.6.5",
-    "spdy": "^3.4.4"
+    "body-parser": "^1.17.2",
+    "express": "^4.15.3",
+    "greenlock-express": "^2.0.11",
+    "joi": "^10.6.0",
+    "mongoose": "^4.11.1",
+    "spdy": "^3.4.7"
   }
 }
