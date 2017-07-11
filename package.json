@@ -1,0 +1,28 @@
+{
+  "name": "web-mpc",
+  "version": "2.0.0",
+  "description": "[![Build Status](https://travis-ci.org/multiparty/web-mpc.svg?branch=master)](https://travis-ci.org/multiparty/web-mpc)",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb-base": "^11.2.0",
+    "eslint-plugin-import": "^2.7.0"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/eslint client trusted unmask shared"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/multiparty/web-mpc.git"
+  },
+  "author": "Boston University Software & Application Innovation Lab",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/multiparty/web-mpc/issues"
+  },
+  "homepage": "https://github.com/multiparty/web-mpc#readme"
+}
