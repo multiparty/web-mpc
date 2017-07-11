@@ -1,6 +1,8 @@
 var client = (function () {
-  var SESSION_KEY_ERROR = 'Invalid session number: must be 26-character combination of letters and numbers';
-  var PARTICIPATION_CODE_ERROR = 'Invalid participation code: must be 26-character combination of letters and numbers';
+  var SESSION_KEY_ERROR = 'Invalid session number';
+  var PARTICIPATION_CODE_ERROR = 'Invalid participation code';
+
+  var SESSION_PARTICIPATION_CODE_SERVER_ERROR = 'Session number and participation code do not match';
 
   var UNCHECKED_ERR = 'Please acknowledge that all data is correct and verified.';
   var ADD_QUESTIONS_ERR = 'Please answer all Additional Questions.';
@@ -17,7 +19,43 @@ var client = (function () {
     alertify.alert("<img src='style/accept.png' alt='Success'>Success!", msg);
   }
 
-  function verifyKeysAndFetchDescription() {
+  /**
+   * Validate the session and participation code input fields.
+   */
+  function validateSessionInput(element, checkServerFlag) {
+    var $session = $('#session');
+    var $participationCode = $('#participation-code');
+
+    if (!element.validity) {
+      return false;
+    }
+
+    // Validate immediately once blur has been fired
+    $(element)
+      .off('input')
+      .on('input', validateSessionInput);
+
+    var $parent = $(element).parent();
+    if (element.validity.valid) {
+      $parent.removeClass('has-error').addClass('has-success has-feedback');
+      $parent.find('.success-icon').removeClass('hidden').addClass('show');
+      $parent.find('.fail-icon').removeClass('show').addClass('hidden');
+      $parent.find('.fail-help').removeClass('show').addClass('hidden');
+      $parent.find('.fail-custom').removeClass('show').addClass('hidden');
+      if (checkServerFlag)
+        client.verifyKeysAndFetchDescription(function(_) { });
+      return true;
+    } else {
+      $parent.removeClass('has-success').addClass('has-error has-feedback');
+      $parent.find('.success-icon').removeClass('show').addClass('hidden');
+      $parent.find('.fail-icon').removeClass('hidden').addClass('show');
+      $parent.find('.fail-help').removeClass('hidden').addClass('show');
+      $parent.find('.fail-custom').removeClass('show').addClass('hidden');
+      return false;
+    }
+  };
+
+  function verifyKeysAndFetchDescription(callback) {
     var session = $("#session").val().trim().toLowerCase();
     var participationCode = $("#participation-code").val().trim().toLowerCase();
 
@@ -43,6 +81,7 @@ var client = (function () {
       $parent.find('.fail-icon').removeClass('show').addClass('hidden');
       $parent.find('.fail-help').removeClass('show').addClass('hidden');
       $parent.find('.fail-custom').removeClass('show').addClass('hidden');
+      callback(true);
     }).catch(function (err) {
       var errorMsg = SERVER_ERR;
       if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined)
@@ -54,6 +93,7 @@ var client = (function () {
       $parent.find('.fail-icon').removeClass('hidden').addClass('show');
       $parent.find('.fail-help').removeClass('show').addClass('hidden');
       $parent.find('.fail-custom').removeClass('hidden').addClass('show').html(errorMsg);
+      callback(false);
     });
   }
 
@@ -65,13 +105,13 @@ var client = (function () {
   function validate(tables, callback) {
     errors = [];
     // Verify session key
-    var session = $('#session').val().trim();
-    if (!session.match(/^[a-zA-Z0-9]{26}$/)) {
+    var $session = $('#session');
+    if (!validateSessionInput($session, false)) {
       errors = errors.concat(SESSION_KEY_ERROR);
     }
 
-    var participationCode = $('#participation-code').val().trim();
-    if (!participationCode.match(/^[a-zA-Z0-9]{26}$/)) {
+    var $participationCode = $('#participation-code');
+    if (!validateSessionInput($participationCode, false)) {
       errors = errors.concat(PARTICIPATION_CODE_ERROR);
     }
 
@@ -123,7 +163,6 @@ var client = (function () {
         validate_callback(i + 1);
       });
     })(0);
-
   }
 
   /**
@@ -247,7 +286,8 @@ var client = (function () {
     submitEntries: submitEntries,
     validate: validate,
     constructAndSend: construct_and_send,
-    verifyKeysAndFetchDescription: verifyKeysAndFetchDescription
-  }
+    verifyKeysAndFetchDescription: verifyKeysAndFetchDescription,
+    validateSessionInput: validateSessionInput
+  };
 
 })();

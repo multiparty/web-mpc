@@ -298,39 +298,7 @@
       var $session = $('#session');
       var $participationCode = $('#participation-code');
 
-      /**
-       * Validate the session and participation code input fields.
-       */
-      var validateSessionInput = function (e) {
-        if (!e.target.validity) {
-          return false;
-        }
-
-        // Validate immediately once blur has been fired
-        $(e.target)
-          .off('input')
-          .on('input', validateSessionInput);
-
-        var $parent = $(e.target).parent();
-        if (e.target.validity.valid) {
-
-          $parent.removeClass('has-error').addClass('has-success has-feedback');
-          $parent.find('.success-icon').removeClass('hidden').addClass('show');
-          $parent.find('.fail-icon').removeClass('show').addClass('hidden');
-          $parent.find('.fail-help').removeClass('show').addClass('hidden');
-          $parent.find('.fail-custom').removeClass('show').addClass('hidden');
-          client.verifyKeysAndFetchDescription();
-        } else {
-
-          $parent.removeClass('has-success').addClass('has-error has-feedback');
-          $parent.find('.success-icon').removeClass('show').addClass('hidden');
-          $parent.find('.fail-icon').removeClass('hidden').addClass('show');
-          $parent.find('.fail-help').removeClass('hidden').addClass('show');
-          $parent.find('.fail-custom').removeClass('show').addClass('hidden');
-        }
-      };
-
-      $('#session, #participation-code').on('blur', validateSessionInput);
+      $('#session, #participation-code').on('blur', function(e) { client.validateSessionInput(e.target, true); });
 
       //Copied from trusted/session_data
       var getParameterByName = function (name) {
