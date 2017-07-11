@@ -1,3 +1,6 @@
+/* global alertify */
+/* exported client */
+
 var client = (function () {
   var SESSION_KEY_ERROR = 'Invalid session number: must be 26-character combination of letters and numbers';
   var PARTICIPATION_CODE_ERROR = 'Invalid participation code: must be 26-character combination of letters and numbers';
@@ -6,7 +9,7 @@ var client = (function () {
   var ADD_QUESTIONS_ERR = 'Please answer all Additional Questions.';
 
   var GENERIC_TABLE_ERR = 'Please double-check the ';
-  var SERVER_ERR = "Server not reachable.";
+  var SERVER_ERR = 'Server not reachable.';
   var GENERIC_SUBMISSION_ERR = 'Something went wrong with submission! Please try again.';
 
   function error(msg) {
@@ -17,27 +20,43 @@ var client = (function () {
     alertify.alert("<img src='style/accept.png' alt='Success'>Success!", msg);
   }
 
-  function verifyKeysAndFetchDescription() {
-    var session = $("#session").val().trim().toLowerCase();
-    var participationCode = $("#participation-code").val().trim().toLowerCase();
+  /**
+   * Convert the list of submissions into html for display.
+   */
+  function convertToHTML(entries) {
+    var $submissionHistory = $('#submission-history');
+    $submissionHistory.empty();
+    for (var i = 0; i < entries.length; i++) {
+      if (entries[i].submitted) {
+        // append success line
+        $submissionHistory.append("<li><span class='success'><img src='style/accept.png' alt='Success'>Successful - " + entries[i]['time'] + "</span></li>")
+      } else {
+        $submissionHistory.append("<li><span class='error'><img src='style/cancel.png' alt='Error'>Unsuccessful - " + entries[i]['time'] + "</span></li>")
+      }
+    }
+  }
 
-    if (session === "" || participationCode === "") return;
+  function verifyKeysAndFetchDescription() {
+    var session = $('#session').val().trim().toLowerCase();
+    var participationCode = $('#participation-code').val().trim().toLowerCase();
+
+    if (session === '' || participationCode === '') return;
 
     $.ajax({
-      type: "POST",
-      url: "/sessioninfo",
-      contentType: "application/json",
+      type: 'POST',
+      url: '/sessioninfo',
+      contentType: 'application/json',
       data: JSON.stringify({session: session, userkey: participationCode}),
-      dataType: "text"
-    }).then(function (response) {
-      response = JSON.parse(response);
-      var title = response.title;
-      var description = response.description;
-
-      //$("#session-title").html(title);
-      //$("#session-description").html(description);
-
+      dataType: 'text'
+    }).then(function () {
       var $parent = $('#session, #participation-code').parent();
+      // var response = JSON.parse(resp);
+      // var title = response.title;
+      // var description = response.description;
+
+      // $("#session-title").html(title);
+      // $("#session-description").html(description);
+
       $parent.removeClass('has-error').addClass('has-success has-feedback');
       $parent.find('.success-icon').removeClass('hidden').addClass('show');
       $parent.find('.fail-icon').removeClass('show').addClass('hidden');
@@ -160,30 +179,31 @@ var client = (function () {
     // Handle table data, tables are represented as 2D associative arrays
     // with the first index being the row key, and the second being the column key
     var tables_data = construct_data_tables(tables);
-    for (var i = 0; i < tables_data.length; i++)
+    for (var i = 0; i < tables_data.length; i++) {
       data_submission[tables_data[i].name] = tables_data[i].data;
+    }
 
     // Secret share / mask the data.
     var shares = secretShareValues(data_submission);
-    var data = shares['data'];
-    var mask = shares['mask'];
+    var data = shares.data;
+    var mask = shares.mask;
 
-    encrypt_and_send(session, participationCode, data, mask, la);
+    encryptAndSend(session, participationCode, data, mask, la);
   }
 
   var submitEntries = [];
 
-  function encrypt_and_send(session, participationCode, data, mask, la) {
+  function encryptAndSend(session, participationCode, data, mask, la) {
     // Get the public key to encrypt with
-    var pkey_request = $.ajax({
-      type: "POST",
-      url: "/publickey",
-      contentType: "application/json",
+    var pkeyRequest = $.ajax({
+      type: 'POST',
+      url: '/publickey',
+      contentType: 'application/json',
       data: JSON.stringify({session: session}),
-      dataType: "text"
+      dataType: 'text'
     });
 
-    pkey_request.then(function (public_key) {
+    pkeyRequest.then(function (public_key) {
       mask = encryptWithKey(mask, public_key);
       var submission = {
         data: data,
@@ -193,8 +213,8 @@ var client = (function () {
       };
 
       return $.ajax({
-        type: "POST",
-        url: "/",
+        type: 'POST',
+        url: '/',
         data: JSON.stringify(submission),
         contentType: 'application/json'
       });
@@ -202,7 +222,7 @@ var client = (function () {
       var submitTime = new Date();
       submitEntries.push({time: submitTime, submitted: true});
 
-      success("Submitted data.");
+      success('Submitted data');
       convertToHTML(submitEntries);
 
       // Stop loading animation
@@ -211,13 +231,14 @@ var client = (function () {
       var submitTime = new Date();
       submitEntries.push({time: submitTime, submitted: false});
 
-      if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined)
+      if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
         error(err.responseText);
-      else if (err && (err.status === 0 || err.status === 500))
-      // check for status 0 or status 500 (Server not reachable.)
+      } else if (err && (err.status === 0 || err.status === 500)) {
+        // check for status 0 or status 500 (Server not reachable.)
         error(SERVER_ERR);
-      else
+      } else {
         error(GENERIC_SUBMISSION_ERR);
+      }
 
       convertToHTML(submitEntries);
 
@@ -226,28 +247,11 @@ var client = (function () {
     });
   }
 
-  /**
-   * Convert the list of submissions into html for display.
-   */
-  function convertToHTML(entries) {
-    var $submissionHistory = $('#submission-history');
-    $submissionHistory.empty();
-    for (var i = 0; i < entries.length; i++) {
-      if (entries[i]['submitted']) {
-        // append success line
-        $submissionHistory.append("<li><span class='success'><img src='style/accept.png' alt='Success'>Successful - " + entries[i]['time'] + "</span></li>")
-      } else {
-        $submissionHistory.append("<li><span class='error'><img src='style/cancel.png' alt='Error'>Unsuccessful - " + entries[i]['time'] + "</span></li>")
-      }
-    }
-  }
-
   return {
     errors: errors,
     submitEntries: submitEntries,
     validate: validate,
     constructAndSend: construct_and_send,
     verifyKeysAndFetchDescription: verifyKeysAndFetchDescription
-  }
-
-})();
+  };
+}());

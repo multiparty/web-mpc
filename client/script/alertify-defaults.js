@@ -1,10 +1,12 @@
+/* global alertify */
+
 alertify.defaults = {
   autoReset: true,
   basic: false,
   closable: true,
   closableByDimmer: true,
   frameless: false,
-  maintainFocus: true, //global default not per instance, applies to all dialogs
+  maintainFocus: true, // Global default not per instance, applies to all dialogs
   maximizable: true,
   modal: true,
   movable: true,
@@ -13,7 +15,7 @@ alertify.defaults = {
   padding: true,
   pinnable: true,
   pinned: true,
-  preventBodyShift: false, //global default not per instance, applies to all dialogs
+  preventBodyShift: false, // Global default not per instance, applies to all dialogs
   resizable: true,
   startMaximized: false,
   transition: 'fade',
@@ -23,7 +25,7 @@ alertify.defaults = {
     closeButton: false
   },
   glossary: {
-    title: '<img src="style/cancel.png" alt="Alert">' + 'Error!',
+    title: '<img src="style/cancel.png" alt="Alert">Error!',
     ok: 'OK',
     cancel: 'Cancel'
   },
@@ -31,5 +33,5 @@ alertify.defaults = {
     input: 'ajs-input',
     ok: 'ajs-ok',
     cancel: 'ajs-cancel'
-  }
+  },
 };
