@@ -4,7 +4,6 @@
       "name": "Number Of Employees",
       "element": "number-employees-hot",
       "hot_parameters": {
-        "preventOverflow": "horizontal",
         "rowHeaderWidth": 200
       },
       "rows": [
@@ -205,7 +204,6 @@
       "name": "Total Annual Compensation (Dollars)",
       "element": "compensation-hot",
       "hot_parameters": {
-        "preventOverflow": "horizontal",
         "rowHeaderWidth": 200
       },
       "rows": [
@@ -406,7 +404,6 @@
       "name": "Total Annual Cash Performance Pay (Dollars)",
       "element": "performance-pay-hot",
       "hot_parameters": {
-        "preventOverflow": "horizontal",
         "rowHeaderWidth": 200
       },
       "rows": [
@@ -607,7 +604,6 @@
       "name": "Total Length of Service (Months)",
       "element": "service-length-hot",
       "hot_parameters": {
-        "preventOverflow": "horizontal",
         "rowHeaderWidth": 200
       },
       "rows": [
@@ -809,7 +805,6 @@
       "element": "totals-hot",
       "submit": false,
       "hot_parameters": {
-        "preventOverflow": "horizontal",
         "rowHeaderWidth": 100
       },
       "rows": [
