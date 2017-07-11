@@ -23,27 +23,18 @@ var client = (function () {
    * Validate the session and participation code input fields.
    */
   function validateSessionInput(element, checkServerFlag) {
-    var $session = $('#session');
-    var $participationCode = $('#participation-code');
+    element = $(element);
+    var pattern = new RegExp($(element).prop("pattern"));
+    var $parent = element.parent();
 
-    if (!element.validity) {
-      return false;
-    }
-
-    // Validate immediately once blur has been fired
-    $(element)
-      .off('input')
-      .on('input', validateSessionInput);
-
-    var $parent = $(element).parent();
-    if (element.validity.valid) {
+    if (element.val().trim().toLowerCase().match(pattern)) {
       $parent.removeClass('has-error').addClass('has-success has-feedback');
       $parent.find('.success-icon').removeClass('hidden').addClass('show');
       $parent.find('.fail-icon').removeClass('show').addClass('hidden');
       $parent.find('.fail-help').removeClass('show').addClass('hidden');
       $parent.find('.fail-custom').removeClass('show').addClass('hidden');
       if (checkServerFlag)
-        client.verifyKeysAndFetchDescription(function(_) { });
+        verifyKeysAndFetchDescription(function(_) { });
       return true;
     } else {
       $parent.removeClass('has-success').addClass('has-error has-feedback');
@@ -59,7 +50,10 @@ var client = (function () {
     var session = $("#session").val().trim().toLowerCase();
     var participationCode = $("#participation-code").val().trim().toLowerCase();
 
-    if (session === "" || participationCode === "") return;
+    if (session == "" || participationCode == "") {
+      callback(false);
+      return;
+    }
 
     $.ajax({
       type: "POST",
@@ -115,54 +109,66 @@ var client = (function () {
       errors = errors.concat(PARTICIPATION_CODE_ERROR);
     }
 
-    // Verify confirmation check box was checked
-    var verifyChecked = $('#verify').is(':checked');
-    if (!verifyChecked) {
-      errors = errors.concat(UNCHECKED_ERR);
-    }
+    // Validate the remaining components after session and
+    // and participation code are validated with the server.
+    var validate_remaining_components = function(result) {
+      if (!result) {
+        errors = errors.concat(SESSION_KEY_ERROR);
+        errors = errors.concat(PARTICIPATION_CODE_ERROR);
+      }
 
-    // Verify additional questions
-    var questionsValid = true;
-    var questions = $('#questions form');
-    for (var q = 0; q < questions.length; q++) {
-      var thisQuestionIsValid = false;
-      var radios = $(questions[q]).find('input[type=radio]');
-      for (var r = 0; r < radios.length; r++)
-        if (radios[r].checked) {
-          thisQuestionIsValid = true;
+      // Verify confirmation check box was checked
+      var verifyChecked = $('#verify').is(':checked');
+      if (!verifyChecked) {
+        errors = errors.concat(UNCHECKED_ERR);
+      }
+
+      // Verify additional questions
+      var questionsValid = true;
+      var questions = $('#questions form');
+      for (var q = 0; q < questions.length; q++) {
+        var thisQuestionIsValid = false;
+        var radios = $(questions[q]).find('input[type=radio]');
+        for (var r = 0; r < radios.length; r++)
+          if (radios[r].checked) {
+            thisQuestionIsValid = true;
+            break;
+          }
+
+        if (!thisQuestionIsValid) {
+          questionsValid = false;
           break;
         }
-
-      if (!thisQuestionIsValid) {
-        questionsValid = false;
-        break;
-      }
-    }
-
-    if (!questionsValid) {
-      errors = errors.concat(ADD_QUESTIONS_ERR);
-    }
-
-    // Validate tables (callback chaining)
-    (function validate_callback(i) {
-      if (i >= tables.length) {
-        if (errors.length === 0)
-          return callback(true, "");
-        else
-          return callback(false, errors);
       }
 
-      // Dont validate tables that are not going to be submitted
-      if (tables[i]._sail_meta.submit === false) return validate_callback(i + 1);
+      if (!questionsValid) {
+        errors = errors.concat(ADD_QUESTIONS_ERR);
+      }
 
-      tables[i].validateCells(function (result) { // Validate table
-        if (!result) {
-          errors = errors.concat(GENERIC_TABLE_ERR + tables[i]._sail_meta.name + " spreadsheet");
+      // Validate tables (callback chaining)
+      (function validate_callback(i) {
+        if (i >= tables.length) {
+          if (errors.length === 0)
+            return callback(true, "");
+          else
+            return callback(false, errors);
         }
 
-        validate_callback(i + 1);
-      });
-    })(0);
+        // Dont validate tables that are not going to be submitted
+        if (tables[i]._sail_meta.submit === false) return validate_callback(i + 1);
+
+        tables[i].validateCells(function (result) { // Validate table
+          if (!result) {
+            errors = errors.concat(GENERIC_TABLE_ERR + tables[i]._sail_meta.name + " spreadsheet");
+          }
+
+          validate_callback(i + 1);
+        });
+      })(0);
+    };
+
+    if (errors.length == 0) verifyKeysAndFetchDescription(validate_remaining_components);
+    else validate_remaining_components(true);
   }
 
   /**
@@ -286,7 +292,6 @@ var client = (function () {
     submitEntries: submitEntries,
     validate: validate,
     constructAndSend: construct_and_send,
-    verifyKeysAndFetchDescription: verifyKeysAndFetchDescription,
     validateSessionInput: validateSessionInput
   };
 
