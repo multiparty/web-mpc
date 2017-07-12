@@ -454,7 +454,9 @@
         };
         var _workend = function () {
           spinner.stop();
-          $('#tables-area').slideToggle();
+          $('#tables-area').slideToggle(function() {
+            client.updateWidth(tables);
+          });
         };
         var _badfile = function () {
           alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", 'This file does not appear to be a valid Excel file.', function () {
@@ -510,8 +512,11 @@
         $('#tables-area').hide();
 
         $('#expand-table-button').click(function (e) {
-          $('#tables-area').slideToggle();
+          $('#tables-area').slideToggle(function() {
+            client.updateWidth(tables);
+          });
           $(e.target).toggleClass('flip');
+
         });
 
 

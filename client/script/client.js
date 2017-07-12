@@ -59,6 +59,63 @@ var client = (function () {
 
   var errors = [];
 
+  /*
+  Called when the instructions card is expanded.
+  */
+  function updateWidth(tables) {
+    var table_widths = [];
+    for (var i = 0; i < tables.length - 1; i++) {
+      var table = tables[i];
+      var header_width = getWidth(table);
+      var table_ref = String(table.rootElement.id).trim();
+      table_widths.push(parseFloat(header_width));
+    }
+
+    var max_width = Math.max.apply(null, table_widths);
+
+    console.log(table_widths);
+
+    // Reset width of instructions.
+    $('#instructions').css('width', max_width + 0.2*max_width);
+    $('#instructions').css('max-width', max_width + 0.2*max_width);
+    $('#tables-area').css('width', max_width + 0.2*max_width);
+    $('#tables-area').css('max-width', max_width + 0.2*max_width);
+    var instructions_width = parseFloat($('#instructions').css('width'));
+    var container_width = parseFloat($('#content').css('width'));
+
+    // Move card as far left as possible.
+    var diff = Math.abs((instructions_width - container_width)/2);
+    var max_diff = parseFloat($('#content').css('margin-left')) - parseFloat($('#instructions').css('margin-left'));
+    if (diff > max_diff) {
+      diff = max_diff*0.98;
+    }
+    $('#instructions').css('margin-left', -diff);
+
+    /*console.log('updatewidth');
+
+    console.log($('#' + table_ref).find('.ht_clone_top').first().css('width'));
+    console.log($('#' + table_ref).find('.ht_clone_left').first().css('width'));
+    console.log($('#' + table_ref).find('.ht_clone_top_left_corner').first().css('width'));
+    console.log($('#' + table_ref).find('.wtHolder').first().css('width'));
+    console.log($('#' + table_ref).find('.wtHider').first().css('width'));
+    console.log($('#' + table_ref).find('.htCore').first().css('width'));
+    console.log('updatewidth-end')
+    */
+  }
+
+  function getWidth(table) {
+  var colWidths = [];
+
+  for (var i = 0; i < table.countRenderedCols(); i++) {
+    colWidths.push(parseFloat(table.getColWidth(i)));
+  }
+
+  // Need to account for column header.
+  var narrowestCol = Math.max.apply(null, colWidths);
+  var colSum = colWidths.reduce(function(a, b) { return a + b}, 0);
+  return narrowestCol*5 + colSum;
+}
+
   /**
    * Called when the submit button is pressed.
    */
@@ -247,7 +304,8 @@ var client = (function () {
     submitEntries: submitEntries,
     validate: validate,
     constructAndSend: construct_and_send,
-    verifyKeysAndFetchDescription: verifyKeysAndFetchDescription
+    verifyKeysAndFetchDescription: verifyKeysAndFetchDescription,
+    updateWidth: updateWidth
   }
 
 })();

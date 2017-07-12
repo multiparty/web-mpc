@@ -16,6 +16,7 @@
 
 .htRowHeaders {
   margin:auto;
+  margin-left: -20px;
 }
 
 body {
@@ -94,6 +95,10 @@ header #logos img {
   margin-left: 50px;
 }
 
+header div.container {
+  width:100%;
+}
+
 #content {
   margin-top: 270px;
 }
@@ -105,8 +110,13 @@ header #logos img {
   margin-bottom: 35px;
   margin-left: auto;
   margin-right: auto;
-  /*max-width: 950px;*/
+  max-width: 950px;
 }
+
+/*.card #instructions {*/
+  /*margin-left: auto;*/
+  /*margin-right: auto;*/
+/*}*/
 
 #expand-table-button {
   width: 100%;

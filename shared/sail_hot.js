@@ -442,11 +442,10 @@ function make_hot_table(table) {
       return !(this.readOnly);
     },
     afterSetDataAtCell: function (changes, source) {
-      console.log(this);
-      update_width(this);
+      //update_width(this);
     },
     afterChange: function (row, column) {
-      update_width(this);
+      //update_width(this);
     }
   };
 
@@ -460,6 +459,8 @@ function make_hot_table(table) {
   // Put name in the title element (if it exists)
   document.getElementById(table.element + "-name").innerHTML = table.name;
   handsOnTable.clear();
+
+  //update_width(handsOnTable);
 
   return handsOnTable;
 }
@@ -480,6 +481,8 @@ function update_width(table) {
   }
 
   if (maxWidth > 0) {
+    $('header').css('width', maxWidth + 100);
+    $('main').css('width', maxWidth + 100);
     $('#instructions').css('width', maxWidth + 50);
   }
 }
@@ -488,7 +491,6 @@ function get_width(table) {
   var colWidths = [];
 
   for (var i = 0; i < table.countRenderedCols(); i++) {
-    //console.log('width', table.getColWidth(i));
     colWidths.push(table.getColWidth(i));
   }
 
