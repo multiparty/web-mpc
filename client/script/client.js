@@ -73,13 +73,13 @@ var client = (function () {
 
     var max_width = Math.max.apply(null, table_widths);
 
-    console.log(table_widths);
+    console.log('width', table_widths);
 
     // Reset width of instructions.
-    $('#instructions').css('width', max_width + 0.2*max_width);
-    $('#instructions').css('max-width', max_width + 0.2*max_width);
-    $('#tables-area').css('width', max_width + 0.2*max_width);
-    $('#tables-area').css('max-width', max_width + 0.2*max_width);
+    $('#instructions').css('width', max_width + 0.05*max_width);
+    $('#instructions').css('max-width', max_width + 0.05*max_width);
+    //$('#tables-area').css('width', max_width + 0.1*max_width);
+    //$('#tables-area').css('max-width', max_width + 0.1*max_width);
     var instructions_width = parseFloat($('#instructions').css('width'));
     var container_width = parseFloat($('#content').css('width'));
 
@@ -111,7 +111,7 @@ var client = (function () {
   }
 
   // Need to account for column header.
-  var narrowestCol = Math.max.apply(null, colWidths);
+  var narrowestCol = Math.min.apply(null, colWidths);
   var colSum = colWidths.reduce(function(a, b) { return a + b}, 0);
   return narrowestCol*5 + colSum;
 }

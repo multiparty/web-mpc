@@ -15,6 +15,9 @@
   <script type="text/javascript" src="style/alertify/alertify.js"></script>
   <script type="text/javascript" src="style/alertify/alertify-defaults.js"></script>
   <script type="text/javascript" src="style/qtip/jquery.qtip.min.js"></script>
+   <script type="text/javascript" src="style/erd/element-resize-detector.min.js"></script>
+  <!-- <script type="text/javascript" src="style/css-element-queries/ElementQueries.js"></script>
+  <script type="text/javascript" src="style/css-element-queries/ResizeSensor.js"></script> -->
   <script type="text/javascript" src="script/spin.min.js"></script>
   <script type="text/javascript" src="script/ladda.min.js"></script>
   <script type="text/javascript" src="../shared/sail_hot.js"></script>
@@ -32,6 +35,7 @@
   <link rel="stylesheet" type="text/css" href="style/alertify/css/themes/alertify-bootstrap.css">
   <link rel="stylesheet" href="style/ladda-themeless.min.css">
   <link rel="stylesheet" href="style/style.css">
+
 </head>
 <body>
 <header>
@@ -455,7 +459,7 @@
         var _workend = function () {
           spinner.stop();
           $('#tables-area').slideToggle(function() {
-            client.updateWidth(tables);
+            //client.updateWidth(tables);
           });
         };
         var _badfile = function () {
@@ -513,11 +517,57 @@
 
         $('#expand-table-button').click(function (e) {
           $('#tables-area').slideToggle(function() {
-            client.updateWidth(tables);
           });
           $(e.target).toggleClass('flip');
 
         });
+
+
+        // Listen for changes to width of tables.
+
+        var erd = elementResizeDetectorMaker();
+
+        console.log(erd);
+
+        erd.listenTo($('#number-employees-hot').find('.wtHider').first(), function(element) {
+          console.log('num-employees');
+          client.updateWidth(tables);
+        });
+
+        erd.listenTo($('#compensation-hot').find('.wtHider').first(), function(element) {
+          client.updateWidth(tables);
+        });
+
+        erd.listenTo($('#performance-pay-hot').find('.wtHider').first(), function(element) {
+          client.updateWidth(tables);
+        });
+
+        erd.listenTo($('#service-length-hot').find('.wtHider').first(), function(element) {
+          client.updateWidth(tables);
+        });
+
+
+
+        // var employeesSensor = new ResizeSensor($('#number-employees-hot').find('.wtHider').first(), function(tables) {
+        //   client.updateWidth(tables);
+        // });
+
+
+        // var compensationSensor = new ResizeSensor($('#compensation-hot').find('.wtHider').first(), function(tables) {
+        //   console.log('example');
+        //   client.updateWidth(tables);
+        // });
+
+        // console.log($('#compensation-hot').find('.wtHider').first());
+
+        // var performanceSensor = new ResizeSensor($('#performance-pay-hot').find('.wtHider').first(), function(tables) {
+        //   client.updateWidth(tables);
+        // });
+
+
+        // var serviceSensor = new ResizeSensor($('#service-length-hot').find('.wtHider').first(), function(tables) {
+        //   client.updateWidth(tables);
+        // });
 
 
         // Register when ready
