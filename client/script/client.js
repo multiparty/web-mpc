@@ -62,19 +62,29 @@ var client = (function () {
   /*
    Called when the instructions card is expanded.
    */
-  var table_widths_old = [];
+  var tableWidthsOld = [];
 
-  function updateWidth(tables) {
-    var table_widths = [];
+  function updateWidth(tables, reset) {
+
+    if (reset) {
+      var $instructions = $('#instructions');
+      $instructions.css('width', 'initial');
+      $instructions.css('max-width', 950);
+      $instructions.css('margin-left', 'auto');
+      tableWidthsOld = [];
+      return;
+    }
+
+    var tableWidths = [];
     for (var i = 0; i < tables.length - 1; i++) {
       var table = tables[i];
       var header_width = getWidth(table);
-      table_widths.push(parseFloat(header_width));
+      tableWidths.push(parseFloat(header_width));
     }
 
     // No need to resize if width hasn't changed
     // Quick and dirty equality check of arrays
-    if (JSON.stringify(table_widths) === JSON.stringify(table_widths_old)) {
+    if (JSON.stringify(tableWidths) === JSON.stringify(tableWidthsOld)) {
       console.log('same');
       return;
     }
@@ -82,13 +92,13 @@ var client = (function () {
     for (var i = 0; i < tables.length - 1; i++) {
       var table = tables[i];
       table.updateSettings({
-        width: table_widths[i]
+        width: tableWidths[i]
       });
     }
 
-    var max_width = Math.max.apply(null, table_widths);
+    var max_width = Math.max.apply(null, tableWidths);
 
-    console.log('width', table_widths);
+    console.log('width', tableWidths);
 
     // Reset width of instructions.
     $('#instructions').css('width', max_width);
@@ -104,7 +114,7 @@ var client = (function () {
 
     $('#instructions').css('margin-left', offset);
 
-    table_widths_old = table_widths.concat();
+    tableWidthsOld = tableWidths.concat();
   }
 
   function getWidth(table) {

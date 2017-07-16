@@ -454,6 +454,7 @@
           if ($('#tables-area').css('display') !== 'none') {
             $('#tables-area').hide();
             $('#expand-table-button').toggleClass('flip');
+            resizeCard(tables, false);
           }
           spinner = new Spinner().spin(_target);
         };
@@ -461,11 +462,11 @@
           spinner.stop();
           $('#tables-area').slideToggle(function () {
             $('#expand-table-button').toggleClass('flip');
-            //client.updateWidth(tables);
-            var element = $('#number-employees-hot').find('.wtHider').first();
-            new ResizeSensor(element, function () {
-              console.log('Changed to ' + element.clientWidth);
-            });
+            if ($('#tables-area').css('display') === 'none') {
+              resizeCard(tables, false);
+            } else {
+              resizeCard(tables, true);
+            }
           });
         };
         var _badfile = function () {
@@ -521,30 +522,32 @@
 
         $('#expand-table-button').click(function (e) {
           $('#tables-area').slideToggle(function () {
-            listenForResize(tables);
+            if ($('#tables-area').css('display') === 'none') {
+              resizeCard(tables, false);
+            } else {
+              resizeCard(tables, true);
+            }
           });
           $(e.target).toggleClass('flip');
         });
 
+        function resizeCard(tables, attach) {
+          if (attach) {
+            new ResizeSensor($('#number-employees-hot').find('.wtHider').first()[0], function () {
+              client.updateWidth(tables);
+            });
+            new ResizeSensor($('#compensation-hot').find('.wtHider').first()[0], function () {
+              client.updateWidth(tables);
+            });
+            new ResizeSensor($('#performance-pay-hot').find('.wtHider').first()[0], function () {
+              client.updateWidth(tables);
+            });
+            new ResizeSensor($('#service-length-hot').find('.wtHider').first()[0], function () {
+              client.updateWidth(tables);
+            });
+          }
 
-        // Listen for changes to width of tables.
-
-        //var erd = elementResizeDetectorMaker();
-
-        function listenForResize(tables) {
-          new ResizeSensor($('#number-employees-hot').find('.wtHider').first()[0], function () {
-            client.updateWidth(tables);
-          });
-          new ResizeSensor($('#compensation-hot').find('.wtHider').first()[0], function () {
-            client.updateWidth(tables);
-          });
-          new ResizeSensor($('#performance-pay-hot').find('.wtHider').first()[0], function () {
-            client.updateWidth(tables);
-          });
-          new ResizeSensor($('#service-length-hot').find('.wtHider').first()[0], function () {
-            client.updateWidth(tables);
-          });
-          client.updateWidth(tables);
+          client.updateWidth(tables, !attach);
         }
 
         // Register when ready
