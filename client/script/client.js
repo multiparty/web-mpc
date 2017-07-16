@@ -97,6 +97,9 @@ var client = (function () {
    * Called when the submit button is pressed.
    */
   function validate(tables, callback) {
+    // Register semantic discrepancies validator.
+    register_validator("discrepancies", function(table, cell, value, callback) { checkSemanticDiscrepancies(tables, table, cell, value, callback); });
+  
     errors = [];
     // Verify session key
     var $session = $('#session');
@@ -148,6 +151,10 @@ var client = (function () {
       // Validate tables (callback chaining)
       (function validate_callback(i) {
         if (i >= tables.length) {
+          // Remove the semantic discrepancies validator.
+          remove_validator("discrepancies");
+          for(var i = 0; i < tables.length; i++) tables[i].render();
+
           if (errors.length === 0)
             return callback(true, "");
           else
@@ -287,6 +294,51 @@ var client = (function () {
     }
   }
 
+  /**
+   * Custom validator that checks for semantic discrepancies across many tables. In particular:
+   * 1. For all tables except bonus (3rd table), the cell must be either zero in all tables, or non-zero in all tables.
+   * 2. For the bonus table (3rd table), it can only be non-zero if the other tables are non-zero.
+   */
+  function checkSemanticDiscrepancies(tables, table, cell, value, callback) {
+    var bonus_table = tables[2];
+    var name = table._sail_meta.name;
+    var r = cell.row_index;
+    var c = cell.col_index;
+
+    // bonus can only be non-zero if the other tables are non-zero.
+    if (name === bonus_table._sail_meta.name) {
+      // bonus can only be non-zero if the other tables are non-zero.
+      if (value > 0) {
+        for (var i = 0; i < tables.length - 1; i++) { // length-1 because of the totals table
+          if (i == 2) continue;
+
+          if (!(tables[i].getDataAtCell(r, c) > 0)) {
+            return callback(false); // No need to invalidate other cells here.
+          }
+        }
+      }
+    }
+
+    else { // Not bonus table
+      // the cell must be either zero in all tables, or non-zero in all tables
+      var compare = value > 0;
+      for (var i = 0; i < tables.length - 1; i++) { // length-1 because of the totals table
+        if (name === tables[i]._sail_meta.name) continue;
+        
+        if (i == 2) { // bonus table can only be greater than zero if this value is greater than 0.
+          if(tables[i].getDataAtCell(r, c) > 0 && !compare)
+            return callback(false);
+        }
+
+        else if ((tables[i].getDataAtCell(r, c) > 0) !== compare) {
+          return callback(false);
+        }
+      }
+    }
+
+    callback(true);
+  }
+
   return {
     errors: errors,
     submitEntries: submitEntries,
@@ -294,5 +346,4 @@ var client = (function () {
     constructAndSend: construct_and_send,
     validateSessionInput: validateSessionInput
   };
-
 })();

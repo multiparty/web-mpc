@@ -31,6 +31,11 @@ function register_validator(name, validator) {
   validators_map[name] = validator;
 }
 
+// Removes a validator function by its name.
+function remove_validator(name) {
+  validators_map[name] = null;
+}
+
 // A Map from names to complex handsontable types.
 // The names can be used in the json template as a shortcut to assign
 // the mapped type information and formatting to a cell.
