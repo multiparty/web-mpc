@@ -310,8 +310,8 @@
 
       $participationCode.val(getParameterByName('participationCode'));
       $session.val(getParameterByName('session'));
-      if($session.val().trim() !== "") $session.blur();
-      if($participationCode.val().trim() !== "") $participationCode.blur();
+      if ($session.val().trim() !== "") $session.blur();
+      if ($participationCode.val().trim() !== "") $participationCode.blur();
 
       var req = $.ajax({
         type: "GET",
@@ -373,9 +373,12 @@
           }
           spinner = new Spinner().spin(_target);
         };
-        var _workend = function () {
+        var _workend = function (status) {
           spinner.stop();
-          $('#tables-area').slideToggle();
+          if (status) {
+            $('#tables-area').slideToggle();
+            $("#expand-table-button").toggleClass('flip');
+          }
         };
         var _badfile = function () {
           alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", 'This file does not appear to be a valid Excel file.', function () {
@@ -414,6 +417,7 @@
             return o;
           }(cols));
           calculateSize();
+          alert("HELLO");
         };
 
 

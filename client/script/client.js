@@ -99,7 +99,7 @@ var client = (function () {
   function validate(tables, callback) {
     // Register semantic discrepancies validator.
     register_validator("discrepancies", function(table, cell, value, callback) { checkSemanticDiscrepancies(tables, table, cell, value, callback); });
-  
+
     errors = [];
     // Verify session key
     var $session = $('#session');
@@ -153,7 +153,7 @@ var client = (function () {
         if (i >= tables.length) {
           // Remove the semantic discrepancies validator.
           remove_validator("discrepancies");
-          for(var i = 0; i < tables.length; i++) tables[i].render();
+          for (var i = 0; i < tables.length; i++) tables[i].render();
 
           if (errors.length === 0)
             return callback(true, "");
@@ -324,9 +324,9 @@ var client = (function () {
       var compare = value > 0;
       for (var i = 0; i < tables.length - 1; i++) { // length-1 because of the totals table
         if (name === tables[i]._sail_meta.name) continue;
-        
+
         if (i == 2) { // bonus table can only be greater than zero if this value is greater than 0.
-          if(tables[i].getDataAtCell(r, c) > 0 && !compare)
+          if (tables[i].getDataAtCell(r, c) > 0 && !compare)
             return callback(false);
         }
 
