@@ -357,7 +357,7 @@
 
           var changes = []; // [ [row, col, change], [row, col, change], ..]
           for (var i = 0; i < totals.length; i++)
-            changes.push([0, i, totals[i]);
+            changes.push([0, i, totals[i]]);
           tables[4].setDataAtCell(changes); // This changes the data without changing cellProperties (e.g. keeps readOnly)
         };
 
