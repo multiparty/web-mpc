@@ -370,6 +370,7 @@
         var _workstart = function () {
           if ($('#tables-area').css('display') !== 'none') {
             $('#tables-area').hide();
+            $("#expand-table-button").toggleClass('flip');
           }
           spinner = new Spinner().spin(_target);
         };
