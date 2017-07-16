@@ -354,7 +354,11 @@
           if (NaNs[0] + NaNs[1] > 0) { // If there is at least one NaN, change every thing to Excel's NaN equivalent.
             totals = ["#VALUE!", "#VALUE!", "#VALUE!"];
           }
-          tables[4].loadData([totals]);
+
+          var changes = []; // [ [row, col, change], [row, col, change], ..]
+          for (var i = 0; i < totals.length; i++)
+            changes.push([0, i, totals[i]);
+          tables[4].setDataAtCell(changes); // This changes the data without changing cellProperties (e.g. keeps readOnly)
         };
 
         // Custom validator that checks for semantic discrepancies across many tables. In particular:
