@@ -59,6 +59,82 @@ var client = (function () {
 
   var errors = [];
 
+  /*
+   Called when the instructions card is expanded.
+   */
+  var tableWidthsOld = [];
+
+  function updateWidth(tables, reset) {
+
+    if (reset) {
+      var $instructions = $('#instructions');
+      $instructions.css('width', 'initial');
+      $instructions.css('max-width', 950);
+      $instructions.css('margin-left', 'auto');
+      $('header, #shadow').css('right', 0);
+      tableWidthsOld = [];
+      return;
+    }
+
+    var tableWidths = [];
+    for (var i = 0; i < tables.length - 1; i++) {
+      var table = tables[i];
+      var header_width = getWidth(table);
+      tableWidths.push(parseFloat(header_width));
+    }
+
+    // No need to resize if width hasn't changed
+    // Quick and dirty equality check of arrays
+    if (JSON.stringify(tableWidths) === JSON.stringify(tableWidthsOld)) {
+      return;
+    }
+
+    for (var i = 0; i < tables.length - 1; i++) {
+      var table = tables[i];
+      table.updateSettings({
+        // TODO check why reported table width is off
+        // This value is incorrect when expanding table by inputting more data
+        width: tableWidths[i] - 40
+      });
+    }
+
+    var maxWidth = Math.max.apply(null, tableWidths);
+
+    // Reset width of instructions.
+    $('#instructions').css('width', maxWidth);
+    $('#instructions').css('max-width', maxWidth);
+    var documentWidth = $(window).width();
+    var containerWidth = parseFloat($('.container').first().width());
+    var offset = (containerWidth - maxWidth) / 2;
+
+    if (offset < (containerWidth - documentWidth) / 2) {
+      offset = (containerWidth - documentWidth) / 2;
+    }
+
+    if (maxWidth > documentWidth) {
+      $('header, #shadow').css('right', documentWidth - maxWidth);
+    }
+
+    $('#instructions').css('margin-left', offset);
+
+    tableWidthsOld = tableWidths.concat();
+  }
+
+  function getWidth(table) {
+    var colWidths = [];
+
+    for (var i = 0; i < table.countRenderedCols(); i++) {
+      colWidths.push(parseFloat(table.getColWidth(i)));
+    }
+
+    // Need to account for column header.
+    var narrowestCol = Math.min.apply(null, colWidths);
+    var colSum = colWidths.reduce(function (a, b) {
+      return a + b
+    }, 0);
+    return narrowestCol * 5 + colSum;
+  }
+
   /**
    * Called when the submit button is pressed.
    */
@@ -247,7 +323,8 @@ var client = (function () {
     submitEntries: submitEntries,
     validate: validate,
     constructAndSend: construct_and_send,
-    verifyKeysAndFetchDescription: verifyKeysAndFetchDescription
+    verifyKeysAndFetchDescription: verifyKeysAndFetchDescription,
+    updateWidth: updateWidth
   }
 
 })();

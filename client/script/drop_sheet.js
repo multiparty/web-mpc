@@ -303,6 +303,7 @@ var DropSheet = function DropSheet(opts) {
             e.preventDefault();
             if (pending) return opts.errors.pending();
             var files = e.dataTransfer.files;
+            $('#drop-area').removeClass('dragenter');
             readFile(files);
         } else {
             alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
@@ -362,7 +363,9 @@ var DropSheet = function DropSheet(opts) {
 
 
     if (opts.choose.addEventListener) {
-        opts.choose.addEventListener('change', handleFile, false);
+      if (typeof jQuery !== 'undefined') {
+        $('#choose-file').change(handleFile);
+      }
     }
 
 

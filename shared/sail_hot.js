@@ -46,6 +46,9 @@ var types_map = {
   }
 }
 
+
+var table_widths = {};
+
 // Registers a type (an object with attributes matching HOT format) for use in the json template.
 // This must be called BEFORE the template is parsed.
 function register_type(name, type) {
@@ -284,6 +287,7 @@ function make_tables(tables_def) {
     var table_def = tables_def.tables[t];
     var table = make_table_obj(table_def);
     result[t] = make_hot_table(table);
+    table_widths[result[t].rootElement.id] = get_width(result[t]);
   }
 
   return result;
@@ -436,6 +440,12 @@ function make_hot_table(table) {
     // Workaround for handsontable undo issue for readOnly tables
     beforeChange: function (changes, source) {
       return !(this.readOnly);
+    },
+    afterSetDataAtCell: function (changes, source) {
+      //update_width(this);
+    },
+    afterChange: function (row, column) {
+      //update_width(this);
     }
   };
 
@@ -450,7 +460,44 @@ function make_hot_table(table) {
   document.getElementById(table.element + "-name").innerHTML = table.name;
   handsOnTable.clear();
 
+  //update_width(handsOnTable);
+
   return handsOnTable;
+}
+
+// Update card width to match table width.
+function update_width(table) {
+  var cardWidth = parseFloat($('#instructions').css('width'));
+  var tableWidth = get_width(table);
+  var tableId = table.rootElement.id;
+  table_widths[tableId] = tableWidth;
+
+  var maxWidth = 0;
+
+  for (var prop in table_widths) {
+    if (table_widths[prop] > maxWidth) {
+      maxWidth = table_widths[prop];
+    }
+  }
+
+  if (maxWidth > 0) {
+    $('header').css('width', maxWidth + 100);
+    $('main').css('width', maxWidth + 100);
+    $('#instructions').css('width', maxWidth + 50);
+  }
+}
+
+function get_width(table) {
+  var colWidths = [];
+
+  for (var i = 0; i < table.countRenderedCols(); i++) {
+    colWidths.push(table.getColWidth(i));
+  }
+
+  // Need to account for column header.
+  var narrowestCol = Math.min.apply(null, colWidths);
+  var colSum = colWidths.reduce(function(a, b) { return a + b}, 0);
+  return narrowestCol*5 + colSum;
 }
 
 /**

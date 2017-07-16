@@ -15,6 +15,9 @@
   <script type="text/javascript" src="style/alertify/alertify.js"></script>
   <script type="text/javascript" src="style/alertify/alertify-defaults.js"></script>
   <script type="text/javascript" src="style/qtip/jquery.qtip.min.js"></script>
+  <script src="script/ResizeSensor.js"></script>
+  <!-- <script type="text/javascript" src="style/css-element-queries/ElementQueries.js"></script>
+  <script type="text/javascript" src="style/css-element-queries/ResizeSensor.js"></script> -->
   <script type="text/javascript" src="script/spin.min.js"></script>
   <script type="text/javascript" src="script/ladda.min.js"></script>
   <script type="text/javascript" src="../shared/sail_hot.js"></script>
@@ -32,6 +35,7 @@
   <link rel="stylesheet" type="text/css" href="style/alertify/css/themes/alertify-bootstrap.css">
   <link rel="stylesheet" href="style/ladda-themeless.min.css">
   <link rel="stylesheet" href="style/style.css">
+
 </head>
 <body>
 <header>
@@ -342,8 +346,8 @@
 
       $participationCode.val(getParameterByName('participationCode'));
       $session.val(getParameterByName('session'));
-      if($session.val().trim() !== "") $session.blur();
-      if($participationCode.val().trim() !== "") $participationCode.blur();
+      if ($session.val().trim() !== "") $session.blur();
+      if ($participationCode.val().trim() !== "") $participationCode.blur();
 
       var req = $.ajax({
         type: "GET",
@@ -449,12 +453,21 @@
         var _workstart = function () {
           if ($('#tables-area').css('display') !== 'none') {
             $('#tables-area').hide();
+            $('#expand-table-button').toggleClass('flip');
+            resizeCard(tables, false);
           }
           spinner = new Spinner().spin(_target);
         };
         var _workend = function () {
           spinner.stop();
-          $('#tables-area').slideToggle();
+          $('#tables-area').slideToggle(function () {
+            $('#expand-table-button').toggleClass('flip');
+            if ($('#tables-area').css('display') === 'none') {
+              resizeCard(tables, false);
+            } else {
+              resizeCard(tables, true);
+            }
+          });
         };
         var _badfile = function () {
           alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", 'This file does not appear to be a valid Excel file.', function () {
@@ -495,7 +508,6 @@
           calculateSize();
         };
 
-
         DropSheet({
           drop: _target,
           choose: _choose,
@@ -505,15 +517,38 @@
           errors: {badfile: _badfile, pending: _pending, failed: _failed, large: _large}
         });
 
-
         // Table accordion.
         $('#tables-area').hide();
 
         $('#expand-table-button').click(function (e) {
-          $('#tables-area').slideToggle();
+          $('#tables-area').slideToggle(function () {
+            if ($('#tables-area').css('display') === 'none') {
+              resizeCard(tables, false);
+            } else {
+              resizeCard(tables, true);
+            }
+          });
           $(e.target).toggleClass('flip');
         });
 
+        function resizeCard(tables, attach) {
+          if (attach) {
+            new ResizeSensor($('#number-employees-hot').find('.wtHider').first()[0], function () {
+              client.updateWidth(tables);
+            });
+            new ResizeSensor($('#compensation-hot').find('.wtHider').first()[0], function () {
+              client.updateWidth(tables);
+            });
+            new ResizeSensor($('#performance-pay-hot').find('.wtHider').first()[0], function () {
+              client.updateWidth(tables);
+            });
+            new ResizeSensor($('#service-length-hot').find('.wtHider').first()[0], function () {
+              client.updateWidth(tables);
+            });
+          }
+
+          client.updateWidth(tables, !attach);
+        }
 
         // Register when ready
         tables[0].addHook('afterChange', afterChange);
