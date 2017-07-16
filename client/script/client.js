@@ -60,15 +60,30 @@ var client = (function () {
   var errors = [];
 
   /*
-  Called when the instructions card is expanded.
-  */
+   Called when the instructions card is expanded.
+   */
+  var table_widths_old = [];
+
   function updateWidth(tables) {
     var table_widths = [];
     for (var i = 0; i < tables.length - 1; i++) {
       var table = tables[i];
       var header_width = getWidth(table);
-      var table_ref = String(table.rootElement.id).trim();
       table_widths.push(parseFloat(header_width));
+    }
+
+    // No need to resize if width hasn't changed
+    // Quick and dirty equality check of arrays
+    if (JSON.stringify(table_widths) === JSON.stringify(table_widths_old)) {
+      console.log('same');
+      return;
+    }
+
+    for (var i = 0; i < tables.length - 1; i++) {
+      var table = tables[i];
+      table.updateSettings({
+        width: table_widths[i]
+      });
     }
 
     var max_width = Math.max.apply(null, table_widths);
@@ -76,45 +91,36 @@ var client = (function () {
     console.log('width', table_widths);
 
     // Reset width of instructions.
-    $('#instructions').css('width', max_width + 0.05*max_width);
-    $('#instructions').css('max-width', max_width + 0.05*max_width);
-    //$('#tables-area').css('width', max_width + 0.1*max_width);
-    //$('#tables-area').css('max-width', max_width + 0.1*max_width);
-    var instructions_width = parseFloat($('#instructions').css('width'));
-    var container_width = parseFloat($('#content').css('width'));
+    $('#instructions').css('width', max_width);
+    $('#instructions').css('max-width', max_width);
+    var documentWidth = $(window).width();
+    var containerWidth = parseFloat($('.container').first().width());
+    var instructionsWidth = max_width;
+    var offset = (containerWidth - instructionsWidth) / 2;
 
-    // Move card as far left as possible.
-    var diff = Math.abs((instructions_width - container_width)/2);
-    var max_diff = parseFloat($('#content').css('margin-left')) - parseFloat($('#instructions').css('margin-left'));
-    if (diff > max_diff) {
-      diff = max_diff*0.98;
+    if (offset < (containerWidth - documentWidth) / 2) {
+      offset = (containerWidth - documentWidth) / 2;
     }
-    $('#instructions').css('margin-left', -diff);
 
-    /*console.log('updatewidth');
+    $('#instructions').css('margin-left', offset);
 
-    console.log($('#' + table_ref).find('.ht_clone_top').first().css('width'));
-    console.log($('#' + table_ref).find('.ht_clone_left').first().css('width'));
-    console.log($('#' + table_ref).find('.ht_clone_top_left_corner').first().css('width'));
-    console.log($('#' + table_ref).find('.wtHolder').first().css('width'));
-    console.log($('#' + table_ref).find('.wtHider').first().css('width'));
-    console.log($('#' + table_ref).find('.htCore').first().css('width'));
-    console.log('updatewidth-end')
-    */
+    table_widths_old = table_widths.concat();
   }
 
   function getWidth(table) {
-  var colWidths = [];
+    var colWidths = [];
 
-  for (var i = 0; i < table.countRenderedCols(); i++) {
-    colWidths.push(parseFloat(table.getColWidth(i)));
+    for (var i = 0; i < table.countRenderedCols(); i++) {
+      colWidths.push(parseFloat(table.getColWidth(i)));
+    }
+
+    // Need to account for column header.
+    var narrowestCol = Math.min.apply(null, colWidths);
+    var colSum = colWidths.reduce(function (a, b) {
+      return a + b
+    }, 0);
+    return narrowestCol * 5 + colSum;
   }
-
-  // Need to account for column header.
-  var narrowestCol = Math.min.apply(null, colWidths);
-  var colSum = colWidths.reduce(function(a, b) { return a + b}, 0);
-  return narrowestCol*5 + colSum;
-}
 
   /**
    * Called when the submit button is pressed.

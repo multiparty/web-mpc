@@ -1,3 +1,7 @@
+* {
+  box-sizing: border-box;
+}
+
 .handsontable td.htInvalid {
   background-color: #F06D65 !important;
 }
@@ -12,11 +16,6 @@
   white-space: pre-line;
   max-width: 110px;
   vertical-align: middle;
-}
-
-.htRowHeaders {
-  margin:auto;
-  margin-left: -20px;
 }
 
 body {
@@ -95,10 +94,6 @@ header #logos img {
   margin-left: 50px;
 }
 
-header div.container {
-  width:100%;
-}
-
 #content {
   margin-top: 270px;
 }
@@ -110,18 +105,12 @@ header div.container {
   margin-bottom: 35px;
   margin-left: auto;
   margin-right: auto;
-  /*max-width: 950px;*/
+  max-width: 950px;
 }
 
-.card #instructions {
-  transition: width 1s;
-  /*width:auto;
-  position:auto;*/
-  /*margin-left: auto;
-  /*margin-right: auto;*/
+#instructions {
+  transition: width 1s, margin-left 1s;
 }
-
-
 
 #expand-table-button {
   width: 100%;

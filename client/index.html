@@ -15,7 +15,7 @@
   <script type="text/javascript" src="style/alertify/alertify.js"></script>
   <script type="text/javascript" src="style/alertify/alertify-defaults.js"></script>
   <script type="text/javascript" src="style/qtip/jquery.qtip.min.js"></script>
-   <script type="text/javascript" src="style/erd/element-resize-detector.min.js"></script>
+  <script src="script/ResizeSensor.js"></script>
   <!-- <script type="text/javascript" src="style/css-element-queries/ElementQueries.js"></script>
   <script type="text/javascript" src="style/css-element-queries/ResizeSensor.js"></script> -->
   <script type="text/javascript" src="script/spin.min.js"></script>
@@ -346,8 +346,8 @@
 
       $participationCode.val(getParameterByName('participationCode'));
       $session.val(getParameterByName('session'));
-      if($session.val().trim() !== "") $session.blur();
-      if($participationCode.val().trim() !== "") $participationCode.blur();
+      if ($session.val().trim() !== "") $session.blur();
+      if ($participationCode.val().trim() !== "") $participationCode.blur();
 
       var req = $.ajax({
         type: "GET",
@@ -453,13 +453,19 @@
         var _workstart = function () {
           if ($('#tables-area').css('display') !== 'none') {
             $('#tables-area').hide();
+            $('#expand-table-button').toggleClass('flip');
           }
           spinner = new Spinner().spin(_target);
         };
         var _workend = function () {
           spinner.stop();
-          $('#tables-area').slideToggle(function() {
+          $('#tables-area').slideToggle(function () {
+            $('#expand-table-button').toggleClass('flip');
             //client.updateWidth(tables);
+            var element = $('#number-employees-hot').find('.wtHider').first();
+            new ResizeSensor(element, function () {
+              console.log('Changed to ' + element.clientWidth);
+            });
           });
         };
         var _badfile = function () {
@@ -501,7 +507,6 @@
           calculateSize();
         };
 
-
         DropSheet({
           drop: _target,
           choose: _choose,
@@ -511,64 +516,36 @@
           errors: {badfile: _badfile, pending: _pending, failed: _failed, large: _large}
         });
 
-
         // Table accordion.
         $('#tables-area').hide();
 
         $('#expand-table-button').click(function (e) {
-          $('#tables-area').slideToggle(function() {
+          $('#tables-area').slideToggle(function () {
+            listenForResize(tables);
           });
           $(e.target).toggleClass('flip');
-
         });
 
 
         // Listen for changes to width of tables.
 
-        var erd = elementResizeDetectorMaker();
+        //var erd = elementResizeDetectorMaker();
 
-        console.log(erd);
-
-        erd.listenTo($('#number-employees-hot').find('.wtHider').first(), function(element) {
-          console.log('num-employees');
+        function listenForResize(tables) {
+          new ResizeSensor($('#number-employees-hot').find('.wtHider').first()[0], function () {
+            client.updateWidth(tables);
+          });
+          new ResizeSensor($('#compensation-hot').find('.wtHider').first()[0], function () {
+            client.updateWidth(tables);
+          });
+          new ResizeSensor($('#performance-pay-hot').find('.wtHider').first()[0], function () {
+            client.updateWidth(tables);
+          });
+          new ResizeSensor($('#service-length-hot').find('.wtHider').first()[0], function () {
+            client.updateWidth(tables);
+          });
           client.updateWidth(tables);
-        });
-
-        erd.listenTo($('#compensation-hot').find('.wtHider').first(), function(element) {
-          client.updateWidth(tables);
-        });
-
-        erd.listenTo($('#performance-pay-hot').find('.wtHider').first(), function(element) {
-          client.updateWidth(tables);
-        });
-
-        erd.listenTo($('#service-length-hot').find('.wtHider').first(), function(element) {
-          client.updateWidth(tables);
-        });
-
-
-
-        // var employeesSensor = new ResizeSensor($('#number-employees-hot').find('.wtHider').first(), function(tables) {
-        //   client.updateWidth(tables);
-        // });
-
-
-        // var compensationSensor = new ResizeSensor($('#compensation-hot').find('.wtHider').first(), function(tables) {
-        //   console.log('example');
-        //   client.updateWidth(tables);
-        // });
-
-        // console.log($('#compensation-hot').find('.wtHider').first());
-
-        // var performanceSensor = new ResizeSensor($('#performance-pay-hot').find('.wtHider').first(), function(tables) {
-        //   client.updateWidth(tables);
-        // });
-
-
-        // var serviceSensor = new ResizeSensor($('#service-length-hot').find('.wtHider').first(), function(tables) {
-        //   client.updateWidth(tables);
-        // });
-
+        }
 
         // Register when ready
         tables[0].addHook('afterChange', afterChange);
