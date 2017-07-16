@@ -71,6 +71,7 @@ var client = (function () {
       $instructions.css('width', 'initial');
       $instructions.css('max-width', 950);
       $instructions.css('margin-left', 'auto');
+      $('header, #shadow').css('right', 0);
       tableWidthsOld = [];
       return;
     }
@@ -85,31 +86,33 @@ var client = (function () {
     // No need to resize if width hasn't changed
     // Quick and dirty equality check of arrays
     if (JSON.stringify(tableWidths) === JSON.stringify(tableWidthsOld)) {
-      console.log('same');
       return;
     }
 
     for (var i = 0; i < tables.length - 1; i++) {
       var table = tables[i];
       table.updateSettings({
-        width: tableWidths[i]
+        // TODO check why reported table width is off
+        // This value is incorrect when expanding table by inputting more data
+        width: tableWidths[i] - 40
       });
     }
 
-    var max_width = Math.max.apply(null, tableWidths);
-
-    console.log('width', tableWidths);
+    var maxWidth = Math.max.apply(null, tableWidths);
 
     // Reset width of instructions.
-    $('#instructions').css('width', max_width);
-    $('#instructions').css('max-width', max_width);
+    $('#instructions').css('width', maxWidth);
+    $('#instructions').css('max-width', maxWidth);
     var documentWidth = $(window).width();
     var containerWidth = parseFloat($('.container').first().width());
-    var instructionsWidth = max_width;
-    var offset = (containerWidth - instructionsWidth) / 2;
+    var offset = (containerWidth - maxWidth) / 2;
 
     if (offset < (containerWidth - documentWidth) / 2) {
       offset = (containerWidth - documentWidth) / 2;
+    }
+
+    if (maxWidth > documentWidth) {
+      $('header, #shadow').css('right', documentWidth - maxWidth);
     }
 
     $('#instructions').css('margin-left', offset);
