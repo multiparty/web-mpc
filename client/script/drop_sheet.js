@@ -40,7 +40,7 @@ var DropSheet = function DropSheet(opts) {
                             return;
                         }
                         wb = XLSX.read(data, readtype);
-                        process_wb(wb, 'XLSX');
+                        opts.on.workend(process_wb(wb, 'XLSX'));
                     } catch (e) {
                         opts.errors.failed(e);
                     }
@@ -89,8 +89,7 @@ var DropSheet = function DropSheet(opts) {
                 case 'xls':
                 case 'xlsx':
                     pending = false;
-                    opts.on.workend();
-                    cb(JSON.parse(e.data.d), e.data.t);
+                    opts.on.workend(cb(JSON.parse(e.data.d), e.data.t));
                     break;
             }
         };
@@ -179,8 +178,10 @@ var DropSheet = function DropSheet(opts) {
             if (checks.indexOf(false) === -1) {
                 alertify.alert("<img src='style/accept.png' alt='Success'>Success",
                     "Updated tables with data automatically. Please fill out the rest of the page.");
+                return true; // no errors.
             }
 
+            return false; // There are some errors.
     }
 
     // Processes single XLSX JS worksheet and updates one Handsontable.

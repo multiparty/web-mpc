@@ -302,39 +302,9 @@
       var $session = $('#session');
       var $participationCode = $('#participation-code');
 
-      /**
-       * Validate the session and participation code input fields.
-       */
-      var validateSessionInput = function (e) {
-        if (!e.target.validity) {
-          return false;
-        }
-
-        // Validate immediately once blur has been fired
-        $(e.target)
-          .off('input')
-          .on('input', validateSessionInput);
-
-        var $parent = $(e.target).parent();
-        if (e.target.validity.valid) {
-
-          $parent.removeClass('has-error').addClass('has-success has-feedback');
-          $parent.find('.success-icon').removeClass('hidden').addClass('show');
-          $parent.find('.fail-icon').removeClass('show').addClass('hidden');
-          $parent.find('.fail-help').removeClass('show').addClass('hidden');
-          $parent.find('.fail-custom').removeClass('show').addClass('hidden');
-          client.verifyKeysAndFetchDescription();
-        } else {
-
-          $parent.removeClass('has-success').addClass('has-error has-feedback');
-          $parent.find('.success-icon').removeClass('show').addClass('hidden');
-          $parent.find('.fail-icon').removeClass('hidden').addClass('show');
-          $parent.find('.fail-help').removeClass('hidden').addClass('show');
-          $parent.find('.fail-custom').removeClass('show').addClass('hidden');
-        }
-      };
-
-      $('#session, #participation-code').on('blur', validateSessionInput);
+      $('#session, #participation-code').on('blur', function (e) {
+        client.validateSessionInput(e.target, true);
+      });
 
       //Copied from trusted/session_data
       var getParameterByName = function (name) {
@@ -390,59 +360,12 @@
           if (NaNs[0] + NaNs[1] > 0) { // If there is at least one NaN, change every thing to Excel's NaN equivalent.
             totals = ["#VALUE!", "#VALUE!", "#VALUE!"];
           }
-          tables[4].loadData([totals]);
+
+          var changes = []; // [ [row, col, change], [row, col, change], ..]
+          for (var i = 0; i < totals.length; i++)
+            changes.push([0, i, totals[i]]);
+          tables[4].setDataAtCell(changes); // This changes the data without changing cellProperties (e.g. keeps readOnly)
         };
-
-        // Custom validator that checks for semantic discrepancies across many tables. In particular:
-        // 1. For all tables except bonus (3rd table), the cell must be either zero in all tables, or non-zero in all tables.
-        // 2. For the bonus table (3rd table), it can only be non-zero if the other tables are non-zero.
-        var discrepancies_validator = function (table, cell, value, callback) {
-          var bonus_table = tables[2];
-          var name = table._sail_meta.name;
-          var r = cell.row_index;
-          var c = cell.col_index;
-
-          // bonus can only be non-zero if the other tables are non-zero.
-          if (name === bonus_table._sail_meta.name) {
-            // bonus can only be non-zero if the other tables are non-zero.
-            if (value > 0) {
-              for (var i = 0; i < tables.length - 1; i++) { // length-1 because of the totals table
-                if (i == 2) continue;
-
-                if (!(tables[i].getDataAtCell(r, c) > 0)) {
-                  console.log("Semantic error in '" + table._sail_meta.name + "' at (" + r + ", " + c + ")");
-                  // callback(false); // No need to invalidate other cells here.
-                }
-              }
-            }
-          }
-
-          // Not bonus table
-          else {
-            // the cell must be either zero in all tables, or non-zero in all tables
-            var compare = value > 0;
-            var error = false;
-            for (var i = 0; i < tables.length - 1; i++) { // length-1 because of the totals table
-              if (i === 2 || name === tables[i]._sail_meta.name) continue;
-
-              if ((tables[i].getDataAtCell(r, c) > 0) !== compare) {
-                client.errors.concat("Semantic error in '" + table._sail_meta.name + "' at (" + r + ", " + c + ")");
-                error = true;
-                // callback(false);
-              }
-            }
-          }
-
-          // find a way to validate/invalidate the other cells to also have the same error.
-          // probably should use _sail_meta of the other tables to store if their is an error
-          // and render it using custom renderer. Calling the validators of other cells will
-          // cause an infinite loop unless something smart was done about it.
-
-          // Validate the other cells so that if this update resolves their issue, they will be notified.
-          callback(true);
-        };
-
-        register_validator("discrepancies", discrepancies_validator);
 
         // Alerts, page elements, etc. for drag-and-drop/choose file.
         var workbook_js = null;
@@ -458,16 +381,18 @@
           }
           spinner = new Spinner().spin(_target);
         };
-        var _workend = function () {
+        var _workend = function (status) {
           spinner.stop();
-          $('#tables-area').slideToggle(function () {
-            $('#expand-table-button').toggleClass('flip');
-            if ($('#tables-area').css('display') === 'none') {
-              resizeCard(tables, false);
-            } else {
-              resizeCard(tables, true);
-            }
-          });
+          if (status) {
+            $('#tables-area').slideToggle(function () {
+              $('#expand-table-button').toggleClass('flip');
+              if ($('#tables-area').css('display') === 'none') {
+                resizeCard(tables, false);
+              } else {
+                resizeCard(tables, true);
+              }
+            });
+          }
         };
         var _badfile = function () {
           alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", 'This file does not appear to be a valid Excel file.', function () {
@@ -506,6 +431,7 @@
             return o;
           }(cols));
           calculateSize();
+          alert("HELLO");
         };
 
         DropSheet({
