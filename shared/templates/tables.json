@@ -158,7 +158,6 @@
             "col": "*"
           },
           "type": "int",
-          "max": 1000000,
           "min": 0,
           "empty": false,
           "validators": [
@@ -359,7 +358,6 @@
             "col": "*"
           },
           "type": "currency",
-          "max": 100000000,
           "min": 0,
           "empty": false,
           "validators": [
@@ -560,7 +558,6 @@
             "col": "*"
           },
           "type": "currency",
-          "max": 100000000,
           "min": 0,
           "empty": false,
           "validators": [
@@ -761,7 +758,6 @@
             "col": "*"
           },
           "type": "int",
-          "max": 100000000,
           "min": 0,
           "empty": false,
           "validators": [

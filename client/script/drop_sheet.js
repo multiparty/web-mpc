@@ -177,7 +177,7 @@ var DropSheet = function DropSheet(opts) {
             // Assumes all tables updated.
             if (checks.indexOf(false) === -1) {
                 alertify.alert("<img src='style/accept.png' alt='Success'>Success",
-                    "Updated tables with data automatically. Please fill out the rest of the page.");
+                    "The tables below have been populated. Please confirm that your data is accurate and scroll down to answer the multiple choice questions, verify, and submit your data.");
                 return true; // no errors.
             }
 
