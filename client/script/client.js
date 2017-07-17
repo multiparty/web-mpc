@@ -7,15 +7,15 @@ var client = (function () {
   var UNCHECKED_ERR = 'Please acknowledge that all data is correct and verified.';
   var ADD_QUESTIONS_ERR = 'Please answer all Additional Questions.';
 
-  var GENERIC_TABLE_ERR = 'Please double-check the %s table';
+  var GENERIC_TABLE_ERR = 'Please double-check the "%s" table';
   var SERVER_ERR = "Server not reachable.";
   var GENERIC_SUBMISSION_ERR = 'Something went wrong with submission! Please try again.';
 
-  var EMPTY_CELLS = 'The table %s has empty cells, please enter 0 if there is no value';
-  var NAN_CELLS = 'The table %s has cells that are not numbers, make sure you only enter numeric values';
-  var MAX_VAL_CELLS = 'The table %s has cells that go beyond the allowed maximum value';
-  var MIN_VAL_CELLS = 'The table %s has cells with negative values, only positive values are allowed.';
-  var SEMANTIC_CELLS = 'The table %s has cells with semantic errors.';
+  var EMPTY_CELLS = 'The table "%s" has empty cells, please enter 0 if there is no value';
+  var NAN_CELLS = 'The table "%s" has cells that are not numbers, make sure you only enter numeric values';
+  var MAX_VAL_CELLS = 'The table "%s" has cells that go beyond the allowed maximum value';
+  var MIN_VAL_CELLS = 'The table "%s" has cells with negative values, only positive values are allowed.';
+  var SEMANTIC_CELLS = 'The table "%s" has cells with semantic errors.';
   var CELLS_ERRORS = {
     "empty": EMPTY_CELLS,
     "type": NAN_CELLS,
