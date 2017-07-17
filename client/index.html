@@ -298,7 +298,9 @@
       var $session = $('#session');
       var $participationCode = $('#participation-code');
 
-      $('#session, #participation-code').on('blur', function(e) { client.validateSessionInput(e.target, true); });
+      $('#session, #participation-code').on('blur', function (e) {
+        client.validateSessionInput(e.target, true);
+      });
 
       //Copied from trusted/session_data
       var getParameterByName = function (name) {

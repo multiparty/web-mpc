@@ -34,7 +34,8 @@ var client = (function () {
       $parent.find('.fail-help').removeClass('show').addClass('hidden');
       $parent.find('.fail-custom').removeClass('show').addClass('hidden');
       if (checkServerFlag)
-        verifyKeysAndFetchDescription(function(_) { });
+        verifyKeysAndFetchDescription(function (_) {
+        });
       return true;
     } else {
       $parent.removeClass('has-success').addClass('has-error has-feedback');
@@ -44,7 +45,7 @@ var client = (function () {
       $parent.find('.fail-custom').removeClass('show').addClass('hidden');
       return false;
     }
-  };
+  }
 
   function verifyKeysAndFetchDescription(callback) {
     var session = $("#session").val().trim().toLowerCase();
@@ -98,7 +99,9 @@ var client = (function () {
    */
   function validate(tables, callback) {
     // Register semantic discrepancies validator.
-    register_validator("discrepancies", function(table, cell, value, callback) { checkSemanticDiscrepancies(tables, table, cell, value, callback); });
+    register_validator("discrepancies", function (table, cell, value, callback) {
+      checkSemanticDiscrepancies(tables, table, cell, value, callback);
+    });
 
     errors = [];
     // Verify session key
@@ -114,7 +117,7 @@ var client = (function () {
 
     // Validate the remaining components after session and
     // and participation code are validated with the server.
-    var validate_remaining_components = function(result) {
+    var validateRemainingComponents = function (result) {
       if (!result) {
         errors = errors.concat(SESSION_KEY_ERROR);
         errors = errors.concat(PARTICIPATION_CODE_ERROR);
@@ -174,8 +177,8 @@ var client = (function () {
       })(0);
     };
 
-    if (errors.length == 0) verifyKeysAndFetchDescription(validate_remaining_components);
-    else validate_remaining_components(true);
+    if (errors.length === 0) verifyKeysAndFetchDescription(validateRemainingComponents);
+    else validateRemainingComponents(true);
   }
 
   /**
