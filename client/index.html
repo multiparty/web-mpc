@@ -303,7 +303,13 @@
       var $participationCode = $('#participation-code');
 
       $('#session, #participation-code').on('blur', function (e) {
+        e.target.dataset["did_blur"] = true;
         client.validateSessionInput(e.target, true);
+      });
+      
+      $('#session, #participation-code').on('input', function (e) {
+        if(e.target.dataset["did_blur"])
+          client.validateSessionInput(e.target, false);
       });
 
       //Copied from trusted/session_data
