@@ -71,6 +71,7 @@
     <div class="alert alert-success" id="statusID">LOADING...</div>
     <div>
       <h3>Control Panel</h3>
+      <input id="statusbox" type="text" placeholder="Session Status:" disabled><br>
       <input type="button" class="btn btn-primary" id="start" value="START">
       <input type="button" class="btn btn-primary" id="pause" value="PAUSE">
       <input type="button" class="btn btn-primary" id="stop" value="STOP">
@@ -142,6 +143,7 @@
       document.getElementById('unmasklink').innerHTML = "Click here to unmask aggregate data Session " + session;
       document.getElementById('unmasklink').href = "../unmask/index.html?session=" + session;
 
+      checkStatus(session);
       generateTable('table', session, password, 'statusID');
 
       fetchOldLinks(session, password, "oldUrlsID", "oldUrlsSection");
@@ -158,12 +160,13 @@
       };
 
       document.getElementById("start").onclick = function () {
-        statusResponse(session, start, password)
+        changeStatus(session, start, password)
       };
       document.getElementById("pause").onclick = function () {
-        statusResponse(session, pause, password)
+        changeStatus(session, pause, password)
       };
       document.getElementById("stop").onclick = function () {
+        document.getElementById('statusbox').value = checkStatus(session);
         document.getElementById('modal_error_msg').innerHTML = "";
         document.getElementById('confirmation').style.visibility = "visible";
 
@@ -176,7 +179,7 @@
           var modal_password = document.getElementById('pass_s').value;
           if (modal_session === session && modal_password === password) {
             document.getElementById('confirmation').style.visibility = "hidden";
-            statusResponse(session, stop, password);
+            changeStatus(session, stop, password);
           } else {
             document.getElementById('modal_error_msg').innerHTML = "Session and Password do not match!";
           }

@@ -7,7 +7,25 @@
  *
  */
 
-function statusResponse(session, status, password) {
+function checkStatus(session){
+  if(session == null || session.trim() == "") return "";
+
+  $.ajax({
+    type: "POST",
+    url: "/fetch_status",
+    contentType: "application/json",
+    data: JSON.stringify({session: session}),
+    success: function (resp) {
+      document.getElementById("statusbox").value = resp;
+    },
+    error: function (err) {
+      alert("error");
+    }
+
+  });
+}
+
+function changeStatus(session, status, password) {
 
   if (status === "START" || status === "PAUSE" || status === "STOP") {
     $.ajax({
@@ -17,8 +35,7 @@ function statusResponse(session, status, password) {
       data: JSON.stringify({status: status, session: session, password: password}),
 
       success: function (resp) {
-        console.log(resp);
-        alert("updated");
+        document.getElementById("statusbox").value = status;
       },
       error: function (err) {
         alert("error");
@@ -26,7 +43,7 @@ function statusResponse(session, status, password) {
     });
   }
   else {
-    console.log("Error not status");
+    console.log("Error Not a valid Session Status");
   }
 }
 
