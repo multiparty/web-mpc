@@ -7,9 +7,22 @@ var client = (function () {
   var UNCHECKED_ERR = 'Please acknowledge that all data is correct and verified.';
   var ADD_QUESTIONS_ERR = 'Please answer all Additional Questions.';
 
-  var GENERIC_TABLE_ERR = 'Please double-check the ';
+  var GENERIC_TABLE_ERR = 'Please double-check the %s table';
   var SERVER_ERR = "Server not reachable.";
   var GENERIC_SUBMISSION_ERR = 'Something went wrong with submission! Please try again.';
+
+  var EMPTY_CELLS = 'The table %s has empty cells, please enter 0 if there is no value';
+  var NAN_CELLS = 'The table %s has cells that are not numbers, make sure you only enter numeric values';
+  var MAX_VAL_CELLS = 'The table %s has cells that go beyond the allowed maximum value';
+  var MIN_VAL_CELLS = 'The table %s has cells with negative values, only positive values are allowed.';
+  var SEMANTIC_CELLS = 'The table %s has cells with semantic errors.';
+  var CELLS_ERRORS = {
+    "empty": EMPTY_CELLS,
+    "type": NAN_CELLS,
+    "min": MIN_VAL_CELLS,
+    "max": MAX_VAL_CELLS,
+    "discrepancies": SEMANTIC_CELLS
+  }
 
   function error(msg) {
     alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", msg);
@@ -173,11 +186,6 @@ var client = (function () {
    * Called when the submit button is pressed.
    */
   function validate(tables, callback) {
-    // Register semantic discrepancies validator.
-    register_validator("discrepancies", function (table, cell, value, callback) {
-      checkSemanticDiscrepancies(tables, table, cell, value, callback);
-    });
-
     errors = [];
     // Verify session key
     var $session = $('#session');
@@ -225,11 +233,31 @@ var client = (function () {
         errors = errors.concat(ADD_QUESTIONS_ERR);
       }
 
+      // Register semantic discrepancies validator.
+      register_validator("discrepancies", function (table, cell, value, callback) {
+        checkSemanticDiscrepancies(tables, table, cell, value, callback);
+      });
+
+      // Receive errors from validator and puts them in the errors array.
+      var errorHandler = function(table_name, value, row, col, validator_name) {
+        var errorMsg;
+        if (validator_name == "type" && value == "")
+          errorMsg = CELLS_ERRORS["empty"];
+        else
+          errorMsg = CELLS_ERRORS[validator_name];
+
+        if (errorMsg == null) errorMsg = GENERIC_TABLE_ERR;
+        errorMsg = errorMsg.replace("%s", table_name);
+        if (errors.indexOf(errorMsg) == -1) errors = errors.concat(errorMsg);
+      };
+      register_error_handler(errorHandler);
+
       // Validate tables (callback chaining)
       (function validate_callback(i) {
         if (i >= tables.length) {
           // Remove the semantic discrepancies validator.
           remove_validator("discrepancies");
+          remove_error_handler(0);
           for (var i = 0; i < tables.length; i++) tables[i].render();
 
           if (errors.length === 0)
@@ -242,10 +270,6 @@ var client = (function () {
         if (tables[i]._sail_meta.submit === false) return validate_callback(i + 1);
 
         tables[i].validateCells(function (result) { // Validate table
-          if (!result) {
-            errors = errors.concat(GENERIC_TABLE_ERR + tables[i]._sail_meta.name + " spreadsheet");
-          }
-
           validate_callback(i + 1);
         });
       })(0);

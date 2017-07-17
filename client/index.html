@@ -306,9 +306,9 @@
         e.target.dataset["did_blur"] = true;
         client.validateSessionInput(e.target, true);
       });
-      
+
       $('#session, #participation-code').on('input', function (e) {
-        if(e.target.dataset["did_blur"])
+        if (e.target.dataset["did_blur"])
           client.validateSessionInput(e.target, false);
       });
 

@@ -60,6 +60,37 @@ function register_type(name, type) {
   types_map[name] = type;
 }
 
+// Change this to add additional custom handling of errors when validating.
+var errorHandlers = [];
+
+/**
+ * Add an additional custom error handler. I.e. a function that received notification of validation errors.
+ * @param {function(table_name, cell_value, row_index, column_index, validator_name)} handler - the error handler.
+ * validator_name could be one of:
+ *  1. "min" or "max": for values that are below or above the declared min/max).
+ *  2. "type": for values that fail the generic HOT validator (do not match the cell type).
+ *  3. some other string: the name of the custom validator that failed according to how it is defined in the json template.
+ */
+function register_error_handler(handler) {
+  errorHandlers.push(handler);
+}
+
+/**
+ * Removes a handler by index.
+ * @param {int} index - the index of the handler to remove.
+ */
+function remove_error_handler(index) {
+  if (index >= 0 && index < errorHandlers.length) errorHandlers = errorHandlers.splice(index, 1);
+}
+
+/**
+ * Calls all the error handlers with any given arguments.
+ */
+function fire_all_error_handlers(table_name, value, row, col, validator_name) {
+  for (var i = 0; i < errorHandlers.length; i++)
+    errorHandlers[i](table_name, value, row, col, validator_name);
+}
+
 
 /**
  * Generic Validator:
@@ -85,10 +116,13 @@ var validator = function (value, callback) {
   }
 
   if (value != '' && value != null && cell.max != null && value > cell.max) {
+    fire_all_error_handlers(table._sail_meta.name, value, cell.row_index, cell.col_index, "max");
     callback(false);
     return;
   }
+
   if (value != '' && value != null && cell.min != null && value < cell.min) {
+    fire_all_error_handlers(table._sail_meta.name, value, cell.row_index, cell.col_index, "min");
     callback(false);
     return;
   }
@@ -106,7 +140,13 @@ var validator = function (value, callback) {
 
     var generic_callback = function (previous_result) {
       if (previous_result) generic_validator(value, callback, k + 1);
-      else callback(false); // early break
+      else {
+        if (k == -1) // Default HOT validator according to type.
+          fire_all_error_handlers(table._sail_meta.name, value, cell.row_index, cell.col_index, "type");
+        else // Custom validator.
+          fire_all_error_handlers(table._sail_meta.name, value, cell.row_index, cell.col_index, cell.validators[k]);
+        callback(false); // early break
+      }
     }
 
     if (k > -1) {
