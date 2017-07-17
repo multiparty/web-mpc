@@ -90,8 +90,33 @@ header #logos {
   line-height: 170px;
 }
 
-header #logos img {
+header #logos img:not(:first-child) {
   margin-left: 50px;
+}
+
+@media (min-width: 992px) and (max-width: 1200px) {
+  h1 {
+    font-size: 35px;
+    margin-top: 42px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 992px) {
+  h1 {
+    font-size: 30px;
+    margin-top: 50px;
+  }
+
+  header #logos img {
+    display: block;
+    width: 50%;
+    margin-top: 20px;
+    float: right;
+  }
+
+  header #logos img:not(:first-child) {
+    margin-left: 0;
+  }
 }
 
 #content {
