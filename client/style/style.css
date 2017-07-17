@@ -90,8 +90,43 @@ header #logos {
   line-height: 170px;
 }
 
-header #logos img {
+header #logos img:not(:first-child) {
   margin-left: 50px;
+}
+
+@media (min-width: 992px) and (max-width: 1200px) {
+  h1 {
+    font-size: 35px;
+    margin-top: 42px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 992px) {
+  h1 {
+    font-size: 30px;
+    margin-top: 50px;
+  }
+
+  header #logos img {
+    display: block;
+    width: 50%;
+    margin-top: 20px;
+  }
+
+  header #logos img:not(:first-child) {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  h1 {
+    font-size: 30px;
+    margin-top: 50px;
+  }
+
+  header #logos img {
+    display: none;
+  }
 }
 
 #content {
@@ -169,11 +204,10 @@ form .form-group-lg label {
   background-color: #F0F0F0;
   transition: border-color 0.5s;
   text-align: center;
-  height: 200px;
-  display: table-cell;
+  display: block;
   vertical-align: middle;
   font-size: 22px;
-  width: inherit;
+  width: 100%;
 }
 
 #drop-area p {
