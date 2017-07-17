@@ -34,8 +34,7 @@ var client = (function () {
       $parent.find('.fail-help').removeClass('show').addClass('hidden');
       $parent.find('.fail-custom').removeClass('show').addClass('hidden');
       if (checkServerFlag)
-        verifyKeysAndFetchDescription(function (_) {
-        });
+        verifyKeysAndFetchDescription();
       return true;
     } else {
       $parent.removeClass('has-success').addClass('has-error has-feedback');
@@ -51,8 +50,8 @@ var client = (function () {
     var session = $("#session").val().trim().toLowerCase();
     var participationCode = $("#participation-code").val().trim().toLowerCase();
 
-    if (session == "" || participationCode == "") {
-      callback(false);
+    if (session === "" || participationCode === "") {
+      callback && callback(false);
       return;
     }
 
@@ -76,7 +75,7 @@ var client = (function () {
       $parent.find('.fail-icon').removeClass('show').addClass('hidden');
       $parent.find('.fail-help').removeClass('show').addClass('hidden');
       $parent.find('.fail-custom').removeClass('show').addClass('hidden');
-      callback(true);
+      callback && callback(true);
     }).catch(function (err) {
       var errorMsg = SERVER_ERR;
       if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined)
@@ -88,7 +87,7 @@ var client = (function () {
       $parent.find('.fail-icon').removeClass('hidden').addClass('show');
       $parent.find('.fail-help').removeClass('show').addClass('hidden');
       $parent.find('.fail-custom').removeClass('hidden').addClass('show').html(errorMsg);
-      callback(false);
+      callback && callback(false);
     });
   }
 
@@ -195,8 +194,7 @@ var client = (function () {
     // and participation code are validated with the server.
     var validateRemainingComponents = function (result) {
       if (!result) {
-        errors = errors.concat(SESSION_KEY_ERROR);
-        errors = errors.concat(PARTICIPATION_CODE_ERROR);
+        errors = errors.concat(SESSION_PARTICIPATION_CODE_SERVER_ERROR);
       }
 
       // Verify confirmation check box was checked
