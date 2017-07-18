@@ -135,7 +135,7 @@
   </section>
 
   <section id="additional-questions" class="card">
-    <h2 class="text-center">Additional questions</h2>
+    <h2 class="text-center">Answer additional questions</h2>
     <p class="text-center">
       We have included these questions to get instant feedback as to how this process went in order to improve the
       process in future years. Please know that the answers to these questions will be anonymous, and they will be
@@ -143,8 +143,8 @@
     </p>
     <hr/>
     <div id="questions">
-      <form>
-        <p class="question-text">Which department are you in?</p>
+      <form class="error">
+        <p class="question-text help-block">Which department are you in?</p>
         <div class="radio">
           <label><input type="radio" name="optradio" value="1">Human Resources (e.g. HR Manager, HRIS Manager,
             Compensation Manager, Talent & Development)</label>
@@ -166,7 +166,8 @@
       </form>
       <hr class="short"/>
       <form>
-        <p class="question-text">What kind of HRIS or organizational system does your company/organization use?</p>
+        <p class="question-text help-block">What kind of HRIS or organizational system does your company/organization
+          use?</p>
         <div class="radio">
           <label><input type="radio" name="optradio" value="1">Large-scale traditional HRIS/HRMS software (e.g. ADP,
             Workday, PeopleSoft, etc.)</label>
@@ -182,7 +183,7 @@
       </form>
       <hr class="short"/>
       <form>
-        <p class="question-text">How easy was it to understand what data was required given the template and
+        <p class="question-text help-block">How easy was it to understand what data was required given the template and
           instructions?</p>
         <div class="radio">
           <label><input type="radio" name="optradio" value="1">Extremely easy</label>
@@ -208,7 +209,7 @@
       </form>
       <hr class="short"/>
       <form>
-        <p class="question-text">How easy was it to prepare the data for submission given your organizational
+        <p class="question-text help-block">How easy was it to prepare the data for submission given your organizational
           system?</p>
         <div class="radio">
           <label><input type="radio" name="optradio" value="1">Extremely easy</label>
@@ -234,7 +235,8 @@
       </form>
       <hr class="short"/>
       <form>
-        <p class="question-text">How long did it take to prepare the data for submission given your organizational
+        <p class="question-text help-block">How long did it take to prepare the data for submission given your
+          organizational
           system?</p>
         <div class="radio">
           <label><input type="radio" name="optradio" value="1">Less than 1 business day</label>
@@ -277,7 +279,7 @@
       <div class="col-md-6">
         <div id="errors">
           <h4>Errors</h4>
-          <ul id="validation-errors">
+          <ul id="validation-errors" class="has-error">
             <li>No Errors!</li>
           </ul>
         </div>
@@ -318,6 +320,11 @@
       $session.val(getParameterByName('session'));
       if ($session.val().trim() !== "") $session.blur();
       if ($participationCode.val().trim() !== "") $participationCode.blur();
+
+      // Remove error from radio buttons once you click on them
+      $('form input[type=radio]').on('change', function (e) {
+        $(e.target.form).removeClass('has-error');
+      });
 
       var req = $.ajax({
         type: "GET",
@@ -476,6 +483,16 @@
           client.updateWidth(tables, !attach);
         }
 
+        function addValidationErrors(msg) {
+          $('#verify').prop('checked', false);
+          $("#submit").prop('disabled', true);
+          $("#errors").css('display', 'initial');
+
+          for (var i = 0; i < msg.length; i++) {
+            $('#validation-errors').append('<li><span class="help-block">' + msg[i] + '</span></li>');
+          }
+        }
+
         // Register when ready
         tables[0].addHook('afterChange', afterChange);
 
@@ -486,14 +503,8 @@
             if (result) {
               $("#submit").prop('disabled', false);
               $("#errors").css('display', 'none');
-              return;
             } else {
-              $('#verify').prop('checked', false);
-              $("#submit").prop('disabled', true);
-              $("#errors").css('display', 'initial');
-            }
-            for (var i = 0; i < msg.length; i++) {
-              $('#validation-errors').append('<li><span>' + msg[i] + '</span></li>');
+              addValidationErrors(msg);
             }
           });
         });
@@ -504,16 +515,10 @@
             $('#validation-errors').empty();
             if (!result) {
               la.stop();
-              $('#verify').prop('checked', false);
-              $("#submit").prop('disabled', true);
-              $("#errors").css('display', 'initial');
-              for (var i = 0; i < msg.length; i++) {
-                $('#validation-errors').append('<li><span>' + msg[i] + '</span></li>');
-              }
-              return;
+              addValidationErrors(msg);
+            } else {
+              client.constructAndSend(tables, la);
             }
-
-            client.constructAndSend(tables, la);
           });
         });
 
