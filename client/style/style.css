@@ -277,7 +277,6 @@ form .form-group-lg label {
   margin-bottom: 10px;
 }
 
-#validation-errors span,
 span.error {
   color: #F04744;
 }

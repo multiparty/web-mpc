@@ -217,15 +217,18 @@ var client = (function () {
       for (var q = 0; q < questions.length; q++) {
         var thisQuestionIsValid = false;
         var radios = $(questions[q]).find('input[type=radio]');
-        for (var r = 0; r < radios.length; r++)
+        for (var r = 0; r < radios.length; r++) {
           if (radios[r].checked) {
             thisQuestionIsValid = true;
             break;
           }
+        }
 
         if (!thisQuestionIsValid) {
           questionsValid = false;
-          break;
+          $(questions[q]).addClass('has-error');
+        } else {
+          $(questions[q]).removeClass('has-error');
         }
       }
 
