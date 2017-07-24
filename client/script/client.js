@@ -286,9 +286,6 @@ var client = (function () {
    * All inputs are valid. Construct JSON objects and send them to the server.
    */
   function construct_and_send(tables, la) {
-    // Start loading animation
-    la.start();
-
     // Begin constructing the data
     var data_submission = {questions: {}};
 
