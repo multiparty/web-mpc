@@ -790,6 +790,10 @@ app.post('/fetch_status', function (req, res) {
         res.status(500).send('Error getting session status.');
         return;
       }
+      
+      if (data === null) {
+        data = { status: "START" };
+      }
 
       if (data.status == null) {
         res.status(500).send('Session not found.');

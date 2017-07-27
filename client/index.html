@@ -301,6 +301,7 @@
   <script type="text/javascript">
     $(document).ready(function () {
 
+      var $verify = $('#verify');
       var $session = $('#session');
       var $participationCode = $('#participation-code');
 
@@ -312,6 +313,7 @@
       $('#session, #participation-code').on('input', function (e) {
         if (e.target.dataset["did_blur"])
           client.validateSessionInput(e.target, false);
+        $verify.prop('checked', false);
       });
 
       //Copied from trusted/session_data
@@ -330,6 +332,7 @@
       // Remove error from radio buttons once you click on them
       $('form input[type=radio]').on('change', function (e) {
         $(e.target.form).removeClass('has-error');
+        $verify.prop('checked', false);
       });
 
       var req = $.ajax({
@@ -489,7 +492,7 @@
         }
 
         function addValidationErrors(msg) {
-          $('#verify').prop('checked', false);
+          $verify.prop('checked', false);
           $("#submit").prop('disabled', true);
           $("#errors").css('display', 'initial');
 
@@ -500,11 +503,19 @@
 
         // Register when ready
         tables[0].addHook('afterChange', afterChange);
+        for (var i = 0; i < tables.length-1; i++) 
+          tables[i].addHook('afterChange', function(changes, sources) {
+            if (changes != null) $verify.prop('checked', false); 
+          });
 
         // Button clicks handlers
-        $('#verify').click(function () {
+        $verify.click(function () {
+          var la = Ladda.create(document.getElementById('verify'));
+          la.start();
+
           client.validate(tables, function (result, msg) {
             $('#validation-errors').empty();
+            la.stop();
             if (result) {
               $("#submit").prop('disabled', false);
               $("#errors").css('display', 'none');
@@ -516,6 +527,8 @@
 
         $("#submit").click(function () {
           var la = Ladda.create(document.getElementById('submit'));
+          la.start();
+
           client.validate(tables, function (result, msg) {
             $('#validation-errors').empty();
             if (!result) {
