@@ -138,7 +138,7 @@ var validator = function (value, callback) {
   var _ = function generic_validator(value, callback, k) {
     if (k >= cell.validators.length) {
       // No errors, check for warning:
-      if(value > cell.max_warning) 
+      if (value > cell.max_warning)
         cell.status = "warning";
       else
         cell.status = "ok";
@@ -154,7 +154,7 @@ var validator = function (value, callback) {
           fire_all_error_handlers(table._sail_meta.name, value, cell.row_index, cell.col_index, "type");
         else // Custom validator.
           fire_all_error_handlers(table._sail_meta.name, value, cell.row_index, cell.col_index, cell.validators[k]);
-          
+
         cell.status = "error";
         callback(false); // early break
       }
@@ -200,7 +200,7 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
   // Tooltip
   var tooltip = cell.tooltip;
   var tableName = instance._sail_meta.element;   // Assumes each table has distinct name.
-    
+
   // Check for error
   if (cellProperties.valid === false) {
     TD.style.background = '#F06D65';
@@ -212,8 +212,8 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
         $TD.qtip('api').destroy();
 
       // Setup error tooltip if exists.
-      if (tooltip != null && tooltip.errorTitle !== null && tooltip.errorTitle !== undefined 
-          && tooltip.error !== null && tooltip.error !== undefined)          
+      if (tooltip != null && tooltip.errorTitle !== null && tooltip.errorTitle !== undefined
+          && tooltip.error !== null && tooltip.error !== undefined)
         $TD.qtip({
           style: { classes: 'qtip-red' },
           content: {
@@ -226,7 +226,7 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
             delay: 30
           },
           hide: { event: 'mouseleave' }
-        });     
+        });
     }
   }
 
@@ -241,8 +241,8 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
         $TD.qtip('api').destroy();
 
       // Setup warning tooltip if exists.
-      if (tooltip != null && tooltip.warningTitle !== null && tooltip.warningTitle !== undefined 
-          && tooltip.warning !== null && tooltip.warning !== undefined)          
+      if (tooltip != null && tooltip.warningTitle !== null && tooltip.warningTitle !== undefined
+          && tooltip.warning !== null && tooltip.warning !== undefined)
         $TD.qtip({
           style: { classes: 'qtip-yellow' },
           content: {
@@ -268,8 +268,8 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
         $TD.qtip('api').destroy();
 
       // Setup prompt tooltip if exists.
-      if (tooltip != null && tooltip.promptTitle !== null && tooltip.promptTitle !== undefined 
-          && tooltip.prompt !== null && tooltip.prompt !== undefined)          
+      if (tooltip != null && tooltip.promptTitle !== null && tooltip.promptTitle !== undefined
+          && tooltip.prompt !== null && tooltip.prompt !== undefined)
         $TD.qtip({
           style: { classes: 'qtip-light' },
           content: {
@@ -288,27 +288,27 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
 
   // Fallback if no jQuery - use comments.
   if (cellProperties.valid === false) {
-    if (tooltip !== undefined && tooltip !== null && 
+    if (tooltip !== undefined && tooltip !== null &&
         tooltip.errorTitle !== undefined && tooltip.errorTitle !== null &&
         tooltip.error !== undefined && tooltip.error !== null &&
         (typeof jQuery === 'undefined' || typeof jQuery().qtip === 'undefined'))
        cellProperties.comment = {"value": tooltip.errorTitle.toUpperCase() + ' - ' + tooltip.error};
 
-    else 
+    else
       cellProperties.comment = null;
   }
   else if (cell.status == "warning") {
-    if (tooltip !== undefined && tooltip !== null && 
+    if (tooltip !== undefined && tooltip !== null &&
         tooltip.warningTitle !== undefined && tooltip.warningTitle !== null &&
         tooltip.warning !== undefined && tooltip.warning !== null &&
         (typeof jQuery === 'undefined' || typeof jQuery().qtip === 'undefined'))
        cellProperties.comment = {"value": tooltip.warningTitle.toUpperCase() + ' - ' + tooltip.warning};
 
-    else 
+    else
       cellProperties.comment = null;
   }
   else {
-    if (tooltip !== undefined && tooltip !== null && 
+    if (tooltip !== undefined && tooltip !== null &&
         tooltip.promptTitle !== undefined && tooltip.promptTitle !== null &&
         tooltip.prompt !== undefined && tooltip.prompt !== null &&
         (typeof jQuery === 'undefined' || typeof jQuery().qtip === 'undefined'))
