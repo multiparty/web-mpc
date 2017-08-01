@@ -111,18 +111,21 @@ var validator = function (value, callback) {
   // Dont validate empty on intialization cells until they receive values.
   if (cell.first_time == undefined) {
     cell.first_time = true;
+    cell.status = "ok";
     callback(true);
     return;
   }
 
   if (value != '' && value != null && cell.max != null && value > cell.max) {
     fire_all_error_handlers(table._sail_meta.name, value, cell.row_index, cell.col_index, "max");
+    cell.status = "error";
     callback(false);
     return;
   }
 
   if (value != '' && value != null && cell.min != null && value < cell.min) {
     fire_all_error_handlers(table._sail_meta.name, value, cell.row_index, cell.col_index, "min");
+    cell.status = "error";
     callback(false);
     return;
   }
@@ -134,6 +137,12 @@ var validator = function (value, callback) {
   // chained into the next one.
   var _ = function generic_validator(value, callback, k) {
     if (k >= cell.validators.length) {
+      // No errors, check for warning:
+      if (value > cell.max_warning)
+        cell.status = "warning";
+      else
+        cell.status = "ok";
+
       callback(true);
       return;
     }
@@ -145,6 +154,8 @@ var validator = function (value, callback) {
           fire_all_error_handlers(table._sail_meta.name, value, cell.row_index, cell.col_index, "type");
         else // Custom validator.
           fire_all_error_handlers(table._sail_meta.name, value, cell.row_index, cell.col_index, cell.validators[k]);
+
+        cell.status = "error";
         callback(false); // early break
       }
     }
@@ -190,22 +201,21 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
   var tooltip = cell.tooltip;
   var tableName = instance._sail_meta.element;   // Assumes each table has distinct name.
 
-  // Use qtip2 tooltips by default.
-  if (tooltip != null && (typeof jQuery !== 'undefined' && typeof jQuery().qtip !== 'undefined')) {
-    var idName = tableName + row + "-" + col;
+  // Check for error
+  if (cellProperties.valid === false) {
+    TD.style.background = '#F06D65';
 
-    var element = $('#' + idName);
+    if (typeof jQuery !== 'undefined' && typeof jQuery().qtip !== 'undefined') {
+      $TD = $(TD);
+      // Remove any previous tooltip
+      if ($TD.qtip('api') != null)
+        $TD.qtip('api').destroy();
 
-    if (cellProperties.valid === false) {
-      // Error message with red-colored cell and tooltip.
-      TD.style.background = '#F06D65';
-      TD.setAttribute('title', " ");
-      TD.setAttribute('id', idName);
-      if (tooltip.errorTitle != null) {
-        element.qtip({
-          style: {
-            classes: 'qtip-red'
-          },
+      // Setup error tooltip if exists.
+      if (tooltip != null && tooltip.errorTitle !== null && tooltip.errorTitle !== undefined
+          && tooltip.error !== null && tooltip.error !== undefined)
+        $TD.qtip({
+          style: { classes: 'qtip-red' },
           content: {
             title: tooltip.errorTitle,
             text: "<img src='style/cancel.png' alt='Error'>" + tooltip.error
@@ -215,98 +225,96 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
             event: 'click',
             delay: 30
           },
-          hide: {
-            event: 'mouseleave'
-          }
+          hide: { event: 'mouseleave' }
         });
-
-      } else {
-
-
-      }
-      // If tooltip already initialized.
-      if (element !== null && element.qtip('api') !== null) {
-        if (tooltip.errorTitle !== null) {
-          element.qtip('api').set('content.title', tooltip.errorTitle);
-        }
-
-        element.qtip('api').set('content.text', "<img src='style/cancel.png' alt='Error'>" + tooltip.error);
-
-      }
-
-    } else { // Remove tooltip if it was already initialized
-      if (element !== null && element.qtip('api') != null) {
-        element.qtip('api').destroy();
-      }
     }
-    //else {
-    //     // Prompt message with light-colored cell and tooltip.
-    //     // Shows on initial table load and
-    //     TD.style.background = '#ffffff';
-    //     TD.setAttribute('title', " ");
-    //     TD.setAttribute('id', idName);
+  }
 
-    //     if (tooltip.promptTitle != null) {
-    //         element.qtip({
-    //           style: {
-    //                     classes: 'qtip-light'
-    //                 },
-    //            content: {
-    //                     title: tooltip.promptTitle,
-    //                     text: tooltip.prompt
-    //                 },
-    //            show: {
-    //                     solo: true,
-    //                     event: 'click',
-    //                     delay: 30
-    //               },
-    //            hide: {
-    //                  event: 'click',
-    //                   delay: 10
-    //                 }
-    //         });
+  // Check for warning
+  else if (cell.status == "warning") {
+    TD.style.background = '#FFFF66';
 
-    //     } else {
-    //         element.qtip({
-    //           style: {
-    //                     classes: 'qtip-light'
-    //                 },
-    //            content: {
-    //                     text: tooltip.prompt
-    //                 },
-    //            show: {
-    //                     solo: true,
-    //                     event: 'click',
-    //                     delay: 30
-    //               },
-    //            hide: {
-    //                   event: 'click',
-    //                   delay: 10
-    //                 }
-    //         });
+    if (typeof jQuery !== 'undefined' && typeof jQuery().qtip !== 'undefined') {
+      $TD = $(TD);
+      // Remove any previous tooltip
+      if ($TD.qtip('api') != null)
+        $TD.qtip('api').destroy();
 
-    //     }
+      // Setup warning tooltip if exists.
+      if (tooltip != null && tooltip.warningTitle !== null && tooltip.warningTitle !== undefined
+          && tooltip.warning !== null && tooltip.warning !== undefined)
+        $TD.qtip({
+          style: { classes: 'qtip-yellow' },
+          content: {
+            title: tooltip.warningTitle,
+            text: "<img src='style/cancel.png' alt='Warning'>" + tooltip.warning
+          },
+          show: {
+            solo: true,
+            event: 'click',
+            delay: 30
+          },
+          hide: { event: 'mouseleave' }
+        });
+    }
+  }
 
-    //     // If tooltip already initialized.
-    //     if (element !== null && element.qtip('api') !== null) {
-    //         if (tooltip.promptTitle !== null) {
-    //             element.qtip('api').set('content.title', tooltip.promptTitle);
-    //         }
+  // No Warning or Error
+  else {
+    if (typeof jQuery !== 'undefined' && typeof jQuery().qtip !== 'undefined') {
+      $TD = $(TD);
+      // Remove any previous tooltip
+      if ($TD.qtip('api') != null)
+        $TD.qtip('api').destroy();
 
-    //         element.qtip('api').set('content.text', tooltip.prompt);
-    //     }
-
-
-    //}
-
-
+      // Setup prompt tooltip if exists.
+      if (tooltip != null && tooltip.promptTitle !== null && tooltip.promptTitle !== undefined
+          && tooltip.prompt !== null && tooltip.prompt !== undefined)
+        $TD.qtip({
+          style: { classes: 'qtip-light' },
+          content: {
+            title: tooltip.promptTitle,
+            text: tooltip.prompt
+          },
+          show: {
+            solo: true,
+            event: 'click',
+            delay: 30
+          },
+          hide: { event: 'mouseleave' }
+        });
+    }
   }
 
   // Fallback if no jQuery - use comments.
-  if (tooltip !== undefined && tooltip !== null && (typeof jQuery === 'undefined' || typeof jQuery().qtip === 'undefined')) {
-    if (cellProperties.valid === false) cellProperties.comment = {"value": tooltip.errorTitle.toUpperCase() + ' - ' + tooltip.error};
-    else cellProperties.comment = null;
-    //else cellProperties.comment = { "value": tooltip.promptTitle.toUpperCase() + ' - ' + tooltip.prompt };
+  if (cellProperties.valid === false) {
+    if (tooltip !== undefined && tooltip !== null &&
+        tooltip.errorTitle !== undefined && tooltip.errorTitle !== null &&
+        tooltip.error !== undefined && tooltip.error !== null &&
+        (typeof jQuery === 'undefined' || typeof jQuery().qtip === 'undefined'))
+       cellProperties.comment = {"value": tooltip.errorTitle.toUpperCase() + ' - ' + tooltip.error};
+
+    else
+      cellProperties.comment = null;
+  }
+  else if (cell.status == "warning") {
+    if (tooltip !== undefined && tooltip !== null &&
+        tooltip.warningTitle !== undefined && tooltip.warningTitle !== null &&
+        tooltip.warning !== undefined && tooltip.warning !== null &&
+        (typeof jQuery === 'undefined' || typeof jQuery().qtip === 'undefined'))
+       cellProperties.comment = {"value": tooltip.warningTitle.toUpperCase() + ' - ' + tooltip.warning};
+
+    else
+      cellProperties.comment = null;
+  }
+  else {
+    if (tooltip !== undefined && tooltip !== null &&
+        tooltip.promptTitle !== undefined && tooltip.promptTitle !== null &&
+        tooltip.prompt !== undefined && tooltip.prompt !== null &&
+        (typeof jQuery === 'undefined' || typeof jQuery().qtip === 'undefined'))
+      cellProperties.comment = { "value": tooltip.promptTitle.toUpperCase() + ' - ' + tooltip.prompt };
+    else
+      cellProperties.comment = null;
   }
 
   // Call the default renderer
@@ -386,6 +394,7 @@ function make_table_obj(table_def) {
 
       if (type.max !== undefined) table[i][j].max = type.max;
       if (type.min !== undefined) table[i][j].min = type.min;
+      if (type.max_warning !== undefined) table[i][j].max_warning = type.max_warning;
       if (type.empty !== undefined) table[i][j].empty = type.empty;
       if (type.read_only !== undefined) table[i][j].read_only = type.read_only;
       if (type.default !== undefined) table[i][j].default = type.default;
