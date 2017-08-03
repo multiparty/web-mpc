@@ -4,8 +4,8 @@
       "name": "Number Of Employees",
       "element": "number-employees-hot",
       "hot_parameters": {
-        "preventOverflow": "horizontal",
-        "rowHeaderWidth": 200
+        "rowHeaderWidth": 200,
+        "height": 410
       },
       "rows": [
         {
@@ -158,8 +158,8 @@
             "col": "*"
           },
           "type": "int",
-          "max": 1000000,
           "min": 0,
+          "max_warning": 1000,
           "empty": false,
           "validators": [
             "discrepancies"
@@ -181,10 +181,12 @@
             "col": "0-2-4-6-8-10-12-14"
           },
           "tooltip": {
-            "promptTitle": "Number of Female Employees",
-            "prompt": "Please input the total number of female employees in this race/ethnicity and job category.",
+            "//promptTitle": "Number of Female Employees",
+            "//prompt": "Please input the total number of female employees in this race/ethnicity and job category.",
             "errorTitle": "Invalid Data Entry",
-            "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero."
+            "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero.",
+            "warningTitle": "Warning: Data is too big",
+            "warning": "Are you sure this value is correct?"
           }
         },
         {
@@ -193,10 +195,12 @@
             "col": "1-3-5-7-9-11-13-15"
           },
           "tooltip": {
-            "promptTitle": "Number of Male Employees",
-            "prompt": "Please input the total number of male employees in this race/ethnicity and job category.",
+            "//promptTitle": "Number of Male Employees",
+            "//prompt": "Please input the total number of male employees in this race/ethnicity and job category.",
             "errorTitle": "Invalid Data Entry",
-            "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero."
+            "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero.",
+            "warningTitle": "Warning: Data is too big",
+            "warning": "Are you sure this value is correct?"
           }
         }
       ]
@@ -205,8 +209,8 @@
       "name": "Total Annual Compensation (Dollars)",
       "element": "compensation-hot",
       "hot_parameters": {
-        "preventOverflow": "horizontal",
-        "rowHeaderWidth": 200
+        "rowHeaderWidth": 200,
+        "height": 410
       },
       "rows": [
         {
@@ -359,8 +363,8 @@
             "col": "*"
           },
           "type": "currency",
-          "max": 100000000,
           "min": 0,
+          "max_warning": 1000000,
           "empty": false,
           "validators": [
             "discrepancies"
@@ -382,10 +386,12 @@
             "col": "0-2-4-6-8-10-12-14"
           },
           "tooltip": {
-            "promptTitle": "Total Annual Compensation",
-            "prompt": "Please input the total annual compensation of female employees in this race/ethnicity and job category in dollars.",
+            "//promptTitle": "Total Annual Compensation",
+            "//prompt": "Please input the total annual compensation of female employees in this race/ethnicity and job category in dollars.",
             "errorTitle": "Invalid Data Entry",
-            "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero."
+            "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero.",
+            "warningTitle": "Warning: Data is too big",
+            "warning": "Are you sure this value is correct?"
           }
         },
         {
@@ -394,10 +400,12 @@
             "col": "1-3-5-7-9-11-13-15"
           },
           "tooltip": {
-            "promptTitle": "Total Annual Compensation",
-            "prompt": "Please input the total annual compensation of male employees in this race/ethnicity and job category in dollars.",
+            "//promptTitle": "Total Annual Compensation",
+            "//prompt": "Please input the total annual compensation of male employees in this race/ethnicity and job category in dollars.",
             "errorTitle": "Invalid Data Entry",
-            "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero."
+            "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero.",
+            "warningTitle": "Warning: Data is too big",
+            "warning": "Are you sure this value is correct?"
           }
         }
       ]
@@ -406,8 +414,8 @@
       "name": "Total Annual Cash Performance Pay (Dollars)",
       "element": "performance-pay-hot",
       "hot_parameters": {
-        "preventOverflow": "horizontal",
-        "rowHeaderWidth": 200
+        "rowHeaderWidth": 200,
+        "height": 410
       },
       "rows": [
         {
@@ -560,8 +568,8 @@
             "col": "*"
           },
           "type": "currency",
-          "max": 100000000,
           "min": 0,
+          "max_warning": 100000,
           "empty": false,
           "validators": [
             "discrepancies"
@@ -583,10 +591,12 @@
             "col": "0-2-4-6-8-10-12-14"
           },
           "tooltip": {
-            "promptTitle": "Total Annual Performance Pay",
-            "prompt": "Please input the total annual cash performance pay of female employees in this race/ethnicity and job category in dollars.",
+            "//promptTitle": "Total Annual Performance Pay",
+            "//prompt": "Please input the total annual cash performance pay of female employees in this race/ethnicity and job category in dollars.",
             "errorTitle": "Invalid Data Entry",
-            "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero."
+            "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero.",
+            "warningTitle": "Warning: Data is too big",
+            "warning": "Are you sure this value is correct?"
           }
         },
         {
@@ -595,10 +605,12 @@
             "col": "1-3-5-7-9-11-13-15"
           },
           "tooltip": {
-            "promptTitle": "Total Annual Performance Pay",
-            "prompt": "Please input the total annual cash performance pay of male employees in this race/ethnicity and job category in dollars.",
+            "//promptTitle": "Total Annual Performance Pay",
+            "//prompt": "Please input the total annual cash performance pay of male employees in this race/ethnicity and job category in dollars.",
             "errorTitle": "Invalid Data Entry",
-            "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero."
+            "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero.",
+            "warningTitle": "Warning: Data is too big",
+            "warning": "Are you sure this value is correct?"
           }
         }
       ]
@@ -607,8 +619,8 @@
       "name": "Total Length of Service (Months)",
       "element": "service-length-hot",
       "hot_parameters": {
-        "preventOverflow": "horizontal",
-        "rowHeaderWidth": 200
+        "rowHeaderWidth": 200,
+        "height": 410
       },
       "rows": [
         {
@@ -761,8 +773,8 @@
             "col": "*"
           },
           "type": "int",
-          "max": 100000000,
           "min": 0,
+          "max_warning": 10000,
           "empty": false,
           "validators": [
             "discrepancies"
@@ -784,10 +796,12 @@
             "col": "0-2-4-6-8-10-12-14"
           },
           "tooltip": {
-            "promptTitle": "Total Length of Service",
-            "prompt": "Please input the total length of service of female employees in this race/ethnicity and job category in months.",
+            "//promptTitle": "Total Length of Service",
+            "//prompt": "Please input the total length of service of female employees in this race/ethnicity and job category in months.",
             "errorTitle": "Invalid Data Entry",
-            "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero."
+            "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero.",
+            "warningTitle": "Warning: Data is too big",
+            "warning": "Are you sure this value is correct?"
           }
         },
         {
@@ -796,10 +810,12 @@
             "col": "1-3-5-7-9-11-13-15"
           },
           "tooltip": {
-            "promptTitle": "Total Length of Service",
-            "prompt": "Please input the total length of service of male employees in this race/ethnicity and job category in months.",
+            "//promptTitle": "Total Length of Service",
+            "//prompt": "Please input the total length of service of male employees in this race/ethnicity and job category in months.",
             "errorTitle": "Invalid Data Entry",
-            "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero."
+            "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero.",
+            "warningTitle": "Warning: Data is too big",
+            "warning": "Are you sure this value is correct?"
           }
         }
       ]
@@ -809,7 +825,6 @@
       "element": "totals-hot",
       "submit": false,
       "hot_parameters": {
-        "preventOverflow": "horizontal",
         "rowHeaderWidth": 100
       },
       "rows": [

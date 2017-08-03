@@ -43,7 +43,7 @@ var DropSheet = function DropSheet(opts) {
               return;
             }
             wb = XLSX.read(data, readtype);
-            process_wb(wb, 'XLSX');
+            opts.on.workend(process_wb(wb, 'XLSX'));
           } catch (e) {
             opts.errors.failed(e);
           }
@@ -92,8 +92,7 @@ var DropSheet = function DropSheet(opts) {
         case 'xls':
         case 'xlsx':
           pending = false;
-          opts.on.workend();
-          cb(JSON.parse(e.data.d), e.data.t);
+          opts.on.workend(cb(JSON.parse(e.data.d), e.data.t));
           break;
       }
     };
@@ -181,9 +180,11 @@ var DropSheet = function DropSheet(opts) {
     // Assumes all tables updated.
     if (checks.indexOf(false) === -1) {
       alertify.alert("<img src='style/accept.png' alt='Success'>Success",
-        "Updated tables with data automatically. Please fill out the rest of the page.");
+        "The tables below have been populated. Please confirm that your data is accurate and scroll down to answer the multiple choice questions, verify, and submit your data.");
+      return true; // no errors.
     }
 
+    return false; // There are some errors.
   }
 
   // Processes single XLSX JS worksheet and updates one Handsontable.
@@ -212,7 +213,7 @@ var DropSheet = function DropSheet(opts) {
 
     // Check if default range is correct based on top row name.
     if (!(ws[XLS.utils.encode_cell({r: table_start.r, c: table_start.c - 1})] !== undefined &&
-      ws[XLS.utils.encode_cell({r: table_start.r, c: table_start.c - 1})].v === table_def.excel[0].firstrow)) {
+        ws[XLS.utils.encode_cell({r: table_start.r, c: table_start.c - 1})].v === table_def.excel[0].firstrow)){
 
 
       var found_row = false;
@@ -247,7 +248,7 @@ var DropSheet = function DropSheet(opts) {
 
     // Filter array to get rid of undefined values/any headers.
     for (var i = 0; i < matrix.length; i++) {
-      matrix[i] = matrix[i].filter(function (cell) {
+      matrix[i] = matrix[i].filter(function(cell){
         return cell !== undefined && cell !== null && !isNaN(Number(cell));
       })
     }
@@ -306,6 +307,7 @@ var DropSheet = function DropSheet(opts) {
       e.preventDefault();
       if (pending) return opts.errors.pending();
       var files = e.dataTransfer.files;
+      $('#drop-area').removeClass('dragenter');
       readFile(files);
     } else {
       alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
@@ -365,7 +367,9 @@ var DropSheet = function DropSheet(opts) {
 
 
   if (opts.choose.addEventListener) {
-    opts.choose.addEventListener('change', handleFile, false);
+    if (typeof jQuery !== 'undefined') {
+      $('#choose-file').change(handleFile);
+    }
   }
 
 
