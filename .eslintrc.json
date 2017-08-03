@@ -1,13 +1,13 @@
 {
-  "extends": "airbnb-base",
+  "extends": "eslint:recommended",
   "rules": {
-    "no-var": 0,
-    "prefer-arrow-callback": 0,
-    "object-curly-spacing": 0,
+    "indent": [2, 2],
     "object-shorthand": [2, "consistent"],
-    "comma-dangle": [2, "never"],
     "no-unused-vars": [1, {"vars": "local", "args": "none"}],
-    "vars-on-top": 0
+    "quote-props": [1, "consistent-as-needed"],
+    "eqeqeq": 2,
+    "brace-style": 2,
+    "curly": 2
   },
   "env": {
     "browser": true,
