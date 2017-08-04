@@ -159,7 +159,7 @@
           },
           "type": "int",
           "min": 0,
-          "max_warning": 1000,
+          "max_warning": 10000,
           "empty": false,
           "validators": [
             "discrepancies"
@@ -364,7 +364,6 @@
           },
           "type": "currency",
           "min": 0,
-          "max_warning": 1000000,
           "empty": false,
           "validators": [
             "discrepancies"
@@ -569,7 +568,6 @@
           },
           "type": "currency",
           "min": 0,
-          "max_warning": 100000,
           "empty": false,
           "validators": [
             "discrepancies"
@@ -774,7 +772,6 @@
           },
           "type": "int",
           "min": 0,
-          "max_warning": 10000,
           "empty": false,
           "validators": [
             "discrepancies"
