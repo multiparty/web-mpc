@@ -138,7 +138,9 @@ var validator = function (value, callback) {
   var _ = function generic_validator(value, callback, k) {
     if (k >= cell.validators.length) {
       // No errors, check for warning:
-      if (value > cell.max_warning)
+      if (value != '' && value != null && cell.max_warning != null && value > cell.max_warning)
+        cell.status = "warning";
+      else if (value != '' && value != null && cell.min_warning != null && value < cell.min_warning)
         cell.status = "warning";
       else
         cell.status = "ok";
@@ -395,6 +397,7 @@ function make_table_obj(table_def) {
       if (type.max !== undefined) table[i][j].max = type.max;
       if (type.min !== undefined) table[i][j].min = type.min;
       if (type.max_warning !== undefined) table[i][j].max_warning = type.max_warning;
+      if (type.min_warning !== undefined) table[i][j].min_warning = type.min_warning;
       if (type.empty !== undefined) table[i][j].empty = type.empty;
       if (type.read_only !== undefined) table[i][j].read_only = type.read_only;
       if (type.default !== undefined) table[i][j].default = type.default;
