@@ -1,0 +1,125 @@
+{
+  "description": "Specifies a bunch of Hands-on-table and their behavior",
+  "type": "object",
+  "properties": {
+    "tables": {
+      "type": "array",
+      "items": {
+        "description": "Every item is a single table",
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "description": "Name for the table to be used in UI" },
+          "element": { "type": "string", "description": "ID of html element in which to place table" },
+          "hot_parameters": { "type": "object", "description": "should contain any additional parameters to be passed to the hot table constructor" },
+          "rows": {
+            "type": "array",
+            "description": "Specifies the rows of the table",
+            "items": {
+              "type": "object",
+              "description": "one item represents one row (in order)",
+              "properties": {
+                "key": { "type": "string", "description": "Used as key when table data is turned to JSON and sent to server" },
+                "label": { "type": "string", "description": "Label/header to appear to the user inside the first cell of the row" }
+              },
+              "required": ["key","label"]
+            }
+          },
+          "cols": {
+            "type": "array",
+            "description": "Specifies the columns (could be leveled, as in, first row of column header with more spans, then another row of sub-columns, and so on)",
+            "items": {
+              "type": "array",
+              "description": "one item represents one column level (in order from top down)",
+              "items": {
+                "type": "object",
+                "description": "one item represents one column in the current column level",
+                "properties": {
+                  "label": { "type": "string", "description": "Label/header to appear to the user inside the column header" },
+                  "*": "Any parameter(s) that a column object in the nestedHeaders parameter in the HOT constructor can also be used as properties (including colspan).",
+                  "key": {
+                    "type": "string",
+                    "description": "Used as key when table data is turned to JSON and sent to server, should only be used in the last item/level in cols"
+                  }
+                },
+                "required": ["label", "key (only for last element)"]
+              }
+            }
+          }
+        },
+        "types": {
+          "type": "array",
+          "description": "Specifies the types of cells",
+          "items": {
+            "type": "object",
+            "description": "Specifies the type of a given collection/range of cells, types specified on the same cell cascade according to order they appear in the array with the highest precedence given to the last item, using null explicitly as a property removes the cascaded values for that property.",
+            "properties": {
+              "range": {
+                "type": "object",
+                "description": "Specifies a range or collection of cells to which this type applies",
+                "properties": {
+                  "row": { "type": "string",
+                           "description": "specifies the row(s): a number represents an exact row (starting from 0), x:y represents a range from x to y inclusive (both numbers), x-y is a union (x and y) where x,y can be other expressions, * means all rows",
+                           "format": "(%((:%)|)(-%((:%)|))*)|(\\*)    where % is a number" },
+                  "col": { "type": "string", "description": "specifies the column(s), same format as row, indices refer to the widest (usually last) column level." }
+                },
+                "required": [ "row", "col" ]
+              },
+              "type": { "type": "string", "description": "the type of the cell, can be any of the predefined HOT types or any custom types defined with the register_type function" },
+              "min": { "type": "anything with < and > (ints, strings,...) (default: nothing)", "description": "the minimum value, any less value will yield a validation error, cascades by default, to unset/remove cascaded explicity use null" },
+              "max": { "type": "anything with < and > (ints, strings,...) (default: nothing)", "description": "the maximum value, violating it causes a validation error, use null to stop cascading" },
+              "warning_min": { "type": "anything with < and > (ints, strings,...) (default: nothing)", "description": "soft min with only a warning if violated, use null to stop cascading" },
+              "warning_max": { "type": "anything with < and > (ints, strings,...) (default: nothing)", "description": "soft max with only a warning if violated, use null to stop cascading" },
+              "empty": { "type": "boolean", "description": "true means cell allows empty values (default true)"},
+              "read_only": { "type": "boolean", "description": "true means cell is read only (default false)"},
+              "default": { "type": "should match cell type", "description": "default value for the cell (will be sent to server if cell was empty" },
+              "placeholder": { "type": "string", "description": "placeholder to be shown to user (will not be sent to server)"},
+              "validators": {
+                "type": "array",
+                "description": "Specifies additional custom validators, by default cascading will merge all the validators, if you want to ignore previous validators, explicitly set this to null",
+                "items": { "type": "string", "description": "the label of the custom validator function, this label must be passed with the function to the register_validator function" }
+              }
+            },
+            "required": [ "range", "type" ]
+          }
+        },
+        "tooltips": {
+          "type": "array",
+          "description": "Specifies the tooltips of a given collection-range of cells",
+          "items": {
+            "type": "object",
+            "description": "Specifies the tooltip for the matching range, tooltips of the same cell cascade with prority given to the tooltip appearing last in the tooltips array, to stop/remove cascaded tooltips use null explicity on the property that matches the desired type of tooltip",
+            "properties": {
+              "range": "same as types.range above",
+              "tooltip": {
+                "type": "object",
+                "properties": {
+                  "errorTitle": { "type": "string" },
+                  "error": { "type": "string" },
+                  "warningTitle": { "type": "string" },
+                  "warning": { "type": "string" },
+                  "promptTitle": { "type": "string", "description": "default tooltip when no error or warning occurs" },
+                  "prompt": { "type": "string" }
+                }
+              },
+              "required": ["range", "tooltip"]
+            }
+          }
+        },
+        "excel": {
+          "type": "object",
+          "description": "Specifies the location of this table in the spreadsheet (for when a spreadsheet is uploaded/drag-dropped)",
+          "properties": {
+            "sheet": { "type": "string", "description": "The name of the sheet containing the table (case sensitive)" },
+            "start": { "type": "string", "description": "The top-left cell location in the spreadsheet in excel cell-location format (table body, headers not included)", "format": "<COL_LETTER><ROW_NUMBER>" },
+            "end": { "type": "string", "description": "The bottom-right cell location in the spreadsheet in excel cell-location format (table body, headers not included)", "format": "<COL_LETTER><ROW_NUMBER>" },
+            "firstrow": { "type": "string", "description": "The content in the excel for the first row header" }
+          },
+          "required": [ "sheet", "start", "end", "firstrow" ]
+        }
+      },
+      "required": [ "name", "element", "rows", "cols", "types"]
+    }
+  },
+  "required": [ "tables" ]
+}
+
