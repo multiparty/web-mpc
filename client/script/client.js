@@ -1,3 +1,5 @@
+/* global alertify, $ */
+
 var client = (function () {
   var SESSION_KEY_ERROR = 'Invalid session number';
   var PARTICIPATION_CODE_ERROR = 'Invalid participation code';
@@ -8,7 +10,7 @@ var client = (function () {
   var ADD_QUESTIONS_ERR = 'Please answer all Additional Questions';
 
   var GENERIC_TABLE_ERR = 'Please double-check the "%s" table';
-  var SERVER_ERR = "Server not reachable";
+  var SERVER_ERR = 'Server not reachable';
   var GENERIC_SUBMISSION_ERR = 'Something went wrong with submission! Please try again';
 
   var EMPTY_CELLS = 'The table "%s" has empty cells, please enter 0 if there is no value';
@@ -17,11 +19,11 @@ var client = (function () {
   var MIN_VAL_CELLS = 'The table "%s" has cells with negative values, only positive values are allowed';
   var SEMANTIC_CELLS = 'The table "%s" has cells with semantic errors';
   var CELLS_ERRORS = {
-    "empty": EMPTY_CELLS,
-    "type": NAN_CELLS,
-    "min": MIN_VAL_CELLS,
-    "max": MAX_VAL_CELLS,
-    "discrepancies": SEMANTIC_CELLS
+    empty: EMPTY_CELLS,
+    type: NAN_CELLS,
+    min: MIN_VAL_CELLS,
+    max: MAX_VAL_CELLS,
+    discrepancies: SEMANTIC_CELLS
   };
 
   function error(msg) {
@@ -37,7 +39,7 @@ var client = (function () {
    */
   function validateSessionInput(element, checkServerFlag) {
     element = $(element);
-    var pattern = new RegExp($(element).prop("pattern"));
+    var pattern = new RegExp($(element).prop('pattern'));
     var $parent = element.parent();
 
     if (element.val().trim().toLowerCase().match(pattern)) {
@@ -46,8 +48,9 @@ var client = (function () {
       $parent.find('.fail-icon').removeClass('show').addClass('hidden');
       $parent.find('.fail-help').removeClass('show').addClass('hidden');
       $parent.find('.fail-custom').removeClass('show').addClass('hidden');
-      if (checkServerFlag)
+      if (checkServerFlag) {
         verifyKeysAndFetchDescription();
+      }
       return true;
     } else {
       $parent.removeClass('has-success').addClass('has-error has-feedback');
@@ -91,8 +94,9 @@ var client = (function () {
       callback && callback(true);
     }).catch(function (err) {
       var errorMsg = SERVER_ERR;
-      if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined)
+      if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
         errorMsg = err.responseText;
+      }
 
       var $parent = $('#session, #participation-code').parent();
       $parent.removeClass('has-success').addClass('has-error has-feedback');
@@ -136,12 +140,12 @@ var client = (function () {
       return;
     }
 
-    for (var i = 0; i < tables.length - 1; i++) {
-      var table = tables[i];
+    for (var j = 0; j < tables.length - 1; j++) {
+      table = tables[j];
       table.updateSettings({
         // TODO check why reported table width is off
         // This value is incorrect when expanding table by inputting more data
-        width: tableWidths[i] - 40
+        width: tableWidths[j] - 40
       });
     }
 
@@ -242,16 +246,21 @@ var client = (function () {
       });
 
       // Receive errors from validator and puts them in the errors array.
-      var errorHandler = function(table_name, value, row, col, validator_name) {
+      var errorHandler = function (table_name, value, row, col, validator_name) {
         var errorMsg;
-        if (validator_name == "type" && value == "")
+        if (validator_name === "type" && value === "") {
           errorMsg = CELLS_ERRORS["empty"];
-        else
+        } else {
           errorMsg = CELLS_ERRORS[validator_name];
+        }
 
-        if (errorMsg == null) errorMsg = GENERIC_TABLE_ERR;
+        if (errorMsg === null) {
+          errorMsg = GENERIC_TABLE_ERR;
+        }
         errorMsg = errorMsg.replace("%s", table_name);
-        if (errors.indexOf(errorMsg) == -1) errors = errors.concat(errorMsg);
+        if (errors.indexOf(errorMsg) === -1) {
+          errors = errors.concat(errorMsg);
+        }
       };
       register_error_handler(errorHandler);
 
@@ -261,16 +270,21 @@ var client = (function () {
           // Remove the semantic discrepancies validator.
           remove_validator("discrepancies");
           remove_error_handler(0);
-          for (var i = 0; i < tables.length; i++) tables[i].render();
+          for (i = 0; i < tables.length; i++) {
+            tables[i].render();
+          }
 
-          if (errors.length === 0)
+          if (errors.length === 0) {
             return callback(true, "");
-          else
+          } else {
             return callback(false, errors);
+          }
         }
 
         // Dont validate tables that are not going to be submitted
-        if (tables[i]._sail_meta.submit === false) return validate_callback(i + 1);
+        if (tables[i]._sail_meta.submit === false) {
+          return validate_callback(i + 1);
+        }
 
         tables[i].validateCells(function (result) { // Validate table
           validate_callback(i + 1);
@@ -278,8 +292,11 @@ var client = (function () {
       })(0);
     };
 
-    if (errors.length === 0) verifyKeysAndFetchDescription(validateRemainingComponents);
-    else validateRemainingComponents(true);
+    if (errors.length === 0) {
+      verifyKeysAndFetchDescription(validateRemainingComponents);
+    } else {
+      validateRemainingComponents(true);
+    }
   }
 
   /**
@@ -313,8 +330,9 @@ var client = (function () {
     // Handle table data, tables are represented as 2D associative arrays
     // with the first index being the row key, and the second being the column key
     var tables_data = construct_data_tables(tables);
-    for (var i = 0; i < tables_data.length; i++)
+    for (var i = 0; i < tables_data.length; i++) {
       data_submission[tables_data[i].name] = tables_data[i].data;
+    }
 
     // Secret share / mask the data.
     var shares = secretShareValues(data_submission);
@@ -364,13 +382,14 @@ var client = (function () {
       var submitTime = new Date();
       submitEntries.push({time: submitTime, submitted: false});
 
-      if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined)
+      if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
         error(err.responseText);
-      else if (err && (err.status === 0 || err.status === 500))
-      // check for status 0 or status 500 (Server not reachable.)
+      } else if (err && (err.status === 0 || err.status === 500)) {
+        // check for status 0 or status 500 (Server not reachable.)
         error(SERVER_ERR);
-      else
+      } else {
         error(GENERIC_SUBMISSION_ERR);
+      }
 
       convertToHTML(submitEntries);
 
@@ -411,27 +430,29 @@ var client = (function () {
       // bonus can only be non-zero if the other tables are non-zero.
       if (value > 0) {
         for (var i = 0; i < tables.length - 1; i++) { // length-1 because of the totals table
-          if (i == 2) continue;
+          if (i === 2) {
+            continue;
+          }
 
           if (!(tables[i].getDataAtCell(r, c) > 0)) {
             return callback(false); // No need to invalidate other cells here.
           }
         }
       }
-    }
+    } else { // Not bonus table
 
-    else { // Not bonus table
       // the cell must be either zero in all tables, or non-zero in all tables
       var compare = value > 0;
-      for (var i = 0; i < tables.length - 1; i++) { // length-1 because of the totals table
-        if (name === tables[i]._sail_meta.name) continue;
-
-        if (i == 2) { // bonus table can only be greater than zero if this value is greater than 0.
-          if (tables[i].getDataAtCell(r, c) > 0 && !compare)
-            return callback(false);
+      for (i = 0; i < tables.length - 1; i++) { // length-1 because of the totals table
+        if (name === tables[i]._sail_meta.name) {
+          continue;
         }
 
-        else if ((tables[i].getDataAtCell(r, c) > 0) !== compare) {
+        if (i === 2) { // bonus table can only be greater than zero if this value is greater than 0.
+          if (tables[i].getDataAtCell(r, c) > 0 && !compare) {
+            return callback(false);
+          }
+        } else if ((tables[i].getDataAtCell(r, c) > 0) !== compare) {
           return callback(false);
         }
       }
@@ -447,5 +468,5 @@ var client = (function () {
     constructAndSend: construct_and_send,
     validateSessionInput: validateSessionInput,
     updateWidth: updateWidth
-  }
+  };
 })();

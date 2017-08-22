@@ -1,373 +1,416 @@
+/* global alertify, Uint8Array, XLSX, XLS */
+
 var DropSheet = function DropSheet(opts) {
-    if (!opts) opts = {};
-    var nullfunc = function () {
-    };
-    if (!opts.errors) opts.errors = {};
-    if (!opts.errors.badfile) opts.errors.badfile = nullfunc;
-    if (!opts.errors.pending) opts.errors.pending = nullfunc;
-    if (!opts.errors.failed) opts.errors.failed = nullfunc;
-    if (!opts.errors.large) opts.errors.large = nullfunc;
-    if (!opts.on) opts.on = {};
-    if (!opts.on.workstart) opts.on.workstart = nullfunc;
-    if (!opts.on.workend) opts.on.workend = nullfunc;
-    if (!opts.on.sheet) opts.on.sheet = nullfunc;
-    if (!opts.on.wb) opts.on.wb = nullfunc;
+  if (!opts) {
+    opts = {};
+  }
+  var nullfunc = function () {
+  };
+  if (!opts.errors) {
+    opts.errors = {};
+  }
+  if (!opts.errors.badfile) {
+    opts.errors.badfile = nullfunc;
+  }
+  if (!opts.errors.pending) {
+    opts.errors.pending = nullfunc;
+  }
+  if (!opts.errors.failed) {
+    opts.errors.failed = nullfunc;
+  }
+  if (!opts.errors.large) {
+    opts.errors.large = nullfunc;
+  }
+  if (!opts.on) {
+    opts.on = {};
+  }
+  if (!opts.on.workstart) {
+    opts.on.workstart = nullfunc;
+  }
+  if (!opts.on.workend) {
+    opts.on.workend = nullfunc;
+  }
+  if (!opts.on.sheet) {
+    opts.on.sheet = nullfunc;
+  }
+  if (!opts.on.wb) {
+    opts.on.wb = nullfunc;
+  }
 
-    var rABS = typeof FileReader !== 'undefined' && typeof FileReader.prototype !== 'undefined' && typeof FileReader.prototype.readAsBinaryString !== 'undefined';
-    var useworker = typeof Worker !== 'undefined';
-    var pending = false;
+  var rABS = typeof FileReader !== 'undefined' && typeof FileReader.prototype !== 'undefined' && typeof FileReader.prototype.readAsBinaryString !== 'undefined';
+  var useworker = typeof Worker !== 'undefined';
+  var pending = false;
 
-    // Various functions for reading in, parsing.
-    function readFile(files) {
-        var i, f;
-        for (i = 0; i != files.length; ++i) {
-            f = files[i];
-            var reader = new FileReader();
-            var name = f.name;
-            reader.onload = function (e) {
-                var data = e.target.result;
+  // Various functions for reading in, parsing.
+  function readFile(files) {
+    var i, f;
+    for (i = 0; i !== files.length; ++i) {
+      f = files[i];
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        var data = e.target.result;
 
-                var wb, arr, xls = false;
-                var readtype = {type: rABS ? 'binary' : 'base64'};
-                if (!rABS) {
-                    arr = fixdata(data);
-                    data = btoa(arr);
-                }
-                function doit() {
-                    try {
-                        if (useworker) {
-                            sheetjsw(data, process_wb, readtype, xls);
-                            return;
-                        }
-                        wb = XLSX.read(data, readtype);
-                        opts.on.workend(process_wb(wb, 'XLSX'));
-                    } catch (e) {
-                        opts.errors.failed(e);
-                    }
-                }
-
-                if (e.target.result.length > 500000) opts.errors.large(e.target.result.length, function (e) {
-                    if (e) doit();
-                });
-                else {
-                    doit();
-                }
-            };
-            if (rABS) reader.readAsBinaryString(f);
-            else reader.readAsArrayBuffer(f);
-        }
-    }
-
-    // Helper method for array buffer read-in.
-    function fixdata(data) {
-        var o = "", l = 0, w = 10240;
-        for (; l < data.byteLength / w; ++l)
-            o += String.fromCharCode.apply(null, new Uint8Array(data.slice(l * w, l * w + w)));
-        o += String.fromCharCode.apply(null, new Uint8Array(data.slice(o.length)));
-        return o;
-    }
-
-    // Use worker.
-    function sheetjsw(data, cb, readtype, xls) {
-        pending = true;
-        opts.on.workstart();
-        var scripts = document.getElementsByTagName('script');
-        var path;
-        for (var i = 0; i < scripts.length; i++)
-            if (scripts[i].src.indexOf('path') != -1)
-                path = scripts[i].src.split('path.js')[0];
-        var worker = new Worker(path + 'sheetjsw.js');
-        worker.onmessage = function (e) {
-            switch (e.data.t) {
-                case 'ready':
-                    break;
-                case 'e':
-                    pending = false;
-                    console.error(e.data.d);
-                    opts.errors.badfile(e);
-                    break;
-                case 'xls':
-                case 'xlsx':
-                    pending = false;
-                    opts.on.workend(cb(JSON.parse(e.data.d), e.data.t));
-                    break;
-            }
-        };
-        worker.postMessage({d: data, b: readtype, t: 'xlsx'});
-    }
-
-    var last_wb, last_type;
-
-    // JS XLSX sheet conversion of workbook to json format.
-    function to_json(workbook, type) {
-        var XL = type.toUpperCase() === 'XLS' ? XLS : XLSX;
-        if (useworker && workbook.SSF) XLS.SSF.load_table(workbook.SSF);
-        var result = {};
-        workbook.SheetNames.forEach(function (sheetName) {
-            var roa = XL.utils.sheet_to_row_object_array(workbook.Sheets[sheetName], {raw: true});
-            if (roa.length > 0) result[sheetName] = roa;
-        });
-        return result;
-    }
-
-
-    // Gets column headers on sheet. Assumes it's in first row.
-    function get_columns(sheet, type) {
-        var val, rowObject, range, columnHeaders, emptyRow, C;
-        if (!sheet['!ref']) return [];
-        range = XLS.utils.decode_range(sheet["!ref"]);
-        columnHeaders = [];
-        for (C = range.s.c; C <= range.e.c; ++C) {
-            val = sheet[XLS.utils.encode_cell({c: C, r: range.s.r})];
-            if (!val) continue;
-            columnHeaders[C] = type.toLowerCase() == 'xls' ? XLS.utils.format_cell(val) : val.v;
-        }
-        return columnHeaders;
-    }
-
-    function choose_sheet(sheetidx) {
-        process_wb(last_wb, last_type, sheetidx);
-    }
-
-
-    // Parses workbook for relevant cells.
-    function process_wb(wb, type, sheetidx) {
-
-        if (sheetidx == null)
-            // Check tab names are valid.
-            for (var tableidx = 0; tableidx < opts.tables_def.tables.length; tableidx++) {
-                if (opts.tables_def.tables[tableidx].excel === undefined) {
-                    continue;
-                } else {
-                    var current_sheet = opts.tables_def.tables[tableidx].excel[0].sheet;
-                    if (wb.SheetNames.indexOf(current_sheet) === -1) {
-                        // Should override anything that was in HOT originally in case of reupload.
-                        opts.tables[tableidx].clear();
-                        alertify.alert("<img src='style/cancel.png' alt='Error'>Error!",
-                            "Please make sure spreadsheet tab names match those of original template. Tab '" + current_sheet
-                            + "' not found.");
-                        return;
-                    }
-                }
-            }
-
-            // Corresponds to number of tables that are submitted.
-            var checks = [];
-            for (var i = 0; i < opts.tables_def.tables.length; i++) {
-                if (opts.tables_def.tables[i].submit === null || opts.tables_def.tables[i].submit) {
-                    checks.push(false);
-                }
-            }
-
-        // Loop through xlsx worksheets and tables.
-            for (sheetidx = 0; sheetidx < wb.SheetNames.length; sheetidx++) {
-                var current_sheet = wb.Sheets[wb.SheetNames[sheetidx]];
-                for (var tableidx = 0; tableidx < opts.tables_def.tables.length; tableidx++) {
-
-                    if (opts.tables_def.tables[tableidx].excel !== undefined && opts.tables_def.tables[tableidx].excel !== null && opts.tables_def.tables[tableidx].excel[0] !== null) {
-                        if (opts.tables_def.tables[tableidx].excel[0].sheet == wb.SheetNames[sheetidx]) {
-                            checks[tableidx] = process_ws(current_sheet, opts.tables_def.tables[tableidx], opts.tables[tableidx]);
-
-                        }
-                    }
-
-                }
-            }
-
-            // Assumes all tables updated.
-            if (checks.indexOf(false) === -1) {
-                alertify.alert("<img src='style/accept.png' alt='Success'>Success",
-                    "The tables below have been populated. Please confirm that your data is accurate and scroll down to answer the multiple choice questions, verify, and submit your data.");
-                return true; // no errors.
-            }
-
-            return false; // There are some errors.
-    }
-
-    // Processes single XLSX JS worksheet and updates one Handsontable.
-    function process_ws(ws, table_def, table) {
-
-        // Clear existing values in case user is submitting updated sheet after error.
-        //table.clear();
-
-        // Default range for input section of spreadsheet, obtained from tables.json.
-        var sheet_start = table_def.excel[0].start;
-        var sheet_end = table_def.excel[0].end;
-
-        // Ranges for handsontable.
-        var table_start = XLS.utils.decode_cell(sheet_start);
-        var table_end = XLS.utils.decode_cell(sheet_end);
-        var num_rows = table_end.r - table_start.r + 1;
-        var num_cols = table_end.c - table_start.c + 1;
-
-        var changes = [];
-
-        // Keys of XLSX js worksheet.
-        var ws_keys = Object.keys(ws);
-
-        // Default settings for matrix boundary.
-        var matrix = XLSX.utils.sheet_to_json(ws, {raw: true, range: table_start.r, header: 1});
-
-        // Check if default range is correct based on top row name.
-        if (!(ws[XLS.utils.encode_cell({r: table_start.r, c: table_start.c - 1})] !== undefined &&
-            ws[XLS.utils.encode_cell({r: table_start.r, c: table_start.c - 1})].v === table_def.excel[0].firstrow)){
-
-
-           var found_row = false;
-
-            // If table is not in expected position, get new boundaries.
-            for (var i = 0; i < ws_keys.length; i++) {
-                var key = ws_keys[i];
-
-                // Parse for location of top row name.
-                if (ws[key].v !== undefined && ws[key].v !== null && table_def.excel[0].firstrow.toString() === ws[key].v.toString()) {
-                    // Update to boundaries of table (start, end, etc.)
-                    var new_start_row = Number(XLS.utils.decode_cell(key).r);
-                    var new_start_col = Number(XLS.utils.decode_cell(key).c) + 1;
-                    sheet_start = XLSX.utils.encode_cell({r: new_start_row, c: new_start_col});
-                    sheet_end = XLSX.utils.encode_cell({r: new_start_row + num_rows - 1, c: new_start_col + num_cols - 1});
-                    table_start = XLSX.utils.decode_cell(sheet_start);
-                    table_end = XLSX.utils.decode_cell(sheet_end);
-                    matrix = XLSX.utils.sheet_to_json(ws, {raw: true, range: table_start.r, header: 1});
-                    found_row = true;
-                    break;
-                }
-            }
-
-            // If expected row name not found.
-            if (!found_row) {
-                alertify.alert("<img src='style/cancel.png' alt='Error'>Error!",
-                    "Spreadsheet format does not match original template. Please copy-and-paste or type data into the '" +
-                    table_def.name + "' table manually.");
-                return false;
-            }
+        var wb, arr, xls = false;
+        var readtype = {type: rABS ? 'binary' : 'base64'};
+        if (!rABS) {
+          arr = fixdata(data);
+          data = btoa(arr);
         }
 
-        // Filter array to get rid of undefined values/any headers.
-        for (var i = 0; i < matrix.length; i++) {
-            matrix[i] = matrix[i].filter(function(cell){
-                return cell !== undefined && cell !== null && !isNaN(Number(cell));
-            })
-        }
-
-        // Parsing sometimes leads to empty rows, remove these.
-        for (var j = matrix.length - 1; j >= 0; j--) {
-            if (matrix[j].length === 0) {
-                matrix.splice(j, 1);
+        function doit() {
+          try {
+            if (useworker) {
+              sheetjsw(data, process_wb, readtype, xls);
+              return;
             }
+            wb = XLSX.read(data, readtype);
+            opts.on.workend(process_wb(wb, 'XLSX'));
+          } catch (e) {
+            opts.errors.failed(e);
+          }
         }
 
-
-        // Check that number of expected numeric cells is correct. Otherwise alert user.
-        // Row and column checks.
-        if (matrix.length !== num_rows) {
-            alertify.alert("<img src='style/cancel.png' alt='Error'>Error!",
-                "Spreadsheet format does not match original template, or there are empty cells, or non-numeric data. Please copy-and-paste or type data into the '" +
-                table_def.name + "' table manually.");
-            return false;
-        }
-
-        for (var i = 0; i < matrix.length; i++) {
-            if (matrix[i].length !== num_cols) {
-            alertify.alert("<img src='style/cancel.png' alt='Error'>Error!",
-                "Spreadsheet format does not match original template, or there are empty cells, or non-numeric data. Please copy-and-paste or type data into the '" +
-                table_def.name + "' table manually.");
-                return false;
+        if (e.target.result.length > 500000) {
+          opts.errors.large(e.target.result.length, function (e) {
+            if (e) {
+              doit();
             }
-        }
-
-
-        // For each sheet, set value in handsontable.
-        for (var r = 0; r < num_rows; r++) {
-            for (var c = 0; c < num_cols; c++) {
-                changes.push([r, c, matrix[r][c]]);
-            }
-        }
-
-        if (changes.length > 0) {
-            table.setDataAtCell(changes);
-            return true;
-        }
-
-        alertify.alert("<img src='style/cancel.png' alt='Error'>Error!",
-            "Spreadsheet format does not match original template, or there are empty cells, or non-numeric data. Please copy-and-paste or type data into the '" +
-            table_def.name + "' table manually.");
-        return false;
-
-    }
-
-    // For drag-and-drop.
-
-    function handleDrop(e) {
-        if (typeof jQuery !== 'undefined') {
-            e.stopPropagation();
-            e.preventDefault();
-            if (pending) return opts.errors.pending();
-            var files = e.dataTransfer.files;
-            $('#drop-area').removeClass('dragenter');
-            readFile(files);
+          });
         } else {
-            alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
+          doit();
         }
-
-    }
-
-    function handleDragover(e) {
-
-        if (typeof jQuery !== 'undefined') {
-            e.stopPropagation();
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'copy';
-            $('#drop-area').removeClass('dragdefault');
-            $('#drop-area').addClass('dragenter');
-        } else {
-            alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
-        }
-    }
-
-    function handleDragleave(e) {
-        if (typeof jQuery !== 'undefined') {
-            $('#drop-area').removeClass('dragenter');
-        } else {
-            alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
-        }
-    }
-
-    function handleClick(e) {
-        if (typeof jQuery !== 'undefined') {
-            $('#choose-file').click();
-        } else {
-            alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
-        }
-    }
-
-    if (opts.drop.addEventListener) {
-        opts.drop.addEventListener('dragenter', handleDragover, false);
-        opts.drop.addEventListener('dragleave', handleDragleave);
-        opts.drop.addEventListener('dragover', handleDragover, false);
-        opts.drop.addEventListener('drop', handleDrop, false);
-        opts.choose.addEventListener('click', handleClick, false);
-    }
-
-    // For choosing a file using <input> (ie Choose File button).
-
-    function handleFile(e) {
-        var files = e.target.files;
-
-        if (window.FileReader) {
-            // FileReader is supported.
-            readFile(files);
-        } else {
-            alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", "FileReader is not supported in this browser.");
-        }
-    }
-
-
-    if (opts.choose.addEventListener) {
-      if (typeof jQuery !== 'undefined') {
-        $('#choose-file').change(handleFile);
+      };
+      if (rABS) {
+        reader.readAsBinaryString(f);
+      } else {
+        reader.readAsArrayBuffer(f);
       }
     }
+  }
+
+  // Helper method for array buffer read-in.
+  function fixdata(data) {
+    var o = "", l = 0, w = 10240;
+    for (; l < data.byteLength / w; ++l) {
+      o += String.fromCharCode.apply(null, new Uint8Array(data.slice(l * w, l * w + w)));
+    }
+    o += String.fromCharCode.apply(null, new Uint8Array(data.slice(o.length)));
+    return o;
+  }
+
+  // Use worker.
+  function sheetjsw(data, cb, readtype, xls) {
+    pending = true;
+    opts.on.workstart();
+    var scripts = document.getElementsByTagName('script');
+    var path;
+    for (var i = 0; i < scripts.length; i++) {
+      if (scripts[i].src.indexOf('path') !== -1) {
+        path = scripts[i].src.split('path.js')[0];
+      }
+    }
+    var worker = new Worker(path + 'sheetjsw.js');
+    worker.onmessage = function (e) {
+      switch (e.data.t) {
+        case 'ready':
+          break;
+        case 'e':
+          pending = false;
+          //console.error(e.data.d);
+          opts.errors.badfile(e);
+          break;
+        case 'xls':
+        case 'xlsx':
+          pending = false;
+          opts.on.workend(cb(JSON.parse(e.data.d), e.data.t));
+          break;
+      }
+    };
+    worker.postMessage({d: data, b: readtype, t: 'xlsx'});
+  }
+
+  var last_wb, last_type;
+
+  // JS XLSX sheet conversion of workbook to json format.
+  function to_json(workbook, type) {
+    var XL = type.toUpperCase() === 'XLS' ? XLS : XLSX;
+    if (useworker && workbook.SSF) {
+      XLS.SSF.load_table(workbook.SSF);
+    }
+    var result = {};
+    workbook.SheetNames.forEach(function (sheetName) {
+      var roa = XL.utils.sheet_to_row_object_array(workbook.Sheets[sheetName], {raw: true});
+      if (roa.length > 0) {
+        result[sheetName] = roa;
+      }
+    });
+    return result;
+  }
+
+
+  // Gets column headers on sheet. Assumes it's in first row.
+  function get_columns(sheet, type) {
+    var val, rowObject, range, columnHeaders, emptyRow, C;
+    if (!sheet['!ref']) {
+      return [];
+    }
+    range = XLS.utils.decode_range(sheet["!ref"]);
+    columnHeaders = [];
+    for (C = range.s.c; C <= range.e.c; ++C) {
+      val = sheet[XLS.utils.encode_cell({c: C, r: range.s.r})];
+      if (!val) {
+        continue;
+      }
+      columnHeaders[C] = type.toLowerCase() === 'xls' ? XLS.utils.format_cell(val) : val.v;
+    }
+    return columnHeaders;
+  }
+
+  function choose_sheet(sheetidx) {
+    process_wb(last_wb, last_type, sheetidx);
+  }
+
+
+  // Parses workbook for relevant cells.
+  function process_wb(wb, type, sheetidx) {
+    var current_sheet, tableidx;
+
+    if (sheetidx === null) {
+      // Check tab names are valid.
+      for (tableidx = 0; tableidx < opts.tables_def.tables.length; tableidx++) {
+        if (opts.tables_def.tables[tableidx].excel !== undefined) {
+          current_sheet = opts.tables_def.tables[tableidx].excel[0].sheet;
+          if (wb.SheetNames.indexOf(current_sheet) === -1) {
+            // Should override anything that was in HOT originally in case of reupload.
+            opts.tables[tableidx].clear();
+            alertify.alert("<img src='style/cancel.png' alt='Error'>Error!",
+              "Please make sure spreadsheet tab names match those of original template. Tab '" + current_sheet
+              + "' not found.");
+            return;
+          }
+        }
+      }
+    }
+
+    // Corresponds to number of tables that are submitted.
+    var checks = [];
+    for (var i = 0; i < opts.tables_def.tables.length; i++) {
+      if (opts.tables_def.tables[i].submit === null || opts.tables_def.tables[i].submit) {
+        checks.push(false);
+      }
+    }
+
+    // Loop through xlsx worksheets and tables.
+    for (sheetidx = 0; sheetidx < wb.SheetNames.length; sheetidx++) {
+      current_sheet = wb.Sheets[wb.SheetNames[sheetidx]];
+      for (tableidx = 0; tableidx < opts.tables_def.tables.length; tableidx++) {
+
+        if (opts.tables_def.tables[tableidx].excel !== undefined && opts.tables_def.tables[tableidx].excel !== null && opts.tables_def.tables[tableidx].excel[0] !== null) {
+          if (opts.tables_def.tables[tableidx].excel[0].sheet === wb.SheetNames[sheetidx]) {
+            checks[tableidx] = process_ws(current_sheet, opts.tables_def.tables[tableidx], opts.tables[tableidx]);
+
+          }
+        }
+
+      }
+    }
+
+    // Assumes all tables updated.
+    if (checks.indexOf(false) === -1) {
+      alertify.alert("<img src='style/accept.png' alt='Success'>Success",
+        "The tables below have been populated. Please confirm that your data is accurate and scroll down to answer the multiple choice questions, verify, and submit your data.");
+      return true; // no errors.
+    }
+
+    return false; // There are some errors.
+  }
+
+  // Processes single XLSX JS worksheet and updates one Handsontable.
+  function process_ws(ws, table_def, table) {
+
+    // Clear existing values in case user is submitting updated sheet after error.
+    //table.clear();
+
+    // Default range for input section of spreadsheet, obtained from tables.json.
+    var sheet_start = table_def.excel[0].start;
+    var sheet_end = table_def.excel[0].end;
+
+    // Ranges for handsontable.
+    var table_start = XLS.utils.decode_cell(sheet_start);
+    var table_end = XLS.utils.decode_cell(sheet_end);
+    var num_rows = table_end.r - table_start.r + 1;
+    var num_cols = table_end.c - table_start.c + 1;
+
+    var changes = [];
+
+    // Keys of XLSX js worksheet.
+    var ws_keys = Object.keys(ws);
+
+    // Default settings for matrix boundary.
+    var matrix = XLSX.utils.sheet_to_json(ws, {raw: true, range: table_start.r, header: 1});
+
+    // Check if default range is correct based on top row name.
+    if (!(ws[XLS.utils.encode_cell({r: table_start.r, c: table_start.c - 1})] !== undefined &&
+        ws[XLS.utils.encode_cell({r: table_start.r, c: table_start.c - 1})].v === table_def.excel[0].firstrow)) {
+
+
+      var found_row = false;
+
+      // If table is not in expected position, get new boundaries.
+      for (var i = 0; i < ws_keys.length; i++) {
+        var key = ws_keys[i];
+
+        // Parse for location of top row name.
+        if (ws[key].v !== undefined && ws[key].v !== null && table_def.excel[0].firstrow.toString() === ws[key].v.toString()) {
+          // Update to boundaries of table (start, end, etc.)
+          var new_start_row = Number(XLS.utils.decode_cell(key).r);
+          var new_start_col = Number(XLS.utils.decode_cell(key).c) + 1;
+          sheet_start = XLSX.utils.encode_cell({r: new_start_row, c: new_start_col});
+          sheet_end = XLSX.utils.encode_cell({r: new_start_row + num_rows - 1, c: new_start_col + num_cols - 1});
+          table_start = XLSX.utils.decode_cell(sheet_start);
+          table_end = XLSX.utils.decode_cell(sheet_end);
+          matrix = XLSX.utils.sheet_to_json(ws, {raw: true, range: table_start.r, header: 1});
+          found_row = true;
+          break;
+        }
+      }
+
+      // If expected row name not found.
+      if (!found_row) {
+        alertify.alert("<img src='style/cancel.png' alt='Error'>Error!",
+          "Spreadsheet format does not match original template. Please copy-and-paste or type data into the '" +
+          table_def.name + "' table manually.");
+        return false;
+      }
+    }
+
+    // Filter array to get rid of undefined values/any headers.
+    for (i = 0; i < matrix.length; i++) {
+      matrix[i] = matrix[i].filter(function (cell) {
+        return cell !== undefined && cell !== null && !isNaN(Number(cell));
+      })
+    }
+
+    // Parsing sometimes leads to empty rows, remove these.
+    for (var j = matrix.length - 1; j >= 0; j--) {
+      if (matrix[j].length === 0) {
+        matrix.splice(j, 1);
+      }
+    }
+
+
+    // Check that number of expected numeric cells is correct. Otherwise alert user.
+    // Row and column checks.
+    if (matrix.length !== num_rows) {
+      alertify.alert("<img src='style/cancel.png' alt='Error'>Error!",
+        "Spreadsheet format does not match original template, or there are empty cells, or non-numeric data. Please copy-and-paste or type data into the '" +
+        table_def.name + "' table manually.");
+      return false;
+    }
+
+    for (i = 0; i < matrix.length; i++) {
+      if (matrix[i].length !== num_cols) {
+        alertify.alert("<img src='style/cancel.png' alt='Error'>Error!",
+          "Spreadsheet format does not match original template, or there are empty cells, or non-numeric data. Please copy-and-paste or type data into the '" +
+          table_def.name + "' table manually.");
+        return false;
+      }
+    }
+
+
+    // For each sheet, set value in handsontable.
+    for (var r = 0; r < num_rows; r++) {
+      for (var c = 0; c < num_cols; c++) {
+        changes.push([r, c, matrix[r][c]]);
+      }
+    }
+
+    if (changes.length > 0) {
+      table.setDataAtCell(changes);
+      return true;
+    }
+
+    alertify.alert("<img src='style/cancel.png' alt='Error'>Error!",
+      "Spreadsheet format does not match original template, or there are empty cells, or non-numeric data. Please copy-and-paste or type data into the '" +
+      table_def.name + "' table manually.");
+    return false;
+
+  }
+
+  // For drag-and-drop.
+
+  function handleDrop(e) {
+    if (typeof jQuery !== 'undefined') {
+      e.stopPropagation();
+      e.preventDefault();
+      if (pending) {
+        return opts.errors.pending();
+      }
+      var files = e.dataTransfer.files;
+      $('#drop-area').removeClass('dragenter');
+      readFile(files);
+    } else {
+      alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
+    }
+
+  }
+
+  function handleDragover(e) {
+
+    if (typeof jQuery !== 'undefined') {
+      e.stopPropagation();
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+      $('#drop-area').removeClass('dragdefault');
+      $('#drop-area').addClass('dragenter');
+    } else {
+      alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
+    }
+  }
+
+  function handleDragleave(e) {
+    if (typeof jQuery !== 'undefined') {
+      $('#drop-area').removeClass('dragenter');
+    } else {
+      alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
+    }
+  }
+
+  function handleClick(e) {
+    if (typeof jQuery !== 'undefined') {
+      $('#choose-file').click();
+    } else {
+      alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
+    }
+  }
+
+  if (opts.drop.addEventListener) {
+    opts.drop.addEventListener('dragenter', handleDragover, false);
+    opts.drop.addEventListener('dragleave', handleDragleave);
+    opts.drop.addEventListener('dragover', handleDragover, false);
+    opts.drop.addEventListener('drop', handleDrop, false);
+    opts.choose.addEventListener('click', handleClick, false);
+  }
+
+  // For choosing a file using <input> (ie Choose File button).
+
+  function handleFile(e) {
+    var files = e.target.files;
+
+    if (window.FileReader) {
+      // FileReader is supported.
+      readFile(files);
+    } else {
+      alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", "FileReader is not supported in this browser.");
+    }
+  }
+
+
+  if (opts.choose.addEventListener) {
+    if (typeof jQuery !== 'undefined') {
+      $('#choose-file').change(handleFile);
+    }
+  }
 
 
 };

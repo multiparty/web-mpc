@@ -1,3 +1,7 @@
+/* global Handsontable */
+
+'use strict';
+
 // Bug in handsontable with two screens.
 // If you move the window between two screen, the document fires a
 // focus/mouse over event. Handsontable handles that event and uses
@@ -20,7 +24,7 @@ document['classList']['contains'] = function () {
 // The cell object has the following attributes:
 // row_key, col_key, row_index, col_index, type, validators (array of names), max, min, empty (flag), read_only (flag), default, placeholder, tooltip (nest object)
 var validators_map = {
-  'dummy_template': function (table, cell, value, callback) {
+  dummy_template: function (table, cell, value, callback) {
     callback(true);
   }
 };
@@ -40,16 +44,16 @@ function remove_validator(name) {
 // The names can be used in the json template as a shortcut to assign
 // the mapped type information and formatting to a cell.
 var types_map = {
-  'int': {
-    'type': 'numeric'
+  int: {
+    type: 'numeric'
   },
 
-  'currency': {
-    'type': 'numeric',
-    'format': '$0,0.00',
-    'language': 'en-US' // this is the default locale, set up for USD
+  currency: {
+    type: 'numeric',
+    format: '$0,0.00',
+    language: 'en-US' // this is the default locale, set up for USD
   }
-}
+};
 
 
 var table_widths = {};
@@ -80,15 +84,18 @@ function register_error_handler(handler) {
  * @param {int} index - the index of the handler to remove.
  */
 function remove_error_handler(index) {
-  if (index >= 0 && index < errorHandlers.length) errorHandlers = errorHandlers.splice(index, 1);
+  if (index >= 0 && index < errorHandlers.length) {
+    errorHandlers = errorHandlers.splice(index, 1);
+  }
 }
 
 /**
  * Calls all the error handlers with any given arguments.
  */
 function fire_all_error_handlers(table_name, value, row, col, validator_name) {
-  for (var i = 0; i < errorHandlers.length; i++)
+  for (var i = 0; i < errorHandlers.length; i++) {
     errorHandlers[i](table_name, value, row, col, validator_name);
+  }
 }
 
 
@@ -109,21 +116,21 @@ var validator = function (value, callback) {
 
   // Makes initializing the table faster.
   // Dont validate empty on intialization cells until they receive values.
-  if (cell.first_time == undefined) {
+  if (cell.first_time === undefined) {
     cell.first_time = true;
     cell.status = "ok";
     callback(true);
     return;
   }
 
-  if (value != '' && value != null && cell.max != null && value > cell.max) {
+  if (value !== '' && value !== null && cell.max !== null && value > cell.max) {
     fire_all_error_handlers(table._sail_meta.name, value, cell.row_index, cell.col_index, "max");
     cell.status = "error";
     callback(false);
     return;
   }
 
-  if (value != '' && value != null && cell.min != null && value < cell.min) {
+  if (value !== '' && value !== null && cell.min !== null && value < cell.min) {
     fire_all_error_handlers(table._sail_meta.name, value, cell.row_index, cell.col_index, "min");
     cell.status = "error";
     callback(false);
@@ -135,54 +142,66 @@ var validator = function (value, callback) {
   // all validators will be executed one after the other
   // such that the callback passed to every validator is
   // chained into the next one.
-  var _ = function generic_validator(value, callback, k) {
+  (function generic_validator(value, callback, k) {
     if (k >= cell.validators.length) {
       // No errors, check for warning:
-      if (value != '' && value != null && cell.max_warning != null && value > cell.max_warning)
+      if (value && cell.max_warning && value > cell.max_warning) {
         cell.status = "warning";
-      else if (value != '' && value != null && cell.min_warning != null && value < cell.min_warning)
+      } else if (value && cell.min_warning && value < cell.min_warning) {
         cell.status = "warning";
-      else
+      } else {
         cell.status = "ok";
+      }
 
       callback(true);
       return;
     }
 
     var generic_callback = function (previous_result) {
-      if (previous_result) generic_validator(value, callback, k + 1);
-      else {
-        if (k == -1) // Default HOT validator according to type.
+      if (previous_result) {
+        generic_validator(value, callback, k + 1);
+      } else {
+        if (k === -1) {
+          // Default HOT validator according to type.
           fire_all_error_handlers(table._sail_meta.name, value, cell.row_index, cell.col_index, "type");
-        else // Custom validator.
+        } else {
+          // Custom validator.
           fire_all_error_handlers(table._sail_meta.name, value, cell.row_index, cell.col_index, cell.validators[k]);
+        }
 
         cell.status = "error";
         callback(false); // early break
       }
-    }
+    };
 
     if (k > -1) {
       var validator_func = validators_map[cell.validators[k]];
-      if (validator_func != null) validator_func(table, cell, value, generic_callback);
-      else generic_callback(true);
+      if (validator_func) {
+        validator_func(table, cell, value, generic_callback);
+      } else {
+        generic_callback(true);
+      }
       return;
     }
 
     // call the default validator
     var hot_cell_type = cell.type;
-    if (types_map[cell.type] != null && types_map[cell.type].type != null) hot_cell_type = types_map[cell.type].type;
+    if (types_map[cell.type] !== null && types_map[cell.type].type !== null) {
+      hot_cell_type = types_map[cell.type].type;
+    }
 
     var hot_type_alias = Handsontable.cellTypes[hot_cell_type];
-    if (hot_type_alias != null && hot_type_alias.validator != null
+    if (hot_type_alias !== null && hot_type_alias.validator !== null
       // Fix: if empty values are allowed, and the value is empty do not call default validator.
-      && (cell.empty === false || (value != null && value != '')))
-      hot_type_alias.validator(value, generic_callback);
+      && (cell.empty === false || (value !== null && value !== ''))) {
 
-    else // no default validator
+      hot_type_alias.validator(value, generic_callback);
+    } else {
+      // no default validator
       generic_callback(true);
-  }(value, callback, -1);
-}
+    }
+  })(value, callback, -1);
+};
 
 /**
  * Custom renderer.
@@ -192,32 +211,38 @@ var validator = function (value, callback) {
  * Then the default renderer that matches the declared cell type is called.
  */
 var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
-  if (instance._sail_meta == null) return; // render will be called again
+  if (!instance._sail_meta) {
+    return; // render will be called again
+  }
 
   var cell = instance._sail_meta.cells[row][col];
 
   // Readonly
-  if (cell.read_only != null) cellProperties.readOnly = cell.read_only;
+  if (cell.read_only !== null) {
+    cellProperties.readOnly = cell.read_only;
+  }
 
   // Tooltip
   var tooltip = cell.tooltip;
-  var tableName = instance._sail_meta.element;   // Assumes each table has distinct name.
 
   // Check for error
   if (cellProperties.valid === false) {
+
     TD.style.background = '#F06D65';
 
     if (typeof jQuery !== 'undefined' && typeof jQuery().qtip !== 'undefined') {
-      $TD = $(TD);
+      var $TD = $(TD);
       // Remove any previous tooltip
-      if ($TD.qtip('api') != null)
+      if ($TD.qtip('api')) {
         $TD.qtip('api').destroy();
+      }
 
       // Setup error tooltip if exists.
-      if (tooltip != null && tooltip.errorTitle !== null && tooltip.errorTitle !== undefined
-          && tooltip.error !== null && tooltip.error !== undefined)
+      if (tooltip && tooltip.errorTitle !== null && tooltip.errorTitle !== undefined
+        && tooltip.error !== null && tooltip.error !== undefined) {
+
         $TD.qtip({
-          style: { classes: 'qtip-red' },
+          style: {classes: 'qtip-red'},
           content: {
             title: tooltip.errorTitle,
             text: "<img src='style/cancel.png' alt='Error'>" + tooltip.error
@@ -227,26 +252,27 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
             event: 'click',
             delay: 30
           },
-          hide: { event: 'mouseleave' }
+          hide: {event: 'mouseleave'}
         });
+      }
     }
-  }
+  } else if (cell.status === "warning") {
 
-  // Check for warning
-  else if (cell.status == "warning") {
+    // Check for warning
     TD.style.background = '#FFFF66';
 
     if (typeof jQuery !== 'undefined' && typeof jQuery().qtip !== 'undefined') {
       $TD = $(TD);
       // Remove any previous tooltip
-      if ($TD.qtip('api') != null)
+      if ($TD.qtip('api')) {
         $TD.qtip('api').destroy();
+      }
 
       // Setup warning tooltip if exists.
-      if (tooltip != null && tooltip.warningTitle !== null && tooltip.warningTitle !== undefined
-          && tooltip.warning !== null && tooltip.warning !== undefined)
+      if (tooltip && tooltip.warningTitle !== null && tooltip.warningTitle !== undefined
+        && tooltip.warning !== null && tooltip.warning !== undefined) {
         $TD.qtip({
-          style: { classes: 'qtip-yellow' },
+          style: {classes: 'qtip-yellow'},
           content: {
             title: tooltip.warningTitle,
             text: "<img src='style/cancel.png' alt='Warning'>" + tooltip.warning
@@ -256,24 +282,25 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
             event: 'click',
             delay: 30
           },
-          hide: { event: 'mouseleave' }
+          hide: {event: 'mouseleave'}
         });
+      }
     }
-  }
+  } else {
 
-  // No Warning or Error
-  else {
+    // No Warning or Error
     if (typeof jQuery !== 'undefined' && typeof jQuery().qtip !== 'undefined') {
       $TD = $(TD);
       // Remove any previous tooltip
-      if ($TD.qtip('api') != null)
+      if ($TD.qtip('api')) {
         $TD.qtip('api').destroy();
+      }
 
       // Setup prompt tooltip if exists.
-      if (tooltip != null && tooltip.promptTitle !== null && tooltip.promptTitle !== undefined
-          && tooltip.prompt !== null && tooltip.prompt !== undefined)
+      if (tooltip && tooltip.promptTitle !== null && tooltip.promptTitle !== undefined
+        && tooltip.prompt !== null && tooltip.prompt !== undefined) {
         $TD.qtip({
-          style: { classes: 'qtip-light' },
+          style: {classes: 'qtip-light'},
           content: {
             title: tooltip.promptTitle,
             text: tooltip.prompt
@@ -283,53 +310,62 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
             event: 'click',
             delay: 30
           },
-          hide: { event: 'mouseleave' }
+          hide: {event: 'mouseleave'}
         });
+      }
     }
   }
 
   // Fallback if no jQuery - use comments.
   if (cellProperties.valid === false) {
-    if (tooltip !== undefined && tooltip !== null &&
-        tooltip.errorTitle !== undefined && tooltip.errorTitle !== null &&
-        tooltip.error !== undefined && tooltip.error !== null &&
-        (typeof jQuery === 'undefined' || typeof jQuery().qtip === 'undefined'))
-       cellProperties.comment = {"value": tooltip.errorTitle.toUpperCase() + ' - ' + tooltip.error};
 
-    else
-      cellProperties.comment = null;
-  }
-  else if (cell.status == "warning") {
     if (tooltip !== undefined && tooltip !== null &&
-        tooltip.warningTitle !== undefined && tooltip.warningTitle !== null &&
-        tooltip.warning !== undefined && tooltip.warning !== null &&
-        (typeof jQuery === 'undefined' || typeof jQuery().qtip === 'undefined'))
-       cellProperties.comment = {"value": tooltip.warningTitle.toUpperCase() + ' - ' + tooltip.warning};
+      tooltip.errorTitle !== undefined && tooltip.errorTitle !== null &&
+      tooltip.error !== undefined && tooltip.error !== null &&
+      (typeof jQuery === 'undefined' || typeof jQuery().qtip === 'undefined')) {
 
-    else
+      cellProperties.comment = {value: tooltip.errorTitle.toUpperCase() + ' - ' + tooltip.error};
+    } else {
       cellProperties.comment = null;
-  }
-  else {
+    }
+  } else if (cell.status === "warning") {
+
     if (tooltip !== undefined && tooltip !== null &&
-        tooltip.promptTitle !== undefined && tooltip.promptTitle !== null &&
-        tooltip.prompt !== undefined && tooltip.prompt !== null &&
-        (typeof jQuery === 'undefined' || typeof jQuery().qtip === 'undefined'))
-      cellProperties.comment = { "value": tooltip.promptTitle.toUpperCase() + ' - ' + tooltip.prompt };
-    else
+      tooltip.warningTitle !== undefined && tooltip.warningTitle !== null &&
+      tooltip.warning !== undefined && tooltip.warning !== null &&
+      (typeof jQuery === 'undefined' || typeof jQuery().qtip === 'undefined')) {
+
+      cellProperties.comment = {value: tooltip.warningTitle.toUpperCase() + ' - ' + tooltip.warning};
+    } else {
       cellProperties.comment = null;
+    }
+  } else {
+
+    if (tooltip !== undefined && tooltip !== null &&
+      tooltip.promptTitle !== undefined && tooltip.promptTitle !== null &&
+      tooltip.prompt !== undefined && tooltip.prompt !== null &&
+      (typeof jQuery === 'undefined' || typeof jQuery().qtip === 'undefined')) {
+
+      cellProperties.comment = {value: tooltip.promptTitle.toUpperCase() + ' - ' + tooltip.prompt};
+    } else {
+      cellProperties.comment = null;
+    }
   }
 
   // Call the default renderer
   var baseRenderer = Handsontable.cellTypes['text'].renderer;
   var hot_cell_type = cell.type;
-  if (types_map[cell.type] != null && types_map[cell.type].type != null) hot_cell_type = types_map[cell.type].type;
+  if (types_map[cell.type] !== null && types_map[cell.type].type !== null) {
+    hot_cell_type = types_map[cell.type].type;
+  }
 
   var hot_type_alias = Handsontable.cellTypes[hot_cell_type];
-  if (hot_type_alias != null && hot_type_alias.renderer != null)
+  if (hot_type_alias !== null && hot_type_alias.renderer !== null) {
     baseRenderer = hot_type_alias.renderer;
+  }
 
   baseRenderer.apply(this, arguments); // call default renderer that matches the type.
-}
+};
 
 /**
  * Creates hands-on-tables from the given definition.
@@ -360,8 +396,9 @@ function make_table_obj(table_def) {
   var submit = table_def.submit;
   var hot_parameters = table_def.hot_parameters;
 
-  if (!(table_def.submit === true || table_def.submit === false))
+  if (!(table_def.submit === true || table_def.submit === false)) {
     submit = true;
+  }
 
   var rows_len = table_def.rows.length;
   var cols_levels = table_def.cols.length;
@@ -369,14 +406,16 @@ function make_table_obj(table_def) {
 
   // Create table array
   var table = new Array(rows_len);
-  for (var i = 0; i < rows_len; i++) table[i] = new Array(cols_len);
+  for (var i = 0; i < rows_len; i++) {
+    table[i] = new Array(cols_len);
+  }
 
   // Fill in keys
-  for (var i = 0; i < rows_len; i++) {
-    var row_key = table_def.rows[i].key;
-    for (var j = 0; j < cols_len; j++) {
-      var col_key = table_def.cols[cols_levels - 1][j].key;
-      table[i][j] = {"row_key": row_key, "col_key": col_key, "row_index": i, "col_index": j};
+  for (var j = 0; j < rows_len; j++) {
+    var row_key = table_def.rows[j].key;
+    for (var k = 0; k < cols_len; k++) {
+      var col_key = table_def.cols[cols_levels - 1][k].key;
+      table[j][k] = {row_key: row_key, col_key: col_key, row_index: j, col_index: k};
     }
   }
 
@@ -386,22 +425,45 @@ function make_table_obj(table_def) {
     var type = table_def.types[t];
 
     var update_cell = function (i, j) {
-      if (type.type != null) table[i][j].type = type.type;
-      if (type.type == null && table[i][j].type == null) table[i][j].type = 'int';
-      if (table[i][j].validators == null || type.validators === null)
+      if (type.type !== null) {
+        table[i][j].type = type.type;
+      }
+      if (!type.type && !table[i][j].type) {
+        table[i][j].type = 'int';
+      }
+      if (!table[i][j].validators || !type.validators) {
         table[i][j].validators = [];
+      }
 
       var tmp = type.validators || [];
-      for (var v = 0; v < tmp.length; v++) table[i][j].validators.push(tmp[v]);
+      for (var v = 0; v < tmp.length; v++) {
+        table[i][j].validators.push(tmp[v]);
+      }
 
-      if (type.max !== undefined) table[i][j].max = type.max;
-      if (type.min !== undefined) table[i][j].min = type.min;
-      if (type.max_warning !== undefined) table[i][j].max_warning = type.max_warning;
-      if (type.min_warning !== undefined) table[i][j].min_warning = type.min_warning;
-      if (type.empty !== undefined) table[i][j].empty = type.empty;
-      if (type.read_only !== undefined) table[i][j].read_only = type.read_only;
-      if (type.default !== undefined) table[i][j].default = type.default;
-      if (type.placeholder !== undefined) table[i][j].placeholder = type.placeholder;
+      if (type.max !== undefined) {
+        table[i][j].max = type.max;
+      }
+      if (type.min !== undefined) {
+        table[i][j].min = type.min;
+      }
+      if (type.max_warning !== undefined) {
+        table[i][j].max_warning = type.max_warning;
+      }
+      if (type.min_warning !== undefined) {
+        table[i][j].min_warning = type.min_warning;
+      }
+      if (type.empty !== undefined) {
+        table[i][j].empty = type.empty;
+      }
+      if (type.read_only !== undefined) {
+        table[i][j].read_only = type.read_only;
+      }
+      if (type.default !== undefined) {
+        table[i][j].default = type.default;
+      }
+      if (type.placeholder !== undefined) {
+        table[i][j].placeholder = type.placeholder;
+      }
     };
 
     visit_range(rows_len, cols_len, type.range, update_cell);
@@ -409,29 +471,33 @@ function make_table_obj(table_def) {
 
   // Fill in tooltip
   table_def.tooltips = table_def.tooltips || [];
-  for (var t = 0; t < table_def.tooltips.length; t++) {
+  for (t = 0; t < table_def.tooltips.length; t++) {
     var tooltip = table_def.tooltips[t];
 
-    var update_cell = function (i, j) {
+    var update_cell2 = function (i, j) {
       table[i][j].tooltip = tooltip.tooltip;
     };
 
-    visit_range(rows_len, cols_len, tooltip.range, update_cell);
+    visit_range(rows_len, cols_len, tooltip.range, update_cell2);
   }
 
   // Format according to HandsOnTable format.
   var rows = new Array(rows_len);
-  for (var i = 0; i < rows_len; i++) rows[i] = table_def.rows[i].label;
+  for (i = 0; i < rows_len; i++) {
+    rows[i] = table_def.rows[i].label;
+  }
 
   var cols = table_def.cols;
-  for (var i = 0; i < cols_len; i++) cols[cols_levels - 1][i] = table_def.cols[cols_levels - 1][i].label;
+  for (i = 0; i < cols_len; i++) {
+    cols[cols_levels - 1][i] = table_def.cols[cols_levels - 1][i].label;
+  }
 
   return {
-    "name": table_name, "submit": submit,
-    "element": element, "width": width,
-    "rows": rows, "cols": cols, "cells": table,
-    "rowsCount": rows_len, "colsCount": cols_len,
-    "hot_parameters": hot_parameters
+    name: table_name, submit: submit,
+    element: element, width: width,
+    rows: rows, cols: cols, cells: table,
+    rowsCount: rows_len, colsCount: cols_len,
+    hot_parameters: hot_parameters
   };
 }
 
@@ -444,12 +510,13 @@ function make_hot_table(table) {
   var element = document.querySelector("#" + table.element);
 
   var hot_cols = new Array(table.colsCount);
-  for (var i = 0; i < table.colsCount; i++)
-    hot_cols[i] = {"type": "text"}; //default thing that does not matter, will be overriden cell by cell
+  for (var i = 0; i < table.colsCount; i++) {
+    hot_cols[i] = {type: "text"}; //default thing that does not matter, will be overridden cell by cell
+  }
 
   var cells = [];
   // construct cell by cell properties
-  for (var i = 0; i < table.rowsCount; i++) {
+  for (i = 0; i < table.rowsCount; i++) {
     for (var j = 0; j < table.colsCount; j++) {
       var cell_def = table.cells[i][j];
       var type = cell_def.type;
@@ -457,16 +524,24 @@ function make_hot_table(table) {
       var read_only = false;
       var placeholder = null;
 
-      if (cell_def.empty != null) empty = cell_def.empty;
-      if (cell_def.read_only != null) read_only = cell_def.read_only;
-      if (cell_def.placeholder != null) placeholder = cell_def.placeholder.toString();
+      if (cell_def.empty === false) {
+        empty = cell_def.empty;
+      }
+      if (cell_def.read_only) {
+        read_only = cell_def.read_only;
+      }
+      if (cell_def.placeholder) {
+        placeholder = cell_def.placeholder.toString();
+      }
 
       var cell = {
-        "row": i, "col": j, "type": type,
-        "allowEmpty": empty, "readOnly": read_only, 'placeholder': placeholder,
-        "validator": validator, "renderer": renderer
+        row: i, col: j, type: type,
+        allowEmpty: empty, readOnly: read_only, placeholder: placeholder,
+        validator: validator, renderer: renderer
       };
-      if (types_map[cell_def.type]) Object.assign(cell, types_map[cell_def.type]);
+      if (types_map[cell_def.type]) {
+        Object.assign(cell, types_map[cell_def.type]);
+      }
 
       cells.push(cell);
     }
@@ -475,8 +550,9 @@ function make_hot_table(table) {
   // Work around not rendering the entire table
   // Make enough space in data for all rows ahead of time
   var data = new Array(table.rowsCount);
-  for (var r = 0; r < table.rowsCount; r++)
+  for (var r = 0; r < table.rowsCount; r++) {
     data[r] = [];
+  }
 
   var hotSettings = {
     // Enable tooltips
@@ -553,8 +629,10 @@ function get_width(table) {
 
   // Need to account for column header.
   var narrowestCol = Math.min.apply(null, colWidths);
-  var colSum = colWidths.reduce(function(a, b) { return a + b}, 0);
-  return narrowestCol*5 + colSum;
+  var colSum = colWidths.reduce(function (a, b) {
+    return a + b
+  }, 0);
+  return narrowestCol * 5 + colSum;
 }
 
 /**
@@ -573,18 +651,26 @@ function visit_range(rows_len, cols_len, range, f) {
       var row = row_range[r].trim();
       var col = col_range[c].trim();
 
-      if (row == "*") row = "0:1:" + (rows_len - 1);
-      if (col == "*") col = "0:1:" + (cols_len - 1);
-      if (row.indexOf(":") == -1) row = row + ":1:" + row;
-      if (col.indexOf(":") == -1) col = col + ":1:" + col;
+      if (row === "*") {
+        row = "0:1:" + (rows_len - 1);
+      }
+      if (col === "*") {
+        col = "0:1:" + (cols_len - 1);
+      }
+      if (row.indexOf(":") === -1) {
+        row = row + ":1:" + row;
+      }
+      if (col.indexOf(":") === -1) {
+        col = col + ":1:" + col;
+      }
 
       row = row.split(":");
       col = col.split(":");
-      if (row.length == 2) {
+      if (row.length === 2) {
         row[2] = row[1];
         row[1] = 1;
       }
-      if (col.length == 2) {
+      if (col.length === 2) {
         col[2] = col[1];
         col[1] = 1;
       }
@@ -610,8 +696,10 @@ function construct_data_tables(table_hot_arr) {
   var result = [];
   for (var i = 0; i < table_hot_arr.length; i++) {
     var table_hot_obj = table_hot_arr[i];
-    if (table_hot_obj._sail_meta.submit === false) continue;
-    result.push({'name': table_hot_obj._sail_meta.name, 'data': construct_data(table_hot_obj)});
+    if (table_hot_obj._sail_meta.submit === false) {
+      continue;
+    }
+    result.push({name: table_hot_obj._sail_meta.name, data: construct_data(table_hot_obj)});
   }
 
   return result;
@@ -634,12 +722,17 @@ function construct_data(table_hot_obj) {
     for (var c = 0; c < meta.colsCount; c++) {
       var cell = meta.cells[r][c];
       var cell_data = table_hot_obj.getDataAtCell(r, c);
-      if (cell_data == null || cell_data.toString().trim() == '')
-        if (cell.default != null) cell_data = cell.default;
+      if (!cell_data || cell_data.toString().trim() === '') {
+        if (cell.default) {
+          cell_data = cell.default;
+        }
+      }
 
       var row_key = cell.row_key;
       var col_key = cell.col_key;
-      if (data[row_key] == undefined) data[row_key] = {};
+      if (data[row_key] === undefined) {
+        data[row_key] = {};
+      }
       data[row_key][col_key] = cell_data;
     }
   }
