@@ -145,7 +145,9 @@ var validator = function (value, callback) {
   (function generic_validator(value, callback, k) {
     if (k >= cell.validators.length) {
       // No errors, check for warning:
-      if (value > cell.max_warning) {
+      if (value && cell.max_warning && value > cell.max_warning) {
+        cell.status = "warning";
+      } else if (value && cell.min_warning && value < cell.min_warning) {
         cell.status = "warning";
       } else {
         cell.status = "ok";
@@ -446,6 +448,9 @@ function make_table_obj(table_def) {
       }
       if (type.max_warning !== undefined) {
         table[i][j].max_warning = type.max_warning;
+      }
+      if (type.min_warning !== undefined) {
+        table[i][j].min_warning = type.min_warning;
       }
       if (type.empty !== undefined) {
         table[i][j].empty = type.empty;
