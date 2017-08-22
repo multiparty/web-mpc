@@ -174,7 +174,7 @@ var validator = function (value, callback) {
 
     if (k > -1) {
       var validator_func = validators_map[cell.validators[k]];
-      if (validator_func !== null) {
+      if (validator_func) {
         validator_func(table, cell, value, generic_callback);
       } else {
         generic_callback(true);
@@ -231,7 +231,7 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
     if (typeof jQuery !== 'undefined' && typeof jQuery().qtip !== 'undefined') {
       var $TD = $(TD);
       // Remove any previous tooltip
-      if ($TD.qtip('api') !== null) {
+      if ($TD.qtip('api')) {
         $TD.qtip('api').destroy();
       }
 
@@ -718,7 +718,7 @@ function construct_data(table_hot_obj) {
       var cell = meta.cells[r][c];
       var cell_data = table_hot_obj.getDataAtCell(r, c);
       if (!cell_data || cell_data.toString().trim() === '') {
-        if (cell.default !== null) {
+        if (cell.default) {
           cell_data = cell.default;
         }
       }
