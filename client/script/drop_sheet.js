@@ -1,20 +1,41 @@
-/* global alertify */
-/* exported DropSheet */
+/* global alertify, Uint8Array, XLSX, XLS */
 
 var DropSheet = function DropSheet(opts) {
-  if (!opts) opts = {};
+  if (!opts) {
+    opts = {};
+  }
   var nullfunc = function () {
   };
-  if (!opts.errors) opts.errors = {};
-  if (!opts.errors.badfile) opts.errors.badfile = nullfunc;
-  if (!opts.errors.pending) opts.errors.pending = nullfunc;
-  if (!opts.errors.failed) opts.errors.failed = nullfunc;
-  if (!opts.errors.large) opts.errors.large = nullfunc;
-  if (!opts.on) opts.on = {};
-  if (!opts.on.workstart) opts.on.workstart = nullfunc;
-  if (!opts.on.workend) opts.on.workend = nullfunc;
-  if (!opts.on.sheet) opts.on.sheet = nullfunc;
-  if (!opts.on.wb) opts.on.wb = nullfunc;
+  if (!opts.errors) {
+    opts.errors = {};
+  }
+  if (!opts.errors.badfile) {
+    opts.errors.badfile = nullfunc;
+  }
+  if (!opts.errors.pending) {
+    opts.errors.pending = nullfunc;
+  }
+  if (!opts.errors.failed) {
+    opts.errors.failed = nullfunc;
+  }
+  if (!opts.errors.large) {
+    opts.errors.large = nullfunc;
+  }
+  if (!opts.on) {
+    opts.on = {};
+  }
+  if (!opts.on.workstart) {
+    opts.on.workstart = nullfunc;
+  }
+  if (!opts.on.workend) {
+    opts.on.workend = nullfunc;
+  }
+  if (!opts.on.sheet) {
+    opts.on.sheet = nullfunc;
+  }
+  if (!opts.on.wb) {
+    opts.on.wb = nullfunc;
+  }
 
   var rABS = typeof FileReader !== 'undefined' && typeof FileReader.prototype !== 'undefined' && typeof FileReader.prototype.readAsBinaryString !== 'undefined';
   var useworker = typeof Worker !== 'undefined';
@@ -23,10 +44,9 @@ var DropSheet = function DropSheet(opts) {
   // Various functions for reading in, parsing.
   function readFile(files) {
     var i, f;
-    for (i = 0; i != files.length; ++i) {
+    for (i = 0; i !== files.length; ++i) {
       f = files[i];
       var reader = new FileReader();
-      var name = f.name;
       reader.onload = function (e) {
         var data = e.target.result;
 
@@ -36,6 +56,7 @@ var DropSheet = function DropSheet(opts) {
           arr = fixdata(data);
           data = btoa(arr);
         }
+
         function doit() {
           try {
             if (useworker) {
@@ -49,23 +70,30 @@ var DropSheet = function DropSheet(opts) {
           }
         }
 
-        if (e.target.result.length > 500000) opts.errors.large(e.target.result.length, function (e) {
-          if (e) doit();
-        });
-        else {
+        if (e.target.result.length > 500000) {
+          opts.errors.large(e.target.result.length, function (e) {
+            if (e) {
+              doit();
+            }
+          });
+        } else {
           doit();
         }
       };
-      if (rABS) reader.readAsBinaryString(f);
-      else reader.readAsArrayBuffer(f);
+      if (rABS) {
+        reader.readAsBinaryString(f);
+      } else {
+        reader.readAsArrayBuffer(f);
+      }
     }
   }
 
   // Helper method for array buffer read-in.
   function fixdata(data) {
     var o = "", l = 0, w = 10240;
-    for (; l < data.byteLength / w; ++l)
+    for (; l < data.byteLength / w; ++l) {
       o += String.fromCharCode.apply(null, new Uint8Array(data.slice(l * w, l * w + w)));
+    }
     o += String.fromCharCode.apply(null, new Uint8Array(data.slice(o.length)));
     return o;
   }
@@ -76,9 +104,11 @@ var DropSheet = function DropSheet(opts) {
     opts.on.workstart();
     var scripts = document.getElementsByTagName('script');
     var path;
-    for (var i = 0; i < scripts.length; i++)
-      if (scripts[i].src.indexOf('path') != -1)
+    for (var i = 0; i < scripts.length; i++) {
+      if (scripts[i].src.indexOf('path') !== -1) {
         path = scripts[i].src.split('path.js')[0];
+      }
+    }
     var worker = new Worker(path + 'sheetjsw.js');
     worker.onmessage = function (e) {
       switch (e.data.t) {
@@ -86,7 +116,7 @@ var DropSheet = function DropSheet(opts) {
           break;
         case 'e':
           pending = false;
-          console.error(e.data.d);
+          //console.error(e.data.d);
           opts.errors.badfile(e);
           break;
         case 'xls':
@@ -104,11 +134,15 @@ var DropSheet = function DropSheet(opts) {
   // JS XLSX sheet conversion of workbook to json format.
   function to_json(workbook, type) {
     var XL = type.toUpperCase() === 'XLS' ? XLS : XLSX;
-    if (useworker && workbook.SSF) XLS.SSF.load_table(workbook.SSF);
+    if (useworker && workbook.SSF) {
+      XLS.SSF.load_table(workbook.SSF);
+    }
     var result = {};
     workbook.SheetNames.forEach(function (sheetName) {
       var roa = XL.utils.sheet_to_row_object_array(workbook.Sheets[sheetName], {raw: true});
-      if (roa.length > 0) result[sheetName] = roa;
+      if (roa.length > 0) {
+        result[sheetName] = roa;
+      }
     });
     return result;
   }
@@ -117,13 +151,17 @@ var DropSheet = function DropSheet(opts) {
   // Gets column headers on sheet. Assumes it's in first row.
   function get_columns(sheet, type) {
     var val, rowObject, range, columnHeaders, emptyRow, C;
-    if (!sheet['!ref']) return [];
+    if (!sheet['!ref']) {
+      return [];
+    }
     range = XLS.utils.decode_range(sheet["!ref"]);
     columnHeaders = [];
     for (C = range.s.c; C <= range.e.c; ++C) {
       val = sheet[XLS.utils.encode_cell({c: C, r: range.s.r})];
-      if (!val) continue;
-      columnHeaders[C] = type.toLowerCase() == 'xls' ? XLS.utils.format_cell(val) : val.v;
+      if (!val) {
+        continue;
+      }
+      columnHeaders[C] = type.toLowerCase() === 'xls' ? XLS.utils.format_cell(val) : val.v;
     }
     return columnHeaders;
   }
@@ -135,14 +173,13 @@ var DropSheet = function DropSheet(opts) {
 
   // Parses workbook for relevant cells.
   function process_wb(wb, type, sheetidx) {
+    var current_sheet, tableidx;
 
-    if (sheetidx == null)
-    // Check tab names are valid.
-      for (var tableidx = 0; tableidx < opts.tables_def.tables.length; tableidx++) {
-        if (opts.tables_def.tables[tableidx].excel === undefined) {
-          continue;
-        } else {
-          var current_sheet = opts.tables_def.tables[tableidx].excel[0].sheet;
+    if (sheetidx === null) {
+      // Check tab names are valid.
+      for (tableidx = 0; tableidx < opts.tables_def.tables.length; tableidx++) {
+        if (opts.tables_def.tables[tableidx].excel !== undefined) {
+          current_sheet = opts.tables_def.tables[tableidx].excel[0].sheet;
           if (wb.SheetNames.indexOf(current_sheet) === -1) {
             // Should override anything that was in HOT originally in case of reupload.
             opts.tables[tableidx].clear();
@@ -153,6 +190,7 @@ var DropSheet = function DropSheet(opts) {
           }
         }
       }
+    }
 
     // Corresponds to number of tables that are submitted.
     var checks = [];
@@ -164,11 +202,11 @@ var DropSheet = function DropSheet(opts) {
 
     // Loop through xlsx worksheets and tables.
     for (sheetidx = 0; sheetidx < wb.SheetNames.length; sheetidx++) {
-      var current_sheet = wb.Sheets[wb.SheetNames[sheetidx]];
-      for (var tableidx = 0; tableidx < opts.tables_def.tables.length; tableidx++) {
+      current_sheet = wb.Sheets[wb.SheetNames[sheetidx]];
+      for (tableidx = 0; tableidx < opts.tables_def.tables.length; tableidx++) {
 
         if (opts.tables_def.tables[tableidx].excel !== undefined && opts.tables_def.tables[tableidx].excel !== null && opts.tables_def.tables[tableidx].excel[0] !== null) {
-          if (opts.tables_def.tables[tableidx].excel[0].sheet == wb.SheetNames[sheetidx]) {
+          if (opts.tables_def.tables[tableidx].excel[0].sheet === wb.SheetNames[sheetidx]) {
             checks[tableidx] = process_ws(current_sheet, opts.tables_def.tables[tableidx], opts.tables[tableidx]);
 
           }
@@ -213,7 +251,7 @@ var DropSheet = function DropSheet(opts) {
 
     // Check if default range is correct based on top row name.
     if (!(ws[XLS.utils.encode_cell({r: table_start.r, c: table_start.c - 1})] !== undefined &&
-        ws[XLS.utils.encode_cell({r: table_start.r, c: table_start.c - 1})].v === table_def.excel[0].firstrow)){
+        ws[XLS.utils.encode_cell({r: table_start.r, c: table_start.c - 1})].v === table_def.excel[0].firstrow)) {
 
 
       var found_row = false;
@@ -247,8 +285,8 @@ var DropSheet = function DropSheet(opts) {
     }
 
     // Filter array to get rid of undefined values/any headers.
-    for (var i = 0; i < matrix.length; i++) {
-      matrix[i] = matrix[i].filter(function(cell){
+    for (i = 0; i < matrix.length; i++) {
+      matrix[i] = matrix[i].filter(function (cell) {
         return cell !== undefined && cell !== null && !isNaN(Number(cell));
       })
     }
@@ -270,7 +308,7 @@ var DropSheet = function DropSheet(opts) {
       return false;
     }
 
-    for (var i = 0; i < matrix.length; i++) {
+    for (i = 0; i < matrix.length; i++) {
       if (matrix[i].length !== num_cols) {
         alertify.alert("<img src='style/cancel.png' alt='Error'>Error!",
           "Spreadsheet format does not match original template, or there are empty cells, or non-numeric data. Please copy-and-paste or type data into the '" +
@@ -305,7 +343,9 @@ var DropSheet = function DropSheet(opts) {
     if (typeof jQuery !== 'undefined') {
       e.stopPropagation();
       e.preventDefault();
-      if (pending) return opts.errors.pending();
+      if (pending) {
+        return opts.errors.pending();
+      }
       var files = e.dataTransfer.files;
       $('#drop-area').removeClass('dragenter');
       readFile(files);

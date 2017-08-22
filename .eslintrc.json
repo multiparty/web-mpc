@@ -1,7 +1,7 @@
 {
   "extends": "eslint:recommended",
   "rules": {
-    "indent": [2, 2],
+    "indent": [2, 2, { "SwitchCase": 1 }],
     "object-shorthand": [2, "consistent"],
     "no-unused-vars": [1, {"vars": "local", "args": "none"}],
     "quote-props": [1, "consistent-as-needed"],

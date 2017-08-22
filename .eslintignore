@@ -1,2 +1,3 @@
 shared/dist/*
 client/script/sheetjsw.js
+client/script/ResizeSensor.js

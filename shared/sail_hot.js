@@ -1,5 +1,7 @@
 /* global Handsontable */
 
+'use strict';
+
 // Bug in handsontable with two screens.
 // If you move the window between two screen, the document fires a
 // focus/mouse over event. Handsontable handles that event and uses
@@ -207,7 +209,7 @@ var validator = function (value, callback) {
  * Then the default renderer that matches the declared cell type is called.
  */
 var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
-  if (instance._sail_meta === null) {
+  if (!instance._sail_meta) {
     return; // render will be called again
   }
 
@@ -234,7 +236,7 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
       }
 
       // Setup error tooltip if exists.
-      if (tooltip !== null && tooltip.errorTitle !== null && tooltip.errorTitle !== undefined
+      if (tooltip && tooltip.errorTitle !== null && tooltip.errorTitle !== undefined
         && tooltip.error !== null && tooltip.error !== undefined) {
 
         $TD.qtip({
@@ -260,12 +262,12 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
     if (typeof jQuery !== 'undefined' && typeof jQuery().qtip !== 'undefined') {
       $TD = $(TD);
       // Remove any previous tooltip
-      if ($TD.qtip('api') !== null) {
+      if ($TD.qtip('api')) {
         $TD.qtip('api').destroy();
       }
 
       // Setup warning tooltip if exists.
-      if (tooltip !== null && tooltip.warningTitle !== null && tooltip.warningTitle !== undefined
+      if (tooltip && tooltip.warningTitle !== null && tooltip.warningTitle !== undefined
         && tooltip.warning !== null && tooltip.warning !== undefined) {
         $TD.qtip({
           style: {classes: 'qtip-yellow'},
@@ -288,12 +290,12 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
     if (typeof jQuery !== 'undefined' && typeof jQuery().qtip !== 'undefined') {
       $TD = $(TD);
       // Remove any previous tooltip
-      if ($TD.qtip('api') !== null) {
+      if ($TD.qtip('api')) {
         $TD.qtip('api').destroy();
       }
 
       // Setup prompt tooltip if exists.
-      if (tooltip !== null && tooltip.promptTitle !== null && tooltip.promptTitle !== undefined
+      if (tooltip && tooltip.promptTitle !== null && tooltip.promptTitle !== undefined
         && tooltip.prompt !== null && tooltip.prompt !== undefined) {
         $TD.qtip({
           style: {classes: 'qtip-light'},
@@ -424,10 +426,10 @@ function make_table_obj(table_def) {
       if (type.type !== null) {
         table[i][j].type = type.type;
       }
-      if (type.type === null && table[i][j].type === null) {
+      if (!type.type && !table[i][j].type) {
         table[i][j].type = 'int';
       }
-      if (table[i][j].validators === null || type.validators === null) {
+      if (!table[i][j].validators || !type.validators) {
         table[i][j].validators = [];
       }
 
@@ -517,13 +519,13 @@ function make_hot_table(table) {
       var read_only = false;
       var placeholder = null;
 
-      if (cell_def.empty !== null) {
+      if (cell_def.empty === false) {
         empty = cell_def.empty;
       }
-      if (cell_def.read_only !== null) {
+      if (cell_def.read_only) {
         read_only = cell_def.read_only;
       }
-      if (cell_def.placeholder !== null) {
+      if (cell_def.placeholder) {
         placeholder = cell_def.placeholder.toString();
       }
 
@@ -715,7 +717,7 @@ function construct_data(table_hot_obj) {
     for (var c = 0; c < meta.colsCount; c++) {
       var cell = meta.cells[r][c];
       var cell_data = table_hot_obj.getDataAtCell(r, c);
-      if (cell_data === null || cell_data.toString().trim() === '') {
+      if (!cell_data || cell_data.toString().trim() === '') {
         if (cell.default !== null) {
           cell_data = cell.default;
         }

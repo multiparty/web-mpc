@@ -33,5 +33,5 @@ alertify.defaults = {
     input: 'ajs-input',
     ok: 'ajs-ok',
     cancel: 'ajs-cancel'
-  },
+  }
 };
