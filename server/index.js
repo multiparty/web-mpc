@@ -20,11 +20,12 @@ const app = express();
 const body_parser = require('body-parser');
 const mongoose = require('mongoose');
 const template = require('./template');
-const mpc = require('../shared/mpc');
+const mpc = require('../client/scripts/mpc');
 const crypto = require('crypto');
 const joi = require('joi');
 const Promise = require('bluebird');
 const base32Encode = require('base32-encode');
+const path = require('path');
 
 function templateToJoiSchema(template, joiFieldType) {
   var schema = {};
@@ -187,10 +188,21 @@ function verify_status(session, status, success, fail) {
 // for parsing application/json
 app.use(body_parser.json({limit: '50mb'}));
 
-// serve static files in designated folders
-app.use(express.static(__dirname + '/../client'));
+app.get('/',function(req,res){
+  res.sendFile((path.join(__dirname + '/../client/index.html')));
+});
 
-app.use(express.static(__dirname + '/../'));
+app.get('/session',function(req,res){
+  res.sendFile((path.join(__dirname + '/../client/session.html')));
+});
+
+app.get('/track',function(req,res){
+  res.sendFile((path.join(__dirname + '/../client/track.html')));
+});
+
+app.get('/unmask',function(req,res){
+  res.sendFile((path.join(__dirname + '/../client/unmask.html')));
+});
 
 // protocol for accepting new data
 app.post('/', function (req, res) {
@@ -790,7 +802,7 @@ app.post('/fetch_status', function (req, res) {
         res.status(500).send('Error getting session status.');
         return;
       }
-      
+
       if (data === null) {
         data = { status: "START" };
       }
