@@ -188,6 +188,9 @@ function verify_status(session, status, success, fail) {
 // for parsing application/json
 app.use(body_parser.json({limit: '50mb'}));
 
+// serve static files in designated folders
+app.use(express.static(__dirname + '/../client'));
+
 app.get('/',function(req,res){
   res.sendFile((path.join(__dirname + '/../client/index.html')));
 });

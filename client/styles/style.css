@@ -323,7 +323,7 @@ span.success {
 /* *** */
 
 .arrow-down {
-  background: transparent url('../../shared/expand.png') no-repeat center;
+  background: transparent url('../images/expand.png') no-repeat center;
   cursor: pointer;
 }
 
