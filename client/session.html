@@ -1,66 +1,116 @@
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-	<title>Trusted Party Secure Session Creator</title>
+  <meta charset="utf-8">
+  <title>Trusted Party Secure Session Creator</title>
 
-	<script type="text/javascript" src="../shared/jquery-3.1.1.min.js"></script>
-  <script type="text/javascript" src="../shared/underscore.js"></script>
-	<script type="text/javascript" src="script/filesaver.js"></script>
-	<script type="text/javascript" src="script/generateSession.js"></script>
-  <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.css">
-  <style>
-    #infoDiv {
-        visibility: hidden;
-    }
-    textarea {
-      width: 100%;
-    }
-  </style>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"
+          integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"
+          integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script>
+
+  <script src="//cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"
+          integrity="sha256-PieqE0QdEDMppwXrTzSZQr6tWFX3W5KkyRVyF1zN3eg=" crossorigin="anonymous"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.0/ladda.min.js"
+          integrity="sha256-/DTavTzjSAI87+voZGCTfhbioWGET1qDJKe76XuWQ5M=" crossorigin="anonymous"></script>
+
+  <script src="scripts/filesaver.js"></script>
+  <script src="scripts/session.js"></script>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+        integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.0/ladda-themeless.min.css"
+        integrity="sha256-d7VZTlP9P3ZTCZ3Bkl8aGZ/+Vs4i+bpcOGNfibU7+LU=" crossorigin="anonymous"/>
+
+  <link rel="stylesheet" href="styles/style.css">
+
 </head>
 <body>
+<header>
   <div class="container">
-    <div class="page-header">
-      <table width="100%">
-        <tr>
-          <td>
-            <h1>Trusted Party<br/><small>Secure Session Creator</small></h1>
-          </td>
-          <td align="right">
-            <img src="../shared/bu.png" width="110px"/>
-          </td>
-        </tr>
-      </table>
+    <h1>Trusted Party<br/>
+      <small>Secure Session Creator</small>
+    </h1>
+    <div id="logos">
+      <img src="images/bwwc.png" width="130" alt="BWWC Logo"/>
+      <img src="images/bu.gif" alt="BU Logo"/>
     </div>
-    <div>
-      <h2>Instructions</h2>
-      <p>
-        After generating a secure session, please keep the private key files named <b>Session_#######_private_key.pem</b> and <b>Session_#######_password.txt</b>.
-        All secured data will be lost if the private key is lost. Also, you will not be able to manage the session if you loose the password or session key.
-        Do <b>not</b> share your private key. Click on "Go To Live Data Page", enter the password, then generate and email links to the participants.
-        You can generate more links later. Once the data is collected from the participants, with your private key, continue to the next step.
-      </p>
-      
-      <textarea id="session-title" rows="1" placeholder="Title" maxlength="255"></textarea> <br/>
-      <textarea id="session-description" rows="10" placeholder="Description" maxlength="4096"></textarea>
-    </div>
-    <br/>
-    <button class="btn btn-primary btn-lg" id="Generate"
-            onclick="generateSession('infoDiv','sessionID', 'passwordID', 'pubkeyID','privkeyID','linkID', 'session-title', 'session-description')">
-      Generate Session
-    </button>
-      <div id="infoDiv">
-        <h3><a id="linkID" href="session_data.html"></a></h3>
-        <br/>
-        <h3>Session Key (please email to participants)</h3>
-        <pre id="sessionID"></pre>
-        <h3>Session Password (Keep to yourself to unmask and manage session)</h3>
-        <pre id="passwordID"></pre>
-        <br/>
-        <h3>Public Key</h3>
-        <pre id="pubkeyID"></pre>
-        <br/>
-        <h3>Private Key (do not share)</h3>
-        <pre id="privkeyID"></pre>
+  </div>
+</header>
+<div id="shadow" class="ss-style-multitriangles"></div>
+<main id="content" class="container">
+  <section class="card">
+    <h2 class="text-center">Create a new session</h2>
+    <p class="text-center">After generating a secure session, please keep the private key files named <b>Session_#######_private_key.pem</b>
+      and <b>Session_#######_password.txt</b>.
+      All secured data will be lost if the private key is lost. Also, you will not be able to manage the session if you
+      loose the password or session key.
+      Do <b>not</b> share your private key. Click on "Go To Live Data Page", enter the password, then generate and email
+      links to the participants.
+      You can generate more links later. Once the data is collected from the participants, with your private key,
+      continue to the next step.</p>
+    <hr/>
+    <form class="form-horizontal">
+      <div class="form-group">
+        <label class="col-sm-3 control-label" for="session-title">Session title</label>
+        <div class="col-sm-9">
+          <input type="text" id="session-title" class="form-control" placeholder="Title"
+                 autocomplete="off" required/>
+          <span id="title-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
+                aria-hidden="true"></span>
+          <span id="title-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
+                aria-hidden="true"></span>
+          <span id="title-fail-help"
+                class="fail-help help-block hidden">Please input the session title.</span>
+        </div>
       </div>
-    </div>
+      <div class="form-group">
+        <label class="col-sm-3 control-label" for="session-description">Session description</label>
+        <div class="col-sm-9">
+          <textarea id="session-description" class="form-control" rows="10" placeholder="Description"
+                    maxlength="4096"></textarea>
+          <span id="description-success"
+                class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
+                aria-hidden="true"></span>
+          <span id="description-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
+                aria-hidden="true"></span>
+          <span id="description-fail-help"
+                class="fail-help help-block hidden">Please input the session description.</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-sm-offset-3 col-sm-9">
+          <button type="submit" id="generate" class="btn btn-primary btn-lg">Generate session</button>
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <section class="card" id="session-details">
+    <h2 class="text-center">Session details</h2>
+    <p class="text-center">Please keep a copy of the information below. Visit the <a id="link-id" href="/track">tracking
+      page</a> to generate URLs for participants.</p>
+    <hr/>
+    <h3>Session Key (please email to participants)</h3>
+    <pre id="sessionID"></pre>
+    <h3>Session Password (Keep to yourself to unmask and manage session)</h3>
+    <pre id="passwordID"></pre>
+    <h3>Public Key</h3>
+    <pre id="pubkeyID"></pre>
+    <h3>Private Key (do not share)</h3>
+    <pre id="privkeyID"></pre>
+  </section>
+</main>
+
+<script type="text/javascript">
+  $(function () {
+    $('#generate').on('click', function (e) {
+      e.preventDefault();
+      session.generateSession('infoDiv', 'sessionID', 'passwordID', 'pubkeyID', 'privkeyID', 'link-id', 'session-title', 'session-description');
+    });
+  });
+</script>
 </body>
 </html>
