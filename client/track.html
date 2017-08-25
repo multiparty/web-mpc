@@ -1,73 +1,55 @@
-<html>
+<!doctype html>
+<html lang="en">
 <head>
+  <meta charset="utf-8">
   <title>Trusted Party Live Session Tracker</title>
 
-  <script type="text/javascript" src="../shared/jquery-3.1.1.min.js"></script>
-  <script type="text/javascript" src="../shared/underscore.js"></script>
-  <script type="text/javascript" src="script/generateSession.js"></script>
-  <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.css">
-  <style>
-    #hidden-content {
-      visibility: hidden;
-    }
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"
+          integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"
+          integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script>
 
-    #urlsID {
-      visibility: hidden;
-    }
+  <script src="//cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"
+          integrity="sha256-PieqE0QdEDMppwXrTzSZQr6tWFX3W5KkyRVyF1zN3eg=" crossorigin="anonymous"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.0/ladda.min.js"
+          integrity="sha256-/DTavTzjSAI87+voZGCTfhbioWGET1qDJKe76XuWQ5M=" crossorigin="anonymous"></script>
 
-    #confirmation {
-      visibility: hidden;
-    }
+  <script src="scripts/session.js"></script>
 
-    input[type=text] {
-      height: 30px;
-      width: 300px;
-    }
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+        integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.0/ladda-themeless.min.css"
+        integrity="sha256-d7VZTlP9P3ZTCZ3Bkl8aGZ/+Vs4i+bpcOGNfibU7+LU=" crossorigin="anonymous"/>
 
-    input[type=password] {
-      height: 30px;
-      width: 300px;
-    }
+  <link rel="stylesheet" href="styles/style.css">
 
-    .modal {
-      visibility: hidden;
-      padding: 30px;
-      text-align: center;
-      background-color: #AAAAAA;
-    }
-
-    .modal input {
-      margin-bottom: 10px;
-    }
-
-    #modal_error_msg {
-      color: #FF0000;
-    }
-  </style>
 </head>
+<html>
 <body>
-<div class="container">
-  <div class="page-header">
-    <table width="100%">
-      <tr>
-        <td>
-          <h1>Trusted Party<br/>
-            <small>Live Session Tracker</small>
-          </h1>
-        </td>
-        <td align="right">
-          <img src="../shared/bu.png" width="110px"/>
-        </td>
-      </tr>
-    </table>
+<header>
+  <div class="container">
+    <h1>Trusted Party<br/>
+      <small>Live Session Tracker</small>
+    </h1>
+    <div id="logos">
+      <img src="images/bwwc.png" width="130" alt="BWWC Logo"/>
+      <img src="images/bu.gif" alt="BU Logo"/>
+    </div>
   </div>
+</header>
+<div id="shadow" class="ss-style-multitriangles"></div>
+<main id="content" class="container">
+</main>
+<div class="container">
   <form class="form-inline" role="form" id="inputform">
     <input type="text" id="sess" placeholder="Session Number"/>
     <input type="password" id="pass" placeholder="Session Password"/>
     <button id="submit" type="button" class="btn btn-primary" onclick="genT()">SUBMIT</button>
   </form>
 
-  <div id="hidden-content">
+  <div class="hidden">
     <div class="alert alert-success" id="statusID">LOADING...</div>
     <div>
       <h3>Control Panel</h3>
@@ -131,7 +113,7 @@
       document.getElementById("sess").value = session;
     }
     window.genT = function () {
-      document.getElementById('hidden-content').style.visibility = "visible";
+      document.getElementsByClassName('hidden').style.visibility = "visible";
 
       var session = document.getElementById('sess').value;
       var password = document.getElementById('pass').value;
