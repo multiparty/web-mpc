@@ -9,52 +9,47 @@
  *
  */
 
-var session = (function () {
+var analyst = (function () {
 
   function checkStatus(session) {
     if (session === null || session.trim() === '') {
-      return '';
+      return $.when();
     }
 
-    $.ajax({
+    return $.ajax({
       type: 'POST',
       url: '/fetch_status',
       contentType: 'application/json',
-      data: JSON.stringify({session: session}),
-      success: function (resp) {
-        document.getElementById('statusbox').value = resp;
-      },
-      error: function (err) {
-        alert('error');
-      }
-
+      data: JSON.stringify({session: session})
+    }).then(function (resp) {
+      document.getElementById('session-status').value = resp;
+    }).catch(function () {
+      alert('error');
     });
   }
 
-  function changeStatus(session, status, password) {
+  function changeStatus(session, password, status) {
     if (status === 'START' || status === 'PAUSE' || status === 'STOP') {
-      $.ajax({
+      return $.ajax({
         type: 'POST',
-        url: '/control_panel',
+        url: '/change_status',
         contentType: 'application/json',
-        data: JSON.stringify({status: status, session: session, password: password}),
-
-        success: function (resp) {
-          document.getElementById('statusbox').value = status;
-        },
-        error: function (err) {
-          alert('error');
-        }
+        data: JSON.stringify({status: status, session: session, password: password})
+      }).then(function (resp) {
+        document.getElementById('session-status').value = status;
+      }).catch(function () {
+        alert('error');
       });
     } else {
       // TODO add better error reporting
+      alert('Error Not a valid Session Status');
       //console.log('Error Not a valid Session Status');
     }
   }
 
   function formatUrls(urls) {
     var baseUrl = window.location.toString();
-    var end = baseUrl.indexOf('trusted/session_data.html');
+    var end = baseUrl.indexOf('track/');
     baseUrl = baseUrl.substring(0, end);
 
     var result = [];
@@ -125,7 +120,6 @@ var session = (function () {
     var title = document.getElementById(titleID).value;
     var description = document.getElementById(descriptionID).value;
 
-    document.getElementById(hiddenDiv).style.visibility = 'visible';
     document.getElementById(sessionID).innerHTML = 'Loading...';
     document.getElementById(passwordID).innerHTML = 'Loading...';
     document.getElementById(pubID).innerHTML = 'Loading...';
@@ -270,13 +264,24 @@ var session = (function () {
     });
   }
 
+  function getParameterByName(name) {
+    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)'),
+      results = regex.exec(location.search);
+    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+  }
+
   return {
     checkStatus: checkStatus,
     changeStatus: changeStatus,
     generateUrls: generateUrls,
     fetchOldLinks: fetchOldLinks,
     generateTable: generateTable,
-    generateSession: generateSession
+    generateSession: generateSession,
+    getParameterByName: getParameterByName,
+    START: 'START',
+    PAUSE: 'PAUSE',
+    STOP: 'STOP'
   };
 })();
 
