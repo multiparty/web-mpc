@@ -8,9 +8,15 @@
 
 // Takes callback(true|false, data).
 function aggregate_and_unmask(mOut, privateKey, session, password, callback) {
-  console.log(mOut);
   mOut = JSON.parse(mOut.data);
   
+  var questions_public = [];
+  for(var i = 0; i < mOut.length; i++)
+    questions_public.push(mOut[i].questions_public);
+  // Questions Public is the public answers to questions. TODO: do something with this?
+    
+  var aggregated_questions_public = aggregateShares(questions_public);
+    
   var skArrayBuffer;
   try {
     skArrayBuffer = str2ab(atob(privateKey));  
@@ -52,6 +58,9 @@ function aggregate_and_unmask(mOut, privateKey, session, password, callback) {
     var analystResult = resultShares[0],
         serviceResult = resultShares[1],
         finalResult = recombineValues(serviceResult, analystResult);
+        if(!ensure_equal(finalResult.questions, aggregated_questions_public)) {
+          console.log("Secret-shared question answers do not aggregate to the same values as publicly collected answers.");
+        }
     callback(true, finalResult);
   }).catch(function (err) {
     console.log(err);
@@ -148,6 +157,27 @@ function arrayBufferToString(arrayBuffer) {
         byteString += String.fromCharCode(byteArray[i]);
     }
     return byteString;
+}
+
+function ensure_equal(obj, oth) {
+  for(var key in obj) {
+    if (obj.hasOwnProperty(key) && oth.hasOwnProperty(key)) {
+      var value = obj[key];
+      if(typeof(value) == "number" || typeof(value) == "string" || typeof(value) == "String") {
+        if(value != oth[key]) {
+          return false;
+        }
+      }
+      else  {
+        var res = ensure_equal(value, oth[key]);
+        if(!res) { 
+          return false; 
+        }
+      }
+    }
+  }
+  
+  return true;
 }
 
 
