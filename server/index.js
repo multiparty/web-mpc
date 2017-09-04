@@ -171,17 +171,20 @@ function verify_password(session, password, success, fail) {
 // Verifies that the given session and password match.
 function verify_status(session, status, success, fail) {
   SessionStatus.findOne({_id: session}, function (err, data) {
-    if (err)
+    if (err) {
       fail('Error while verifying participation code.');
+    }
 
-    var db_status = "START";
-    if (data != null)
+    var db_status = "PAUSE";
+    if (data) {
       db_status = data.status;
+    }
 
-    if (status == db_status)
+    if (status === db_status) {
       success();
-    else
+    } else {
       fail("Session status is " + db_status);
+    }
   });
 }
 
@@ -718,8 +721,8 @@ app.post('/submit_agg', function (req, res) {
 });
 
 // status
-app.post("/control_panel", function (req, res) {
-  console.log('POST /control_panel');
+app.post("/change_status", function (req, res) {
+  console.log('POST /change_status');
   var schema = {
     session: joi.string().alphanum().required(),
     password: joi.string().alphanum().required(),
@@ -748,7 +751,7 @@ app.post("/control_panel", function (req, res) {
         }
 
         if (data !== null && data.status === "STOP") {
-          res.status(500).send('Session already stoped.');
+          res.status(500).send('Session already stopped.');
           return;
         }
         var status = body.status;
@@ -807,7 +810,7 @@ app.post('/fetch_status', function (req, res) {
       }
 
       if (data === null) {
-        data = { status: "START" };
+        data = { status: "PAUSE" };
       }
 
       if (data.status == null) {
