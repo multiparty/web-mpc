@@ -8,6 +8,7 @@
 
 // Takes callback(true|false, data).
 function aggregate_and_unmask(mOut, privateKey, session, password, callback) {
+  console.log(mOut);
   mOut = JSON.parse(mOut.data);
   
   var skArrayBuffer;

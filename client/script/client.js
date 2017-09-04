@@ -326,7 +326,7 @@ var client = (function () {
       var text = $(questions_text[q]).text();
       text = text.replace(/\s+/g, ' '); // Replace many white spaces with just one space.
       data_submission['questions'][text] = question_data;
-      questions_public[text] = question_data.slice();
+      questions_public[text] = Object.assign({}, question_data);
     }
 
     // Handle table data, tables are represented as 2D associative arrays
