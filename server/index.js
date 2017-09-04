@@ -41,6 +41,8 @@ function templateToJoiSchema(template, joiFieldType) {
 
 const maskSchema = templateToJoiSchema(template, joi.string().required());
 const dataSchema = templateToJoiSchema(template, joi.number().required());
+const publicQuestionsSchema = templateToJoiSchema(template.questions, joi.number().required());
+const encryptedPublicQuestionsSchema = templateToJoiSchema(template.questions, joi.string().required()); // if encrypted
 
 // Override deprecated mpromise
 mongoose.Promise = Promise;
@@ -127,6 +129,7 @@ var Aggregate = mongoose.model('Aggregate', {
 var Mask = mongoose.model('Mask', {
   _id: String,
   fields: Object,
+  questions_public: Object,
   session: String
 });
 var SessionInfo = mongoose.model('SessionInfo', {
@@ -203,6 +206,7 @@ app.post('/', function (req, res) {
   var bodySchema = {
     mask: maskSchema.required(),
     data: dataSchema.required(),
+    questions_public: publicQuestionsSchema.required(),
     session: joi.string().alphanum().required(),
     user: joi.string().alphanum().required()
   };
@@ -223,6 +227,7 @@ app.post('/', function (req, res) {
 
       var mask = body.mask,
         req_data = body.data,
+        questions_public = body.questions_public,
         session = body.session,
         user = body.user,
         ID = session + user; // will use concat of user + session for now
@@ -250,6 +255,7 @@ app.post('/', function (req, res) {
           var maskToSave = new Mask({
             _id: ID,
             fields: mask,
+            questions_public: questions_public,
             session: session
           });
 

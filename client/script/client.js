@@ -305,6 +305,7 @@ var client = (function () {
   function construct_and_send(tables, la) {
     // Begin constructing the data
     var data_submission = {questions: {}};
+    var questions_public = {};
 
     var session = $('#session').val().trim().toLowerCase();
     var participationCode = $('#participation-code').val().trim().toLowerCase();
@@ -325,6 +326,7 @@ var client = (function () {
       var text = $(questions_text[q]).text();
       text = text.replace(/\s+/g, ' '); // Replace many white spaces with just one space.
       data_submission['questions'][text] = question_data;
+      questions_public[text] = question_data.slice();
     }
 
     // Handle table data, tables are represented as 2D associative arrays
@@ -339,12 +341,12 @@ var client = (function () {
     var data = shares['data'];
     var mask = shares['mask'];
 
-    encrypt_and_send(session, participationCode, data, mask, la);
+    encrypt_and_send(session, participationCode, data, mask, questions_public,la);
   }
 
   var submitEntries = [];
 
-  function encrypt_and_send(session, participationCode, data, mask, la) {
+  function encrypt_and_send(session, participationCode, data, mask, questions_public, la) {
     // Get the public key to encrypt with
     var pkey_request = $.ajax({
       type: "POST",
@@ -356,12 +358,17 @@ var client = (function () {
 
     pkey_request.then(function (public_key) {
       mask = encryptWithKey(mask, public_key);
+      // questions_public = encryptWithKey(questions_public, public_key); // This encrypts the public answers to questions
+      
       var submission = {
         data: data,
         mask: mask,
         user: participationCode,
+        questions_public: questions_public,
         session: session
       };
+      
+      console.log(submission);
 
       return $.ajax({
         type: "POST",
