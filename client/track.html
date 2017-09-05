@@ -285,7 +285,7 @@
             if ($newParticipants.html() !== '') {
               $newParticipants.append('\n');
             }
-            $newParticipants.append(urls).removeClass('hidden');
+            $newParticipants.append(urls.join('\n')).removeClass('hidden');
 
             la.stop();
           });
