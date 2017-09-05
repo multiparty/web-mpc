@@ -41,74 +41,90 @@
 </header>
 <div id="shadow" class="ss-style-multitriangles"></div>
 <main id="content" class="container">
-  <section class="card">
-    <h2 class="text-center">Create a new session</h2>
-    <p class="text-center">After generating a secure session, please keep the private key files named <b>Session_#######_private_key.pem</b>
-      and <b>Session_#######_password.txt</b>.
-      All secured data will be lost if the private key is lost. Also, you will not be able to manage the session if you
-      loose the password or session key.
-      Do <b>not</b> share your private key. Click on "Go To Live Data Page", enter the password, then generate and email
-      links to the participants.
-      You can generate more links later. Once the data is collected from the participants, with your private key,
-      continue to the next step.</p>
-    <hr/>
-    <form class="form-horizontal">
-      <div class="form-group">
-        <label class="col-sm-3 control-label" for="session-title">Session title</label>
-        <div class="col-sm-9">
-          <input type="text" id="session-title" class="form-control" placeholder="Title"
-                 autocomplete="off" required/>
-          <span id="title-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
-                aria-hidden="true"></span>
-          <span id="title-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
-                aria-hidden="true"></span>
-          <span id="title-fail-help"
-                class="fail-help help-block hidden">Please input the session title.</span>
+
+  <div class="row">
+    <section class="card col-md-10 col-md-offset-1">
+      <h2 class="text-center">Create a new session</h2>
+      <p class="text-center">After generating a secure session, please keep the private key files named <b>Session_#######_private_key.pem</b>
+        and <b>Session_#######_password.txt</b>.
+        All secured data will be lost if the private key is lost. Also, you will not be able to manage the session if
+        you
+        loose the password or session key.
+        Do <b>not</b> share your private key. Click on "Go To Live Data Page", enter the password, then generate and
+        email
+        links to the participants.
+        You can generate more links later. Once the data is collected from the participants, with your private key,
+        continue to the next step.</p>
+      <hr/>
+      <form class="form-horizontal">
+        <div class="form-group">
+          <label class="col-sm-3 control-label" for="session-title">Session title</label>
+          <div class="col-sm-9">
+            <input type="text" id="session-title" class="form-control" placeholder="Title"
+                   autocomplete="off" required/>
+            <span id="title-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
+                  aria-hidden="true"></span>
+            <span id="title-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
+                  aria-hidden="true"></span>
+            <span id="title-fail-help"
+                  class="fail-help help-block hidden">Please input the session title.</span>
+          </div>
         </div>
-      </div>
-      <div class="form-group">
-        <label class="col-sm-3 control-label" for="session-description">Session description</label>
-        <div class="col-sm-9">
+        <div class="form-group">
+          <label class="col-sm-3 control-label" for="session-description">Session description</label>
+          <div class="col-sm-9">
           <textarea id="session-description" class="form-control" rows="10" placeholder="Description"
                     maxlength="4096"></textarea>
-          <span id="description-success"
-                class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
-                aria-hidden="true"></span>
-          <span id="description-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
-                aria-hidden="true"></span>
-          <span id="description-fail-help"
-                class="fail-help help-block hidden">Please input the session description.</span>
+            <span id="description-success"
+                  class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
+                  aria-hidden="true"></span>
+            <span id="description-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
+                  aria-hidden="true"></span>
+            <span id="description-fail-help"
+                  class="fail-help help-block hidden">Please input the session description.</span>
+          </div>
         </div>
-      </div>
-      <div class="form-group">
-        <div class="col-sm-offset-3 col-sm-9">
-          <button type="submit" id="generate" class="btn btn-primary btn-lg">Generate session</button>
+        <div class="form-group">
+          <div class="col-sm-offset-3 col-sm-9">
+            <button type="submit" id="generate" class="btn btn-primary btn-lg">Generate session</button>
+          </div>
         </div>
-      </div>
-    </form>
-  </section>
+      </form>
+    </section>
+  </div>
 
-  <section class="card" id="session-details">
-    <h2 class="text-center">Session details</h2>
-    <p class="text-center">Please keep a copy of the information below. Visit the <a id="link-id" href="/track">tracking
-      page</a> to generate URLs for participants.</p>
-    <hr/>
-    <h3>Session Key (please email to participants)</h3>
-    <pre id="sessionID"></pre>
-    <h3>Session Password (Keep to yourself to unmask and manage session)</h3>
-    <pre id="passwordID"></pre>
-    <h3>Public Key</h3>
-    <pre id="pubkeyID"></pre>
-    <h3>Private Key (do not share)</h3>
-    <pre id="privkeyID"></pre>
-  </section>
+  <div class="row">
+    <section id="session-details" class="card col-md-10 col-md-offset-1 hidden">
+      <h2 class="text-center">Session details</h2>
+      <p class="text-center">Please keep a copy of the information below. Visit the <a id="link-id" href="/track">tracking
+        page</a> to generate URLs for participants.</p>
+      <hr/>
+      <h3>Session Key (please email to participants)</h3>
+      <pre id="sessionID"></pre>
+      <h3>Session Password (Keep to yourself to unmask and manage session)</h3>
+      <pre id="passwordID"></pre>
+      <h3>Public Key</h3>
+      <pre id="pubkeyID"></pre>
+      <h3>Private Key (do not share)</h3>
+      <pre id="privkeyID"></pre>
+    </section>
+  </div>
+
 </main>
 
 <script type="text/javascript">
   $(function () {
     $('#generate').on('click', function (e) {
       e.preventDefault();
-      analyst.generateSession('infoDiv', 'sessionID', 'passwordID', 'pubkeyID', 'privkeyID', 'link-id', 'session-title', 'session-description');
+
+      var la = Ladda.create(document.getElementById('generate'));
+      la.start();
+
+      analyst.generateSession('infoDiv', 'sessionID', 'passwordID', 'pubkeyID', 'privkeyID', 'link-id', 'session-title', 'session-description')
+        .then(function () {
+          la.stop();
+          $('#session-details').removeClass('hidden');
+        });
     });
   });
 </script>

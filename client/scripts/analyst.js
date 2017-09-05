@@ -96,13 +96,9 @@ var analyst = (function () {
     var title = document.getElementById(titleID).value;
     var description = document.getElementById(descriptionID).value;
 
-    document.getElementById(sessionID).innerHTML = 'Loading...';
-    document.getElementById(passwordID).innerHTML = 'Loading...';
-    document.getElementById(pubID).innerHTML = 'Loading...';
-    document.getElementById(privID).innerHTML = 'Loading... (Remember: Do not share this)';
     var keyP, privateKey, publicKey;
 
-    window.crypto.subtle.generateKey(
+    return window.crypto.subtle.generateKey(
       {
         name: 'RSA-OAEP',
         modulusLength: 2048,
@@ -126,12 +122,13 @@ var analyst = (function () {
         var priBlob = new Blob([privateKey], {type: 'text/plain;charset=utf-8'});
 
         // TODO: shouldn't mix promises with callbacks like that
-        $.ajax({
+        return $.ajax({
           type: 'POST',
           url: '/create_session',
           contentType: 'application/json',
-          data: JSON.stringify({publickey: publicKey, title: title, description: description}),
-          success: function (resp) {
+          data: JSON.stringify({publickey: publicKey, title: title, description: description})
+        })
+          .then(function (resp) {
             var rndSess = resp.sessionID;
             var password = resp.password;
             document.getElementById(privID).innerHTML = privateKey;
@@ -145,15 +142,14 @@ var analyst = (function () {
 
             var text = 'Session Key:\n' + rndSess + '\nPassword:\n' + password;
             saveAs(new Blob([text], {type: 'text/plain;charset=utf-8'}), 'Session_' + rndSess + '_password.txt');
-          },
-          error: function () {
+          })
+          .catch(function () {
             var errmsg = 'ERROR!!!: failed to load public key to server, please try again';
             document.getElementById(sessionID).innerHTML = errmsg;
             document.getElementById(privID).innerHTML = errmsg;
             document.getElementById(pubID).innerHTML = errmsg;
             document.getElementById(passwordID).innerHTML = errmsg;
-          }
-        });
+          });
       })
       .catch(function (err) {
         var errmsg = 'ERROR!!!: failed to load public key to server, please try again';
