@@ -90,30 +90,21 @@ var analyst = (function () {
     });
   }
 
-  function fetchOldLinks(session, password, oldUrlsID, section) {
-    document.getElementById(oldUrlsID).innerHTML = 'Loading...';
-
-    $.ajax({
+  function getExistingParticipants(session, password) {
+    return $.ajax({
       type: 'POST',
       url: '/get_client_urls',
       contentType: 'application/json',
-      data: JSON.stringify({session: session, password: password}),
-
-      success: function (resp) {
-        var urls = formatUrls(resp.result);
-        document.getElementById(oldUrlsID).innerHTML = urls.join('\n');
-        if (urls.length === 0) {
-          document.getElementById(section).style.display = 'none';
-        }
-      },
-      error: function (err) {
-        var errmsg = 'ERROR!';
+      data: JSON.stringify({session: session, password: password})
+    })
+      .then(function (resp) {
+        return formatUrls(resp.result);
+      })
+      .catch(function (err) {
         if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
-          errmsg = err.responseText;
+          alert(err.responseText);
         }
-        document.getElementById(oldUrlsID).innerHTML = errmsg;
-      }
-    });
+      });
   }
 
   function generateSession(hiddenDiv, sessionID, passwordID, pubID, privID, linkID, titleID, descriptionID) {
@@ -275,7 +266,7 @@ var analyst = (function () {
     checkStatus: checkStatus,
     changeStatus: changeStatus,
     generateUrls: generateUrls,
-    fetchOldLinks: fetchOldLinks,
+    getExistingParticipants: getExistingParticipants,
     generateTable: generateTable,
     generateSession: generateSession,
     getParameterByName: getParameterByName,

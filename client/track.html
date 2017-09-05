@@ -87,6 +87,7 @@
       <div id="session-panel" class="collapse">
         <h2 class="text-center">Manage your session</h2>
         <p class="text-center">Session status: <span id="session-status"></span></p>
+        <p id="session-unmask" class="hidden">Click <a href="">here</a> to unmask session data.</p>
         <form id="session-manage">
           <button type="submit" id="session-start" class="btn btn-success btn-block">Start</button>
           <button type="submit" id="session-pause" class="btn btn-warning btn-block">Pause</button>
@@ -119,6 +120,32 @@
         <hr/>
 
         <h2 class="text-center">Add participants</h2>
+        <p class="text-center">Generate more URLs for new participants.</p>
+        <form>
+          <div class="form-group">
+            <label class="control-label" for="participants-count">New participants</label>
+            <input type="number" id="participants-count" class="form-control" placeholder="0" pattern="^[0-9]{1,5}$"
+                   autocomplete="off" required/>
+            <span id="new-participants-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
+                  aria-hidden="true"></span>
+            <span id="new-participants-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
+                  aria-hidden="true"></span>
+            <span id="new-participants-fail-help"
+                  class="fail-help help-block hidden">Please input a digit smaller than 100.000</span>
+            <span id="new-participants-fail-custom-help"
+                  class="fail-custom help-block hidden"></span>
+          </div>
+          <div class="form-group">
+            <button type="submit" id="participants-submit" class="btn btn-primary ladda-button btn-block">
+              Submit
+            </button>
+          </div>
+        </form>
+        <pre id="participants-new" class="hidden"></pre>
+        <hr/>
+        <h2 class="text-center">Existing participants</h2>
+        <p class="text-center">View the list of existing participation URLs.</p>
+        <pre id="participants-existing">No existing participants found</pre>
       </div>
     </section>
 
@@ -131,8 +158,6 @@
   </div>
 
   <div class="hidden">
-    <div class="alert alert-success" id="statusID">LOADING...</div>
-
     <h3>Tracking and Unmasking</h3>
     <div><a id="unmasklink"></a></div>
     <table class="table table-striped" id="table">
@@ -146,22 +171,6 @@
       </tbody>
     </table>
     <br/>
-    <div id="urlsSection">
-      <h3>Links for Participants </h3>
-      <form class="form-inline" role="form">
-        <input autocomplete="off" type="text" id="countID" placeholder="Enter Number of new links needed"
-               pattern="^[0-9]{1,5}$" size="5" required>
-        <button id="gen_button" type="button" class="btn">
-          Generate Links
-        </button>
-      </form>
-      <pre id="urlsID"></pre>
-
-      <div id="oldUrlsSection">
-        <h3>Previously Generated Links</h3>
-        <pre id="oldUrlsID"></pre>
-      </div>
-    </div>
   </div>
 
   <script type="text/javascript">
@@ -170,6 +179,7 @@
 
       $('#session').val(analyst.getParameterByName('session'));
 
+      // Login
       $('#login').on('click', function (e) {
         e.preventDefault();
         session = $('#session').val();
@@ -180,15 +190,28 @@
 
         analyst.checkStatus(session, password)
           .then(function (status) {
-            la.stop();
             changeStatusButtons(status);
+            return analyst.getExistingParticipants(session, password);
+          })
+          .then(function (urls) {
+            la.stop();
+
+            var $existingParticipants = $('#participants-existing');
+            if(urls.length) {
+              $existingParticipants.html(urls.join('\n'))
+            }
+
+            // Remove login panel and show control panel
             $('#session-login').collapse();
             $('#session-panel').collapse();
-          }).catch(function () {
-          la.stop();
-        });
+          })
+          .catch(function () {
+            la.stop();
+          });
       });
 
+
+      // Manage session
       $('#session-start').on('click', function (e) {
         e.preventDefault();
         analyst.changeStatus(session, password, analyst.START)
@@ -221,7 +244,9 @@
         var $start = $('#session-start'),
           $pause = $('#session-pause'),
           $stop = $('#session-stop'),
-          $sessionStatus = $('#session-status');
+          $sessionStatus = $('#session-status'),
+          $sessionUnmask = $('#session-unmask');
+
         switch (status) {
           case 'START':
             $start.addClass('hidden');
@@ -240,28 +265,16 @@
             $pause.addClass('hidden');
             $stop.addClass('hidden');
             $sessionStatus.html('STOPPED');
+            $sessionUnmask.removeClass('hidden');
+            $sessionUnmask.find('a').attr('href', '/unmask?session=' + session);
             break;
         }
-
       }
 
       window.genT = function () {
-        document.getElementsByClassName('hidden').style.visibility = "visible";
-
-        var session = document.getElementById('session').value;
-        var password = document.getElementById('password').value;
-        var start = document.getElementById('start').value;
-        var pause = document.getElementById('pause').value;
-        var stop = document.getElementById('stop').value;
-        $('#inputform').remove();
-
-        document.getElementById('unmasklink').innerHTML = "Click here to unmask aggregate data Session " + session;
-        document.getElementById('unmasklink').href = "../unmask/index.html?session=" + session;
-
-        checkStatus(session);
         generateTable('table', session, password, 'statusID');
 
-        fetchOldLinks(session, password, "oldUrlsID", "oldUrlsSection");
+        analyst.getExistingParticipants(session, password, "oldUrlsID", "oldUrlsSection");
         document.getElementById("gen_button").onclick = function () {
           var count = document.getElementById("countID").value;
           count = parseInt(count);
