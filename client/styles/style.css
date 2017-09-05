@@ -142,7 +142,6 @@ header #logos img:not(:first-child) {
   box-shadow: 0 2px 4px 0 rgba(170, 170, 170, .80);
   padding: 30px;
   margin-bottom: 35px;
-  max-width: 950px;
   border-radius: 2px;
 }
 
