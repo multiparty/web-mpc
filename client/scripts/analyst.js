@@ -11,9 +11,9 @@
 
 var analyst = (function () {
 
-  function checkStatus(session) {
-    if (session === null || session.trim() === '') {
-      return $.when();
+  function checkStatus(session, password) {
+    if (!session || session.trim() === '' || !password) {
+      return $.Deferred().reject();
     }
 
     return $.ajax({
@@ -22,7 +22,7 @@ var analyst = (function () {
       contentType: 'application/json',
       data: JSON.stringify({session: session})
     }).then(function (resp) {
-      document.getElementById('session-status').value = resp;
+      return resp;
     }).catch(function () {
       alert('error');
     });
@@ -36,7 +36,7 @@ var analyst = (function () {
         contentType: 'application/json',
         data: JSON.stringify({status: status, session: session, password: password})
       }).then(function (resp) {
-        document.getElementById('session-status').value = status;
+        return status;
       }).catch(function () {
         alert('error');
       });
