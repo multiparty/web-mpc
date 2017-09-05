@@ -47,7 +47,7 @@
 <div class="container">
   <div class="row">
     <section class="card col-md-4">
-      <div>
+      <div id="session-login" class="collapse in">
         <h2 class="text-center">Enter session details</h2>
         <hr/>
         <form>
@@ -84,7 +84,7 @@
         </form>
       </div>
 
-      <div>
+      <div id="session-panel" class="collapse">
         <h2 class="text-center">Manage your session</h2>
         <p class="text-center">Session status: <span id="session-status"></span></p>
         <form id="session-manage">
@@ -182,6 +182,8 @@
           .then(function (status) {
             la.stop();
             changeStatusButtons(status);
+            $('#session-login').collapse();
+            $('#session-panel').collapse();
           }).catch(function () {
           la.stop();
         });
