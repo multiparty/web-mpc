@@ -552,7 +552,7 @@ app.post('/get_client_urls', function (req, res) {
         if (!data) data = [];
         var urls = [];
         for (var d in data) {
-          var url = "?session=" + body.session + "&participantCode=" + data[d].userkey;
+          var url = "?session=" + body.session + "&participationCode=" + data[d].userkey;
           urls.push(url);
         }
 

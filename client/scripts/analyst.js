@@ -48,9 +48,7 @@ var analyst = (function () {
   }
 
   function formatUrls(urls) {
-    var baseUrl = window.location.toString();
-    var end = baseUrl.indexOf('track/');
-    baseUrl = baseUrl.substring(0, end);
+    var baseUrl = window.location.protocol + '//' + window.location.hostname + ':' + window.location.port;
 
     var result = [];
     for (var i = 0; i < urls.length; i++) {
@@ -60,34 +58,21 @@ var analyst = (function () {
     return result;
   }
 
-  function generateUrls(session, password, urlsID, count) {
-    var old = document.getElementById(urlsID).innerHTML;
-    if (old.trim().length > 0) {
-      old = old + '\n';
-    }
-
-    document.getElementById(urlsID).innerHTML = old + 'Loading...';
-
-    $.ajax({
+  function generateUrls(session, password, count) {
+    return $.ajax({
       type: 'POST',
       url: '/generate_client_urls',
       contentType: 'application/json',
-      data: JSON.stringify({count: count, session: session, password: password}),
-
-      success: function (resp) {
-        var urls = formatUrls(resp.result);
-        document.getElementById(urlsID).style.visibility = 'visible';
-        document.getElementById(urlsID).innerHTML = old + urls.join('\n');
-      },
-      error: function (err) {
-        var errmsg = 'ERROR!';
+      data: JSON.stringify({count: count, session: session, password: password})
+    })
+      .then(function (resp) {
+        return formatUrls(resp.result);
+      })
+      .catch(function (err) {
         if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
-          errmsg = err.responseText;
+          alert(err.responseText);
         }
-        document.getElementById(urlsID).style.visibility = 'visible';
-        document.getElementById(urlsID).innerHTML += errmsg;
-      }
-    });
+      });
   }
 
   function getExistingParticipants(session, password) {

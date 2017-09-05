@@ -124,7 +124,7 @@
         <form>
           <div class="form-group">
             <label class="control-label" for="participants-count">New participants</label>
-            <input type="number" id="participants-count" class="form-control" placeholder="0" pattern="^[0-9]{1,5}$"
+            <input type="number" id="participants-count" class="form-control" placeholder="0" pattern="^[1-9]\d*{1,5}$"
                    autocomplete="off" required/>
             <span id="new-participants-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
                   aria-hidden="true"></span>
@@ -197,7 +197,7 @@
             la.stop();
 
             var $existingParticipants = $('#participants-existing');
-            if(urls.length) {
+            if (urls.length) {
               $existingParticipants.html(urls.join('\n'))
             }
 
@@ -271,49 +271,25 @@
         }
       }
 
-      window.genT = function () {
-        generateTable('table', session, password, 'statusID');
 
-        analyst.getExistingParticipants(session, password, "oldUrlsID", "oldUrlsSection");
-        document.getElementById("gen_button").onclick = function () {
-          var count = document.getElementById("countID").value;
-          count = parseInt(count);
+      // Generate new participation links
+      $('#participants-submit').on('click', function (e) {
+        e.preventDefault();
 
-          if (isNaN(count)) { // fail gracefully
-            alert("Please enter the number of desired links");
-            return;
-          }
+        var la = Ladda.create(document.getElementById('participants-submit'));
+        la.start();
 
-          generateUrls(session, password, 'urlsID', count);
-        };
-
-        document.getElementById("start").onclick = function () {
-          changeStatus(session, start, password)
-        };
-        document.getElementById("pause").onclick = function () {
-          changeStatus(session, pause, password)
-        };
-        document.getElementById("stop").onclick = function () {
-          document.getElementById('statusbox').value = checkStatus(session);
-          document.getElementById('modal_error_msg').innerHTML = "";
-          document.getElementById('confirmation').style.visibility = "visible";
-
-          document.getElementById("cancel").onclick = function () {
-            document.getElementById('confirmation').style.visibility = "hidden";
-          };
-
-          document.getElementById("confirm").onclick = function () {
-            var modal_session = document.getElementById('sess_s').value;
-            var modal_password = document.getElementById('pass_s').value;
-            if (modal_session === session && modal_password === password) {
-              document.getElementById('confirmation').style.visibility = "hidden";
-              changeStatus(session, stop, password);
-            } else {
-              document.getElementById('modal_error_msg').innerHTML = "Session and Password do not match!";
+        analyst.generateUrls(session, password, $('#participants-count').val())
+          .then(function (urls) {
+            var $newParticipants = $('#participants-new');
+            if ($newParticipants.html() !== '') {
+              $newParticipants.append('\n');
             }
-          };
-        };
-      };
+            $newParticipants.append(urls).removeClass('hidden');
+
+            la.stop();
+          });
+      });
     });
 
   </script>
