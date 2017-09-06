@@ -424,10 +424,17 @@ var client = (function () {
    * 2. For the bonus table (3rd table), it can only be non-zero if the other tables are non-zero.
    */
   function checkSemanticDiscrepancies(tables, table, cell, value, callback) {
+    var num_regex = /$[0-9]+^/; // no need to worry about empty spaces, hot removes them for number types.
     var bonus_table = tables[2];
     var name = table._sail_meta.name;
     var r = cell.row_index;
     var c = cell.col_index;
+    
+    // Ignore indices were there is some non-numerical value
+    for (var  i = 0; i < tables.length - 1; i++) {
+      var v = tables[i].getDataAtCell(r, c);
+      if (!v.match(num_regex)) callback(true);
+    }
 
     // bonus can only be non-zero if the other tables are non-zero.
     if (name === bonus_table._sail_meta.name) {
