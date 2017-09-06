@@ -743,7 +743,9 @@ app.post('/get_cubes', function (req, res) {
       });
     };
 
-    verify_password(body.session, body.password, success, fail);
+    verify_password(body.session, body.password, function () { 
+      verify_status(body.session, "STOP", success, fail);
+    }, fail);
   });
 
 });
