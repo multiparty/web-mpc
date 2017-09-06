@@ -67,12 +67,32 @@ function aggregate_and_unmask(mOut, privateKey, session, password, callback) {
     console.log(err);
     callback(false, "Error: could not compute result.");
   });
+  
+  var cubes = getCubes(session, password);
+  Promise.all(cubes, sk).then(function (cubes, importedKey) {
+    cubes = _decryptWithKey(cubes, importedKey);
+    console.log(cubes);
+    console.log(JSON.stringify(cubes));
+  });
 }
 
 function getServiceResultShare(session, password) {
   return $.ajax({
     type: "POST",
     url: "/get_aggregate",
+    contentType: "application/json",
+    data: JSON.stringify({
+      session: session,
+      password: password
+    }),
+    dataType: "json"
+  });
+}
+
+function getCubes(session, password) {
+  return $.ajax({
+    type: "POST",
+    url: "/get_cubes",
     contentType: "application/json",
     data: JSON.stringify({
       session: session,

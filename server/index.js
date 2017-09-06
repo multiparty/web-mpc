@@ -40,10 +40,18 @@ function templateToJoiSchema(template, joiFieldType) {
   return joi.object().keys(schema);
 }
 
+function genPairs(num) {
+  var objPairs = {};
+  for (var i = 0; i < num; i++)
+    for (var j = i+1; j < num; j++) 
+      objPairs[i+":"+j] = 0;
+  return objPairs;
+}
+
 const maskSchema = templateToJoiSchema(template, joi.string().required());
 const dataSchema = templateToJoiSchema(template, joi.number().required());
-const publicQuestionsSchema = templateToJoiSchema(template.questions, joi.number().required());
-const encryptedPublicQuestionsSchema = templateToJoiSchema(template.questions, joi.string().required()); // if encrypted
+const encryptedPublicQuestionsSchema = templateToJoiSchema(template.questions, joi.string().required());
+const pairwiseHyperCubeScheme = templateToJoiSchema(genPairs(5), joi.string().required());
 
 // Override deprecated mpromise
 mongoose.Promise = Promise;
@@ -121,16 +129,21 @@ createConnection();
 
 // model for aggregate data
 var Aggregate = mongoose.model('Aggregate', {
-  _id: String,
+  _id: String, // concat of session + user.
   fields: Object,
   date: Number,
   session: String,
   email: String
 });
 var Mask = mongoose.model('Mask', {
-  _id: String,
+  _id: String, // concat of session + user.
   fields: Object,
   questions_public: Object,
+  session: String
+});
+var Cube = mongoose.model('Cubes', {
+  _id: String, // concat of session + user.
+  fields: Object,
   session: String
 });
 var SessionInfo = mongoose.model('SessionInfo', {
@@ -225,6 +238,7 @@ app.post('/', function (req, res) {
     mask: maskSchema.required(),
     data: dataSchema.required(),
     questions_public: encryptedPublicQuestionsSchema.required(),
+    pairwise_hypercubes: pairwiseHyperCubeScheme.required(),
     session: joi.string().alphanum().required(),
     user: joi.string().alphanum().required()
   };
@@ -246,6 +260,7 @@ app.post('/', function (req, res) {
       var mask = body.mask,
         req_data = body.data,
         questions_public = body.questions_public,
+        pairwise_hypercubes = body.pairwise_hypercubes,
         session = body.session,
         user = body.user,
         ID = session + user; // will use concat of user + session for now
@@ -276,6 +291,12 @@ app.post('/', function (req, res) {
             questions_public: questions_public,
             session: session
           });
+          
+          var cubeToSave = new Mask({
+            _id: ID,
+            fields: pairwise_hypercubes,
+            session: session
+          });
 
           // for both the aggregate and the mask, update the old aggregate
           // for the company with that email. Update or insert, hence the upsert flag
@@ -288,10 +309,15 @@ app.post('/', function (req, res) {
               {_id: ID},
               maskToSave.toObject(),
               {upsert: true}
+            ),
+            cubePromise = Cube.update(
+              {_id: ID},
+              cubeToSave.toObject(),
+              {upsert: true}
             );
 
-          Promise.join(aggPromise, maskPromise)
-            .then(function (aggStored, maskStored) {
+          Promise.join(aggPromise, maskPromise, cubePromise)
+            .then(function (aggStored, maskStored, cubeStored) {
               res.send(body);
               return;
             })
@@ -649,6 +675,68 @@ app.post('/get_masks', function (req, res) {
         }
         else {
           res.send({data: JSON.stringify(data)});
+          return;
+        }
+      });
+    };
+
+    verify_password(body.session, body.password, success, fail);
+  });
+
+});
+
+// endpoint for getting all of the cubes for a specific session
+app.post('/get_cubes', function (req, res) {
+  console.log('POST to get_cubes.');
+  console.log(req.body);
+
+  var schema = {
+    session: joi.string().alphanum().required(),
+    password: joi.string().alphanum().required()
+  };
+
+  joi.validate(req.body, schema, function (valErr, body) {
+    if (valErr) {
+      console.log(valErr);
+      res.status(500).send('Invalid or missing fields.');
+      return;
+    }
+
+    var fail = function (err) {
+      console.log(err);
+      res.status(500).send(err);
+    };
+    var success = function () {
+      Cube.where({session: body.session}).find(function (err, data) {
+        if (err) {
+          console.log(err);
+          res.status(500).send('Error getting cubes.');
+          return;
+        }
+        if (!data || data.length === 0) {
+          res.status(500).send('No submissions yet. Please come back later.');
+          return;
+        }
+        else {
+          var result = {};
+          for (var i = 0; i < 5; i++)
+            for (var j = i+1; j < 5; j++)
+              result[i+":"+j] = [];
+              
+          for(var i = 0; i < data.length; i++) {
+            var one_submission = data[i].fields;
+            for (var i = 0; i < 5; i++)
+              for (var j = i+1; j < 5; j++)
+                result[i+":"+j].push(one_submission[i+":"+j]);
+          }
+          
+          // Sort (to shuffle/remove order) pairs
+          // now it cannot be inferred which pairs are from the same submission.
+          for (var i = 0; i < 5; i++)
+            for (var j = i+1; j < 5; j++)
+              result[i+":"+j] = result[i+":"+j].sort();
+        
+          res.send({data: JSON.stringify(result)});
           return;
         }
       });

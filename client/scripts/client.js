@@ -315,6 +315,7 @@ var client = (function () {
     //  'YES', 'NO', and 'NA' and each one has value 0 or 1
     var questions = $('#questions form');
     var questions_text = questions.find('.question-text');
+    var questions_values = [];
     for (var q = 0; q < questions.length; q++) {
       var question_data = {};
       var radios = $(questions[q]).find('input[type=radio]');
@@ -322,6 +323,7 @@ var client = (function () {
         var value = radios[r].value;
         value = value.replace(/\s+/g, ' ');
         question_data[value] = (radios[r].checked ? 1 : 0);
+        if (radios[r].checked) questions_values.push(value);
       }
 
       var text = $(questions_text[q]).text();
@@ -341,13 +343,20 @@ var client = (function () {
     var shares = secretShareValues(data_submission);
     var data = shares['data'];
     var mask = shares['mask'];
-
-    encrypt_and_send(session, participationCode, data, mask, questions_public,la);
+    
+    // Correlation using modified small pairwise "hypercubes". (one cube for each pair of questions)
+    // For every pair of questions, compute and encrypt the two chosen answers.
+    var pairwise_hypercubes = {};
+    for (var i = 0; i < questions.length; i++)
+      for (var j = i + 1; j < questions.length; j++)
+        pairwise_hypercubes[i+":"+j] = questions_values[i] + "" + questions_values[j];
+    
+    encrypt_and_send(session, participationCode, data, mask, questions_public, pairwise_hypercubes, la);
   }
 
   var submitEntries = [];
 
-  function encrypt_and_send(session, participationCode, data, mask, questions_public, la) {
+  function encrypt_and_send(session, participationCode, data, mask, questions_public, pairwise_hypercubes, la) {
     // Get the public key to encrypt with
     var pkey_request = $.ajax({
       type: "POST",
@@ -359,6 +368,7 @@ var client = (function () {
 
     pkey_request.then(function (public_key) {
       mask = encryptWithKey(mask, public_key);
+      pairwise_hypercubes = encryptWithKey(pairwise_hypercubes, public_key);
       questions_public = encryptWithKey(questions_public, public_key); // This encrypts the public answers to questions
 
       var submission = {
@@ -366,6 +376,7 @@ var client = (function () {
         mask: mask,
         user: participationCode,
         questions_public: questions_public,
+        pairwise_hypercubes: pairwise_hypercubes,
         session: session
       };
 
