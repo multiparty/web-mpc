@@ -1,53 +1,72 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-	<title>Trusted Party Data Unmasker</title>
+  <meta charset="utf-8">
+  <title>Trusted Party Data Unmasker</title>
 
   <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"
           integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"
           integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script>
-  <script type="text/javascript" src="../shared/mpc.js"></script>
-  <script type="text/javascript" src="../shared/dist/handsontable.full.min.js"></script>
-  <script type="text/javascript" src="style/bootstrap/js/bootstrap.js"></script>
-  <script type="text/javascript" src="script/spin.min.js"></script>
-  <script type="text/javascript" src="script/ladda.min.js"></script>
-  <script type="text/javascript" src="script/unmask.js"></script>
-  <script type="text/javascript" src="../shared/sail_hot.js"></script>
-  
-  <link rel="stylesheet" type="text/css" href="../shared/dist/handsontable.full.min.css">
-  <link rel="stylesheet" type="text/css" href="style/bootstrap/css/bootstrap.css">
-  <link rel="stylesheet" href="style/ladda-themeless.min.css">
+  <script type="text/javascript" src="scripts/handsontable.full.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"
+          integrity="sha256-PieqE0QdEDMppwXrTzSZQr6tWFX3W5KkyRVyF1zN3eg=" crossorigin="anonymous"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.0/ladda.min.js"
+          integrity="sha256-/DTavTzjSAI87+voZGCTfhbioWGET1qDJKe76XuWQ5M=" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+          integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+          crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="scripts/mpc.js"></script>
+  <script type="text/javascript" src="scripts/sail_hot.js"></script>
+  <script type="text/javascript" src="scripts/unmask.js"></script>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+        integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.0/ladda-themeless.min.css"
+        integrity="sha256-d7VZTlP9P3ZTCZ3Bkl8aGZ/+Vs4i+bpcOGNfibU7+LU=" crossorigin="anonymous"/>
+
+  <link rel="stylesheet" href="/styles/style.css">
+
   <style type="text/css">
     handsontable .ht_clone_top,
     .handsontable .ht_clone_top_left,
     .handsontable .ht_clone_top_left_corner {
       display: none;
     }
+
     .handsontable col.rowHeader {
       width: 200px !important;
     }
+
     .handsontable th:first-child {
       text-align: left;
       white-space: normal;
     }
+
     .handsontable th {
       font-size: 12px;
       white-space: pre-line;
       max-width: 110px;
       vertical-align: middle;
     }
+
     pre {
       text-align: left;
       margin-bottom: 0px;
     }
+
     pre p {
       font-size: 12px;
     }
+
     .btn-file {
       position: relative;
       overflow: hidden;
     }
+
     .btn-file input[type=file] {
       position: absolute;
       top: 0;
@@ -70,243 +89,267 @@
     input:valid {
       border: 1px solid green;
     }
-    
+
     #friendly {
       margin-left: 150px;
-      margin-right:1 50px;
+      margin-right: 50px;
     }
-    
+
     #friendly div.head_element {
       margin-bottom: 30px;
       display: none;
     }
-    
+
     #friendly h3.head_element {
       display: none;
     }
-    
+
     #friendly pre.head_element {
       margin: 0;
       display: none;
       margin-right: 100px;
     }
-    
+
     #my_container {
       margin-left: 150px;
       margin-right: 150px;
     }
   </style>
+
 </head>
 <body>
-  <div id="my_container">
-    <div class="page-header">
-      <table width="100%">
-        <tr>
-          <td>
-            <h1>Trusted Party <br> <small>Aggregate Data Unmasker</small> </h1>
-          </td>
-          <td align="right">
-            <img src="../shared/bu.png" width="110px"/>
-          </td>
-        </tr>
-      </table>
+<header>
+  <div class="container">
+    <h1>Trusted Party<br/>
+      <small>Aggregate Data Unmasker</small>
+    </h1>
+    <div id="logos">
+      <img src="images/bwwc.png" width="130" alt="BWWC Logo"/>
+      <img src="images/bu.gif" alt="BU Logo"/>
     </div>
+  </div>
+</header>
+<div id="shadow" class="ss-style-multitriangles"></div>
 
-    <h4>Input Session Key</h4>
-    <input type=text id="sessKey" placeholder="Session Key" pattern="^[a-z0-9]{32}$" required/>
-    
-    <h4>Input Session Password</h4>
-    <input type=password id="password" placeholder="Session Password" pattern="^[a-z0-9]{32}$" required/>
+<main id="content" class="container">
 
-    <h4>Upload Private Key <small>(Note this does not upload the key to the network)</small></h4>
+  <div class="row">
+    <section class="card col-md-10 col-md-offset-1">
+      <h4>Input Session Key</h4>
+      <input type=text id="sessKey" placeholder="Session Key" pattern="^[a-z0-9]{26}$" required/>
+
+      <h4>Input Session Password</h4>
+      <input type=password id="password" placeholder="Session Password" pattern="^[a-z0-9]{26}$" required/>
+
+      <h4>Upload Private Key
+        <small>(Note this does not upload the key to the network)</small>
+      </h4>
 
       <div class="col-xs-4">
         <div class="input-group">
-            <label class="input-group-btn">
-                <label class="btn btn-default btn-file">
-                    Browse… <input id="maskKey" style="display:none;" type="file">
-                </label>
+          <label class="input-group-btn">
+            <label class="btn btn-default btn-file">
+              Browse… <input id="maskKey" style="display:none;" type="file">
             </label>
-            <p id="filename">No File selected...</p>
+          </label>
+          <p id="filename">No File selected...</p>
         </div>
       </div>
 
-    <button id="unmask" class="btn btn-primary ladda-button" data-style="zoom-out" disabled="disabled">
-      <span class="ladda-label">Unmask Data</span>
-    </button>
+      <button id="unmask" class="btn btn-primary ladda-button" data-style="zoom-out" disabled="disabled">
+        <span class="ladda-label">Unmask Data</span>
+      </button>
+    </section>
+  </div>
 
-    <br/>
-    <br/>
+  <div class="row">
+    <section class="card col-md-10 col-md-offset-1">
+      <div id="friendly">
+        <h3 id="number-employees-hot-name" class="head_element"></h3>
+        <div id="number-employees-hot" class="head_element"></div>
+        <br>
+        <h3 id="compensation-hot-name" class="head_element"></h3>
+        <div id="compensation-hot" class="head_element"></div>
+        <br>
+        <h3 id="performance-pay-hot-name" class="head_element"></h3>
+        <div id="performance-pay-hot" class="head_element"></div>
+        <br>
+        <h3 id="service-length-hot-name" class="head_element"></h3>
+        <div id="service-length-hot" class="head_element"></div>
+        <br>
+        <h3 id="totals-hot-name" class="head_element"></h3>
+        <div id="totals-hot" class="head_element"></div>
+        <br>
+
+        <div id="questions" class="head_element"></div>
+        <pre id="result" class="head_element"></pre>
+        <pre id="error" class="head_element"></pre>
+      </div>
+    </section>
   </div>
-    
-  <div id="friendly">
-    <h3 id="number-employees-hot-name" class="head_element"></h3>  
-    <div id="number-employees-hot" class="head_element"></div> <br>
-    <h3 id="compensation-hot-name" class="head_element"></h3>
-    <div id="compensation-hot" class="head_element"></div> <br>
-    <h3 id="performance-pay-hot-name" class="head_element"></h3>
-    <div id="performance-pay-hot" class="head_element"></div> <br>
-    <h3 id="service-length-hot-name" class="head_element"></h3>
-    <div id="service-length-hot" class="head_element"></div> <br>
-    <h3 id="totals-hot-name" class="head_element"></h3>
-    <div id="totals-hot" class="head_element"></div> <br>
-    
-    <div id="questions" class="head_element"></div>
-    <pre id="result" class="head_element"></pre>
-    <pre id="error" class="head_element"></pre>
-  </div>
-  
-  <script type="text/javascript">    
-    // Get the handsontable scheme
-    $(document).ready(function() {
+</main>
+
+<script type="text/javascript">
+  // Get the handsontable scheme
+  $(document).ready(function () {
+    //$('#friendly').hide();
+
+    var req = $.ajax({
+      type: 'GET',
+      url: '/templates/tables.json',
+      dataType: 'json'
+    }).then(function (tables_def) {
+      var tables = make_tables(tables_def);
+      window.scrollTo(0, 0);
+      var tables_map = {};
+      for (var v = 0; v < tables.length; v++) {
+        tables_map[tables[v]._sail_meta.name] = tables[v];
+      }
+
       //$('#friendly').hide();
-      
-      var req = $.ajax({
-        type: "GET",
-        url: "../shared/templates/tables.json",
-        dataType: "json"
-      }).then(function (tables_def) {
-        var tables = make_tables(tables_def); window.scrollTo(0, 0);
-        var tables_map = {};
-        for(var v = 0; v < tables.length; v++)
-          tables_map[tables[v]._sail_meta.name] = tables[v];
-        
-        //$('#friendly').hide();
-        $('#unmask').removeAttr("disabled");
+      $('#unmask').removeAttr("disabled");
 
-        // Handler for unmasking
-        $('#unmask').on('click', function() {        
-          var maskKey = $('#maskKey').get(0),
-              sessKey = $('#sessKey').val(),
-              password = $('#password').val(),
-              la = Ladda.create(this),
-              keyReader = new FileReader();
+      // Handler for unmasking
+      $('#unmask').on('click', function () {
+        var maskKey = $('#maskKey').get(0),
+          sessKey = $('#sessKey').val(),
+          password = $('#password').val(),
+          la = Ladda.create(this),
+          keyReader = new FileReader();
 
-          if (maskKey.files.length) {
-            la.start();
-            keyReader.readAsText(maskKey.files[0]);
-            $(keyReader).on('load', function(e) {
-              var privateKey = e.target.result;
-              
-              // Callback: display results in HOT
-              var callb = function (success, data) {
-                la.stop();
-                
-                if (success) { // Display result
-                  for(var name in data) {
-                    if(!(data.hasOwnProperty(name))) continue;
-                    
-                    var table = tables_map[name]; 
-                    if(table != null) { // This is a table field
-                    
-                      var table_data = data[name];
-                      remove_validators(table);
-                      fill_data(table_data, table);
-                      read_only_table(table, true);
-                      
-                      // Show tables
-                      $('#' + table._sail_meta.element).show();
-                      $('#' + table._sail_meta.element + "-name").show(); 
-                    }
-                    
-                    else { // Not a table, questions
-                      var fields = data[name];
-                      
-                      var h3 = $('<h3>').text(toTitleCase(name));
-                      $('#'+name).append(h3);
-                      h3.show();
-                      
-                      for(var field in fields) {
-                        if(!(fields.hasOwnProperty(field))) continue;
-                        
+        if (maskKey.files.length) {
+          la.start();
+          keyReader.readAsText(maskKey.files[0]);
+          $(keyReader).on('load', function (e) {
+            var privateKey = e.target.result;
 
-                        var ul = $('<ul>');
-                        var answers = fields[field];
-                        for(var option in answers) {
-                          if(!(answers.hasOwnProperty(option))) continue;
-                          
-                          var text = option + ": " + answers[option];
-                          ul.append($('<li>').text(text));
-                        }
-                        
-                        $('#'+name).append($('<h4>').text(field));
-                        $('#'+name).append(ul);
-                        $('#'+name).append($('<br>'));
-                        $('#'+name).show();
+            // Callback: display results in HOT
+            var callb = function (success, data) {
+              la.stop();
+
+              if (success) { // Display result
+                for (var name in data) {
+                  if (!(data.hasOwnProperty(name))) {
+                    continue;
+                  }
+
+                  var table = tables_map[name];
+                  if (table != null) { // This is a table field
+
+                    var table_data = data[name];
+                    remove_validators(table);
+                    fill_data(table_data, table);
+                    read_only_table(table, true);
+
+                    // Show tables
+                    $('#' + table._sail_meta.element).show();
+                    $('#' + table._sail_meta.element + "-name").show();
+                  }
+
+                  else { // Not a table, questions
+                    var fields = data[name];
+
+                    var h3 = $('<h3>').text(toTitleCase(name));
+                    $('#' + name).append(h3);
+                    h3.show();
+
+                    for (var field in fields) {
+                      if (!(fields.hasOwnProperty(field))) {
+                        continue;
                       }
+
+
+                      var ul = $('<ul>');
+                      var answers = fields[field];
+                      for (var option in answers) {
+                        if (!(answers.hasOwnProperty(option))) {
+                          continue;
+                        }
+
+                        var text = option + ": " + answers[option];
+                        ul.append($('<li>').text(text));
+                      }
+
+                      $('#' + name).append($('<h4>').text(field));
+                      $('#' + name).append(ul);
+                      $('#' + name).append($('<br>'));
+                      $('#' + name).show();
                     }
                   }
-                  
-                  // Display raw data.
-                  //$('#result').text(JSON.stringify(data, null, 4));
-                  //$('#result').show();
-                  $('#error').hide();
-                  $('#unmask').prop('disabled', true);
-                  $('#unmask').hide();
                 }
-                
-                else { // !success, display error
-                  console.log(data);
-                  $('#error').text(data);
-                  $('#error').show();
-                }
-              };
-              
-              // Remove top and bottom line of pem file
-              privateKey = privateKey.split('\n')[1];
 
-              $.ajax({
-                type: "POST",
-                url: "/get_masks",
-                contentType: "application/json",
-                data: JSON.stringify({session: sessKey, password: password}),
-                success: function (data) {
-                  aggregate_and_unmask(data, privateKey, sessKey, password, callb);
-                },
-                error: function() {
-                  callb(false, "Error: failed to load masks");
-                }
-              });
+                // Display raw data.
+                //$('#result').text(JSON.stringify(data, null, 4));
+                //$('#result').show();
+                $('#error').hide();
+                $('#unmask').prop('disabled', true);
+                $('#unmask').hide();
+              }
+
+              else { // !success, display error
+                console.log(data);
+                $('#error').text(data);
+                $('#error').show();
+              }
+            };
+
+            // Remove top and bottom line of pem file
+            privateKey = privateKey.split('\n')[1];
+
+            $.ajax({
+              type: "POST",
+              url: "/get_masks",
+              contentType: "application/json",
+              data: JSON.stringify({session: sessKey, password: password}),
+              success: function (data) {
+                aggregate_and_unmask(data, privateKey, sessKey, password, callb);
+              },
+              error: function () {
+                callb(false, "Error: failed to load masks");
+              }
             });
-          } else {
-            alert("Please upload both files before continuing.");
-          }
-        });
+          });
+        } else {
+          alert("Please upload both files before continuing.");
+        }
       });
     });
-    
-    // Capitalize the first letter of every word
-    function toTitleCase(str) {
-        return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
-    }
+  });
 
-    // taken directly from trusted/session_data.html.
-    // could probably clean up
-    window.getParameterByName = function(name) {
-      name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-      var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-          results = regex.exec(location.search);
-      return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-    }
-    
-    if (getParameterByName('session')) {
-      $('#sessKey').val(getParameterByName('session'));
-    }
-
-    // We can attach the `fileselect` event to all file inputs on the page
-    $(document).on('change', ':file', function() {
-      var input = $(this),
-          label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
-      input.trigger('fileselect', [label]);
+  // Capitalize the first letter of every word
+  function toTitleCase(str) {
+    return str.replace(/\w\S*/g, function (txt) {
+      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
     });
+  }
 
-    $(':file').on('fileselect', function(event, label) {
-      var input = $(this).parents('.input-group').find('#filename');
-      if (input.length) {
-        input.text(label);
-      }
-    });
+  // taken directly from trusted/session_data.html.
+  // could probably clean up
+  window.getParameterByName = function (name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+      results = regex.exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+  }
 
-  </script>
+  if (getParameterByName('session')) {
+    $('#sessKey').val(getParameterByName('session'));
+  }
+
+  // We can attach the `fileselect` event to all file inputs on the page
+  $(document).on('change', ':file', function () {
+    var input = $(this),
+      label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+    input.trigger('fileselect', [label]);
+  });
+
+  $(':file').on('fileselect', function (event, label) {
+    var input = $(this).parents('.input-group').find('#filename');
+    if (input.length) {
+      input.text(label);
+    }
+  });
+
+</script>
 </body>
 </html>
