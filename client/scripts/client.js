@@ -245,16 +245,17 @@ var client = (function () {
       // Receive errors from validator and puts them in the errors array.
       var errorHandler = function (table_name, value, row, col, validator_name) {
         var errorMsg;
-        if (validator_name === "type" && value === "") {
-          errorMsg = CELLS_ERRORS["empty"];
+        if (validator_name === 'type' && value === '') {
+          errorMsg = CELLS_ERRORS['empty'];
         } else {
           errorMsg = CELLS_ERRORS[validator_name];
         }
 
         if (errorMsg === null) {
           errorMsg = GENERIC_TABLE_ERR;
-          errorMsg = errorMsg.replace("%s", table_name);
+          errorMsg = errorMsg.replace('%s', table_name);
         }
+        
         if (errors.indexOf(errorMsg) === -1) {
           errors = errors.concat(errorMsg);
         }
@@ -265,14 +266,14 @@ var client = (function () {
       (function validate_callback(i) {
         if (i >= tables.length) {
           // Remove the semantic discrepancies validator.
-          remove_validator("discrepancies");
+          remove_validator('discrepancies');
           remove_error_handler(0);
           for (i = 0; i < tables.length; i++) {
             tables[i].render();
           }
 
           if (errors.length === 0) {
-            return callback(true, "");
+            return callback(true, '');
           } else {
             return callback(false, errors);
           }
@@ -311,6 +312,7 @@ var client = (function () {
     //  'YES', 'NO', and 'NA' and each one has value 0 or 1
     var questions = $('#questions form');
     var questions_text = questions.find('.question-text');
+    var questions_values = [];
     for (var q = 0; q < questions.length; q++) {
       var question_data = {};
       var radios = $(questions[q]).find('input[type=radio]');
@@ -318,6 +320,9 @@ var client = (function () {
         var value = radios[r].value;
         value = value.replace(/\s+/g, ' ');
         question_data[value] = (radios[r].checked ? 1 : 0);
+        if (radios[r].checked) {
+          questions_values.push(value);
+        }
       }
 
       var text = $(questions_text[q]).text();
@@ -338,38 +343,49 @@ var client = (function () {
     var data = shares['data'];
     var mask = shares['mask'];
 
-    encrypt_and_send(session, participationCode, data, mask, questions_public,la);
+    // Correlation using modified small pairwise "hypercubes". (one cube for each pair of questions)
+    // For every pair of questions, compute and encrypt the two chosen answers.
+    var pairwise_hypercubes = {};
+    for (var i = 0; i < questions.length; i++) {
+      for (var j = i + 1; j < questions.length; j++) {
+        pairwise_hypercubes[i + ':' + j] = questions_values[i] + '' + questions_values[j];
+      }
+    }
+
+    encrypt_and_send(session, participationCode, data, mask, questions_public, pairwise_hypercubes, la);
   }
 
   var submitEntries = [];
 
-  function encrypt_and_send(session, participationCode, data, mask, questions_public, la) {
+  function encrypt_and_send(session, participationCode, data, mask, questions_public, pairwise_hypercubes, la) {
     // Get the public key to encrypt with
     var pkey_request = $.ajax({
-      type: "POST",
-      url: "/publickey",
-      contentType: "application/json",
+      type: 'POST',
+      url: '/publickey',
+      contentType: 'application/json',
       data: JSON.stringify({session: session}),
-      dataType: "text"
+      dataType: 'text'
     });
 
     pkey_request.then(function (public_key) {
       mask = encryptWithKey(mask, public_key);
-      // questions_public = encryptWithKey(questions_public, public_key); // This encrypts the public answers to questions
+      pairwise_hypercubes = encryptWithKey(pairwise_hypercubes, public_key);
+      questions_public = encryptWithKey(questions_public, public_key); // This encrypts the public answers to questions
 
       var submission = {
         data: data,
         mask: mask,
         user: participationCode,
         questions_public: questions_public,
+        pairwise_hypercubes: pairwise_hypercubes,
         session: session
       };
 
-      console.log(submission);
+      //console.log(submission);
 
       return $.ajax({
-        type: "POST",
-        url: "/",
+        type: 'POST',
+        url: '/',
         data: JSON.stringify(submission),
         contentType: 'application/json'
       });
@@ -377,7 +393,7 @@ var client = (function () {
       var submitTime = new Date();
       submitEntries.push({time: submitTime, submitted: true});
 
-      success("Submitted data.");
+      success('Submitted data.');
       convertToHTML(submitEntries);
 
       // Stop loading animation
