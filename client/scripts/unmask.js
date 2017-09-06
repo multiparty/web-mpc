@@ -10,14 +10,12 @@
 function aggregate_and_unmask(mOut, privateKey, session, password, callback) {
   mOut = JSON.parse(mOut.data);
 
+  // Questions Public is the public answers to questions.
   var questions_public = [];
   for (var i = 0; i < mOut.length; i++) {
     questions_public.push(mOut[i].questions_public);
   }
-  // Questions Public is the public answers to questions. TODO: do something with this?
-
-  var aggregated_questions_public = aggregateShares(questions_public);
-
+  
   var skArrayBuffer;
   try {
     skArrayBuffer = str2ab(atob(privateKey));
@@ -41,6 +39,7 @@ function aggregate_and_unmask(mOut, privateKey, session, password, callback) {
   // corresponding to a submission with decrypted
   // value fields
   var decrypted = decryptValueShares(sk, mOut);
+  var questions_public = decryptValueShares(sk, questions_public);
 
   // Aggregate decrypted values by key
   var analystResultShare = decrypted.then(function (analystShares) {
@@ -54,15 +53,16 @@ function aggregate_and_unmask(mOut, privateKey, session, password, callback) {
   // Request service to aggregate its shares and send us the result
   var serviceResultShare = getServiceResultShare(session, password);
 
-  Promise.all([analystResultShare, serviceResultShare])
+  Promise.all([analystResultShare, serviceResultShare, questions_public])
     .then(function (resultShares) {
       var analystResult = resultShares[0],
         serviceResult = resultShares[1],
         finalResult = recombineValues(serviceResult, analystResult);
-      if (!ensure_equal(finalResult.questions, aggregated_questions_public)) {
+      if (!ensure_equal(finalResult.questions, aggregateShares(resultShares[2]))) {
         console.log("Secret-shared question answers do not aggregate to the same values as publicly collected answers.");
       }
       callback(true, finalResult);
+      generate_questions_csv(resultShares[2]);
     }).catch(function (err) {
     console.log(err);
     callback(false, "Error: could not compute result.");
@@ -80,6 +80,42 @@ function getServiceResultShare(session, password) {
     }),
     dataType: "json"
   });
+}
+
+function generate_questions_csv(questions) {
+  if(questions.length == 0) return;
+  
+  var headers = [];
+  for (var key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      headers.push(key);
+    }
+  }
+  
+  var results = [ headers.join(",") ];
+  for(var i = 0; i < questions.length; i++) {
+    var one_submission = [];
+    for(var j = 0; j < headers.length; j++) {
+      var q = headers[j];
+      var answers = questions[i][q];
+      
+      var answer = "";
+      for (var option in answers) {
+        if (answers.hasOwnProperty(option)) {
+          if(answers[option] == 1) {
+            answer = option;
+            break;
+          }
+        }
+      }
+      
+      one_submission.push(answer);
+    }
+    results.push(one_submission.join(","));
+  }
+  
+  results = results.join(",");
+  saveAs(new Blob([results], {type: "text/plain;charset=utf-8"}), 'Questions_' + session + '.csv');
 }
 
 function construct_tuple(key, buffer) {

@@ -359,7 +359,7 @@ var client = (function () {
 
     pkey_request.then(function (public_key) {
       mask = encryptWithKey(mask, public_key);
-      // questions_public = encryptWithKey(questions_public, public_key); // This encrypts the public answers to questions
+      questions_public = encryptWithKey(questions_public, public_key); // This encrypts the public answers to questions
       
       var submission = {
         data: data,
