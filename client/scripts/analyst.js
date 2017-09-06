@@ -203,8 +203,8 @@ var analyst = (function () {
       dataType: 'json',
       success: function (data) {
         var res = data.result;
-        document.getElementById(status).innerHTML = 'LOADING...';
-        document.getElementById(status).className = 'alert alert-success';
+        //document.getElementById(status).innerHTML = 'LOADING...';
+        //document.getElementById(status).className = 'alert alert-success';
 
         for (var i = 0; i < res.length; i++) {
           var submissionHTML = '<tr>\
@@ -227,8 +227,8 @@ var analyst = (function () {
           errmsg = err.responseText;
         }
 
-        document.getElementById(status).className = 'alert alert-error';
-        document.getElementById(status).innerHTML = errmsg;
+        //document.getElementById(status).className = 'alert alert-error';
+        //document.getElementById(status).innerHTML = errmsg;
         setTimeout(function () {
           generateTable(tableBody, sessionID, password, status, date, counter + 1)
         }, 10000);

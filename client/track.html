@@ -154,23 +154,17 @@
       <p class="text-center">Fill in your session details on the left to manage your session, add new participants and
         track existing participation.</p>
       <hr/>
+      <table id="table" class="table table-striped hidden">
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Timestamp</th>
+        </tr>
+        </thead>
+        <tbody id="participants">
+        </tbody>
+      </table>
     </section>
-  </div>
-
-  <div class="hidden">
-    <h3>Tracking and Unmasking</h3>
-    <div><a id="unmasklink"></a></div>
-    <table class="table table-striped" id="table">
-      <thead>
-      <tr>
-        <th>Email</th>
-        <th>Posted</th>
-      </tr>
-      </thead>
-      <tbody id="participants">
-      </tbody>
-    </table>
-    <br/>
   </div>
 
   <script type="text/javascript">
@@ -200,6 +194,9 @@
             if (urls.length) {
               $existingParticipants.html(urls.join('\n'))
             }
+
+            $('#table').removeClass('hidden');
+            analyst.generateTable('table', session, password, 'statusID');
 
             // Remove login panel and show control panel
             $('#session-login').collapse();
