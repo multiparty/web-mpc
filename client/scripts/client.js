@@ -13,16 +13,12 @@ var client = (function () {
   var SERVER_ERR = 'Server not reachable';
   var GENERIC_SUBMISSION_ERR = 'Something went wrong with submission! Please try again';
 
-  var EMPTY_CELLS = 'The table "%s" has empty cells, please enter 0 if there is no value';
-  var NAN_CELLS = 'The table "%s" has cells that are not numbers, make sure you only enter numeric values';
-  var MAX_VAL_CELLS = 'The table "%s" has cells that go beyond the allowed maximum value';
-  var MIN_VAL_CELLS = 'The table "%s" has cells with negative values, only positive values are allowed';
-  var SEMANTIC_CELLS = 'The table "%s" has cells with semantic errors';
+  var NAN_EMPTY_CELLS = 'You have entered data into a cell in one table without entering data into the corresponding cell in another table. Please double check all tables';
+  var SEMANTIC_CELLS = 'You have entered non-numeric data into at least one cell. Please make sure all cells contain positive numbers only. If you have no data for that cell, please enter a zero.';
   var CELLS_ERRORS = {
-    empty: EMPTY_CELLS,
-    type: NAN_CELLS,
-    min: MIN_VAL_CELLS,
-    max: MAX_VAL_CELLS,
+    empty: NAN_EMPTY_CELLS,
+    type: NAN_EMPTY_CELLS,
+    min: NAN_EMPTY_CELLS,
     discrepancies: SEMANTIC_CELLS
   };
 
@@ -257,8 +253,9 @@ var client = (function () {
 
         if (errorMsg === null) {
           errorMsg = GENERIC_TABLE_ERR;
+          errorMsg = errorMsg.replace('%s', table_name);
         }
-        errorMsg = errorMsg.replace('%s', table_name);
+        
         if (errors.indexOf(errorMsg) === -1) {
           errors = errors.concat(errorMsg);
         }
@@ -443,10 +440,17 @@ var client = (function () {
    * 2. For the bonus table (3rd table), it can only be non-zero if the other tables are non-zero.
    */
   function checkSemanticDiscrepancies(tables, table, cell, value, callback) {
+    var num_regex = /$[0-9]+^/; // no need to worry about empty spaces, hot removes them for number types.
     var bonus_table = tables[2];
     var name = table._sail_meta.name;
     var r = cell.row_index;
     var c = cell.col_index;
+    
+    // Ignore indices were there is some non-numerical value
+    for (var  i = 0; i < tables.length - 1; i++) {
+      var v = tables[i].getDataAtCell(r, c);
+      if (typeof(v) != "number" || v < 0) return callback(true);
+    }
 
     // bonus can only be non-zero if the other tables are non-zero.
     if (name === bonus_table._sail_meta.name) {

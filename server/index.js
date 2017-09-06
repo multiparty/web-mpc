@@ -694,7 +694,9 @@ app.post('/get_masks', function (req, res) {
       });
     };
 
-    verify_password(body.session, body.password, success, fail);
+    verify_password(body.session, body.password, function () { 
+      verify_status(body.session, "STOP", success, fail);
+    }, fail);
   });
 
 });
@@ -822,9 +824,10 @@ app.post('/get_aggregate', function (req, res) {
       });
     };
 
-    verify_password(body.session, body.password, success, fail);
+    verify_password(body.session, body.password, function () {
+      verify_status(body.session, "STOP", success, fail);
+    }, fail);
   });
-
 });
 
 // endpoint for storing the encrypted result
