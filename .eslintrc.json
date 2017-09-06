@@ -7,7 +7,8 @@
     "quote-props": [1, "consistent-as-needed"],
     "eqeqeq": 2,
     "brace-style": 2,
-    "curly": 2
+    "curly": 2,
+    "quotes": [2, "single", { "avoidEscape": true }]
   },
   "env": {
     "browser": true,

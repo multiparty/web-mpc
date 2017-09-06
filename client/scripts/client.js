@@ -63,20 +63,20 @@ var client = (function () {
   }
 
   function verifyKeysAndFetchDescription(callback) {
-    var session = $("#session").val().trim().toLowerCase();
-    var participationCode = $("#participation-code").val().trim().toLowerCase();
+    var session = $('#session').val().trim().toLowerCase();
+    var participationCode = $('#participation-code').val().trim().toLowerCase();
 
-    if (session === "" || participationCode === "") {
+    if (session === '' || participationCode === '') {
       callback && callback(false);
       return;
     }
 
     $.ajax({
-      type: "POST",
-      url: "/sessioninfo",
-      contentType: "application/json",
+      type: 'POST',
+      url: '/sessioninfo',
+      contentType: 'application/json',
       data: JSON.stringify({session: session, userkey: participationCode}),
-      dataType: "text"
+      dataType: 'text'
     }).then(function (response) {
       response = JSON.parse(response);
       var title = response.title;
@@ -119,9 +119,9 @@ var client = (function () {
 
     if (reset) {
       var $instructions = $('#instructions');
-      $instructions.css('width', 'initial');
-      $instructions.css('max-width', 950);
-      $instructions.css('margin-left', 'auto');
+      $instructions.css('width', '');
+      $instructions.css('max-width', '');
+      $instructions.css('margin-left', '');
       $('header, #shadow').css('right', 0);
       tableWidthsOld = [];
       return;
@@ -166,7 +166,8 @@ var client = (function () {
       $('header, #shadow').css('right', documentWidth - maxWidth);
     }
 
-    $('#instructions').css('margin-left', offset);
+    // Bootstrap row has margin-left: -15px, add this back to offset to keep card centered
+    $('#instructions').css('margin-left', offset + 15);
 
     tableWidthsOld = tableWidths.concat();
   }

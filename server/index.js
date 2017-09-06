@@ -20,11 +20,12 @@ const app = express();
 const body_parser = require('body-parser');
 const mongoose = require('mongoose');
 const template = require('./template');
-const mpc = require('../shared/mpc');
+const mpc = require('../client/scripts/mpc');
 const crypto = require('crypto');
 const joi = require('joi');
 const Promise = require('bluebird');
 const base32Encode = require('base32-encode');
+const path = require('path');
 
 function templateToJoiSchema(template, joiFieldType) {
   var schema = {};
@@ -173,17 +174,20 @@ function verify_password(session, password, success, fail) {
 // Verifies that the given session and password match.
 function verify_status(session, status, success, fail) {
   SessionStatus.findOne({_id: session}, function (err, data) {
-    if (err)
+    if (err) {
       fail('Error while verifying participation code.');
+    }
 
-    var db_status = "START";
-    if (data != null)
+    var db_status = "PAUSE";
+    if (data) {
       db_status = data.status;
+    }
 
-    if (status == db_status)
+    if (status === db_status) {
       success();
-    else
+    } else {
       fail("Session status is " + db_status);
+    }
   });
 }
 
@@ -193,7 +197,21 @@ app.use(body_parser.json({limit: '50mb'}));
 // serve static files in designated folders
 app.use(express.static(__dirname + '/../client'));
 
-app.use(express.static(__dirname + '/../'));
+app.get('/',function(req,res){
+  res.sendFile((path.join(__dirname + '/../client/index.html')));
+});
+
+app.get('/session',function(req,res){
+  res.sendFile((path.join(__dirname + '/../client/session.html')));
+});
+
+app.get('/track',function(req,res){
+  res.sendFile((path.join(__dirname + '/../client/track.html')));
+});
+
+app.get('/unmask',function(req,res){
+  res.sendFile((path.join(__dirname + '/../client/unmask.html')));
+});
 
 // protocol for accepting new data
 app.post('/', function (req, res) {
@@ -540,7 +558,7 @@ app.post('/get_client_urls', function (req, res) {
         if (!data) data = [];
         var urls = [];
         for (var d in data) {
-          var url = "?session=" + body.session + "&participantCode=" + data[d].userkey;
+          var url = "?session=" + body.session + "&participationCode=" + data[d].userkey;
           urls.push(url);
         }
 
@@ -709,8 +727,8 @@ app.post('/submit_agg', function (req, res) {
 });
 
 // status
-app.post("/control_panel", function (req, res) {
-  console.log('POST /control_panel');
+app.post("/change_status", function (req, res) {
+  console.log('POST /change_status');
   var schema = {
     session: joi.string().alphanum().required(),
     password: joi.string().alphanum().required(),
@@ -739,7 +757,7 @@ app.post("/control_panel", function (req, res) {
         }
 
         if (data !== null && data.status === "STOP") {
-          res.status(500).send('Session already stoped.');
+          res.status(500).send('Session already stopped.');
           return;
         }
         var status = body.status;
@@ -796,9 +814,9 @@ app.post('/fetch_status', function (req, res) {
         res.status(500).send('Error getting session status.');
         return;
       }
-      
+
       if (data === null) {
-        data = { status: "START" };
+        data = { status: "PAUSE" };
       }
 
       if (data.status == null) {

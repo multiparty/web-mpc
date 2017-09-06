@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Trusted Party Live Session Tracker</title>
+
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"
+          integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"
+          integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script>
+  <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+          integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+          crossorigin="anonymous"></script>
+
+  <script src="//cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"
+          integrity="sha256-PieqE0QdEDMppwXrTzSZQr6tWFX3W5KkyRVyF1zN3eg=" crossorigin="anonymous"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.0/ladda.min.js"
+          integrity="sha256-/DTavTzjSAI87+voZGCTfhbioWGET1qDJKe76XuWQ5M=" crossorigin="anonymous"></script>
+
+  <script src="/scripts/analyst.js"></script>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+        integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.0/ladda-themeless.min.css"
+        integrity="sha256-d7VZTlP9P3ZTCZ3Bkl8aGZ/+Vs4i+bpcOGNfibU7+LU=" crossorigin="anonymous"/>
+
+  <link rel="stylesheet" href="/styles/style.css">
+
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1>Trusted Party<br/>
+      <small>Live Session Tracker</small>
+    </h1>
+    <div id="logos">
+      <img src="/images/bwwc.png" width="130" alt="BWWC Logo"/>
+      <img src="/images/bu.gif" alt="BU Logo"/>
+    </div>
+  </div>
+</header>
+<div id="shadow" class="ss-style-multitriangles"></div>
+<main id="content" class="container">
+</main>
+<div class="container">
+  <div class="row">
+    <section class="card col-md-4">
+      <div id="session-login" class="collapse in">
+        <h2 class="text-center">Enter session details</h2>
+        <hr/>
+        <form>
+          <div class="form-group">
+            <label class="control-label" for="session">Session key</label>
+            <input type="text" id="session" class="form-control" placeholder="Session key" pattern="^[a-zA-Z0-9]{26}$"
+                   autocomplete="off" required/>
+            <span id="session-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
+                  aria-hidden="true"></span>
+            <span id="session-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
+                  aria-hidden="true"></span>
+            <span id="session-fail-help"
+                  class="fail-help help-block hidden">Please input the 26-character session key.</span>
+            <span id="session-fail-custom-help"
+                  class="fail-custom help-block hidden"></span>
+          </div>
+          <div class="form-group">
+            <label class="control-label" for="password">Session password</label>
+            <input type="password" id="password" class="form-control" placeholder="Session password"
+                   autocomplete="off" required>
+            <span id="password-success"
+                  class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
+                  aria-hidden="true"></span>
+            <span id="password-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
+                  aria-hidden="true"></span>
+            <span id="password-fail-help"
+                  class="fail-help help-block hidden">Please input the session password.</span>
+            <span id="password-fail-custom-help"
+                  class="fail-custom help-block hidden"></span>
+          </div>
+          <div class="form-group">
+            <button type="submit" id="login" class="btn btn-primary ladda-button btn-lg btn-block">Submit</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="session-panel" class="collapse">
+        <h2 class="text-center">Manage your session</h2>
+        <p class="text-center">Session status: <span id="session-status"></span></p>
+        <p id="session-unmask" class="hidden">Click <a href="">here</a> to unmask session data.</p>
+        <form id="session-manage">
+          <button type="submit" id="session-start" class="btn btn-success btn-block">Start</button>
+          <button type="submit" id="session-pause" class="btn btn-warning btn-block">Pause</button>
+          <button type="submit" id="session-stop" class="btn btn-danger btn-block"
+                  data-toggle="modal" data-target="#session-stop-modal">Stop
+          </button>
+        </form>
+
+        <div id="session-stop-modal" class="modal fade" tabindex="-1" role="dialog">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">Close session</h4>
+              </div>
+              <div class="modal-body">
+                <p class="text-danger">Are you sure you wish to permanently close the session? There is NO undo!</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button id="session-close-confirm" type="button" class="btn btn-danger"
+                        data-dismiss="modal">Close session
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr/>
+
+        <h2 class="text-center">Add participants</h2>
+        <p class="text-center">Generate more URLs for new participants.</p>
+        <form>
+          <div class="form-group">
+            <label class="control-label" for="participants-count">New participants</label>
+            <input type="number" id="participants-count" class="form-control" placeholder="0" pattern="^[1-9]\d*{1,5}$"
+                   autocomplete="off" required/>
+            <span id="new-participants-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
+                  aria-hidden="true"></span>
+            <span id="new-participants-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
+                  aria-hidden="true"></span>
+            <span id="new-participants-fail-help"
+                  class="fail-help help-block hidden">Please input a digit smaller than 100.000</span>
+            <span id="new-participants-fail-custom-help"
+                  class="fail-custom help-block hidden"></span>
+          </div>
+          <div class="form-group">
+            <button type="submit" id="participants-submit" class="btn btn-primary ladda-button btn-block">
+              Submit
+            </button>
+          </div>
+        </form>
+        <pre id="participants-new" class="hidden"></pre>
+        <hr/>
+        <h2 class="text-center">Existing participants</h2>
+        <p class="text-center">View the list of existing participation URLs.</p>
+        <pre id="participants-existing">No existing participants found</pre>
+      </div>
+    </section>
+
+    <section class="card col-md-7 col-md-offset-1">
+      <h2 class="text-center">Track session</h2>
+      <p class="text-center">Fill in your session details on the left to manage your session, add new participants and
+        track existing participation.</p>
+      <hr/>
+      <table id="table" class="table table-striped hidden">
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Timestamp</th>
+        </tr>
+        </thead>
+        <tbody id="participants">
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <script type="text/javascript">
+    $(function () {
+      var session, password;
+
+      $('#session').val(analyst.getParameterByName('session'));
+
+      // Login
+      $('#login').on('click', function (e) {
+        e.preventDefault();
+        session = $('#session').val();
+        password = $('#password').val();
+
+        var la = Ladda.create(document.getElementById('login'));
+        la.start();
+
+        analyst.checkStatus(session, password)
+          .then(function (status) {
+            changeStatusButtons(status);
+            return analyst.getExistingParticipants(session, password);
+          })
+          .then(function (urls) {
+            la.stop();
+
+            var $existingParticipants = $('#participants-existing');
+            if (urls.length) {
+              $existingParticipants.html(urls.join('\n'))
+            }
+
+            $('#table').removeClass('hidden');
+            analyst.generateTable('table', session, password, 'statusID');
+
+            // Remove login panel and show control panel
+            $('#session-login').collapse();
+            $('#session-panel').collapse();
+          })
+          .catch(function () {
+            la.stop();
+          });
+      });
+
+
+      // Manage session
+      $('#session-start').on('click', function (e) {
+        e.preventDefault();
+        analyst.changeStatus(session, password, analyst.START)
+          .then(function () {
+            changeStatusButtons(analyst.START);
+          });
+      });
+
+      $('#session-pause').on('click', function (e) {
+        e.preventDefault();
+        analyst.changeStatus(session, password, analyst.PAUSE)
+          .then(function () {
+            changeStatusButtons(analyst.PAUSE);
+          });
+      });
+
+      $('#session-stop').on('click', function (e) {
+        e.preventDefault();
+      });
+
+      $('#session-close-confirm').on('click', function (e) {
+        e.preventDefault();
+        analyst.changeStatus(session, password, analyst.STOP)
+          .then(function () {
+            changeStatusButtons(analyst.STOP);
+          });
+      });
+
+      function changeStatusButtons(status) {
+        var $start = $('#session-start'),
+          $pause = $('#session-pause'),
+          $stop = $('#session-stop'),
+          $sessionStatus = $('#session-status'),
+          $sessionUnmask = $('#session-unmask');
+
+        switch (status) {
+          case 'START':
+            $start.addClass('hidden');
+            $pause.removeClass('hidden');
+            $stop.removeClass('hidden');
+            $sessionStatus.html('STARTED');
+            break;
+          case 'PAUSE':
+            $start.removeClass('hidden');
+            $pause.addClass('hidden');
+            $stop.removeClass('hidden');
+            $sessionStatus.html('PAUSED');
+            break;
+          case 'STOP':
+            $start.addClass('hidden');
+            $pause.addClass('hidden');
+            $stop.addClass('hidden');
+            $sessionStatus.html('STOPPED');
+            $sessionUnmask.removeClass('hidden');
+            $sessionUnmask.find('a').attr('href', '/unmask?session=' + session);
+            break;
+        }
+      }
+
+
+      // Generate new participation links
+      $('#participants-submit').on('click', function (e) {
+        e.preventDefault();
+
+        var la = Ladda.create(document.getElementById('participants-submit'));
+        la.start();
+
+        analyst.generateUrls(session, password, $('#participants-count').val())
+          .then(function (urls) {
+            var $newParticipants = $('#participants-new');
+            if ($newParticipants.html() !== '') {
+              $newParticipants.append('\n');
+            }
+            $newParticipants.append(urls.join('\n')).removeClass('hidden');
+
+            la.stop();
+          });
+      });
+    });
+
+  </script>
+</div>
+</body>
+</html>
