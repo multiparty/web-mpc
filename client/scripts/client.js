@@ -433,7 +433,7 @@ var client = (function () {
     // Ignore indices were there is some non-numerical value
     for (var  i = 0; i < tables.length - 1; i++) {
       var v = tables[i].getDataAtCell(r, c);
-      if (!v.match(num_regex)) callback(true);
+      if (typeof(v) != "number" || v < 0) return callback(true);
     }
 
     // bonus can only be non-zero if the other tables are non-zero.
