@@ -31,10 +31,13 @@ function templateToJoiSchema(template, joiFieldType) {
   var schema = {};
   for (var key in template) {
     if (template.hasOwnProperty(key)) {
-      if (template[key] === 0)
-        schema[key] = joiFieldType; // safe to re-use since immutable
+      if (template[key] === 0) {
+        schema[key] = joiFieldType;
+      }// safe to re-use since immutable
       else // since format may have nested objects, recurse!
+      {
         schema[key] = templateToJoiSchema(template[key], joiFieldType);
+      }
     }
   }
   return joi.object().keys(schema);
@@ -42,9 +45,11 @@ function templateToJoiSchema(template, joiFieldType) {
 
 function genPairs(num) {
   var objPairs = {};
-  for (var i = 0; i < num; i++)
-    for (var j = i+1; j < num; j++)
-      objPairs[i+":"+j] = 0;
+  for (var i = 0; i < num; i++) {
+    for (var j = i + 1; j < num; j++) {
+      objPairs[i + ':' + j] = 0;
+    }
+  }
   return objPairs;
 }
 
@@ -114,9 +119,12 @@ function approveDomains(opts, certs, cb) {
   cb(null, {options: opts, certs: certs});
 }
 
-async function createConnection () {
+async
+
+function createConnection() {
   try {
-    await mongoose.connect('mongodb://localhost/aggregate', {
+    await
+    mongoose.connect('mongodb://localhost/aggregate', {
       useMongoClient: true
     });
   } catch (err) {
@@ -175,12 +183,13 @@ var SessionStatus = mongoose.model('SessionStatus', {
 // Verifies that the given session and password match.
 function verify_password(session, password, success, fail) {
   SessionInfo.findOne({session: session, password: password}, function (err, data) {
-    if (err)
+    if (err) {
       fail('Error while verifying password.');
-    else if (data == null)
+    } else if (data == null) {
       fail('Invalid session/password');
-    else
+    } else {
       success();
+    }
   });
 }
 
@@ -210,19 +219,19 @@ app.use(body_parser.json({limit: '50mb'}));
 // serve static files in designated folders
 app.use(express.static(__dirname + '/../client'));
 
-app.get('/', function (req,res){
+app.get('/', function (req, res) {
   res.sendFile((path.join(__dirname + '/../client/index.html')));
 });
 
-app.get('/session', function (req,res){
+app.get('/session', function (req, res) {
   res.sendFile((path.join(__dirname + '/../client/session.html')));
 });
 
-app.get('/track', function (req,res){
+app.get('/track', function (req, res) {
   res.sendFile((path.join(__dirname + '/../client/track.html')));
 });
 
-app.get('/unmask', function (req,res){
+app.get('/unmask', function (req, res) {
   res.sendFile((path.join(__dirname + '/../client/unmask.html')));
 });
 
@@ -503,10 +512,13 @@ app.post('/generate_client_urls', function (req, res) {
         var urls = [];
         var userkeys = [];
         var models = [];
-        if (!data) data = [];
+        if (!data) {
+          data = [];
+        }
 
-        for (var d in data)
+        for (var d in data) {
           userkeys.push(d.userkey);
+        }
 
         // Create count many unique (per session) user keys.
         for (var i = 0; i < count; i++) {
@@ -581,7 +593,9 @@ app.post('/get_client_urls', function (req, res) {
           return;
         }
 
-        if (!data) data = [];
+        if (!data) {
+          data = [];
+        }
         var urls = [];
         for (var d in data) {
           var url = "?session=" + body.session + "&participationCode=" + data[d].userkey;
@@ -720,22 +734,28 @@ app.post('/get_cubes', function (req, res) {
         else {
           console.log(data.length);
           var result = {};
-          for (var i = 0; i < 5; i++)
-            for (var j = i+1; j < 5; j++)
-              result[i+":"+j] = [];
+          for (var i = 0; i < 5; i++) {
+            for (var j = i + 1; j < 5; j++) {
+              result[i + ":" + j] = [];
+            }
+          }
 
           for (var d = 0; d < data.length; d++) {
             var one_submission = data[d].fields;
-            for (var i = 0; i < 5; i++)
-              for (var j = i+1; j < 5; j++)
-                result[i+":"+j].push(one_submission[i+":"+j]);
+            for (var i = 0; i < 5; i++) {
+              for (var j = i + 1; j < 5; j++) {
+                result[i + ":" + j].push(one_submission[i + ":" + j]);
+              }
+            }
           }
 
           // Sort (to shuffle/remove order) pairs
           // now it cannot be inferred which pairs are from the same submission.
-          for (var i = 0; i < 5; i++)
-            for (var j = i+1; j < 5; j++)
-              result[i+":"+j] = result[i+":"+j].sort();
+          for (var i = 0; i < 5; i++) {
+            for (var j = i + 1; j < 5; j++) {
+              result[i + ":" + j] = result[i + ":" + j].sort();
+            }
+          }
 
           res.send(result);
           return;
@@ -743,7 +763,7 @@ app.post('/get_cubes', function (req, res) {
       });
     };
 
-    verify_password(body.session, body.password, function () { 
+    verify_password(body.session, body.password, function () {
       verify_status(body.session, "STOP", success, fail);
     }, fail);
   });
@@ -907,7 +927,7 @@ app.post('/fetch_status', function (req, res) {
       }
 
       if (data === null) {
-        data = { status: "PAUSE" };
+        data = {status: "PAUSE"};
       }
 
       if (data.status == null) {

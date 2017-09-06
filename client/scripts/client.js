@@ -249,8 +249,8 @@ var client = (function () {
       // Receive errors from validator and puts them in the errors array.
       var errorHandler = function (table_name, value, row, col, validator_name) {
         var errorMsg;
-        if (validator_name === "type" && value === "") {
-          errorMsg = CELLS_ERRORS["empty"];
+        if (validator_name === 'type' && value === '') {
+          errorMsg = CELLS_ERRORS['empty'];
         } else {
           errorMsg = CELLS_ERRORS[validator_name];
         }
@@ -258,7 +258,7 @@ var client = (function () {
         if (errorMsg === null) {
           errorMsg = GENERIC_TABLE_ERR;
         }
-        errorMsg = errorMsg.replace("%s", table_name);
+        errorMsg = errorMsg.replace('%s', table_name);
         if (errors.indexOf(errorMsg) === -1) {
           errors = errors.concat(errorMsg);
         }
@@ -269,14 +269,14 @@ var client = (function () {
       (function validate_callback(i) {
         if (i >= tables.length) {
           // Remove the semantic discrepancies validator.
-          remove_validator("discrepancies");
+          remove_validator('discrepancies');
           remove_error_handler(0);
           for (i = 0; i < tables.length; i++) {
             tables[i].render();
           }
 
           if (errors.length === 0) {
-            return callback(true, "");
+            return callback(true, '');
           } else {
             return callback(false, errors);
           }
@@ -323,7 +323,9 @@ var client = (function () {
         var value = radios[r].value;
         value = value.replace(/\s+/g, ' ');
         question_data[value] = (radios[r].checked ? 1 : 0);
-        if (radios[r].checked) questions_values.push(value);
+        if (radios[r].checked) {
+          questions_values.push(value);
+        }
       }
 
       var text = $(questions_text[q]).text();
@@ -347,9 +349,11 @@ var client = (function () {
     // Correlation using modified small pairwise "hypercubes". (one cube for each pair of questions)
     // For every pair of questions, compute and encrypt the two chosen answers.
     var pairwise_hypercubes = {};
-    for (var i = 0; i < questions.length; i++)
-      for (var j = i + 1; j < questions.length; j++)
-        pairwise_hypercubes[i+":"+j] = questions_values[i] + "" + questions_values[j];
+    for (var i = 0; i < questions.length; i++) {
+      for (var j = i + 1; j < questions.length; j++) {
+        pairwise_hypercubes[i + ':' + j] = questions_values[i] + '' + questions_values[j];
+      }
+    }
 
     encrypt_and_send(session, participationCode, data, mask, questions_public, pairwise_hypercubes, la);
   }
@@ -359,11 +363,11 @@ var client = (function () {
   function encrypt_and_send(session, participationCode, data, mask, questions_public, pairwise_hypercubes, la) {
     // Get the public key to encrypt with
     var pkey_request = $.ajax({
-      type: "POST",
-      url: "/publickey",
-      contentType: "application/json",
+      type: 'POST',
+      url: '/publickey',
+      contentType: 'application/json',
       data: JSON.stringify({session: session}),
-      dataType: "text"
+      dataType: 'text'
     });
 
     pkey_request.then(function (public_key) {
@@ -383,8 +387,8 @@ var client = (function () {
       //console.log(submission);
 
       return $.ajax({
-        type: "POST",
-        url: "/",
+        type: 'POST',
+        url: '/',
         data: JSON.stringify(submission),
         contentType: 'application/json'
       });
@@ -392,7 +396,7 @@ var client = (function () {
       var submitTime = new Date();
       submitEntries.push({time: submitTime, submitted: true});
 
-      success("Submitted data.");
+      success('Submitted data.');
       convertToHTML(submitEntries);
 
       // Stop loading animation
