@@ -455,19 +455,21 @@
           }
         };
         var _badfile = function () {
-          alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", 'This file does not appear to be a valid Excel file.', function () {
+          alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", 'This file does not appear to be a valid Excel file.', function () {
           });
+          spinner.stop();
         };
         var _pending = function () {
-          alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", 'Please wait until the current file is processed.', function () {
+          alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", 'Please wait until the current file is processed.', function () {
           });
         };
         var _large = function (len, cb) {
-          alertify.confirm("<img src='style/cancel.png' alt='Error'>Error!", "This file is " + (len / (1024 * 1024)).toFixed(2) + " MB and may take a few moments. Your browser may lock up during this process. Continue?", cb);
+          alertify.confirm("<img src='/images/cancel.png' alt='Error'>Error!", "This file is " + (len / (1024 * 1024)).toFixed(2) + " MB and may take a few moments. Your browser may lock up during this process. Continue?", cb);
         };
         var _failed = function (e) {
-          alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", 'This format is not supported.', function () {
+          alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", 'This format is not supported.', function () {
           });
+          spinner.stop();
         };
 
         var $window, availableWidth, availableHeight;
