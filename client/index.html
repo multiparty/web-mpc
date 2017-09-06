@@ -8,7 +8,7 @@
           integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"
           integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script>
-  <script type="text/javascript" src="../shared/dist/handsontable.full.min.js"></script>
+  <script type="text/javascript" src="scripts/handsontable.full.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/forge/0.7.1/forge.min.js"
           integrity="sha256-655CXyE1PGckNcogULRlEuSBjZi9r1sZTHV74T+oRuM=" crossorigin="anonymous"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
@@ -24,13 +24,13 @@
   <script src="//cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.0/ladda.min.js"
           integrity="sha256-/DTavTzjSAI87+voZGCTfhbioWGET1qDJKe76XuWQ5M=" crossorigin="anonymous"></script>
 
-  <script type="text/javascript" src="script/alertify-defaults.js"></script>
-  <script type="text/javascript" src="script/ResizeSensor.js"></script>
-  <script type="text/javascript" src="script/client.js"></script>
-  <script type="text/javascript" src="script/drop_sheet.js"></script>
-  <script type="text/javascript" src="../shared/mpc.js"></script>
-  <script type="text/javascript" src="../shared/sail_hot.js"></script>
-  <script src="script/path.js"></script>
+  <script type="text/javascript" src="scripts/alertify-defaults.js"></script>
+  <script type="text/javascript" src="scripts/ResizeSensor.js"></script>
+  <script type="text/javascript" src="scripts/client.js"></script>
+  <script type="text/javascript" src="scripts/drop_sheet.js"></script>
+  <script type="text/javascript" src="scripts/mpc.js"></script>
+  <script type="text/javascript" src="scripts/sail_hot.js"></script>
+  <script src="scripts/path.js"></script>
 
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
         integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -38,7 +38,7 @@
         integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/qtip2/3.0.3/jquery.qtip.min.css"
         integrity="sha256-JvdVmxv7Q0LsN1EJo2zc1rACwzatOzkyx11YI4aP9PY=" crossorigin="anonymous"/>
-  <link rel="stylesheet" type="text/css" href="../shared/dist/handsontable.full.min.css">
+  <link rel="stylesheet" type="text/css" href="styles/handsontable.full.min.css">
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.10.0/css/alertify.min.css"
         integrity="sha256-bNEFYRlNlnu0CH4DIKCXv0F6JVl/DdA2M9XVZn317q0=" crossorigin="anonymous"/>
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.10.0/css/themes/bootstrap.min.css"
@@ -46,7 +46,7 @@
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.0/ladda-themeless.min.css"
         integrity="sha256-d7VZTlP9P3ZTCZ3Bkl8aGZ/+Vs4i+bpcOGNfibU7+LU=" crossorigin="anonymous"/>
 
-  <link rel="stylesheet" href="style/style.css">
+  <link rel="stylesheet" href="styles/style.css">
 
 </head>
 <body>
@@ -56,257 +56,274 @@
       <small>100% Talent Data Submission</small>
     </h1>
     <div id="logos">
-      <img src="../shared/bwwc.png" width="130" alt="BWWC Logo"/>
-      <img src="../shared/bu.gif" alt="BU Logo"/>
+      <img src="images/bwwc.png" width="130" alt="BWWC Logo"/>
+      <img src="images/bu.gif" alt="BU Logo"/>
     </div>
   </div>
 </header>
 <div id="shadow" class="ss-style-multitriangles"></div>
 <main id="content" class="container">
-  <section id="session-area" class="card">
-    <h2 class="text-center">Input your data</h2>
-    <p class="text-center">Please make sure your session key and participation code match the ones provided in the email
-      sent to you by the BWWC. Drag and drop your completed template file to encrypt and include your submission in the
-      aggregate data.</p>
-    <hr/>
-    <div class="row">
-      <div class="col-md-6">
-        <form>
-          <div class="form-group">
-            <label class="control-label" for="session">Session key</label>
-            <input type="text" id="session" class="form-control" placeholder="Session key" pattern="^[a-zA-Z0-9]{26}$"
-                   autocomplete="off" required/>
-            <span id="session-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
-                  aria-hidden="true"></span>
-            <span id="session-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
-                  aria-hidden="true"></span>
-            <span id="session-fail-help"
-                  class="fail-help help-block hidden">Please input the 26-character session key.</span>
-            <span id="session-fail-custom-help"
-                  class="fail-custom help-block hidden"></span>
-          </div>
-          <div class="form-group">
-            <label class="control-label" for="participation-code">Participation code</label>
-            <input type="text" id="participation-code" class="form-control" placeholder="Participation code"
-                   pattern="^[a-zA-Z0-9]{26}$"
-                   autocomplete="off" required>
-            <span id="participation-code-success"
-                  class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
-                  aria-hidden="true"></span>
-            <span id="participation-code-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
-                  aria-hidden="true"></span>
-            <span id="participation-code-fail-help"
-                  class="fail-help help-block hidden">Please input the 26-character participation code.</span>
-            <span id="participation-code-fail-custom-help"
-                  class="fail-custom help-block hidden"></span>
-          </div>
-        </form>
-      </div>
-      <div class="col-md-6">
-        <div id="drop-area">
-          Drag and drop your completed template file here
-          <br/>
-          <p>&mdash;or&mdash;</p><br/>
-          <button id="choose-file-button" class="btn btn-primary">Choose file</button>
-        </div>
-        <input type="file" id="choose-file" accept=".xlsx,.xls">
-      </div>
-    </div>
-  </section>
 
-  <section id="instructions" class="card">
-    <h2 class="text-center">View your data</h2>
-    <p class="text-center">Your data will appear here after you drag/drop or browse to find your completed Excel
-      template file above. Errors will appear in red.</p>
-    <span id="expand-table-button" class="arrow-down"></span>
-
-    <div id="tables-area">
+  <div class="row">
+    <section id="session-area" class="card col-md-10 col-md-offset-1">
+      <h2 class="text-center">Input your data</h2>
+      <p class="text-center">Please make sure your session key and participation code match the ones provided in the
+        email
+        sent to you by the BWWC. Drag and drop your completed template file to encrypt and include your submission in
+        the
+        aggregate data.</p>
       <hr/>
-      <h3>Entered Data</h3>
-      <div>Any red cells indicate an error - click on the cell to see the error message.</div>
-      <div>
-        <h4 id="number-employees-hot-name"></h4>
-        <div id="number-employees-hot"></div>
+      <div class="row">
+        <div class="col-md-6">
+          <form>
+            <div class="form-group">
+              <label class="control-label" for="session">Session key</label>
+              <input type="text" id="session" class="form-control" placeholder="Session key" pattern="^[a-zA-Z0-9]{26}$"
+                     autocomplete="off" required/>
+              <span id="session-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
+                    aria-hidden="true"></span>
+              <span id="session-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
+                    aria-hidden="true"></span>
+              <span id="session-fail-help"
+                    class="fail-help help-block hidden">Please input the 26-character session key.</span>
+              <span id="session-fail-custom-help"
+                    class="fail-custom help-block hidden"></span>
+            </div>
+            <div class="form-group">
+              <label class="control-label" for="participation-code">Participation code</label>
+              <input type="text" id="participation-code" class="form-control" placeholder="Participation code"
+                     pattern="^[a-zA-Z0-9]{26}$"
+                     autocomplete="off" required>
+              <span id="participation-code-success"
+                    class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
+                    aria-hidden="true"></span>
+              <span id="participation-code-fail"
+                    class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
+                    aria-hidden="true"></span>
+              <span id="participation-code-fail-help"
+                    class="fail-help help-block hidden">Please input the 26-character participation code.</span>
+              <span id="participation-code-fail-custom-help"
+                    class="fail-custom help-block hidden"></span>
+            </div>
+          </form>
+        </div>
+        <div class="col-md-6">
+          <div id="drop-area">
+            Drag and drop your completed template file here
+            <br/>
+            <p>&mdash;or&mdash;</p><br/>
+            <button id="choose-file-button" class="btn btn-primary">Choose file</button>
+          </div>
+          <input type="file" id="choose-file" accept=".xlsx,.xls">
+        </div>
       </div>
+    </section>
+  </div>
 
-      <div>
-        <h4 id="compensation-hot-name"></h4>
-        <div id="compensation-hot"></div>
+  <div class="row">
+    <section id="instructions" class="card col-md-10 col-md-offset-1">
+      <h2 class="text-center">View your data</h2>
+      <p class="text-center">Your data will appear here after you drag/drop or browse to find your completed Excel
+        template file above. Errors will appear in red.</p>
+      <span id="expand-table-button" class="arrow-down"></span>
+
+      <div id="tables-area">
+        <hr/>
+        <h3>Entered Data</h3>
+        <div>Any red cells indicate an error - click on the cell to see the error message.</div>
+        <div>
+          <h4 id="number-employees-hot-name"></h4>
+          <div id="number-employees-hot"></div>
+        </div>
+
+        <div>
+          <h4 id="compensation-hot-name"></h4>
+          <div id="compensation-hot"></div>
+        </div>
+
+        <div>
+          <h4 id="performance-pay-hot-name"></h4>
+          <div id="performance-pay-hot"></div>
+        </div>
+
+        <div>
+          <h4 id="service-length-hot-name"></h4>
+          <div id="service-length-hot"></div>
+        </div>
       </div>
+    </section>
+  </div>
 
-      <div>
-        <h4 id="performance-pay-hot-name"></h4>
-        <div id="performance-pay-hot"></div>
-      </div>
-
-      <div>
-        <h4 id="service-length-hot-name"></h4>
-        <div id="service-length-hot"></div>
-      </div>
-    </div>
-  </section>
-
-  <section id="additional-questions" class="card">
-    <h2 class="text-center">Answer additional questions</h2>
-    <p class="text-center">
-      We have included these questions to get instant feedback as to how this process went in order to improve the
-      process in future years. Please know that the answers to these questions will be anonymous, and they will be
-      considered separately from the encrypted and aggregated data above.
-    </p>
-    <hr/>
-    <div id="questions">
-      <form class="error">
-        <p class="question-text help-block">Which department are you in?</p>
-        <div class="radio">
-          <label><input type="radio" name="optradio" value="1">Human Resources (e.g. HR Manager, HRIS Manager,
-            Compensation Manager, Talent &amp; Development)</label>
-        </div>
-        <div class="radio">
-          <label><input type="radio" name="optradio" value="2">Operations (e.g. Director of Operations)</label>
-        </div>
-        <div class="radio">
-          <label><input type="radio" name="optradio" value="3">Diversity (e.g. Chief Diversity Officer)</label>
-        </div>
-        <div class="radio">
-          <label><input type="radio" name="optradio" value="4">Upper Management (e.g. COO, CEO, Executive
-            Director)</label>
-        </div>
-        <div class="radio">
-          <label>
-            <input type="radio" name="optradio" value="5">Other</label>
-        </div>
-      </form>
-      <hr class="short"/>
-      <form>
-        <p class="question-text help-block">What kind of HRIS or organizational system does your company/organization
-          use?</p>
-        <div class="radio">
-          <label><input type="radio" name="optradio" value="1">Large-scale traditional HRIS/HRMS software (e.g. ADP,
-            Workday, PeopleSoft, etc.)</label>
-        </div>
-        <div class="radio">
-          <label><input type="radio" name="optradio" value="2">Microsoft Office or similar (e.g. Excel, Microsoft Word,
-            Google Docs)</label>
-        </div>
-        <div class="radio">
-          <label>
-            <input type="radio" name="optradio" value="3">Other</label>
-        </div>
-      </form>
-      <hr class="short"/>
-      <form>
-        <p class="question-text help-block">How easy was it to understand what data was required given the template and
-          instructions?</p>
-        <div class="radio">
-          <label><input type="radio" name="optradio" value="1">Extremely easy</label>
-        </div>
-        <div class="radio">
-          <label><input type="radio" name="optradio" value="2">Moderately easy</label>
-        </div>
-        <div class="radio">
-          <label><input type="radio" name="optradio" value="3">Slightly easy</label>
-        </div>
-        <div class="radio">
-          <label><input type="radio" name="optradio" value="4">Neither easy nor difficult</label>
-        </div>
-        <div class="radio">
-          <label><input type="radio" name="optradio" value="5">Slightly difficult</label>
-        </div>
-        <div class="radio">
-          <label><input type="radio" name="optradio" value="6">Moderately difficult</label>
-        </div>
-        <div class="radio">
-          <label><input type="radio" name="optradio" value="7">Extremely difficult</label>
-        </div>
-      </form>
-      <hr class="short"/>
-      <form>
-        <p class="question-text help-block">How easy was it to prepare the data for submission given your organizational
-          system?</p>
-        <div class="radio">
-          <label><input type="radio" name="optradio" value="1">Extremely easy</label>
-        </div>
-        <div class="radio">
-          <label><input type="radio" name="optradio" value="2">Moderately easy</label>
-        </div>
-        <div class="radio">
-          <label><input type="radio" name="optradio" value="3">Slightly easy</label>
-        </div>
-        <div class="radio">
-          <label><input type="radio" name="optradio" value="4">Neither easy nor difficult</label>
-        </div>
-        <div class="radio">
-          <label><input type="radio" name="optradio" value="5">Slightly difficult</label>
-        </div>
-        <div class="radio">
-          <label><input type="radio" name="optradio" value="6">Moderately difficult</label>
-        </div>
-        <div class="radio">
-          <label><input type="radio" name="optradio" value="7">Extremely difficult</label>
-        </div>
-      </form>
-      <hr class="short"/>
-      <form>
-        <p class="question-text help-block">How long did it take to prepare the data for submission given your
-          organizational
-          system?</p>
-        <div class="radio">
-          <label><input type="radio" name="optradio" value="1">Less than 1 business day</label>
-        </div>
-        <div class="radio">
-          <label><input type="radio" name="optradio" value="2">1-3 business days</label>
-        </div>
-        <div class="radio">
-          <label><input type="radio" name="optradio" value="3">4-7 business days</label>
-        </div>
-        <div class="radio">
-          <label><input type="radio" name="optradio" value="4">7-10 business days</label>
-        </div>
-        <div class="radio">
-          <label><input type="radio" name="optradio" value="5">Greater than 10 business days</label>
-        </div>
-      </form>
-    </div>
-  </section>
-
-  <section id="review-and-submit" class="card">
-    <h2 class="text-center">Verify and submit your data</h2>
-    <p class="text-center">
-      Please ensure that all data entered is accurate, and confirm that all employees are accounted for by reviewing the
-      total number of employees below.
-    </p>
-    <hr/>
-    <div class="row">
-      <div class="col-md-6">
-        <h4 id="totals-hot-name"></h4>
-        <div id="totals-hot"></div>
-        <form>
-          <div class="checkbox">
+  <div class="row">
+    <section id="additional-questions" class="card col-md-10 col-md-offset-1">
+      <h2 class="text-center">Answer additional questions</h2>
+      <p class="text-center">
+        We have included these questions to get instant feedback as to how this process went in order to improve the
+        process in future years. Please know that the answers to these questions will be anonymous, and they will be
+        considered separately from the encrypted and aggregated data above.
+      </p>
+      <hr/>
+      <div id="questions">
+        <form class="error">
+          <p class="question-text help-block">Which department are you in?</p>
+          <div class="radio">
+            <label><input type="radio" name="optradio" value="1">Human Resources (e.g. HR Manager, HRIS Manager,
+              Compensation Manager, Talent &amp; Development)</label>
+          </div>
+          <div class="radio">
+            <label><input type="radio" name="optradio" value="2">Operations (e.g. Director of Operations)</label>
+          </div>
+          <div class="radio">
+            <label><input type="radio" name="optradio" value="3">Diversity (e.g. Chief Diversity Officer)</label>
+          </div>
+          <div class="radio">
+            <label><input type="radio" name="optradio" value="4">Upper Management (e.g. COO, CEO, Executive
+              Director)</label>
+          </div>
+          <div class="radio">
             <label>
-              <input type="checkbox" id="verify" name="verify">All data is verified and correct
-            </label>
+              <input type="radio" name="optradio" value="5">Other</label>
+          </div>
+        </form>
+        <hr class="short"/>
+        <form>
+          <p class="question-text help-block">What kind of HRIS or organizational system does your company/organization
+            use?</p>
+          <div class="radio">
+            <label><input type="radio" name="optradio" value="1">Large-scale traditional HRIS/HRMS software (e.g. ADP,
+              Workday, PeopleSoft, etc.)</label>
+          </div>
+          <div class="radio">
+            <label><input type="radio" name="optradio" value="2">Microsoft Office or similar (e.g. Excel, Microsoft
+              Word,
+              Google Docs)</label>
+          </div>
+          <div class="radio">
+            <label>
+              <input type="radio" name="optradio" value="3">Other</label>
+          </div>
+        </form>
+        <hr class="short"/>
+        <form>
+          <p class="question-text help-block">How easy was it to understand what data was required given the template
+            and
+            instructions?</p>
+          <div class="radio">
+            <label><input type="radio" name="optradio" value="1">Extremely easy</label>
+          </div>
+          <div class="radio">
+            <label><input type="radio" name="optradio" value="2">Moderately easy</label>
+          </div>
+          <div class="radio">
+            <label><input type="radio" name="optradio" value="3">Slightly easy</label>
+          </div>
+          <div class="radio">
+            <label><input type="radio" name="optradio" value="4">Neither easy nor difficult</label>
+          </div>
+          <div class="radio">
+            <label><input type="radio" name="optradio" value="5">Slightly difficult</label>
+          </div>
+          <div class="radio">
+            <label><input type="radio" name="optradio" value="6">Moderately difficult</label>
+          </div>
+          <div class="radio">
+            <label><input type="radio" name="optradio" value="7">Extremely difficult</label>
+          </div>
+        </form>
+        <hr class="short"/>
+        <form>
+          <p class="question-text help-block">How easy was it to prepare the data for submission given your
+            organizational
+            system?</p>
+          <div class="radio">
+            <label><input type="radio" name="optradio" value="1">Extremely easy</label>
+          </div>
+          <div class="radio">
+            <label><input type="radio" name="optradio" value="2">Moderately easy</label>
+          </div>
+          <div class="radio">
+            <label><input type="radio" name="optradio" value="3">Slightly easy</label>
+          </div>
+          <div class="radio">
+            <label><input type="radio" name="optradio" value="4">Neither easy nor difficult</label>
+          </div>
+          <div class="radio">
+            <label><input type="radio" name="optradio" value="5">Slightly difficult</label>
+          </div>
+          <div class="radio">
+            <label><input type="radio" name="optradio" value="6">Moderately difficult</label>
+          </div>
+          <div class="radio">
+            <label><input type="radio" name="optradio" value="7">Extremely difficult</label>
+          </div>
+        </form>
+        <hr class="short"/>
+        <form>
+          <p class="question-text help-block">How long did it take to prepare the data for submission given your
+            organizational
+            system?</p>
+          <div class="radio">
+            <label><input type="radio" name="optradio" value="1">Less than 1 business day</label>
+          </div>
+          <div class="radio">
+            <label><input type="radio" name="optradio" value="2">1-3 business days</label>
+          </div>
+          <div class="radio">
+            <label><input type="radio" name="optradio" value="3">4-7 business days</label>
+          </div>
+          <div class="radio">
+            <label><input type="radio" name="optradio" value="4">7-10 business days</label>
+          </div>
+          <div class="radio">
+            <label><input type="radio" name="optradio" value="5">Greater than 10 business days</label>
           </div>
         </form>
       </div>
-      <div class="col-md-6">
-        <div id="errors">
-          <h4>Errors</h4>
-          <ul id="validation-errors" class="has-error">
-            <li>No Errors!</li>
+    </section>
+  </div>
+
+  <div class="row">
+    <section id="review-and-submit" class="card col-md-10 col-md-offset-1">
+      <h2 class="text-center">Verify and submit your data</h2>
+      <p class="text-center">
+        Please ensure that all data entered is accurate, and confirm that all employees are accounted for by reviewing
+        the
+        total number of employees below.
+      </p>
+      <hr/>
+      <div class="row">
+        <div class="col-md-6">
+          <h4 id="totals-hot-name"></h4>
+          <div id="totals-hot"></div>
+          <form>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" id="verify" name="verify">All data is verified and correct
+              </label>
+            </div>
+          </form>
+        </div>
+        <div class="col-md-6">
+          <div id="errors">
+            <h4>Errors</h4>
+            <ul id="validation-errors" class="has-error">
+              <li>No Errors!</li>
+            </ul>
+          </div>
+          <h4>Submission history</h4>
+          <ul id="submission-history">
+            <li>You have not submitted yet</li>
           </ul>
         </div>
-        <h4>Submission history</h4>
-        <ul id="submission-history">
-          <li>You have not submitted yet</li>
-        </ul>
       </div>
-    </div>
-    <div class="row">
-      <div class="col-md-12">
-        <button type="submit" id="submit" class="btn btn-primary ladda-button btn-lg btn-block" disabled>Submit</button>
+      <div class="row">
+        <div class="col-md-12">
+          <button type="submit" id="submit" class="btn btn-primary ladda-button btn-lg btn-block" disabled>Submit
+          </button>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+  </div>
   <br/>
 
   <script type="text/javascript">
@@ -322,8 +339,9 @@
       });
 
       $('#session, #participation-code').on('input', function (e) {
-        if (e.target.dataset["did_blur"])
+        if (e.target.dataset["did_blur"]) {
           client.validateSessionInput(e.target, false);
+        }
         $verify.prop('checked', false);
       });
 
@@ -337,8 +355,12 @@
 
       $participationCode.val(getParameterByName('participationCode'));
       $session.val(getParameterByName('session'));
-      if ($session.val().trim() !== "") $session.blur();
-      if ($participationCode.val().trim() !== "") $participationCode.blur();
+      if ($session.val().trim() !== "") {
+        $session.blur();
+      }
+      if ($participationCode.val().trim() !== "") {
+        $participationCode.blur();
+      }
 
       // Remove error from radio buttons once you click on them
       $('form input[type=radio]').on('change', function (e) {
@@ -348,7 +370,7 @@
 
       var req = $.ajax({
         type: "GET",
-        url: "../shared/templates/tables.json",
+        url: "templates/tables.json",
         dataType: "json"
       }).then(function (tables_def) {
         // Create the tables
@@ -359,7 +381,9 @@
 
         // Custom afterChange hook that computes the totals
         var afterChange = function (changes, source) {
-          if (changes === null) return;
+          if (changes === null) {
+            return;
+          }
 
           for (var i = 0; i < changes.length; i++) {
             var change = changes[i];
@@ -369,12 +393,20 @@
             var c = change[1];
             var index = c % 2; // Even columns are for females, odd are for males.
 
-            if (old === undefined) old = null;
-            if (val === undefined) val = null;
+            if (old === undefined) {
+              old = null;
+            }
+            if (val === undefined) {
+              val = null;
+            }
 
             // Keep track of how many NaNs there are.
-            if (isNaN(old) && !isNaN(val)) NaNs[index]--;
-            if (!isNaN(old) && isNaN(val)) NaNs[index]++;
+            if (isNaN(old) && !isNaN(val)) {
+              NaNs[index]--;
+            }
+            if (!isNaN(old) && isNaN(val)) {
+              NaNs[index]++;
+            }
 
             // If either values is a NaN, discard it when computing internal sum.
             old = (old === '' || old === null || isNaN(old)) ? 0 : old;
@@ -389,8 +421,9 @@
           }
 
           var changes = []; // [ [row, col, change], [row, col, change], ..]
-          for (var i = 0; i < totals.length; i++)
+          for (var i = 0; i < totals.length; i++) {
             changes.push([0, i, totals[i]]);
+          }
           tables[4].setDataAtCell(changes); // This changes the data without changing cellProperties (e.g. keeps readOnly)
         };
 
@@ -450,11 +483,15 @@
 
         var _onsheet = function (json, cols, sheetnames, select_sheet_cb) {
           calculateSize();
-          if (!json) json = [];
+          if (!json) {
+            json = [];
+          }
           /* add header row for table */
           json.unshift(function (head) {
             var o = {};
-            for (i = 0; i !== head.length; ++i) o[head[i]] = head[i];
+            for (i = 0; i !== head.length; ++i) {
+              o[head[i]] = head[i];
+            }
             return o;
           }(cols));
           calculateSize();
@@ -514,10 +551,13 @@
 
         // Register when ready
         tables[0].addHook('afterChange', afterChange);
-        for (var i = 0; i < tables.length - 1; i++)
+        for (var i = 0; i < tables.length - 1; i++) {
           tables[i].addHook('afterChange', function (changes, sources) {
-            if (changes != null) $verify.prop('checked', false);
+            if (changes != null) {
+              $verify.prop('checked', false);
+            }
           });
+        }
 
         // Button clicks handlers
         $verify.click(function () {
