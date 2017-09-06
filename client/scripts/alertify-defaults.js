@@ -25,7 +25,7 @@ alertify.defaults = {
     closeButton: false
   },
   glossary: {
-    title: '<img src="style/cancel.png" alt="Alert">Error!',
+    title: '<img src="/images/cancel.png" alt="Alert">Error!',
     ok: 'OK',
     cancel: 'Cancel'
   },
