@@ -43,7 +43,7 @@ function templateToJoiSchema(template, joiFieldType) {
 function genPairs(num) {
   var objPairs = {};
   for (var i = 0; i < num; i++)
-    for (var j = i+1; j < num; j++) 
+    for (var j = i+1; j < num; j++)
       objPairs[i+":"+j] = 0;
   return objPairs;
 }
@@ -291,8 +291,8 @@ app.post('/', function (req, res) {
             questions_public: questions_public,
             session: session
           });
-          
-          var cubeToSave = new Mask({
+
+          var cubeToSave = new Cube({
             _id: ID,
             fields: pairwise_hypercubes,
             session: session
@@ -718,25 +718,26 @@ app.post('/get_cubes', function (req, res) {
           return;
         }
         else {
+          console.log(data.length);
           var result = {};
           for (var i = 0; i < 5; i++)
             for (var j = i+1; j < 5; j++)
               result[i+":"+j] = [];
-              
-          for(var i = 0; i < data.length; i++) {
-            var one_submission = data[i].fields;
+
+          for (var d = 0; d < data.length; d++) {
+            var one_submission = data[d].fields;
             for (var i = 0; i < 5; i++)
               for (var j = i+1; j < 5; j++)
                 result[i+":"+j].push(one_submission[i+":"+j]);
           }
-          
+
           // Sort (to shuffle/remove order) pairs
           // now it cannot be inferred which pairs are from the same submission.
           for (var i = 0; i < 5; i++)
             for (var j = i+1; j < 5; j++)
               result[i+":"+j] = result[i+":"+j].sort();
-        
-          res.send({data: JSON.stringify(result)});
+
+          res.send(result);
           return;
         }
       });

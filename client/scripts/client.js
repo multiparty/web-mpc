@@ -343,14 +343,14 @@ var client = (function () {
     var shares = secretShareValues(data_submission);
     var data = shares['data'];
     var mask = shares['mask'];
-    
+
     // Correlation using modified small pairwise "hypercubes". (one cube for each pair of questions)
     // For every pair of questions, compute and encrypt the two chosen answers.
     var pairwise_hypercubes = {};
     for (var i = 0; i < questions.length; i++)
       for (var j = i + 1; j < questions.length; j++)
         pairwise_hypercubes[i+":"+j] = questions_values[i] + "" + questions_values[j];
-    
+
     encrypt_and_send(session, participationCode, data, mask, questions_public, pairwise_hypercubes, la);
   }
 

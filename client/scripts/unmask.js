@@ -67,12 +67,13 @@ function aggregate_and_unmask(mOut, privateKey, session, password, callback) {
     console.log(err);
     callback(false, "Error: could not compute result.");
   });
-  
+
+  // Do the Hypercube
   var cubes = getCubes(session, password);
-  Promise.all(cubes, sk).then(function (cubes, importedKey) {
-    cubes = _decryptWithKey(cubes, importedKey);
-    console.log(cubes);
-    console.log(JSON.stringify(cubes));
+  Promise.all([cubes, sk]).then(function (results) {
+    var cubes = results[0];
+    var importedKey = results[1];
+    _decryptWithKey(cubes, importedKey).then(JSON.stringify).then(console.log);
   });
 }
 
@@ -135,7 +136,7 @@ function generate_questions_csv(questions, session) {
   }
 
   results = results.join("\n");
-  saveAs(new Blob([results], {type: "text/plain;charset=utf-8"}), 'Questions_' + session + '.csv');
+  //saveAs(new Blob([results], {type: "text/plain;charset=utf-8"}), 'Questions_' + session + '.csv');
 }
 
 function construct_tuple(key, buffer) {
