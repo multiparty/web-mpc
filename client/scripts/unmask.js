@@ -136,7 +136,7 @@ function generate_questions_csv(questions, session) {
   }
 
   results = results.join("\n");
-  //saveAs(new Blob([results], {type: "text/plain;charset=utf-8"}), 'Questions_' + session + '.csv');
+  saveAs(new Blob([results], {type: "text/plain;charset=utf-8"}), 'Questions_' + session + '.csv');
 }
 
 function construct_tuple(key, buffer) {
