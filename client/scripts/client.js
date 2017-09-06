@@ -13,16 +13,12 @@ var client = (function () {
   var SERVER_ERR = 'Server not reachable';
   var GENERIC_SUBMISSION_ERR = 'Something went wrong with submission! Please try again';
 
-  var EMPTY_CELLS = 'The table "%s" has empty cells, please enter 0 if there is no value';
-  var NAN_CELLS = 'The table "%s" has cells that are not numbers, make sure you only enter numeric values';
-  var MAX_VAL_CELLS = 'The table "%s" has cells that go beyond the allowed maximum value';
-  var MIN_VAL_CELLS = 'The table "%s" has cells with negative values, only positive values are allowed';
-  var SEMANTIC_CELLS = 'The table "%s" has cells with semantic errors';
+  var NAN_EMPTY_CELLS = 'You have entered data into a cell in one table without entering data into the corresponding cell in another table. Please double check all tables';
+  var SEMANTIC_CELLS = 'You have entered non-numeric data into at least one cell. Please make sure all cells contain positive numbers only. If you have no data for that cell, please enter a zero.';
   var CELLS_ERRORS = {
-    empty: EMPTY_CELLS,
-    type: NAN_CELLS,
-    min: MIN_VAL_CELLS,
-    max: MAX_VAL_CELLS,
+    empty: NAN_EMPTY_CELLS,
+    type: NAN_EMPTY_CELLS,
+    min: NAN_EMPTY_CELLS,
     discrepancies: SEMANTIC_CELLS
   };
 
@@ -257,8 +253,8 @@ var client = (function () {
 
         if (errorMsg === null) {
           errorMsg = GENERIC_TABLE_ERR;
+          errorMsg = errorMsg.replace("%s", table_name);
         }
-        errorMsg = errorMsg.replace("%s", table_name);
         if (errors.indexOf(errorMsg) === -1) {
           errors = errors.concat(errorMsg);
         }
