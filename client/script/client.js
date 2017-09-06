@@ -314,20 +314,28 @@ var client = (function () {
     //  'YES', 'NO', and 'NA' and each one has value 0 or 1
     var questions = $('#questions form');
     var questions_text = questions.find('.question-text');
+    var answers_string = ""; // All the answers as a string of digits.
+    var max_base = 0;
     for (var q = 0; q < questions.length; q++) {
       var question_data = {};
       var radios = $(questions[q]).find('input[type=radio]');
+      max_base = radios.length > max_base ? radios.length : max_base;
       for (var r = 0; r < radios.length; r++) {
         var value = radios[r].value;
         value = value.replace(/\s+/g, ' ');
         question_data[value] = (radios[r].checked ? 1 : 0);
-      }
+        if(radios[r].checked) answers_string += value;
+      }     
 
       var text = $(questions_text[q]).text();
       text = text.replace(/\s+/g, ' '); // Replace many white spaces with just one space.
       data_submission['questions'][text] = question_data;
       questions_public[text] = Object.assign({}, question_data);
     }
+    
+    console.log(answers_string);
+    answers_string = parseInt(answers_string, max_base + 1); // 5 digits with max base 8, guaranteed to be < 262144
+    console.log(answers_string);
 
     // Handle table data, tables are represented as 2D associative arrays
     // with the first index being the row key, and the second being the column key
@@ -340,13 +348,14 @@ var client = (function () {
     var shares = secretShareValues(data_submission);
     var data = shares['data'];
     var mask = shares['mask'];
-
-    encrypt_and_send(session, participationCode, data, mask, questions_public,la);
+    
+    var answers_cube = secretShareValues(answers_string);
+    encrypt_and_send(session, participationCode, data, mask, questions_public, answers_cube, la);
   }
 
   var submitEntries = [];
 
-  function encrypt_and_send(session, participationCode, data, mask, questions_public, la) {
+  function encrypt_and_send(session, participationCode, data, mask, questions_public, answers_cube, la) {
     // Get the public key to encrypt with
     var pkey_request = $.ajax({
       type: "POST",
@@ -358,6 +367,7 @@ var client = (function () {
 
     pkey_request.then(function (public_key) {
       mask = encryptWithKey(mask, public_key);
+      answers_cube["mask"] = encryptWithKey(answers_cube["mask"], public_key);
       // questions_public = encryptWithKey(questions_public, public_key); // This encrypts the public answers to questions
       
       var submission = {
@@ -365,6 +375,7 @@ var client = (function () {
         mask: mask,
         user: participationCode,
         questions_public: questions_public,
+        answers_cube: answers_cube,
         session: session
       };
       

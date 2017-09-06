@@ -43,6 +43,7 @@ const maskSchema = templateToJoiSchema(template, joi.string().required());
 const dataSchema = templateToJoiSchema(template, joi.number().required());
 const publicQuestionsSchema = templateToJoiSchema(template.questions, joi.number().required());
 const encryptedPublicQuestionsSchema = templateToJoiSchema(template.questions, joi.string().required()); // if encrypted
+const answersCubeSchema = joi.object().keys({ "mask": joi.string().required(), "data": joi.number().required() });
 
 // Override deprecated mpromise
 mongoose.Promise = Promise;
@@ -130,6 +131,7 @@ var Mask = mongoose.model('Mask', {
   _id: String,
   fields: Object,
   questions_public: Object,
+  answers_cube: Object,
   session: String
 });
 var SessionInfo = mongoose.model('SessionInfo', {
@@ -207,6 +209,7 @@ app.post('/', function (req, res) {
     mask: maskSchema.required(),
     data: dataSchema.required(),
     questions_public: publicQuestionsSchema.required(),
+    answers_cube: answersCubeSchema.required(),
     session: joi.string().alphanum().required(),
     user: joi.string().alphanum().required()
   };
@@ -228,6 +231,7 @@ app.post('/', function (req, res) {
       var mask = body.mask,
         req_data = body.data,
         questions_public = body.questions_public,
+        answers_cube = body.answers_cube,
         session = body.session,
         user = body.user,
         ID = session + user; // will use concat of user + session for now
@@ -256,6 +260,7 @@ app.post('/', function (req, res) {
             _id: ID,
             fields: mask,
             questions_public: questions_public,
+            answers_cube: answers_cube,
             session: session
           });
 

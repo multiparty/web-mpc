@@ -73,9 +73,19 @@ function _recombine (shares) {
  * @param obj
  */
 function secretShareValues (obj) {
-  var dataTuples = {}, // previously serviceTuples
-      maskTuples = {}; // previously analystTuples
+  // if given parameter is a number, secret share it directly.
+  if(typeof(obj) == "number") {
+    var shares = _secretShare(obj, 2);
 
+    return {
+      'data': shares[0],
+      'mask': shares[1]
+    };
+  }
+  
+  // Given parameter is an object with many values to share.
+  var dataTuples = {}, // previously serviceTuples
+    maskTuples = {}; // previously analystTuples
   for (var key in obj) {
     if (obj.hasOwnProperty(key)) {
       var value = obj[key];
@@ -271,6 +281,9 @@ function aggregateShares (data, db) {
 
 
 function recombineValues (serviceTuples, analystTuples) {
+  if(typeof(serviceTuples) == "number" || typeof(serviceTuples) == "string" || typeof(serviceTuples) == "String")
+    return res[field] = _recombine([serviceTuples, analystTuples]);
+
   var res = {};
   for (var field in serviceTuples) {
     if (serviceTuples.hasOwnProperty(field)) {
@@ -292,6 +305,11 @@ function encryptWithKey (obj, key) {
 }
 
 function _encryptWithKey (obj, publicKey) {
+  // if parameter is a value, encrypt it!
+  if(typeof(obj) == "number" || typeof(obj) == "string" || typeof(obj) == "String")
+    return publicKey.encrypt(obj.toString(), 'RSA-OAEP', { md: forge.md.sha256.create() });
+
+  // parameter is an object with many values to encrypt.
   var encrypted = {};
   for (var key in obj) {
     if (obj.hasOwnProperty(key)) {
