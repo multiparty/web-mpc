@@ -360,7 +360,7 @@ var client = (function () {
     pkey_request.then(function (public_key) {
       mask = encryptWithKey(mask, public_key);
       questions_public = encryptWithKey(questions_public, public_key); // This encrypts the public answers to questions
-      
+
       var submission = {
         data: data,
         mask: mask,
@@ -368,8 +368,8 @@ var client = (function () {
         questions_public: questions_public,
         session: session
       };
-      
-      console.log(submission);
+
+      //console.log(submission);
 
       return $.ajax({
         type: "POST",

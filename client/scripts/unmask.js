@@ -15,7 +15,7 @@ function aggregate_and_unmask(mOut, privateKey, session, password, callback) {
   for (var i = 0; i < mOut.length; i++) {
     questions_public.push(mOut[i].questions_public);
   }
-  
+
   var skArrayBuffer;
   try {
     skArrayBuffer = str2ab(atob(privateKey));
@@ -38,8 +38,8 @@ function aggregate_and_unmask(mOut, privateKey, session, password, callback) {
   // decrypted is a list of promises, each promise
   // corresponding to a submission with decrypted
   // value fields
-  var decrypted = decryptValueShares(sk, mOut);
-  var questions_public = decryptValueShares(sk, questions_public);
+  var decrypted = decryptValueShares(sk, mOut, true);
+  var questions_public = decryptValueShares(sk, questions_public, false);
 
   // Aggregate decrypted values by key
   var analystResultShare = decrypted.then(function (analystShares) {
@@ -62,7 +62,7 @@ function aggregate_and_unmask(mOut, privateKey, session, password, callback) {
         console.log("Secret-shared question answers do not aggregate to the same values as publicly collected answers.");
       }
       callback(true, finalResult);
-      generate_questions_csv(resultShares[2]);
+      generate_questions_csv(resultShares[2], session);
     }).catch(function (err) {
     console.log(err);
     callback(false, "Error: could not compute result.");
@@ -82,39 +82,39 @@ function getServiceResultShare(session, password) {
   });
 }
 
-function generate_questions_csv(questions) {
-  if(questions.length == 0) return;
-  
+function generate_questions_csv(questions, session) {
+  if (questions.length == 0) return;
+
   var headers = [];
-  for (var key in obj) {
-    if (obj.hasOwnProperty(key)) {
+  for (var key in questions[0]) {
+    if (questions[0].hasOwnProperty(key)) {
       headers.push(key);
     }
   }
-  
+
   var results = [ headers.join(",") ];
-  for(var i = 0; i < questions.length; i++) {
+  for (var i = 0; i < questions.length; i++) {
     var one_submission = [];
-    for(var j = 0; j < headers.length; j++) {
+    for (var j = 0; j < headers.length; j++) {
       var q = headers[j];
       var answers = questions[i][q];
-      
+
       var answer = "";
       for (var option in answers) {
         if (answers.hasOwnProperty(option)) {
-          if(answers[option] == 1) {
+          if (answers[option] == 1) {
             answer = option;
             break;
           }
         }
       }
-      
+
       one_submission.push(answer);
     }
     results.push(one_submission.join(","));
   }
-  
-  results = results.join(",");
+
+  results = results.join("\n");
   saveAs(new Blob([results], {type: "text/plain;charset=utf-8"}), 'Questions_' + session + '.csv');
 }
 
@@ -169,12 +169,12 @@ function _decryptWithKey(obj, importedKey) {
 /**
  * @return {promise} a promise to an array of decrypted objects (same schema, value decrypted).
  */
-function decryptValueShares(sk, maskedData) {
+function decryptValueShares(sk, maskedData, fields) {
   return sk.then(function (importedKey) {
     // decrypt all masks
     var all = [];
     for (var d = 0; d < maskedData.length; d++) {
-      all.push(_decryptWithKey(maskedData[d].fields, importedKey));
+      all.push(_decryptWithKey(fields ? maskedData[d].fields : maskedData[d], importedKey));
     }
 
     return Promise.all(all);

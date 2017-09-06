@@ -197,19 +197,19 @@ app.use(body_parser.json({limit: '50mb'}));
 // serve static files in designated folders
 app.use(express.static(__dirname + '/../client'));
 
-app.get('/',function(req,res){
+app.get('/', function (req,res){
   res.sendFile((path.join(__dirname + '/../client/index.html')));
 });
 
-app.get('/session',function(req,res){
+app.get('/session', function (req,res){
   res.sendFile((path.join(__dirname + '/../client/session.html')));
 });
 
-app.get('/track',function(req,res){
+app.get('/track', function (req,res){
   res.sendFile((path.join(__dirname + '/../client/track.html')));
 });
 
-app.get('/unmask',function(req,res){
+app.get('/unmask', function (req,res){
   res.sendFile((path.join(__dirname + '/../client/unmask.html')));
 });
 
@@ -224,7 +224,7 @@ app.post('/', function (req, res) {
   var bodySchema = {
     mask: maskSchema.required(),
     data: dataSchema.required(),
-    questions_public: publicQuestionsSchema.required(),
+    questions_public: encryptedPublicQuestionsSchema.required(),
     session: joi.string().alphanum().required(),
     user: joi.string().alphanum().required()
   };
