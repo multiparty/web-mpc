@@ -27,11 +27,11 @@ var client = (function () {
   };
 
   function error(msg) {
-    alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", msg);
+    alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", msg);
   }
 
   function success(msg) {
-    alertify.alert("<img src='style/accept.png' alt='Success'>Success!", msg);
+    alertify.alert("<img src='/images/accept.png' alt='Success'>Success!", msg);
   }
 
   /**
@@ -426,9 +426,9 @@ var client = (function () {
     for (var i = 0; i < entries.length; i++) {
       if (entries[i]['submitted']) {
         // append success line
-        $submissionHistory.append("<li><span class='success'><img src='style/accept.png' alt='Success'>Successful - " + entries[i]['time'] + "</span></li>")
+        $submissionHistory.append("<li><span class='success'><img src='/images/accept.png' alt='Success'>Successful - " + entries[i]['time'] + "</span></li>")
       } else {
-        $submissionHistory.append("<li><span class='error'><img src='style/cancel.png' alt='Error'>Unsuccessful - " + entries[i]['time'] + "</span></li>")
+        $submissionHistory.append("<li><span class='error'><img src='/images/cancel.png' alt='Error'>Unsuccessful - " + entries[i]['time'] + "</span></li>")
       }
     }
   }

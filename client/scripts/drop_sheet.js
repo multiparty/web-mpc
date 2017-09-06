@@ -183,7 +183,7 @@ var DropSheet = function DropSheet(opts) {
           if (wb.SheetNames.indexOf(current_sheet) === -1) {
             // Should override anything that was in HOT originally in case of reupload.
             opts.tables[tableidx].clear();
-            alertify.alert("<img src='style/cancel.png' alt='Error'>Error!",
+            alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!",
               "Please make sure spreadsheet tab names match those of original template. Tab '" + current_sheet
               + "' not found.");
             return;
@@ -217,7 +217,7 @@ var DropSheet = function DropSheet(opts) {
 
     // Assumes all tables updated.
     if (checks.indexOf(false) === -1) {
-      alertify.alert("<img src='style/accept.png' alt='Success'>Success",
+      alertify.alert("<img src='/images/accept.png' alt='Success'>Success",
         "The tables below have been populated. Please confirm that your data is accurate and scroll down to answer the multiple choice questions, verify, and submit your data.");
       return true; // no errors.
     }
@@ -277,7 +277,7 @@ var DropSheet = function DropSheet(opts) {
 
       // If expected row name not found.
       if (!found_row) {
-        alertify.alert("<img src='style/cancel.png' alt='Error'>Error!",
+        alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!",
           "Spreadsheet format does not match original template. Please copy-and-paste or type data into the '" +
           table_def.name + "' table manually.");
         return false;
@@ -302,7 +302,7 @@ var DropSheet = function DropSheet(opts) {
     // Check that number of expected numeric cells is correct. Otherwise alert user.
     // Row and column checks.
     if (matrix.length !== num_rows) {
-      alertify.alert("<img src='style/cancel.png' alt='Error'>Error!",
+      alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!",
         "Spreadsheet format does not match original template, or there are empty cells, or non-numeric data. Please copy-and-paste or type data into the '" +
         table_def.name + "' table manually.");
       return false;
@@ -310,7 +310,7 @@ var DropSheet = function DropSheet(opts) {
 
     for (i = 0; i < matrix.length; i++) {
       if (matrix[i].length !== num_cols) {
-        alertify.alert("<img src='style/cancel.png' alt='Error'>Error!",
+        alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!",
           "Spreadsheet format does not match original template, or there are empty cells, or non-numeric data. Please copy-and-paste or type data into the '" +
           table_def.name + "' table manually.");
         return false;
@@ -330,7 +330,7 @@ var DropSheet = function DropSheet(opts) {
       return true;
     }
 
-    alertify.alert("<img src='style/cancel.png' alt='Error'>Error!",
+    alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!",
       "Spreadsheet format does not match original template, or there are empty cells, or non-numeric data. Please copy-and-paste or type data into the '" +
       table_def.name + "' table manually.");
     return false;
@@ -350,7 +350,7 @@ var DropSheet = function DropSheet(opts) {
       $('#drop-area').removeClass('dragenter');
       readFile(files);
     } else {
-      alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
+      alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
     }
 
   }
@@ -364,7 +364,7 @@ var DropSheet = function DropSheet(opts) {
       $('#drop-area').removeClass('dragdefault');
       $('#drop-area').addClass('dragenter');
     } else {
-      alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
+      alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
     }
   }
 
@@ -372,7 +372,7 @@ var DropSheet = function DropSheet(opts) {
     if (typeof jQuery !== 'undefined') {
       $('#drop-area').removeClass('dragenter');
     } else {
-      alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
+      alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
     }
   }
 
@@ -380,7 +380,7 @@ var DropSheet = function DropSheet(opts) {
     if (typeof jQuery !== 'undefined') {
       $('#choose-file').click();
     } else {
-      alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
+      alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
     }
   }
 
@@ -401,7 +401,7 @@ var DropSheet = function DropSheet(opts) {
       // FileReader is supported.
       readFile(files);
     } else {
-      alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", "FileReader is not supported in this browser.");
+      alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", "FileReader is not supported in this browser.");
     }
   }
 

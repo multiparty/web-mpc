@@ -245,7 +245,7 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
           style: {classes: 'qtip-red'},
           content: {
             title: tooltip.errorTitle,
-            text: "<img src='style/cancel.png' alt='Error'>" + tooltip.error
+            text: "<img src='/images/cancel.png' alt='Error'>" + tooltip.error
           },
           show: {
             solo: true,
@@ -275,7 +275,7 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
           style: {classes: 'qtip-yellow'},
           content: {
             title: tooltip.warningTitle,
-            text: "<img src='style/cancel.png' alt='Warning'>" + tooltip.warning
+            text: "<img src='/images/cancel.png' alt='Warning'>" + tooltip.warning
           },
           show: {
             solo: true,

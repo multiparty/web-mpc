@@ -16,6 +16,8 @@
           crossorigin="anonymous"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.10.0/alertify.min.js"
           integrity="sha256-a8iNv5koK87AlJD+5P/S01aSB+6Mw2jYyLcUVXeU9mI=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.10.8/xlsx.full.min.js"
+          integrity="sha256-TuW/DAcsShnnH448nFucXzahCo5w59DYjX3DNpbi7kU=" crossorigin="anonymous"></script>
 
   <script src="//cdnjs.cloudflare.com/ajax/libs/qtip2/3.0.3/basic/jquery.qtip.min.js"
           integrity="sha256-tdzDhoPpQdzKwCPlIOh3dqdiH3vgCWNajLLuboD7GaM=" crossorigin="anonymous"></script>
@@ -455,19 +457,21 @@
           }
         };
         var _badfile = function () {
-          alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", 'This file does not appear to be a valid Excel file.', function () {
+          alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", 'This file does not appear to be a valid Excel file.', function () {
           });
+          spinner.stop();
         };
         var _pending = function () {
-          alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", 'Please wait until the current file is processed.', function () {
+          alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", 'Please wait until the current file is processed.', function () {
           });
         };
         var _large = function (len, cb) {
-          alertify.confirm("<img src='style/cancel.png' alt='Error'>Error!", "This file is " + (len / (1024 * 1024)).toFixed(2) + " MB and may take a few moments. Your browser may lock up during this process. Continue?", cb);
+          alertify.confirm("<img src='/images/cancel.png' alt='Error'>Error!", "This file is " + (len / (1024 * 1024)).toFixed(2) + " MB and may take a few moments. Your browser may lock up during this process. Continue?", cb);
         };
         var _failed = function (e) {
-          alertify.alert("<img src='style/cancel.png' alt='Error'>Error!", 'This format is not supported.', function () {
+          alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", 'This format is not supported.', function () {
           });
+          spinner.stop();
         };
 
         var $window, availableWidth, availableHeight;
