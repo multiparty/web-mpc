@@ -48,7 +48,8 @@ var analyst = (function () {
   }
 
   function formatUrls(urls) {
-    var baseUrl = window.location.protocol + '//' + window.location.hostname + ':' + window.location.port;
+    var port = window.location.port ? ':' + window.location.port : '';
+    var baseUrl = window.location.protocol + '//' + window.location.hostname + port;
 
     var result = [];
     for (var i = 0; i < urls.length; i++) {
