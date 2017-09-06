@@ -9,16 +9,24 @@
 // Takes callback(true|false, data).
 function aggregate_and_unmask(mOut, privateKey, session, password, callback) {
   mOut = JSON.parse(mOut.data);
-  
+
+  var questions_public = [];
+  for (var i = 0; i < mOut.length; i++) {
+    questions_public.push(mOut[i].questions_public);
+  }
+  // Questions Public is the public answers to questions. TODO: do something with this?
+
+  var aggregated_questions_public = aggregateShares(questions_public);
+
   var skArrayBuffer;
   try {
-    skArrayBuffer = str2ab(atob(privateKey));  
+    skArrayBuffer = str2ab(atob(privateKey));
   }
   catch (err) {
     callback(false, "Error: invalid key file.");
     return;
   }
-  
+
   // Import key, returns a promise
   var sk = window.crypto.subtle.importKey(
     "pkcs8", // (private only)
@@ -40,25 +48,28 @@ function aggregate_and_unmask(mOut, privateKey, session, password, callback) {
     // TODO: we should set a threshold and abort if there are too
     // many invalid shares
     console.log('Invalid share count:', invalidShareCount);
-    return aggregateShares(analystShares); 
+    return aggregateShares(analystShares);
   });
 
   // Request service to aggregate its shares and send us the result
   var serviceResultShare = getServiceResultShare(session, password);
 
   Promise.all([analystResultShare, serviceResultShare])
-  .then(function (resultShares) {
-    var analystResult = resultShares[0],
+    .then(function (resultShares) {
+      var analystResult = resultShares[0],
         serviceResult = resultShares[1],
         finalResult = recombineValues(serviceResult, analystResult);
-    callback(true, finalResult);
-  }).catch(function (err) {
+      if (!ensure_equal(finalResult.questions, aggregated_questions_public)) {
+        console.log("Secret-shared question answers do not aggregate to the same values as publicly collected answers.");
+      }
+      callback(true, finalResult);
+    }).catch(function (err) {
     console.log(err);
     callback(false, "Error: could not compute result.");
   });
 }
 
-function getServiceResultShare (session, password) {
+function getServiceResultShare(session, password) {
   return $.ajax({
     type: "POST",
     url: "/get_aggregate",
@@ -72,44 +83,47 @@ function getServiceResultShare (session, password) {
 }
 
 function construct_tuple(key, buffer) {
-  if(buffer) 
-    return function (decryptedShare) { 
-      var tuple = {}; tuple[key] = arrayBufferToString(decryptedShare);
+  if (buffer) {
+    return function (decryptedShare) {
+      var tuple = {};
+      tuple[key] = arrayBufferToString(decryptedShare);
       return tuple;
     };
-    
-  else
-    return function (decryptedShare) { 
-      var tuple = {}; tuple[key] = decryptedShare;
+  } else {
+    return function (decryptedShare) {
+      var tuple = {};
+      tuple[key] = decryptedShare;
       return tuple;
-    } 
+    }
+  }
 }
 
 /**
  * @return {promise} a promise to an equivalent object to maskedData, where the keys
  *    and nesting is the same (same schema) but the values are decrypted
-**/
-function _decryptWithKey (obj, importedKey) {
+ **/
+function _decryptWithKey(obj, importedKey) {
   // decrypt one level of obj, decrypt nested object recursively
   var resultTuples = [];
-  
-  for(var key in obj) {
+
+  for (var key in obj) {
     if (obj.hasOwnProperty(key)) {
       //console.log(key);
       var value = obj[key];
-      if(typeof(value) == "number" || typeof(value) == "string" || typeof(value) == "String") {
-        // decrypt atomic value          
+      if (typeof(value) == "number" || typeof(value) == "string" || typeof(value) == "String") {
+        // decrypt atomic value
         var resultTuple = window.crypto.subtle.decrypt({name: "RSA-OAEP"}, importedKey, str2ab(value))
           .then(construct_tuple(key, true));
-          
+
         resultTuples.push(resultTuple);
       }
-      else 
+      else {
         resultTuples.push(_decryptWithKey(value, importedKey)
           .then(construct_tuple(key, false)));
+      }
     }
   }
-  
+
   return Promise.all(resultTuples).then(function (tuples) {
     // recombine individual key-value pairs into single object
     return Object.assign(...tuples);
@@ -119,11 +133,11 @@ function _decryptWithKey (obj, importedKey) {
 /**
  * @return {promise} a promise to an array of decrypted objects (same schema, value decrypted).
  */
-function decryptValueShares (sk, maskedData) {
+function decryptValueShares(sk, maskedData) {
   return sk.then(function (importedKey) {
     // decrypt all masks
     var all = [];
-    for(var d = 0; d < maskedData.length; d++) {
+    for (var d = 0; d < maskedData.length; d++) {
       all.push(_decryptWithKey(maskedData[d].fields, importedKey));
     }
 
@@ -132,23 +146,43 @@ function decryptValueShares (sk, maskedData) {
 }
 
 function str2ab(str) {
-    var b = new ArrayBuffer(str.length);
-    var view = new Uint8Array(b);
-    for (var i = 0; i < str.length; i++) {
-        view[i] = str.charCodeAt(i);
-    }
-    return b;
+  var b = new ArrayBuffer(str.length);
+  var view = new Uint8Array(b);
+  for (var i = 0; i < str.length; i++) {
+    view[i] = str.charCodeAt(i);
+  }
+  return b;
 }
 
 function arrayBufferToString(arrayBuffer) {
-    var byteArray = new Uint8Array(arrayBuffer);
-    var byteString = '';
-    for (var i = 0; i < byteArray.byteLength; i++) {
-        byteString += String.fromCharCode(byteArray[i]);
-    }
-    return byteString;
+  var byteArray = new Uint8Array(arrayBuffer);
+  var byteString = '';
+  for (var i = 0; i < byteArray.byteLength; i++) {
+    byteString += String.fromCharCode(byteArray[i]);
+  }
+  return byteString;
 }
 
+function ensure_equal(obj, oth) {
+  for (var key in obj) {
+    if (obj.hasOwnProperty(key) && oth.hasOwnProperty(key)) {
+      var value = obj[key];
+      if (typeof(value) == "number" || typeof(value) == "string" || typeof(value) == "String") {
+        if (value != oth[key]) {
+          return false;
+        }
+      }
+      else {
+        var res = ensure_equal(value, oth[key]);
+        if (!res) {
+          return false;
+        }
+      }
+    }
+  }
+
+  return true;
+}
 
 
 /*eof*/
