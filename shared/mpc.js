@@ -282,7 +282,7 @@ function aggregateShares (data, db) {
 
 function recombineValues (serviceTuples, analystTuples) {
   if(typeof(serviceTuples) == "number" || typeof(serviceTuples) == "string" || typeof(serviceTuples) == "String")
-    return res[field] = _recombine([serviceTuples, analystTuples]);
+    return _recombine([serviceTuples, analystTuples]);
 
   var res = {};
   for (var field in serviceTuples) {

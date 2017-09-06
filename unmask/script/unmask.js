@@ -45,10 +45,10 @@ function aggregate_and_unmask(mOut, privateKey, session, password, callback) {
   var cubes_masks = [];
   var cubes_data = [];
   for(var i = 0; i < mOut.length; i++) {
-    cubes_masks.push(mOut[i].answers_cube['mask']);
+    cubes_masks.push({"fields": mOut[i].answers_cube['mask']});
     cubes_data.push(mOut[i].answers_cube['data']);
   }
-  var cubes_masks = decryptValueShares(cubes_masks);
+  var cubes_masks = decryptValueShares(sk, cubes_masks);
 
   // Aggregate decrypted values by key
   var analystResultShare = decrypted.then(function (analystShares) {
@@ -82,14 +82,14 @@ function aggregate_and_unmask(mOut, privateKey, session, password, callback) {
     for(var i = 0; i < cubes_masks_ready.length; i++) {
       var one_value = recombineValues(cubes_data[i], parseInt(cubes_masks_ready[i], 10));
       one_value = one_value.toString(8);
-      
+
       var answer_string = one_value.charAt(0);
-      for(var i = 1; i < one_value.length; i++)
-        answer_string += "," + one_value.charAt(i);
+      for(var j = 1; j < one_value.length; j++)
+        answer_string += "," + one_value.charAt(j);
         
       answers.push(answer_string);
     }
-       
+    
     answers = answers.join("\n");
     saveAs(new Blob([answers], {type: "text/plain;charset=utf-8"}), 'Questions_' + session + '.csv');
   });
@@ -130,7 +130,7 @@ function _decryptWithKey (obj, importedKey) {
   // Parameter is a value, decrypt it!
   if(typeof(obj) == "number" || typeof(obj) == "string" || typeof(obj) == "String") {
     return window.crypto.subtle.decrypt({name: "RSA-OAEP"}, importedKey, str2ab(obj))
-      .then(construct_tuple(key, true));
+      .then(arrayBufferToString);
   }
 
   // decrypt one level of obj, decrypt nested object recursively
