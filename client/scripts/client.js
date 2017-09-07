@@ -13,8 +13,8 @@ var client = (function () {
   var SERVER_ERR = 'Server not reachable';
   var GENERIC_SUBMISSION_ERR = 'Something went wrong with submission! Please try again';
 
-  var NAN_EMPTY_CELLS = 'You have entered data into a cell in one table without entering data into the corresponding cell in another table. Please double check all tables';
-  var SEMANTIC_CELLS = 'You have entered non-numeric data into at least one cell. Please make sure all cells contain positive numbers only. If you have no data for that cell, please enter a zero.';
+  var NAN_EMPTY_CELLS = 'You have entered non-numeric data into at least one cell. Please make sure all cells contain positive numbers only. If you have no data for that cell, please enter a zero.';
+  var SEMANTIC_CELLS = 'You have entered data into a cell in one table without entering data into the corresponding cell in another table. Please double check all tables';
   var CELLS_ERRORS = {
     empty: NAN_EMPTY_CELLS,
     type: NAN_EMPTY_CELLS,
