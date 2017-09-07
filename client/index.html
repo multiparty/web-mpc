@@ -546,7 +546,7 @@
         function addValidationErrors(msg) {
           $verify.prop('checked', false);
           $("#submit").prop('disabled', true);
-          $("#errors").css('display', 'initial');
+          $("#errors").css('display', 'block');
 
           for (var i = 0; i < msg.length; i++) {
             $('#validation-errors').append('<li><span class="help-block">' + msg[i] + '</span></li>');
