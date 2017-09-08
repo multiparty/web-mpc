@@ -14,8 +14,10 @@
   <script src="//cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.0/ladda.min.js"
           integrity="sha256-/DTavTzjSAI87+voZGCTfhbioWGET1qDJKe76XuWQ5M=" crossorigin="anonymous"></script>
 
-  <script src="/scripts/filesaver.js"></script>
-  <script src="/scripts/analyst.js"></script>
+  <script src="/app/helper/filesaver.js"></script>
+  <!--<script src="/scripts/analyst.js"></script>-->
+
+  <script data-main="app/main" src="app/helper/require.js"></script>
 
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
         integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -112,7 +114,7 @@
 
 </main>
 
-<script type="text/javascript">
+<!-- <script type="text/javascript"> -->
   $(function () {
     $('#generate').on('click', function (e) {
       e.preventDefault();

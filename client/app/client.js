@@ -1,5 +1,9 @@
 /* global alertify, $ */
 
+require(['mpc'], function(mpc) {
+  'use strict';
+
+
 var client = (function () {
   var SESSION_KEY_ERROR = 'Invalid session number';
   var PARTICIPATION_CODE_ERROR = 'Invalid participation code';
@@ -238,7 +242,7 @@ var client = (function () {
       }
 
       // Register semantic discrepancies validator.
-      register_validator("discrepancies", function (table, cell, value, callback) {
+      register_validator('discrepancies', function (table, cell, value, callback) {
         checkSemanticDiscrepancies(tables, table, cell, value, callback);
       });
 
@@ -255,7 +259,7 @@ var client = (function () {
           errorMsg = GENERIC_TABLE_ERR;
           errorMsg = errorMsg.replace('%s', table_name);
         }
-        
+
         if (errors.indexOf(errorMsg) === -1) {
           errors = errors.concat(errorMsg);
         }
@@ -346,9 +350,9 @@ var client = (function () {
     // Correlation using modified small pairwise "hypercubes". (one cube for each pair of questions)
     // For every pair of questions, compute and encrypt the two chosen answers.
     var pairwise_hypercubes = {};
-    for (var i = 0; i < questions.length; i++) {
-      for (var j = i + 1; j < questions.length; j++) {
-        pairwise_hypercubes[i + ':' + j] = questions_values[i] + '' + questions_values[j];
+    for (var j = 0; j < questions.length; j++) {
+      for (var k = j + 1; k < questions.length; k++) {
+        pairwise_hypercubes[j + ':' + k] = questions_values[j] + '' + questions_values[k];
       }
     }
 
@@ -427,9 +431,9 @@ var client = (function () {
     for (var i = 0; i < entries.length; i++) {
       if (entries[i]['submitted']) {
         // append success line
-        $submissionHistory.append("<li><span class='success'><img src='/images/accept.png' alt='Success'>Successful - " + entries[i]['time'] + "</span></li>")
+        $submissionHistory.append('<li><span class='success'><img src='/images/accept.png' alt='Success'>Successful - ' + entries[i]['time'] + '</span></li>')
       } else {
-        $submissionHistory.append("<li><span class='error'><img src='/images/cancel.png' alt='Error'>Unsuccessful - " + entries[i]['time'] + "</span></li>")
+        $submissionHistory.append('<li><span class='error'><img src='/images/cancel.png' alt='Error'>Unsuccessful - ' + entries[i]['time'] + '</span></li>')
       }
     }
   }
@@ -445,23 +449,26 @@ var client = (function () {
     var name = table._sail_meta.name;
     var r = cell.row_index;
     var c = cell.col_index;
-    
+
     // Ignore indices were there is some non-numerical value
     for (var  i = 0; i < tables.length - 1; i++) {
       var v = tables[i].getDataAtCell(r, c);
-      if (typeof(v) != "number" || v < 0) return callback(true);
+      if (typeof(v) !== 'number' || v < 0) {
+        return callback(true);
+      }
     }
+
 
     // bonus can only be non-zero if the other tables are non-zero.
     if (name === bonus_table._sail_meta.name) {
       // bonus can only be non-zero if the other tables are non-zero.
       if (value > 0) {
-        for (var i = 0; i < tables.length - 1; i++) { // length-1 because of the totals table
-          if (i === 2) {
+        for (var l = 0; l < tables.length - 1; l++) { // length-1 because of the totals table
+          if (l === 2) {
             continue;
           }
 
-          if (!(tables[i].getDataAtCell(r, c) > 0)) {
+          if (!(tables[l].getDataAtCell(r, c) > 0)) {
             return callback(false); // No need to invalidate other cells here.
           }
         }
@@ -470,16 +477,16 @@ var client = (function () {
 
       // the cell must be either zero in all tables, or non-zero in all tables
       var compare = value > 0;
-      for (i = 0; i < tables.length - 1; i++) { // length-1 because of the totals table
-        if (name === tables[i]._sail_meta.name) {
+      for (l = 0; i < tables.length - 1; l++) { // length-1 because of the totals table
+        if (name === tables[l]._sail_meta.name) {
           continue;
         }
 
-        if (i === 2) { // bonus table can only be greater than zero if this value is greater than 0.
-          if (tables[i].getDataAtCell(r, c) > 0 && !compare) {
+        if (l === 2) { // bonus table can only be greater than zero if this value is greater than 0.
+          if (tables[l].getDataAtCell(r, c) > 0 && !compare) {
             return callback(false);
           }
-        } else if ((tables[i].getDataAtCell(r, c) > 0) !== compare) {
+        } else if ((tables[l].getDataAtCell(r, c) > 0) !== compare) {
           return callback(false);
         }
       }
@@ -497,3 +504,8 @@ var client = (function () {
     updateWidth: updateWidth
   };
 })();
+
+
+
+});
+

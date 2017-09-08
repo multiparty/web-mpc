@@ -90,7 +90,7 @@ var DropSheet = function DropSheet(opts) {
 
   // Helper method for array buffer read-in.
   function fixdata(data) {
-    var o = "", l = 0, w = 10240;
+    var o = '', l = 0, w = 10240;
     for (; l < data.byteLength / w; ++l) {
       o += String.fromCharCode.apply(null, new Uint8Array(data.slice(l * w, l * w + w)));
     }
@@ -154,7 +154,7 @@ var DropSheet = function DropSheet(opts) {
     if (!sheet['!ref']) {
       return [];
     }
-    range = XLS.utils.decode_range(sheet["!ref"]);
+    range = XLS.utils.decode_range(sheet['!ref']);
     columnHeaders = [];
     for (C = range.s.c; C <= range.e.c; ++C) {
       val = sheet[XLS.utils.encode_cell({c: C, r: range.s.r})];
@@ -217,8 +217,8 @@ var DropSheet = function DropSheet(opts) {
 
     // Assumes all tables updated.
     if (checks.indexOf(false) === -1) {
-      alertify.alert("<img src='/images/accept.png' alt='Success'>Success",
-        "The tables below have been populated. Please confirm that your data is accurate and scroll down to answer the multiple choice questions, verify, and submit your data.");
+      alertify.alert('<img src="/images/accept.png" alt="Success">Success',
+        'The tables below have been populated. Please confirm that your data is accurate and scroll down to answer the multiple choice questions, verify, and submit your data');
       return true; // no errors.
     }
 
@@ -401,7 +401,7 @@ var DropSheet = function DropSheet(opts) {
       // FileReader is supported.
       readFile(files);
     } else {
-      alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", "FileReader is not supported in this browser.");
+      alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", 'FileReader is not supported in this browser.');
     }
   }
 

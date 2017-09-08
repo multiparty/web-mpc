@@ -1,3 +1,5 @@
-shared/dist/*
-client/script/sheetjsw.js
-client/script/ResizeSensor.js
+client/scripts/sheetjsw.js
+client/scripts/ResizeSensor.js
+client/scripts/handsontable.full.min.js
+client/scripts/filesaver.js
+client/scripts/require.js

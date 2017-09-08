@@ -118,21 +118,21 @@ var validator = function (value, callback) {
   // Dont validate empty on intialization cells until they receive values.
   if (cell.first_time === undefined) {
     cell.first_time = true;
-    cell.status = "ok";
+    cell.status = 'ok';
     callback(true);
     return;
   }
 
   if (value !== '' && value !== null && cell.max !== null && value > cell.max) {
-    fire_all_error_handlers(table._sail_meta.name, value, cell.row_index, cell.col_index, "max");
-    cell.status = "error";
+    fire_all_error_handlers(table._sail_meta.name, value, cell.row_index, cell.col_index, 'max');
+    cell.status = 'error';
     callback(false);
     return;
   }
 
   if (value !== '' && value !== null && cell.min !== null && value < cell.min) {
-    fire_all_error_handlers(table._sail_meta.name, value, cell.row_index, cell.col_index, "min");
-    cell.status = "error";
+    fire_all_error_handlers(table._sail_meta.name, value, cell.row_index, cell.col_index, 'min');
+    cell.status = 'error';
     callback(false);
     return;
   }
@@ -146,11 +146,11 @@ var validator = function (value, callback) {
     if (k >= cell.validators.length) {
       // No errors, check for warning:
       if (value && cell.max_warning && value > cell.max_warning) {
-        cell.status = "warning";
+        cell.status = 'warning';
       } else if (value && cell.min_warning && value < cell.min_warning) {
-        cell.status = "warning";
+        cell.status = 'warning';
       } else {
-        cell.status = "ok";
+        cell.status = 'ok';
       }
 
       callback(true);
@@ -163,13 +163,13 @@ var validator = function (value, callback) {
       } else {
         if (k === -1) {
           // Default HOT validator according to type.
-          fire_all_error_handlers(table._sail_meta.name, value, cell.row_index, cell.col_index, "type");
+          fire_all_error_handlers(table._sail_meta.name, value, cell.row_index, cell.col_index, 'type');
         } else {
           // Custom validator.
           fire_all_error_handlers(table._sail_meta.name, value, cell.row_index, cell.col_index, cell.validators[k]);
         }
 
-        cell.status = "error";
+        cell.status = 'error';
         callback(false); // early break
       }
     };
@@ -245,7 +245,7 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
           style: {classes: 'qtip-red'},
           content: {
             title: tooltip.errorTitle,
-            text: "<img src='/images/cancel.png' alt='Error'>" + tooltip.error
+            text: '<img src="/images/cancel.png" alt="Error">' + tooltip.error
           },
           show: {
             solo: true,
@@ -256,7 +256,7 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
         });
       }
     }
-  } else if (cell.status === "warning") {
+  } else if (cell.status === 'warning') {
 
     // Check for warning
     TD.style.background = '#FFFF66';
@@ -275,7 +275,7 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
           style: {classes: 'qtip-yellow'},
           content: {
             title: tooltip.warningTitle,
-            text: "<img src='/images/cancel.png' alt='Warning'>" + tooltip.warning
+            text: '<img src="/images/cancel.png" alt="Warning">' + tooltip.warning
           },
           show: {
             solo: true,
@@ -328,7 +328,7 @@ var renderer = function (instance, TD, row, col, prop, value, cellProperties) {
     } else {
       cellProperties.comment = null;
     }
-  } else if (cell.status === "warning") {
+  } else if (cell.status === 'warning') {
 
     if (tooltip !== undefined && tooltip !== null &&
       tooltip.warningTitle !== undefined && tooltip.warningTitle !== null &&
@@ -507,11 +507,11 @@ function make_table_obj(table_def) {
  * @return {hot} - the handsontable object constructed by make_hot_table.
  */
 function make_hot_table(table) {
-  var element = document.querySelector("#" + table.element);
+  var element = document.querySelector('#' + table.element);
 
   var hot_cols = new Array(table.colsCount);
   for (var i = 0; i < table.colsCount; i++) {
-    hot_cols[i] = {type: "text"}; //default thing that does not matter, will be overridden cell by cell
+    hot_cols[i] = {type: 'text'}; //default thing that does not matter, will be overridden cell by cell
   }
 
   var cells = [];
@@ -590,7 +590,7 @@ function make_hot_table(table) {
   handsOnTable._sail_meta = table;
 
   // Put name in the title element (if it exists)
-  document.getElementById(table.element + "-name").innerHTML = table.name;
+  document.getElementById(table.element + '-name').innerHTML = table.name;
   handsOnTable.clear();
 
   //update_width(handsOnTable);
@@ -643,29 +643,29 @@ function get_width(table) {
  * @param {function(i, j)} f - the function to be called on every cell in the range.
  */
 function visit_range(rows_len, cols_len, range, f) {
-  var row_range = range.row.split("-");
-  var col_range = range.col.split("-");
+  var row_range = range.row.split('-');
+  var col_range = range.col.split('-');
 
   for (var r = 0; r < row_range.length; r++) {
     for (var c = 0; c < col_range.length; c++) {
       var row = row_range[r].trim();
       var col = col_range[c].trim();
 
-      if (row === "*") {
-        row = "0:1:" + (rows_len - 1);
+      if (row === '*') {
+        row = '0:1:' + (rows_len - 1);
       }
-      if (col === "*") {
-        col = "0:1:" + (cols_len - 1);
+      if (col === '*') {
+        col = '0:1:' + (cols_len - 1);
       }
-      if (row.indexOf(":") === -1) {
-        row = row + ":1:" + row;
+      if (row.indexOf(':') === -1) {
+        row = row + ':1:' + row;
       }
-      if (col.indexOf(":") === -1) {
-        col = col + ":1:" + col;
+      if (col.indexOf(':') === -1) {
+        col = col + ':1:' + col;
       }
 
-      row = row.split(":");
-      col = col.split(":");
+      row = row.split(':');
+      col = col.split(':');
       if (row.length === 2) {
         row[2] = row[1];
         row[1] = 1;
