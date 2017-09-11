@@ -372,9 +372,9 @@ var client = (function () {
     });
 
     pkey_request.then(function (public_key) {
-      mask = encryptWithKey(mask, public_key);
-      pairwise_hypercubes = encryptWithKey(pairwise_hypercubes, public_key);
-      questions_public = encryptWithKey(questions_public, public_key); // This encrypts the public answers to questions
+      mask = mpc.encryptWithKey(mask, public_key);
+      pairwise_hypercubes = mpc.encryptWithKey(pairwise_hypercubes, public_key);
+      questions_public = mpc.encryptWithKey(questions_public, public_key); // This encrypts the public answers to questions
 
       var submission = {
         data: data,
@@ -431,9 +431,9 @@ var client = (function () {
     for (var i = 0; i < entries.length; i++) {
       if (entries[i]['submitted']) {
         // append success line
-        $submissionHistory.append('<li><span class='success'><img src='/images/accept.png' alt='Success'>Successful - ' + entries[i]['time'] + '</span></li>')
+        $submissionHistory.append('<li><span class="success"><img src="/images/accept.png" alt="Success">Successful - ' + entries[i]['time'] + '</span></li>')
       } else {
-        $submissionHistory.append('<li><span class='error'><img src='/images/cancel.png' alt='Error'>Unsuccessful - ' + entries[i]['time'] + '</span></li>')
+        $submissionHistory.append('<li><span class="error"><img src="/images/cancel.png" alt="Error">Unsuccessful - ' + entries[i]['time'] + '</span></li>')
       }
     }
   }

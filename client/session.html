@@ -14,9 +14,6 @@
   <script src="//cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.0/ladda.min.js"
           integrity="sha256-/DTavTzjSAI87+voZGCTfhbioWGET1qDJKe76XuWQ5M=" crossorigin="anonymous"></script>
 
-  <script src="/app/helper/filesaver.js"></script>
-  <!--<script src="/scripts/analyst.js"></script>-->
-
   <script data-main="app/main" src="app/helper/require.js"></script>
 
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
@@ -113,22 +110,5 @@
   </div>
 
 </main>
-
-<!-- <script type="text/javascript"> -->
-  $(function () {
-    $('#generate').on('click', function (e) {
-      e.preventDefault();
-
-      var la = Ladda.create(document.getElementById('generate'));
-      la.start();
-
-      analyst.generateSession('infoDiv', 'sessionID', 'passwordID', 'pubkeyID', 'privkeyID', 'link-id', 'session-title', 'session-description')
-        .then(function () {
-          la.stop();
-          $('#session-details').removeClass('hidden');
-        });
-    });
-  });
-</script>
 </body>
 </html>

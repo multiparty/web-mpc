@@ -1,13 +1,11 @@
 define(['jquery', 'analystController'], function ($, analystController) {
 
-  function analystView() {
+  function sessionView() {
 
 
     $(function () {
       $('#generate').on('click', function (e) {
         e.preventDefault();
-
-        console.log("CLICKED")
 
         var la = Ladda.create(document.getElementById('generate'));
         la.start();
@@ -23,7 +21,7 @@ define(['jquery', 'analystController'], function ($, analystController) {
 
 
 
-  return analystView;
+  return sessionView;
 
 
 });

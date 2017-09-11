@@ -17,7 +17,8 @@
   <script src="//cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.0/ladda.min.js"
           integrity="sha256-/DTavTzjSAI87+voZGCTfhbioWGET1qDJKe76XuWQ5M=" crossorigin="anonymous"></script>
 
-  <script src="/scripts/analyst.js"></script>
+  <script data-main="app/main" src="app/helper/require.js"></script>
+          
 
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
         integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -167,129 +168,6 @@
     </section>
   </div>
 
-  <script type="text/javascript">
-    $(function () {
-      var session, password;
-
-      $('#session').val(analyst.getParameterByName('session'));
-
-      // Login
-      $('#login').on('click', function (e) {
-        e.preventDefault();
-        session = $('#session').val();
-        password = $('#password').val();
-
-        var la = Ladda.create(document.getElementById('login'));
-        la.start();
-
-        analyst.checkStatus(session, password)
-          .then(function (status) {
-            changeStatusButtons(status);
-            return analyst.getExistingParticipants(session, password);
-          })
-          .then(function (urls) {
-            la.stop();
-
-            var $existingParticipants = $('#participants-existing');
-            if (urls.length) {
-              $existingParticipants.html(urls.join('\n'))
-            }
-
-            $('#table').removeClass('hidden');
-            analyst.generateTable('table', session, password, 'statusID');
-
-            // Remove login panel and show control panel
-            $('#session-login').collapse();
-            $('#session-panel').collapse();
-          })
-          .catch(function () {
-            la.stop();
-          });
-      });
-
-
-      // Manage session
-      $('#session-start').on('click', function (e) {
-        e.preventDefault();
-        analyst.changeStatus(session, password, analyst.START)
-          .then(function () {
-            changeStatusButtons(analyst.START);
-          });
-      });
-
-      $('#session-pause').on('click', function (e) {
-        e.preventDefault();
-        analyst.changeStatus(session, password, analyst.PAUSE)
-          .then(function () {
-            changeStatusButtons(analyst.PAUSE);
-          });
-      });
-
-      $('#session-stop').on('click', function (e) {
-        e.preventDefault();
-      });
-
-      $('#session-close-confirm').on('click', function (e) {
-        e.preventDefault();
-        analyst.changeStatus(session, password, analyst.STOP)
-          .then(function () {
-            changeStatusButtons(analyst.STOP);
-          });
-      });
-
-      function changeStatusButtons(status) {
-        var $start = $('#session-start'),
-          $pause = $('#session-pause'),
-          $stop = $('#session-stop'),
-          $sessionStatus = $('#session-status'),
-          $sessionUnmask = $('#session-unmask');
-
-        switch (status) {
-          case 'START':
-            $start.addClass('hidden');
-            $pause.removeClass('hidden');
-            $stop.removeClass('hidden');
-            $sessionStatus.html('STARTED');
-            break;
-          case 'PAUSE':
-            $start.removeClass('hidden');
-            $pause.addClass('hidden');
-            $stop.removeClass('hidden');
-            $sessionStatus.html('PAUSED');
-            break;
-          case 'STOP':
-            $start.addClass('hidden');
-            $pause.addClass('hidden');
-            $stop.addClass('hidden');
-            $sessionStatus.html('STOPPED');
-            $sessionUnmask.removeClass('hidden');
-            $sessionUnmask.find('a').attr('href', '/unmask?session=' + session);
-            break;
-        }
-      }
-
-
-      // Generate new participation links
-      $('#participants-submit').on('click', function (e) {
-        e.preventDefault();
-
-        var la = Ladda.create(document.getElementById('participants-submit'));
-        la.start();
-
-        analyst.generateUrls(session, password, $('#participants-count').val())
-          .then(function (urls) {
-            var $newParticipants = $('#participants-new');
-            if ($newParticipants.html() !== '') {
-              $newParticipants.append('\n');
-            }
-            $newParticipants.append(urls.join('\n')).removeClass('hidden');
-
-            la.stop();
-          });
-      });
-    });
-
-  </script>
 </div>
 </body>
 </html>
