@@ -1,6 +1,6 @@
 /* global alertify, $ */
 
-require(['mpc'], function(mpc) {
+require(['helper/mpc', 'helper/drop_sheet'], function(mpc) {
   'use strict';
 
 

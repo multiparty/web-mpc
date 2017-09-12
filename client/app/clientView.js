@@ -1,4 +1,6 @@
-define(['jquery', 'clientController', 'helper/sail_hot'], function ($, clientController, sailHOT) {
+define(['jquery', 'clientController', 'helper/sail_hot', 'helper/drop_sheet', 'helper/mpc', 'helper/ResizeSensor'], function ($, clientController, sailHOT, DropSheet, mpc, ResizeSensor) {
+
+    console.log('cli',clientController, 'ds',DropSheet)
 
     function clientControllerView() {
         $(document).ready(function () {

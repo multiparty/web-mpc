@@ -1,15 +1,18 @@
 require.config({
     'paths': {
         'jquery': 'helper/jquery',
-        // 'handsontable': 'helper/handsontable',
-        'mpc': 'helper/mpc'
+        'Handsontable': 'helper/handsontable',
+        'mpc': 'helper/mpc',
+        'DropSheet': 'helper/drop_sheet',
+        'sheetjsw': 'helper/sheetjsw'
+
+    },
+    shim: {                                                                            
+        'DropSheet': {                                                             
+            deps: ['sheetjsw'],                                                           
+            exports: 'DropSheet'                                                     
+        }
     }
-    // shim: {                                                                            
-    //     'handsontable': {                                                             
-    //         deps: ['jquery'],                                                           
-    //         exports: 'Handsontable'                                                     
-    //     }
-    // }
 });
 
 

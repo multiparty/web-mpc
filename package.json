@@ -7,7 +7,10 @@
     "test": "test"
   },
   "dependencies": {
-    "handsontable": "^0.34.1"
+    "handsontable": "^0.34.1",
+    "moment": "^2.18.1",
+    "pikaday": "^1.6.1",
+    "zeroclipboard": "^2.3.0"
   },
   "devDependencies": {
     "eslint": "^3.19.0",
