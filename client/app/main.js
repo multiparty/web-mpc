@@ -3,25 +3,26 @@ require.config({
         'jquery': 'helper/jquery',
         'Handsontable': 'helper/handsontable',
         'mpc': 'helper/mpc',
-        'DropSheet': 'helper/drop_sheet',
-        'sheetjsw': 'helper/sheetjsw'
+        'filesaver': 'helper/filesaver',
+        "bootstrap" :  "//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min"         
+        // 'DropSheet': 'helper/drop_sheet',
+        // 'sheetjsw': 'helper/sheetjsw'
 
     },
     shim: {                                                                            
-        'DropSheet': {                                                             
-            deps: ['sheetjsw'],                                                           
-            exports: 'DropSheet'                                                     
+        'bootstrap': {                                                             
+            deps: ['jquery']                                                     
         }
     }
 });
 
 
-require(['clientView', 'sessionView', 'trackView', 'unmaskView'], function(clientView, sessionView, trackView, unmaskView) {
+require(['sessionView', 'trackView'], function(sessionView, trackView) {
 
     // var clientView = new clientView();    
     var sessionView = new sessionView();
     var trackView = new trackView();
-    var unmaskView = new unmaskView();
+    // var unmaskView = new unmaskView();
 
 
 });

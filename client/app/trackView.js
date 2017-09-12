@@ -1,4 +1,4 @@
-define(['jquery', 'analystController'], function ($, analystController) {
+define(['jquery', 'analystController', 'bootstrap'], function ($, analystController) {
     
     function trackView() {
 
@@ -25,7 +25,6 @@ define(['jquery', 'analystController'], function ($, analystController) {
             la.stop();
 
             var $existingParticipants = $('#participants-existing');
-            console.log(urls)
             if (urls.length, typeof(urls)) {
               $existingParticipants.html(urls.join('\n'))
             }
@@ -107,7 +106,7 @@ define(['jquery', 'analystController'], function ($, analystController) {
       // Generate new participation links
       $('#participants-submit').on('click', function (e) {
         e.preventDefault();
-
+        
         var la = Ladda.create(document.getElementById('participants-submit'));
         la.start();
 
@@ -122,12 +121,7 @@ define(['jquery', 'analystController'], function ($, analystController) {
             la.stop();
           });
       });
-
-
-
-
     }
-        
         return trackView;
 
 

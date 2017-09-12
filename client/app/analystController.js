@@ -9,10 +9,11 @@
 /* global saveAs, Uint8Array */
 
 
-define(['helper/filesaver'], function(filesaver) {
+define(['filesaver'], function(filesaver) {
 
   'use strict';
-    
+
+
   function checkStatus(session, password) {
     if (!session || session.trim() === '' || !password) {
       return $.Deferred().reject();
@@ -141,6 +142,7 @@ define(['helper/filesaver'], function(filesaver) {
             // TODO clean up how this workflow
             document.getElementById(linkID).innerHTML = 'tracking page';
             document.getElementById(linkID).href = '/track?session=' + rndSess;
+         
             filesaver.saveAs(priBlob, 'Session_' + rndSess + '_private_key.pem');
 
             var text = 'Session Key:\n' + rndSess + '\nPassword:\n' + password;
