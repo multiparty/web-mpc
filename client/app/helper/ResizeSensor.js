@@ -3,10 +3,7 @@
  * directory of this distribution and at
  * https://github.com/marcj/css-element-queries/blob/master/LICENSE.
  */
-
- 
- define([], function() {
-    (function (root, factory) {
+(function (root, factory) {
         if (typeof define === "function" && define.amd) {
             define(factory);
         } else if (typeof exports === "object") {
@@ -215,4 +212,3 @@
         return ResizeSensor;
 
     }));
-});

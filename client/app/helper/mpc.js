@@ -317,7 +317,10 @@ define([], function() {
 
   return {
     aggregateShares: aggregateShares,
-    countInvalidShares: countInvalidShares
+    countInvalidShares: countInvalidShares,
+    secretShareValues: secretShareValues,
+    encryptWithKey: encryptWithKey,
+    recombineValues: recombineValues
   }
 
 });

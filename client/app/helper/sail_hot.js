@@ -809,7 +809,15 @@ function fill_data(data, table_hot) {
 }
 
 return {
-  make_tables: make_tables
+  make_tables: make_tables,
+  register_validator: register_validator,
+  register_error_handler: register_error_handler,
+  remove_validator: remove_validator,
+  remove_validators: remove_validators,
+  remove_error_handler: remove_error_handler,
+  construct_data_tables: construct_data_tables,
+  fill_data: fill_data,
+  read_only_table: read_only_table
 }
 
 
