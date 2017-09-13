@@ -1,4 +1,4 @@
-define(['XLSX'], function() {
+define(['alertify', 'alertify-defaults', 'XLSX'], function(alertify) {
 
   var DropSheet = function DropSheet(opts) {
     if (!opts) {
@@ -276,9 +276,9 @@ define(['XLSX'], function() {
 
         // If expected row name not found.
         if (!found_row) {
-          // alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!",
-          //   "Spreadsheet format does not match original template. Please copy-and-paste or type data into the '" +
-          //   table_def.name + "' table manually.");
+          alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!",
+            "Spreadsheet format does not match original template. Please copy-and-paste or type data into the '" +
+            table_def.name + "' table manually.");
           return false;
         }
       }
@@ -400,20 +400,15 @@ define(['XLSX'], function() {
         // FileReader is supported.
         readFile(files);
       } else {
-        // alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", 'FileReader is not supported in this browser.');
+        alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", 'FileReader is not supported in this browser.');
       }
     }
-
-
     if (opts.choose.addEventListener) {
       if (typeof jQuery !== 'undefined') {
         $('#choose-file').change(handleFile);
       }
     }
-
-
   };
-
 
   return DropSheet;
 

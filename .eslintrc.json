@@ -8,10 +8,20 @@
     "eqeqeq": 2,
     "brace-style": 2,
     "curly": 2,
-    "quotes": [2, "single", { "avoidEscape": true }]
+    "quotes": [2, "single", { "avoidEscape": true }],
+    "requirejs/no-invalid-define": 2,
+    "requirejs/no-multiple-define": 2,
+    "requirejs/no-named-define": 2,
+    "requirejs/no-commonjs-wrapper": 2,
+    "requirejs/no-object-define": 1
   },
   "env": {
     "browser": true,
-    "jquery": true
-  }
+    "jquery": true,
+    "node": true,
+    "amd":true
+  },
+  "plugins": [
+    "requirejs"
+  ]
 }

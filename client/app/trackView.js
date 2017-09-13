@@ -1,4 +1,4 @@
-define(['jquery', 'analystController', 'bootstrap'], function ($, analystController) {
+define(['jquery', 'analystController', 'Ladda', 'bootstrap'], function ($, analystController, Ladda) {
     
     function trackView() {
 

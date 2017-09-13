@@ -1,4 +1,4 @@
-define(['jquery','unmaskController', 'helper/sail_hot'], function ($, unmaskController, sailHOT) {
+define(['jquery','unmaskController', 'helper/sail_hot', 'Ladda'], function ($, unmaskController, sailHOT, Ladda) {
     
       function unmaskView() {
 
@@ -59,7 +59,7 @@ define(['jquery','unmaskController', 'helper/sail_hot'], function ($, unmaskCont
 
                         // Show tables
                         $('#' + table._sail_meta.element).show();
-                        $('#' + table._sail_meta.element + "-name").show();
+                        $('#' + table._sail_meta.element + '-name').show();
                       }
 
                       else { // Not a table, questions
@@ -82,7 +82,7 @@ define(['jquery','unmaskController', 'helper/sail_hot'], function ($, unmaskCont
                               continue;
                             }
 
-                            var text = option + ": " + answers[option];
+                            var text = option + ': ' + answers[option];
                             ul.append($('<li>').text(text));
                           }
 
@@ -111,22 +111,22 @@ define(['jquery','unmaskController', 'helper/sail_hot'], function ($, unmaskCont
 
                 // Remove top and bottom line of pem file
                 privateKey = privateKey.split('\n')[1];
-                console.log("PRI", privateKey)
+      
                 $.ajax({
-                  type: "POST",
-                  url: "/get_masks",
-                  contentType: "application/json",
+                  type: 'POST',
+                  url: '/get_masks',
+                  contentType: 'application/json',
                   data: JSON.stringify({session: sessKey, password: password}),
                   success: function (data) {
                     unmaskController.aggregate_and_unmask(data, privateKey, sessKey, password, callb);
                   },
                   error: function () {
-                    callb(false, "Error: failed to load masks");
+                    callb(false, 'Error: failed to load masks');
                   }
                 });
               });
             } else {
-              alert("Please upload both files before continuing.");
+              alert('Please upload both files before continuing.');
             }
           });
         });
@@ -142,10 +142,10 @@ define(['jquery','unmaskController', 'helper/sail_hot'], function ($, unmaskCont
       // taken directly from trusted/session_data.html.
       // could probably clean up
       window.getParameterByName = function (name) {
-        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+        var regex = new RegExp('[\\?&]' + name + '=([^&#]*)'),
           results = regex.exec(location.search);
-        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, " "));
       }
 
       if (getParameterByName('session')) {

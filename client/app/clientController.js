@@ -1,6 +1,6 @@
 /* global alertify, $ */
 
-define(['helper/sail_HOT', 'helper/mpc'], function(sailHOT, mpc) {
+define(['jquery', 'helper/sail_HOT', 'helper/mpc', 'alertify', 'alertify-defaults'], function($, sailHOT, mpc, alertify) {
 
   var client = (function () {
     var SESSION_KEY_ERROR = 'Invalid session number';
@@ -25,11 +25,11 @@ define(['helper/sail_HOT', 'helper/mpc'], function(sailHOT, mpc) {
     };
 
     function error(msg) {
-      alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", msg);
+      alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', msg);
     }
 
     function success(msg) {
-      alertify.alert("<img src='/images/accept.png' alt='Success'>Success!", msg);
+      alertify.alert('<img src="/images/accept.png" alt="Success">Success!', msg);
     }
 
     /**
@@ -241,7 +241,7 @@ define(['helper/sail_HOT', 'helper/mpc'], function(sailHOT, mpc) {
 
         // Register semantic discrepancies validator.
         // console.log("VALIDATE?", register_validator)
-        sailHOT.register_validator("discrepancies", function (table, cell, value, callback) {
+        sailHOT.register_validator('discrepancies', function (table, cell, value, callback) {
           checkSemanticDiscrepancies(tables, table, cell, value, callback);
         });
 
@@ -346,12 +346,12 @@ define(['helper/sail_HOT', 'helper/mpc'], function(sailHOT, mpc) {
       var data = shares['data'];
       var mask = shares['mask'];
 
-      // Correlation using modified small pairwise "hypercubes". (one cube for each pair of questions)
+      // Correlation using modified small pairwise 'hypercubes'. (one cube for each pair of questions)
       // For every pair of questions, compute and encrypt the two chosen answers.
       var pairwise_hypercubes = {};
-      for (var i = 0; i < questions.length; i++) {
-        for (var j = i + 1; j < questions.length; j++) {
-          pairwise_hypercubes[i + ':' + j] = questions_values[i] + '' + questions_values[j];
+      for (var k = 0; k < questions.length; k++) {
+        for (var l = k + 1; l < questions.length; l++) {
+          pairwise_hypercubes[k + ':' + l] = questions_values[k] + '' + questions_values[l];
         }
       }
 
@@ -430,9 +430,9 @@ define(['helper/sail_HOT', 'helper/mpc'], function(sailHOT, mpc) {
       for (var i = 0; i < entries.length; i++) {
         if (entries[i]['submitted']) {
           // append success line
-          $submissionHistory.append("<li><span class='success'><img src='/images/accept.png' alt='Success'>Successful - " + entries[i]['time'] + "</span></li>")
+          $submissionHistory.append('<li><span class="success"><img src="/images/accept.png" alt="Success">Successful - ' + entries[i]['time'] + '</span></li>')
         } else {
-          $submissionHistory.append("<li><span class='error'><img src='/images/cancel.png' alt='Error'>Unsuccessful - " + entries[i]['time'] + "</span></li>")
+          $submissionHistory.append('<li><span class="error"><img src="/images/cancel.png" alt="Error">Unsuccessful - ' + entries[i]['time'] + '</span></li>')
         }
       }
     }
@@ -452,19 +452,21 @@ define(['helper/sail_HOT', 'helper/mpc'], function(sailHOT, mpc) {
       // Ignore indices were there is some non-numerical value
       for (var  i = 0; i < tables.length - 1; i++) {
         var v = tables[i].getDataAtCell(r, c);
-        if (typeof(v) != "number" || v < 0) return callback(true);
+        if (typeof(v) !== 'number' || v < 0) {
+          return callback(true);
+        }
       }
 
       // bonus can only be non-zero if the other tables are non-zero.
       if (name === bonus_table._sail_meta.name) {
         // bonus can only be non-zero if the other tables are non-zero.
         if (value > 0) {
-          for (var i = 0; i < tables.length - 1; i++) { // length-1 because of the totals table
-            if (i === 2) {
+          for (var j = 0; j < tables.length - 1; j++) { // length-1 because of the totals table
+            if (j === 2) {
               continue;
             }
 
-            if (!(tables[i].getDataAtCell(r, c) > 0)) {
+            if (!(tables[j].getDataAtCell(r, c) > 0)) {
               return callback(false); // No need to invalidate other cells here.
             }
           }

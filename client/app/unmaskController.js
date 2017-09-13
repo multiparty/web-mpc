@@ -23,17 +23,17 @@
       skArrayBuffer = str2ab(atob(privateKey));
     }
     catch (err) {
-      callback(false, "Error: invalid key file.");
+      callback(false, 'Error: invalid key file.');
       return;
     }
 
     // Import key, returns a promise
     var sk = window.crypto.subtle.importKey(
-      "pkcs8", // (private only)
+      'pkcs8', // (private only)
       skArrayBuffer,
-      {name: "RSA-OAEP", hash: {name: "SHA-256"}},
+      {name: 'RSA-OAEP', hash: {name: 'SHA-256'}},
       false, // whether the key is extractable (i.e. can be used in exportKey)
-      ["decrypt"]
+      ['decrypt']
     );
 
     // Decrypt all value fields in the masked data
@@ -61,13 +61,13 @@
           serviceResult = resultShares[1],
           finalResult = mpc.recombineValues(serviceResult, analystResult);
         if (!ensure_equal(finalResult.questions, mpc.aggregateShares(resultShares[2]))) {
-          console.log("Secret-shared question answers do not aggregate to the same values as publicly collected answers.");
+          console.log('Secret-shared question answers do not aggregate to the same values as publicly collected answers.');
         }
         callback(true, finalResult);
         generate_questions_csv(resultShares[2], session);
       }).catch(function (err) {
       console.log(err);
-      callback(false, "Error: could not compute result.");
+      callback(false, 'Error: could not compute result.');
     });
 
     // Do the Hypercube
@@ -81,27 +81,27 @@
 
   function getServiceResultShare(session, password) {
     return $.ajax({
-      type: "POST",
-      url: "/get_aggregate",
-      contentType: "application/json",
+      type: 'POST',
+      url: '/get_aggregate',
+      contentType: 'application/json',
       data: JSON.stringify({
         session: session,
         password: password
       }),
-      dataType: "json"
+      dataType: 'json'
     });
   }
 
   function getCubes(session, password) {
     return $.ajax({
-      type: "POST",
-      url: "/get_cubes",
-      contentType: "application/json",
+      type: 'POST',
+      url: '/get_cubes',
+      contentType: 'application/json',
       data: JSON.stringify({
         session: session,
         password: password
       }),
-      dataType: "json"
+      dataType: 'json'
     });
   }
 
@@ -115,14 +115,14 @@
       }
     }
 
-    var results = [ headers.join(",") ];
+    var results = [ headers.join(',') ];
     for (var i = 0; i < questions.length; i++) {
       var one_submission = [];
       for (var j = 0; j < headers.length; j++) {
         var q = headers[j];
         var answers = questions[i][q];
 
-        var answer = "";
+        var answer = '';
         for (var option in answers) {
           if (answers.hasOwnProperty(option)) {
             if (answers[option] == 1) {
@@ -134,11 +134,11 @@
 
         one_submission.push(answer);
       }
-      results.push(one_submission.join(","));
+      results.push(one_submission.join(','));
     }
 
-    results = results.join("\n");
-    filesaver.saveAs(new Blob([results], {type: "text/plain;charset=utf-8"}), 'Questions_' + session + '.csv');
+    results = results.join('\n');
+    filesaver.saveAs(new Blob([results], {type: 'text/plain;charset=utf-8'}), 'Questions_' + session + '.csv');
   }
 
   function construct_tuple(key, buffer) {
@@ -169,9 +169,9 @@
       if (obj.hasOwnProperty(key)) {
         //console.log(key);
         var value = obj[key];
-        if (typeof(value) == "number" || typeof(value) == "string" || typeof(value) == "String") {
+        if (typeof(value) == 'number' || typeof(value) == 'string' || typeof(value) == 'String') {
           // decrypt atomic value
-          var resultTuple = window.crypto.subtle.decrypt({name: "RSA-OAEP"}, importedKey, str2ab(value))
+          var resultTuple = window.crypto.subtle.decrypt({name: 'RSA-OAEP'}, importedKey, str2ab(value))
             .then(construct_tuple(key, true));
 
           resultTuples.push(resultTuple);
@@ -226,7 +226,7 @@
     for (var key in obj) {
       if (obj.hasOwnProperty(key) && oth.hasOwnProperty(key)) {
         var value = obj[key];
-        if (typeof(value) == "number" || typeof(value) == "string" || typeof(value) == "String") {
+        if (typeof(value) == 'number' || typeof(value) == 'string' || typeof(value) == 'String') {
           if (value != oth[key]) {
             return false;
           }

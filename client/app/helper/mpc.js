@@ -5,8 +5,8 @@
  * Shared module for MPC functionality.
  *
  */
-define([], function() {
-
+define(['forge'], function(forge) {
+  
   'use strict';
   
   var MAX_VALUE = 4294967296; // 2^32
@@ -37,8 +37,8 @@ define([], function() {
       throw new Error('Input value outside valid range');
     }
     var uvalue = _uint32(value),
-        shares = new Uint32Array(n),
-        cryptoObj = window.crypto || window.msCrypto; // IE 11 fix
+      shares = new Uint32Array(n),
+      cryptoObj = window.crypto || window.msCrypto; // IE 11 fix
   
     cryptoObj.getRandomValues(shares);
   
@@ -75,19 +75,17 @@ define([], function() {
    */
   function secretShareValues (obj) {
     var dataTuples = {}, // previously serviceTuples
-        maskTuples = {}; // previously analystTuples
+      maskTuples = {}; // previously analystTuples
   
     for (var key in obj) {
       if (obj.hasOwnProperty(key)) {
         var value = obj[key];
-        if(typeof(value) == "number") {
+        if(typeof(value) === 'number') {
           var shares = _secretShare(value, 2);
   
           dataTuples[key] = shares[0];
           maskTuples[key] = shares[1];
-        }
-  
-        else {
+        } else {
           // value is a nested object.
           var tmp = secretShareValues (value);
           dataTuples[key] = tmp['data'];
@@ -114,13 +112,13 @@ define([], function() {
     var result = {};
     for(var key in fields(obj)) {
       if(fields(obj).hasOwnProperty(key) && key !== '0') {
-        if(typeof(fields(obj)[key]) == "number" || typeof(fields(obj)[key]) == "string" || typeof(fields(obj)[key]) == "String")
+        if(typeof(fields(obj)[key]) === 'number' || typeof(fields(obj)[key]) === 'string') {
           result[key] = init_value;
-        else
-          result[key] = initialize(fields(obj)[key], init_value, fields);
+        } else {
+          result[key] = initialize(fields(obj)[key], init_value, fields);          
+        }
       }
     }
-  
     return result;
   }
   
@@ -138,7 +136,7 @@ define([], function() {
   function accumulate(obj, accumulator, fields, convert, f) {
     for(var key in fields(obj)) {
       if(fields(obj).hasOwnProperty(key) && key !== '0') {
-        if(typeof(fields(obj)[key]) == "number" || typeof(fields(obj)[key]) == "string" || typeof(fields(obj)[key]) == "String") {
+        if(typeof(fields(obj)[key]) === 'number' || typeof(fields(obj)[key]) === 'string') {
           var value = convert(fields(obj)[key]);
           accumulator[key] = f(accumulator[key], value);
         }
@@ -160,7 +158,7 @@ define([], function() {
    */
   function countInvalidShares (data, db) {
     // By default, this is not for the database calculation.
-    if (db == null) {
+    if (!db) {
       db = false;
     }
   
@@ -168,10 +166,11 @@ define([], function() {
     var fields = function(x) { return x; }; // if !db, return the object as it is for access.
     if(db) { // if db, then the passed object may be a mongo module, use .fields to access its fields.
       fields = function(x) {
-        if(x.fields !== undefined)
-          return x.fields;
-        else
-          return x;
+        if(x.fields !== undefined) {
+          return x.fields;          
+        } else {
+          return x;          
+        }
       };
     }
   
@@ -184,9 +183,9 @@ define([], function() {
       isInvalid = function (x) {
         var result = parseInt(x, 10);
         var invalid = 0;
-        if (isNaN(result) || !_inUint32Range(result))
-          invalid = 1;
-  
+        if (isNaN(result) || !_inUint32Range(result)) {
+          invalid = 1; 
+        }  
         return invalid;
       };
     }
@@ -194,9 +193,9 @@ define([], function() {
     // Ensure we are always working with an array.
     if (db) { // if db, then what is passed is a collection of mongo modules (not exactly an array).
       var arr = [];
-      for (var row in data)
-        arr.push(data[row]);
-  
+      for (var row in data) {
+        arr.push(data[row]);        
+      }
       data = arr;
     }
   
@@ -204,9 +203,9 @@ define([], function() {
     var invalidCount = initialize(data[0], 0, fields);
   
     // accummulate invalid count
-    for(var i = 0; i < data.length; i++)
+    for(var i = 0; i < data.length; i++) {
       invalidCount = accumulate(data[i], invalidCount, fields, function(v) { return v; }, function(acc, v) { return acc + v; });
-  
+    }
     return invalidCount;
   }
   
@@ -220,17 +219,18 @@ define([], function() {
    */
   function aggregateShares (data, db) {
     // By default, this is not for the database calculation.
-    if (db == null)
+    if (!db)
       db = false;
   
     // Access fields in JSON object or in DB object.
     var fields = function(x) { return x; }; // if !db, return the object as it is for access.
     if(db) { // if db, then the passed object may be a mongo module, use .fields to access its fields.
       fields = function(x) {
-        if(x.fields !== undefined)
+        if(x.fields !== undefined) {
           return x.fields;
-        else
+        } else {
           return x;
+        }
       };
     }
   
@@ -242,8 +242,7 @@ define([], function() {
         if (isNaN(result)) {
           console.error('NaN detected in:', x, data);
           result = 0;
-        }
-        else if (!_inUint32Range(result)) {
+        } else if (!_inUint32Range(result)) {
           console.error('Outside range detected in:', x, data);
           result = 0;
         }
@@ -254,8 +253,9 @@ define([], function() {
     // Ensure we are always working with an array.
     if (db) { // if db, then what is passed is a collection of mongo modules (not exactly an array).
       var arr = [];
-      for (var row in data)
+      for (var row in data) {
         arr.push(data[row]);
+      }
   
       data = arr;
     }
@@ -264,9 +264,9 @@ define([], function() {
     var agg = initialize(data[0], _uint32(0), fields);
   
     // aggregate
-    for(var i = 0; i < data.length; i++)
+    for(var i = 0; i < data.length; i++) {
       agg = accumulate(data[i], agg, fields, convert, function(acc, v) { return _addShares(acc, v); });
-  
+    }
     return agg;
   }
   
@@ -276,10 +276,11 @@ define([], function() {
     for (var field in serviceTuples) {
       if (serviceTuples.hasOwnProperty(field)) {
         var value = serviceTuples[field];
-        if(typeof(value) == "number" || typeof(value) == "string" || typeof(value) == "String")
+        if(typeof(value) === 'number' || typeof(value) === 'string') {
           res[field] = _recombine([serviceTuples[field], analystTuples[field]]);
-        else
+        } else {
           res[field] = recombineValues(serviceTuples[field], analystTuples[field]);
+        }
       }
     }
     return res;
@@ -297,14 +298,14 @@ define([], function() {
     for (var key in obj) {
       if (obj.hasOwnProperty(key)) {
         var value = obj[key];
-        if(typeof(value) == "number" || typeof(value) == "string" || typeof(value) == "String")
+        if(typeof(value) === 'number' || typeof(value) === 'string') {
           encrypted[key] = publicKey.encrypt(value.toString(), 'RSA-OAEP', { md: forge.md.sha256.create() });
   
-        else
+        } else {
           encrypted[key] = _encryptWithKey(value, publicKey);
+        }
       }
-    }
-  
+    } 
     return encrypted;
   }
   
