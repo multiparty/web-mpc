@@ -1,4 +1,4 @@
-define(['jquery', 'analystController', 'Ladda'], function ($, analystController, Ladda) {
+define(['jquery', 'controllers/analystController', 'Ladda'], function ($, analystController, Ladda) {
 
   function sessionView() {
 

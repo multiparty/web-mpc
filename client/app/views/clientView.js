@@ -1,4 +1,4 @@
-define(['jquery', 'clientController', 'helper/sail_hot', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify',  'bootstrap'], 
+define(['jquery', 'controllers/clientController', 'helper/sail_hot', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify',  'bootstrap'], 
 function ($, clientController, sailHOT, DropSheet, Spinner, Ladda, ResizeSensor, alertify) {
 
   function clientControllerView() {

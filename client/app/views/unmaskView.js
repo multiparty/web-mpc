@@ -1,4 +1,4 @@
-define(['jquery','unmaskController', 'helper/sail_hot', 'Ladda'], function ($, unmaskController, sailHOT, Ladda) {
+define(['jquery','controllers/unmaskController', 'helper/sail_hot', 'Ladda'], function ($, unmaskController, sailHOT, Ladda) {
     
   function unmaskView() {
       

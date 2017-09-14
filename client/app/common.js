@@ -29,14 +29,3 @@ require.config({
     }
   }
 });
-
-
-require(['sessionView', 'trackView', 'clientView', 'unmaskView'], function(sessionView, trackView, clientView, unmaskView) {
-
-  var sessionV = new sessionView();
-  var trackV = new trackView();
-  var clientV = new clientView();        
-  var unmaskV = new unmaskView();
-
-
-});
