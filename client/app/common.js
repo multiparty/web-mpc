@@ -1,7 +1,7 @@
 require.config({
   'paths': {
     'jquery': 'vendor/jquery',
-    'bootstrap' :  '//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min',    
+    'bootstrap' :  'vendor/bootstrap.min',    
     'Handsontable': 'vendor/handsontable',
     'filesaver': 'vendor/filesaver',
     'XLSX':'vendor/xlsx',
