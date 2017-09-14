@@ -139,9 +139,9 @@ define(['forge'], function(forge) {
         if(typeof(fields(obj)[key]) === 'number' || typeof(fields(obj)[key]) === 'string') {
           var value = convert(fields(obj)[key]);
           accumulator[key] = f(accumulator[key], value);
+        } else {
+          accumulate(fields(obj)[key], accumulator[key], fields, convert, f);          
         }
-        else
-          accumulate(fields(obj)[key], accumulator[key], fields, convert, f);
       }
     }
   
@@ -163,7 +163,9 @@ define(['forge'], function(forge) {
     }
   
     // Access fields in JSON object or in DB object.
-    var fields = function(x) { return x; }; // if !db, return the object as it is for access.
+    var fields = function(x) { 
+      return x; 
+    }; // if !db, return the object as it is for access.
     if(db) { // if db, then the passed object may be a mongo module, use .fields to access its fields.
       fields = function(x) {
         if(x.fields !== undefined) {
@@ -204,7 +206,13 @@ define(['forge'], function(forge) {
   
     // accummulate invalid count
     for(var i = 0; i < data.length; i++) {
-      invalidCount = accumulate(data[i], invalidCount, fields, function(v) { return v; }, function(acc, v) { return acc + v; });
+      invalidCount = accumulate(data[i], invalidCount, fields, 
+        function(v) { 
+          return v; 
+        }, 
+        function(acc, v) { 
+          return acc + v; 
+        });
     }
     return invalidCount;
   }
@@ -219,11 +227,14 @@ define(['forge'], function(forge) {
    */
   function aggregateShares (data, db) {
     // By default, this is not for the database calculation.
-    if (!db)
-      db = false;
+    if (!db) {
+      db = false;      
+    }
   
     // Access fields in JSON object or in DB object.
-    var fields = function(x) { return x; }; // if !db, return the object as it is for access.
+    var fields = function(x) { 
+      return x; 
+    }; // if !db, return the object as it is for access.
     if(db) { // if db, then the passed object may be a mongo module, use .fields to access its fields.
       fields = function(x) {
         if(x.fields !== undefined) {
@@ -235,7 +246,10 @@ define(['forge'], function(forge) {
     }
   
     // Convert numbers to unsigned 32-bits integers.
-    var convert = function(x) { return _uint32(x); } // node.js way.
+    var convert = function(x) { 
+      return _uint32(x); 
+    } // node.js way.
+
     if(!db) { // front end way.
       convert = function (x) {
         var result = parseInt(x, 10);
@@ -265,7 +279,10 @@ define(['forge'], function(forge) {
   
     // aggregate
     for(var i = 0; i < data.length; i++) {
-      agg = accumulate(data[i], agg, fields, convert, function(acc, v) { return _addShares(acc, v); });
+      agg = accumulate(data[i], agg, fields, convert, 
+        function(acc, v) { 
+          return _addShares(acc, v); 
+        });
     }
     return agg;
   }

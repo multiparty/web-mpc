@@ -3,20 +3,18 @@ require.config({
     'jquery': 'vendor/jquery',
     'bootstrap' :  '//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min',    
     'Handsontable': 'vendor/handsontable',
-    'mpc': 'helper/mpc',
     'filesaver': 'vendor/filesaver',
-    'XLSX':'helper/xlsx',
+    'XLSX':'vendor/xlsx',
     'spin': 'vendor/spin', 
     'forge': 'vendor/forge',
-    'ResizeSensor': 'helper/ResizeSensor',
     'Ladda': 'vendor/ladda',
     'qtip': 'vendor/jquery_qtip',
     'alertify': 'vendor/alertify',
-    'alertify-defaults': 'helper/alertify-defaults'
-
-    // 'DropSheet': 'helper/drop_sheet',
-    // 'sheetjsw': 'helper/sheetjsw'
-
+    'alertify-defaults': 'helper/alertify-defaults',
+    'DropSheet': 'helper/drop_sheet',
+    'mpc': 'helper/mpc',
+    'ResizeSensor': 'helper/ResizeSensor',
+    
   },
   shim: {                                                                            
     'bootstrap': {                                                             
@@ -35,10 +33,10 @@ require.config({
 
 require(['sessionView', 'trackView', 'clientView', 'unmaskView'], function(sessionView, trackView, clientView, unmaskView) {
 
-  var sessionView = new sessionView();
-  var trackView = new trackView();
-  var clientView = new clientView();        
-  var unmaskView = new unmaskView();
+  var sessionV = new sessionView();
+  var trackV = new trackView();
+  var clientV = new clientView();        
+  var unmaskV = new unmaskView();
 
 
 });

@@ -21,6 +21,11 @@
     "node": true,
     "amd":true
   },
+  "parserOptions":{
+    "ecmaFeatures": {
+      "experimentalObjectRestSpread": true
+    }
+  },
   "plugins": [
     "requirejs"
   ]

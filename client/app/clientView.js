@@ -1,5 +1,5 @@
-define(['jquery', 'clientController', 'helper/sail_hot', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor',  'bootstrap'], 
-function ($, clientController, sailHOT, DropSheet, Spinner, Ladda, ResizeSensor) {
+define(['jquery', 'clientController', 'helper/sail_hot', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify',  'bootstrap'], 
+function ($, clientController, sailHOT, DropSheet, Spinner, Ladda, ResizeSensor, alertify) {
 
   function clientControllerView() {
   
@@ -98,8 +98,9 @@ function ($, clientController, sailHOT, DropSheet, Spinner, Ladda, ResizeSensor)
             totals = ['#VALUE!', '#VALUE!', '#VALUE!'];
           }
 
-          var changes = []; // [ [row, col, change], [row, col, change], ..]
-          for (var i = 0; i < totals.length; i++) {
+          // Note: took out declarations to fix eslint error
+          changes = []; // [ [row, col, change], [row, col, change], ..]
+          for (i = 0; i < totals.length; i++) {
             changes.push([0, i, totals[i]]);
           }
           tables[4].setDataAtCell(changes); // This changes the data without changing cellProperties (e.g. keeps readOnly)
@@ -110,7 +111,7 @@ function ($, clientController, sailHOT, DropSheet, Spinner, Ladda, ResizeSensor)
 
         var _target = document.getElementById('drop-area');
         var _choose = document.getElementById('choose-file-button');
-        // var spinner = new Spinner().spin(_target);
+        var spinner;
         var _workstart = function () {
         
           if ($('#tables-area').css('display') !== 'none') {
