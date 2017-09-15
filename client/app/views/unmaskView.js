@@ -52,6 +52,7 @@ define(['jquery','controllers/unmaskController', 'helper/sail_hot', 'Ladda'], fu
                       sailHOT.fill_data(table_data, table);
                       sailHOT.read_only_table(table, true);
 
+
                       // Show tables
                       $('#' + table._sail_meta.element).show();
                       $('#' + table._sail_meta.element + '-name').show();
@@ -97,7 +98,6 @@ define(['jquery','controllers/unmaskController', 'helper/sail_hot', 'Ladda'], fu
                 }
 
                 else { // !success, display error
-                  // console.log(data);
                   $('#error').text(data);
                   $('#error').show();
                 }

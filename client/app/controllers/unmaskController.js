@@ -8,6 +8,18 @@
 
  define(['helper/mpc', 'filesaver'], function (mpc, filesaver){
 
+  var positionDict = {'Ex/Sen': ['Executive/Senior Level Officials and Managers', 2],
+    'F/M': ['First/Mid-Level Officials and Managers', 3],
+    'Profs': ['Professionals', 4],
+    'Techs': ['Technicians', 5],
+    'Sales': ['Sales Workers', 6],
+    'Adminis': ['Administrative Support Workers', 7],
+    'Craft': ['Craft Workers', 8],
+    'Operatives': ['Operatives', 9],
+    'Laborers': ['Laborers and Helpers', 10],
+    'Service': ['Service Workers', 11]
+  };
+
   // Takes callback(true|false, data).
   function aggregate_and_unmask(mOut, privateKey, session, password, callback) {
     mOut = JSON.parse(mOut.data);
@@ -64,7 +76,8 @@
           console.log('Secret-shared question answers do not aggregate to the same values as publicly collected answers.');
         }
         callback(true, finalResult);
-        generate_questions_csv(resultShares[2], session);
+        generateAggregateCSV(finalResult, session);
+        generateQuestionsCSV(resultShares[2], session);
       }).catch(function (err) {
       console.log(err);
       callback(false, 'Error: could not compute result.');
@@ -105,7 +118,53 @@
     });
   }
 
-  function generate_questions_csv(questions, session) {
+  function populateSheet(dataTable, sheet) {
+
+    var table = [];
+    table[0] = [sheet];
+
+    var demoDataArr = [""];
+
+    for (d in dataTable['Ex/Sen']) {
+  
+      demoDataArr.push(d);
+    }
+
+    for (r in dataTable) {
+      row = []; 
+      row.push(positionDict[r][0]);
+      for (demoData in dataTable[r]) {
+        row.push(dataTable[r][demoData]);
+      }
+    
+      table[positionDict[r][1]] = row.join(',');
+    }
+
+    table[1] = demoDataArr;
+    table = table.join('\n');
+    
+    return table;
+  }
+
+
+
+  function generateAggregateCSV(finalResult, session) {
+
+    table = [];
+    for (sheet in finalResult) {
+      if (sheet !== 'questions') {
+        table.push(populateSheet(finalResult[sheet], sheet));        
+      }
+ 
+    }
+    table = table.join('\n\n\n');
+    
+    
+    filesaver.saveAs(new Blob([table], {type: 'text/plain;charset=utf-8'}), 'Aggregate_' + session + '.csv');
+
+  }
+
+  function generateQuestionsCSV(questions, session) {
     if (questions.length == 0) return;
 
     var headers = [];
@@ -138,6 +197,7 @@
     }
 
     results = results.join('\n');
+   
     filesaver.saveAs(new Blob([results], {type: 'text/plain;charset=utf-8'}), 'Questions_' + session + '.csv');
   }
 
@@ -167,7 +227,6 @@
 
     for (var key in obj) {
       if (obj.hasOwnProperty(key)) {
-        //console.log(key);
         var value = obj[key];
         if (typeof(value) == 'number' || typeof(value) == 'string' || typeof(value) == 'String') {
           // decrypt atomic value
