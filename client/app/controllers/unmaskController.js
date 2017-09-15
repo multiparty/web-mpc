@@ -8,7 +8,7 @@
 
  define(['helper/mpc', 'filesaver'], function (mpc, filesaver){
 
-  var positionDict = {'Ex/Sen': ['Executive/Senior Level Officials and Managers', 2],
+  var rowDict = {'Ex/Sen': ['Executive/Senior Level Officials and Managers', 2],
     'F/M': ['First/Mid-Level Officials and Managers', 3],
     'Profs': ['Professionals', 4],
     'Techs': ['Technicians', 5],
@@ -20,6 +20,25 @@
     'Service': ['Service Workers', 11]
   };
 
+var columnDict = {
+  'hispF': 1,
+  'hispM': 2,
+  'whiteF': 3,
+  'whiteM': 4,
+  'afrF': 5,
+  'afrM': 6,
+  'hawaiiF': 7,
+  'hawaiiM': 8,
+  'asianF': 9,
+  'asianM': 10,
+  'indF': 11,
+  'indM': 12,
+  'twoF': 13,
+  'twoM': 14,
+  'unrF': 15,
+  'unrM': 16
+};
+
   // Takes callback(true|false, data).
   function aggregate_and_unmask(mOut, privateKey, session, password, callback) {
     mOut = JSON.parse(mOut.data);
@@ -30,7 +49,7 @@
       questions_public.push(mOut[i].questions_public);
     } 
 
-    var skArrayBuffer;
+    var skArrayBuffer; 
     try {
       skArrayBuffer = str2ab(atob(privateKey));
     }
@@ -125,19 +144,19 @@
 
     var demoDataArr = [""];
 
-    for (d in dataTable['Ex/Sen']) {
+    for (d in columnDict) {
   
       demoDataArr.push(d);
     }
 
     for (r in dataTable) {
       row = []; 
-      row.push(positionDict[r][0]);
+      row.push(rowDict[r][0]);
       for (demoData in dataTable[r]) {
-        row.push(dataTable[r][demoData]);
+        row[columnDict[demoData]] = dataTable[r][demoData];
       }
     
-      table[positionDict[r][1]] = row.join(',');
+      table[rowDict[r][1]] = row.join(',');
     }
 
     table[1] = demoDataArr;
@@ -157,10 +176,10 @@
       }
  
     }
+    table.reverse();
     table = table.join('\n\n\n');
     
-    
-    filesaver.saveAs(new Blob([table], {type: 'text/plain;charset=utf-8'}), 'Aggregate_' + session + '.csv');
+    filesaver.saveAs(new Blob([table], {type: 'text/plain;charset=utf-8'}), 'Aggregate_Data_' + session + '.csv');
 
   }
 
