@@ -117,7 +117,53 @@
 <div id="shadow" class="ss-style-multitriangles"></div>
 
 <main id="content" class="container">
+  <div class="row">
+    <section id="session-area" class="card col-md-10 col-md-offset-1">
+      <h2 class="text-center">Unmask Aggregate Data</h2>
+      <p class="text-center">Please make sure you have the correct session key, session password, and private key</p>
+      <hr/>
+      <div class="row">
+        <div class="col-md-6">
+          <form>
+            <div class="form-group">
+              <label class="control-label" for="session">Session Key</label>
+              <input type="text" id="session" class="form-control" placeholder="Session Key" pattern="^[a-zA-Z0-9]{26}$" autocomplete="off" required/>
+              <span id="session-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
+              aria-hidden="true"></span>
+              <span id="session-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
+              aria-hidden="true"></span>
+              <span id="session-fail-help"
+              class="fail-help help-block hidden">Please input the 26-character session key.</span>
+              <span id="session-fail-custom-help"
+              class="fail-custom help-block hidden"></span>
+            </div>
+            <div class="form-group">
+              <label class="control-label" for="session-password">Session Password</label>
+              <input type="text" id="session-password" class="form-control" placeholder="Session Password"
+              pattern="^[a-zA-Z0-9]{26}$"
+              autocomplete="off" required>
+              <span id="session-password-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden" aria-hidden="true"></span>
+              <span id="session-password-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden" aria-hidden="true"></span>
+              <span id="session-password-fail-help" class="fail-help help-block hidden">Please input the 26-character session password</span>
+              <span id="session-password-fail-custom-help" class="fail-custom help-block hidden"></span>
+            </div>
+          </form>
+        </div>
+        <div class="col-md-6">
+          <div id="drop-area">
+            Drag and drop your private key here 
+            <br/>
+            <p>&mdash;or&mdash;</p><br/>
+            <button id="choose-file-button" class="btn btn-primary">Choose file</button>
+          </div>
+          <input type="file" id="choose-file" accept=".pem">
+        </div>
+      </div>
+    </section>
+  </div>
 
+
+  <!-- 
   <div class="row">
     <section class="card col-md-10 col-md-offset-1">
       <h4>Input Session Key</h4>
@@ -145,11 +191,17 @@
         <span class="ladda-label">Unmask Data</span>
       </button>
     </section>
-  </div>
+  </div> -->
 
   <div class="row">
-    <section class="card col-md-10 col-md-offset-1">
-      <div id="friendly">
+    <section id="instructions" class="card col-md-10 col-md-offset-1">
+      <h2 class="text-center">Aggregate data</h2>
+      <p class="text-center">Your data will appear here after you submit the session key, password, and private key</p>
+      <span id="expand-table-button" class="arrow-down"></span>
+
+  
+      <div id="tables-area">
+        <hr/>
         <h3 id="number-employees-hot-name" class="head_element"></h3>
         <div id="number-employees-hot" class="head_element"></div>
         <br>
