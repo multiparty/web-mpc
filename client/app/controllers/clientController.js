@@ -1,6 +1,6 @@
 /* global alertify, $ */
 
-define(['jquery', 'helper/sail_HOT', 'helper/mpc', 'alertify', 'alertify-defaults'], function($, sailHOT, mpc, alertify) {
+define(['jquery', 'tableController', 'helper/mpc', 'alertify', 'alertify-defaults'], function($, tableController, mpc, alertify) {
 
   var client = (function () {
     var SESSION_KEY_ERROR = 'Invalid session number';
@@ -241,7 +241,7 @@ define(['jquery', 'helper/sail_HOT', 'helper/mpc', 'alertify', 'alertify-default
 
         // Register semantic discrepancies validator.
         // console.log("VALIDATE?", register_validator)
-        sailHOT.register_validator('discrepancies', function (table, cell, value, callback) {
+        tableController.register_validator('discrepancies', function (table, cell, value, callback) {
           checkSemanticDiscrepancies(tables, table, cell, value, callback);
         });
 
@@ -263,14 +263,14 @@ define(['jquery', 'helper/sail_HOT', 'helper/mpc', 'alertify', 'alertify-default
             errors = errors.concat(errorMsg);
           }
         };
-        sailHOT.register_error_handler(errorHandler);
+        tableController.register_error_handler(errorHandler);
 
         // Validate tables (callback chaining)
         (function validate_callback(i) {
           if (i >= tables.length) {
             // Remove the semantic discrepancies validator.
-            sailHOT.remove_validator('discrepancies');
-            sailHOT.remove_error_handler(0);
+            tableController.remove_validator('discrepancies');
+            tableController.remove_error_handler(0);
             for (i = 0; i < tables.length; i++) {
               tables[i].render();
             }
@@ -336,7 +336,7 @@ define(['jquery', 'helper/sail_HOT', 'helper/mpc', 'alertify', 'alertify-default
 
       // Handle table data, tables are represented as 2D associative arrays
       // with the first index being the row key, and the second being the column key
-      var tables_data = sailHOT.construct_data_tables(tables);
+      var tables_data = tableController.construct_data_tables(tables);
       for (var i = 0; i < tables_data.length; i++) {
         data_submission[tables_data[i].name] = tables_data[i].data;
       }

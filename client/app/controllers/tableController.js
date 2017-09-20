@@ -380,7 +380,7 @@ define(['jquery', 'Handsontable', 'qtip'], function($, Handsontable) {
       result[t] = make_hot_table(table);
       table_widths[result[t].rootElement.id] = get_width(result[t]);
     }
-
+    // console.log("make_tables", result);
     return result;
   }
 
@@ -594,6 +594,7 @@ define(['jquery', 'Handsontable', 'qtip'], function($, Handsontable) {
     handsOnTable.clear();
 
     //update_width(handsOnTable);
+    // console.log("hot", handsOnTable);
 
     return handsOnTable;
   }
@@ -800,13 +801,16 @@ define(['jquery', 'Handsontable', 'qtip'], function($, Handsontable) {
 
         data_array[r][c] = data[row_key][col_key];
       }
-    }
-
+    } 
+    // console.log('data array', data_array);
     table_hot.loadData(data_array);
+    return data_array;
   }
+
 
   return {
     make_tables: make_tables,
+    make_table_obj: make_table_obj,
     register_validator: register_validator,
     register_error_handler: register_error_handler,
     remove_validator: remove_validator,

@@ -1,5 +1,5 @@
-define(['jquery', 'controllers/clientController', 'helper/sail_hot', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify',  'bootstrap'], 
-function ($, clientController, sailHOT, DropSheet, Spinner, Ladda, ResizeSensor, alertify) {
+define(['jquery', 'controllers/clientController', 'controllers/tableController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify',  'bootstrap'], 
+function ($, clientController, tableController, DropSheet, Spinner, Ladda, ResizeSensor, alertify) {
 
   function clientControllerView() {
   
@@ -52,7 +52,7 @@ function ($, clientController, sailHOT, DropSheet, Spinner, Ladda, ResizeSensor,
         dataType: 'json'
       }).then(function (tables_def) {
       // Create the tabless
-        var tables = sailHOT.make_tables(tables_def);
+        var tables = tableController.make_tables(tables_def);
         window.scrollTo(0, 0);
         var sums = [0, 0]; // Internal total of Non NaNs values.
         var NaNs = [0, 0]; // Counts how many NaNs exist for every cell participating in a total.
@@ -105,7 +105,7 @@ function ($, clientController, sailHOT, DropSheet, Spinner, Ladda, ResizeSensor,
           }
           tables[4].setDataAtCell(changes); // This changes the data without changing cellProperties (e.g. keeps readOnly)
         };
-
+        console.log("tableclient", tables)
         // Alerts, page elements, etc. for drag-and-drop/choose file.
         var workbook_js = null;
 

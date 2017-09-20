@@ -6,19 +6,19 @@
 //  *
 //  */
 
- define(['helper/mpc', 'filesaver'], function (mpc, filesaver){
+ define(['helper/mpc', 'controllers/tableController', 'filesaver'], function (mpc, tableController, filesaver){
 
-  var rowDict = {'Ex/Sen': ['Executive/Senior Level Officials and Managers', 2],
-    'F/M': ['First/Mid-Level Officials and Managers', 3],
-    'Profs': ['Professionals', 4],
-    'Techs': ['Technicians', 5],
-    'Sales': ['Sales Workers', 6],
-    'Adminis': ['Administrative Support Workers', 7],
-    'Craft': ['Craft Workers', 8],
-    'Operatives': ['Operatives', 9],
-    'Laborers': ['Laborers and Helpers', 10],
-    'Service': ['Service Workers', 11]
-  };
+  // var rowDict = {'Ex/Sen': ['Executive/Senior Level Officials and Managers', 2],
+  //   'F/M': ['First/Mid-Level Officials and Managers', 3],
+  //   'Profs': ['Professionals', 4],
+  //   'Techs': ['Technicians', 5],
+  //   'Sales': ['Sales Workers', 6],
+  //   'Adminis': ['Administrative Support Workers', 7],
+  //   'Craft': ['Craft Workers', 8],
+  //   'Operatives': ['Operatives', 9],
+  //   'Laborers': ['Laborers and Helpers', 10],
+  //   'Service': ['Service Workers', 11]
+  // };
 
 var columnDict = {
   'hispF': 1,
@@ -41,6 +41,7 @@ var columnDict = {
 
   // Takes callback(true|false, data).
   function aggregate_and_unmask(mOut, privateKey, session, password, callback) {
+
     mOut = JSON.parse(mOut.data);
 
     // Questions Public is the public answers to questions.
@@ -94,8 +95,8 @@ var columnDict = {
         if (!ensure_equal(finalResult.questions, mpc.aggregateShares(resultShares[2]))) {
           console.log('Secret-shared question answers do not aggregate to the same values as publicly collected answers.');
         }
-        callback(true, finalResult);
-        generateAggregateCSV(finalResult, session);
+        var table_data = callback(true, finalResult);
+        generateAggregateCSV(table_data, session);
         generateQuestionsCSV(resultShares[2], session);
       }).catch(function (err) {
       console.log(err);
@@ -137,50 +138,84 @@ var columnDict = {
     });
   }
 
-  function populateSheet(dataTable, sheet) {
+
+
+  function populateSheet(dataTable, sheet, meta_data) {
+ 
+    var TITLE_INDEX = 0;
+    var RACE_INDEX = 1;
+    var GENDER_INDEX = 2;
 
     var table = [];
-    table[0] = [sheet];
+    table[TITLE_INDEX] = [sheet];
+    // table[RACE_INDEX] = 
 
     var demoDataArr = [""];
 
+
     for (d in columnDict) {
-  
+      // console.log('d', d);
       demoDataArr.push(d);
     }
 
     for (r in dataTable) {
       row = []; 
-      row.push(rowDict[r][0]);
-      for (demoData in dataTable[r]) {
-        row[columnDict[demoData]] = dataTable[r][demoData];
-      }
-    
-      table[rowDict[r][1]] = row.join(',');
-    }
+      row_index = getRowIndex(r, meta_data);
+      row.push(meta_data.rows[row_index].replace('<br> ', ''));
 
-    table[1] = demoDataArr;
-    table = table.join('\n');
+      table[row_index] = row;
+    }
+    return row;
+
+      // row.push(rowDict[r][0]);
+    //   for (demoData in dataTable[r]) {
+    //     row[columnDict[demoData]] = dataTable[r][demoData];
+    //   }
+
+    //   row_index = getRowIndex(r, meta_data)
     
-    return table;
+    //   table[row_index] = row.join(',');
+    // }
+
+    // table[1] = demoDataArr;
+    // table = table.join('\n');
+    
+    // return table;
   }
 
 
 
   function generateAggregateCSV(finalResult, session) {
+    console.log('table data', finalResult);
+    // meta_data = table_format[0]._sail_meta;
 
-    table = [];
-    for (sheet in finalResult) {
-      if (sheet !== 'questions') {
-        table.push(populateSheet(finalResult[sheet], sheet));        
-      }
+    // // table_obj = tableController.make_table_obj(table_data);
+    // // console.log("TABLEEEEE", table_obj)
+    // table = [];
+    // // finalResult = finalResult.reverse();
+    // for (sheet in finalResult) {
+    //   console.log('sheet', sheet)
+    //   if (sheet !== 'questions') {
+    //     table.push(populateSheet(finalResult[sheet], sheet, meta_data));        
+    //   }
+    // }
  
-    }
-    table.reverse();
-    table = table.join('\n\n\n');
+    // // }
+    // // table.reverse();
+    // table = table.join('\n\n\n');
     
-    filesaver.saveAs(new Blob([table], {type: 'text/plain;charset=utf-8'}), 'Aggregate_Data_' + session + '.csv');
+    // filesaver.saveAs(new Blob([table], {type: 'text/plain;charset=utf-8'}), 'Aggregate_Data_' + session + '.csv');
 
+  }
+
+  function getRowIndex(key, meta_data) {
+    cells = meta_data.cells;
+    // console.log("ROWS", meta_data.rows)
+    for (var i = 0; i < cells.length; i++) {
+      if (cells[i][0].row_key == key) {
+        return i;
+      }
+    }
   }
 
   function generateQuestionsCSV(questions, session) {

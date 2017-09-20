@@ -1,16 +1,17 @@
-define(['jquery','controllers/unmaskController', 'helper/sail_hot', 'Ladda'], function ($, unmaskController, sailHOT, Ladda) {
+define(['jquery','controllers/unmaskController', 'controllers/tableController', 'Ladda'], 
+function ($, unmaskController, tableController, Ladda) {
     
   function unmaskView() {
       
     $(document).ready(function () {
       //$('#friendly').hide();
-
+      var table_data = [];
       var req = $.ajax({
         type: 'GET',
         url: '/templates/tables.json',
         dataType: 'json'
       }).then(function (tables_def) {
-        var tables = sailHOT.make_tables(tables_def);
+        var tables = tableController.make_tables(tables_def);
         window.scrollTo(0, 0);
         var tables_map = {};
         for (var v = 0; v < tables.length; v++) {
@@ -31,11 +32,14 @@ define(['jquery','controllers/unmaskController', 'helper/sail_hot', 'Ladda'], fu
           if (maskKey.files.length) {
             la.start();
             keyReader.readAsText(maskKey.files[0]);
+            var table_data;
+            var table;
             $(keyReader).on('load', function (e) {
               var privateKey = e.target.result;
 
               // Callback: display results in HOT
               var callb = function (success, data) {
+                var formatted_data = [];
                 la.stop();
 
                 if (success) { // Display result
@@ -44,19 +48,21 @@ define(['jquery','controllers/unmaskController', 'helper/sail_hot', 'Ladda'], fu
                       continue;
                     }
 
-                    var table = tables_map[name];
+                    table = tables_map[name];
                     if (table) { // This is a table field
 
-                      var table_data = data[name];
-                      sailHOT.remove_validators(table);
-                      sailHOT.fill_data(table_data, table);
-                      sailHOT.read_only_table(table, true);
+                      table_data = data[name];
+                      tableController.remove_validators(table);
+                      formatted_data.push(tableController.fill_data(table_data, table));
+                      console.log('fd',formatted_data);
+                      tableController.read_only_table(table, true);
 
 
                       // Show tables
                       $('#' + table._sail_meta.element).show();
                       $('#' + table._sail_meta.element + '-name').show();
                  
+    
                     } else { // Not a table, questions
                       var fields = data[name];
 
@@ -95,6 +101,8 @@ define(['jquery','controllers/unmaskController', 'helper/sail_hot', 'Ladda'], fu
                   $('#error').hide();
                   $('#unmask').prop('disabled', true);
                   $('#unmask').hide();
+
+                  return formatted_data;
                 }
 
                 else { // !success, display error
@@ -112,6 +120,7 @@ define(['jquery','controllers/unmaskController', 'helper/sail_hot', 'Ladda'], fu
                 contentType: 'application/json',
                 data: JSON.stringify({session: sessKey, password: password}),
                 success: function (data) {
+                  // tableController.fill_data(table_data, table);
                   unmaskController.aggregate_and_unmask(data, privateKey, sessKey, password, callb);
                 },
                 error: function () {

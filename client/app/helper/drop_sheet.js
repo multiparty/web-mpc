@@ -64,6 +64,7 @@ define(['alertify', 'alertify-defaults', 'XLSX'], function(alertify) {
               
               wb = XLSX.read(data, readtype);
               opts.on.workend(process_wb(wb, 'XLSX'));
+              console.log('OPTSTABLE',opts.tables);
             } catch (e) {
               opts.errors.failed(e);
             }
