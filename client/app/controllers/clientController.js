@@ -1,6 +1,6 @@
 /* global alertify, $ */
 
-define(['jquery', 'tableController', 'helper/mpc', 'alertify', 'alertify-defaults'], function($, tableController, mpc, alertify) {
+define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'alertify-defaults'], function($, tableController, mpc, alertify) {
 
   var client = (function () {
     var SESSION_KEY_ERROR = 'Invalid session number';

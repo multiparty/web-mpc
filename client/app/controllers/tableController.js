@@ -1,4 +1,4 @@
-define(['jquery', 'Handsontable', 'qtip'], function($, Handsontable) {
+define(['jquery', 'Handsontable', 'table_template', 'qtip'], function($, Handsontable, table_template) {
 
   'use strict';
 
@@ -10,7 +10,7 @@ define(['jquery', 'Handsontable', 'qtip'], function($, Handsontable) {
   document['classList'] = {};
   document['classList']['contains'] = function () {
     return false;
-  };
+  }; 
 
   // A Map from names to validator functions.
   // The name can be used in the json template to assign
@@ -369,13 +369,13 @@ define(['jquery', 'Handsontable', 'qtip'], function($, Handsontable) {
 
   /**
    * Creates hands-on-tables from the given definition.
-   * @param {json} tables_def - the json object representing the tables.
    * @return {array} containing HOT tables (table_obj may be accesed using hot_table._sail_meta).
    */
-  function make_tables(tables_def) {
+
+   function make_tables() {
     var result = [];
-    for (var t = 0; t < tables_def.tables.length; t++) {
-      var table_def = tables_def.tables[t];
+    for (var t = 0; t < table_template.tables.length; t++) {
+      var table_def = table_template.tables[t];
       var table = make_table_obj(table_def);
       result[t] = make_hot_table(table);
       table_widths[result[t].rootElement.id] = get_width(result[t]);
@@ -808,6 +808,55 @@ define(['jquery', 'Handsontable', 'qtip'], function($, Handsontable) {
   }
 
 
+    function handleDragover(e) {
+
+    if (typeof jQuery !== 'undefined') {
+      e.stopPropagation();
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+      $('#drop-area').removeClass('dragdefault');
+      $('#drop-area').addClass('dragenter');
+    } else {
+      alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
+    }
+  }
+
+  function handleDragLeave(e) {
+      if (typeof jQuery !== 'undefined') {
+        $('#drop-area').removeClass('dragenter');
+      } else {
+        alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
+      }
+  }
+
+
+  function dragDropListen() {
+    var target = document.getElementById('drop-area');
+    target.addEventListener('click', function() {
+      $('#choose-file').click();
+      $('#choose-file').change(handleFile);
+    });
+
+    target.addEventListener('drop', function(e) {
+      if (typeof jQuery) {
+                  e.stopPropagation();
+                  e.preventDefault();
+                }
+        
+                // check if pending?
+                var files = e.dataTransfer.files;
+                handleFile(files[0])
+    });
+
+    target.addEventListener('dragenter', handleDragover, false);
+    target.addEventListener('dragleave', handleDragLeave);
+    target.addEventListener('dragover', handleDragover, false);
+
+
+
+  }
+
+
   return {
     make_tables: make_tables,
     make_table_obj: make_table_obj,
@@ -818,7 +867,10 @@ define(['jquery', 'Handsontable', 'qtip'], function($, Handsontable) {
     remove_error_handler: remove_error_handler,
     construct_data_tables: construct_data_tables,
     fill_data: fill_data,
-    read_only_table: read_only_table
+    read_only_table: read_only_table,
+
+    // new
+    // getTableTemplate: getTableTemplate
   }
 
 
