@@ -1,9 +1,41 @@
-define(['jquery', 'controllers/unmaskController', 'controllers/clientController', 'helper/sail_hot', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify'],
-function($, unmaskController, clientController, sailHOT, DropSheet, Spinner, Ladda, ResizeSensor, alertify) {
+define(['jquery', 'controllers/unmaskController', 'controllers/clientController', 'controllers/tableController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify', 'table_template'],
+function($, unmaskController, clientController, tableController, DropSheet, Spinner, Ladda, ResizeSensor, alertify, table_template) {
   
   function unmaskView() {
     $(document).ready(function() {
-      DropSheet.dropListen();
+      $('#tables-area').hide();
+      var tables = tableController.make_tables();
+
+      var _target = document.getElementById('drop-area');
+      var _choose = document.getElementById('choose-file-button');
+      var spinner;
+
+      var _workstart = function () {
+        if ($('#tables-area').css('display') !== 'none') {
+          $('#tables-area').hide();
+          $('#expand-table-button').toggleClass('flip');
+          resizeCard(tables,false);
+        }
+        spinner = new Spinner().spin(_target);
+      }
+      // TODO: WHY?!?!?
+      var _unmask = $('#unmask-button')[0];
+
+      _unmask.addEventListener('click', function() {
+        
+      });
+
+      DropSheet({
+        drop: _target,
+        choose: _choose,
+        tables: tables,
+        tables_def: table_template,
+        on: {},
+        errors: {}
+
+      });
+
+      // tableController.dragDropListen();
     });
   }
   

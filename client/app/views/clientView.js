@@ -1,5 +1,5 @@
-define(['jquery', 'controllers/clientController', 'controllers/tableController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify',  'bootstrap'], 
-function ($, clientController, tableController, DropSheet, Spinner, Ladda, ResizeSensor, alertify) {
+define(['jquery', 'controllers/clientController', 'controllers/tableController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify', 'table_template', 'bootstrap'], 
+function ($, clientController, tableController, DropSheet, Spinner, Ladda, ResizeSensor, alertify, table_template) {
 
   function clientControllerView() {
   
@@ -100,7 +100,6 @@ function ($, clientController, tableController, DropSheet, Spinner, Ladda, Resiz
         }
         tables[4].setDataAtCell(changes); // This changes the data without changing cellProperties (e.g. keeps readOnly)
       };
-      console.log("tableclient", tables)
       // Alerts, page elements, etc. for drag-and-drop/choose file.
       var workbook_js = null;
 
@@ -184,7 +183,7 @@ function ($, clientController, tableController, DropSheet, Spinner, Ladda, Resiz
         drop: _target,
         choose: _choose,
         tables: tables,
-        tables_def: tables_def,
+        tables_def: table_template,
         on: {workstart: _workstart, workend: _workend, sheet: _onsheet},
         errors: {badfile: _badfile, pending: _pending, failed: _failed, large: _large}
       });

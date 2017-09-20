@@ -64,7 +64,7 @@ define(['alertify', 'alertify-defaults', 'XLSX'], function(alertify) {
               
               wb = XLSX.read(data, readtype);
               opts.on.workend(process_wb(wb, 'XLSX'));
-              console.log('OPTSTABLE',opts.tables);
+              // console.log('OPTSTABLE',opts.tables);
             } catch (e) {
               opts.errors.failed(e);
             }
@@ -404,6 +404,7 @@ define(['alertify', 'alertify-defaults', 'XLSX'], function(alertify) {
         alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", 'FileReader is not supported in this browser.');
       }
     }
+
     if (opts.choose.addEventListener) {
       if (typeof jQuery !== 'undefined') {
         $('#choose-file').change(handleFile);

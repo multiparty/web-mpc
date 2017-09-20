@@ -377,10 +377,10 @@ define(['jquery', 'Handsontable', 'table_template', 'qtip'], function($, Handson
     for (var t = 0; t < table_template.tables.length; t++) {
       var table_def = table_template.tables[t];
       var table = make_table_obj(table_def);
+
       result[t] = make_hot_table(table);
       table_widths[result[t].rootElement.id] = get_width(result[t]);
     }
-    // console.log("make_tables", result);
     return result;
   }
 
@@ -508,7 +508,8 @@ define(['jquery', 'Handsontable', 'table_template', 'qtip'], function($, Handson
    */
   function make_hot_table(table) {
     var element = document.querySelector('#' + table.element);
-
+  
+    
     var hot_cols = new Array(table.colsCount);
     for (var i = 0; i < table.colsCount; i++) {
       hot_cols[i] = {type: 'text'}; //default thing that does not matter, will be overridden cell by cell
@@ -591,10 +592,9 @@ define(['jquery', 'Handsontable', 'table_template', 'qtip'], function($, Handson
 
     // Put name in the title element (if it exists)
     document.getElementById(table.element + '-name').innerHTML = table.name;
-    handsOnTable.clear();
 
-    //update_width(handsOnTable);
-    // console.log("hot", handsOnTable);
+    // TODO: why is clear needed?
+    // handsOnTable.clear();
 
     return handsOnTable;
   }
@@ -831,13 +831,13 @@ define(['jquery', 'Handsontable', 'table_template', 'qtip'], function($, Handson
 
 
   function dragDropListen() {
-    var target = document.getElementById('drop-area');
-    target.addEventListener('click', function() {
+    var drop_area = document.getElementById('drop-area');
+    drop_area.addEventListener('click', function() {
       $('#choose-file').click();
       $('#choose-file').change(handleFile);
     });
 
-    target.addEventListener('drop', function(e) {
+    drop_area.addEventListener('drop', function(e) {
       if (typeof jQuery) {
                   e.stopPropagation();
                   e.preventDefault();
@@ -848,9 +848,9 @@ define(['jquery', 'Handsontable', 'table_template', 'qtip'], function($, Handson
                 handleFile(files[0])
     });
 
-    target.addEventListener('dragenter', handleDragover, false);
-    target.addEventListener('dragleave', handleDragLeave);
-    target.addEventListener('dragover', handleDragover, false);
+    drop_area.addEventListener('dragenter', handleDragover, false);
+    drop_area.addEventListener('dragleave', handleDragLeave);
+    drop_area.addEventListener('dragover', handleDragover, false);
 
 
 
@@ -858,6 +858,7 @@ define(['jquery', 'Handsontable', 'table_template', 'qtip'], function($, Handson
 
 
   return {
+    dragDropListen: dragDropListen,
     make_tables: make_tables,
     make_table_obj: make_table_obj,
     register_validator: register_validator,
