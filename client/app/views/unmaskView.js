@@ -1,10 +1,80 @@
 define(['jquery', 'controllers/unmaskController', 'controllers/clientController', 'controllers/tableController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify', 'table_template'],
 function($, unmaskController, clientController, tableController, DropSheet, Spinner, Ladda, ResizeSensor, alertify, table_template) {
   
+  // TODO: fix this
+  var tables_map;
+
+  function callb(e, d) {
+    var tables = {};
+    for (name in d) {
+      if (name !== 'questions') {
+        var table = tables_map[name];
+        var data_array = tableController.fill_data(d[name], table);
+        tables[name] = data_array;     
+      }
+    }
+    tableController.save_tables(tables);
+  }
+
+  function getMasks(sK, sP, pK) {
+    console.log(sK, sP)
+    $.ajax({
+      type: 'POST',
+      url: '/get_masks',
+      contentType: 'application/json',
+      data: JSON.stringify({session: sK, password: sP}),
+      success: function(data) {
+        unmaskController.aggregate_and_unmask(data, pK, sK, sP, callb);
+        // la.stop();
+      },
+      error: function() {
+        // TODO:
+        console.log("FAILED")
+      }
+    });
+  }
+
+  function handle_file(event) {
+    var f = event.target.files[0];
+    if (f) {
+  
+      var keyReader = new FileReader();
+      keyReader.readAsText(f);
+
+      $(keyReader).on('load', function(e) {
+        var sessionKey = $('#session').val();
+        var sessionPass = $('#session-password').val();
+        var privateKey = e.target.result;
+
+        privateKey = privateKey.split('\n')[1];
+
+        getMasks(sessionKey, sessionPass, privateKey);
+
+      });
+      
+      
+    }
+
+    
+    
+    //   $(keyReader).on('load', function(e) {
+    //     console.log('e',event.target);
+    //   });
+    // }
+  }
+
   function unmaskView() {
+    
+
+
     $(document).ready(function() {
       $('#tables-area').hide();
+      // TODO: MOVE THIS TO CALLBACK
       var tables = tableController.make_tables();
+      tables_map = {};
+      for (var v = 0; v < tables.length; v++) {
+        tables_map[tables[v]._sail_meta.name] = tables[v];
+      }
 
       var _target = document.getElementById('drop-area');
       var _choose = document.getElementById('choose-file-button');
@@ -18,27 +88,40 @@ function($, unmaskController, clientController, tableController, DropSheet, Spin
         }
         spinner = new Spinner().spin(_target);
       }
-      // TODO: WHY?!?!?
-      var _unmask = $('#unmask-button')[0];
 
-      _unmask.addEventListener('click', function() {
-        
-      });
+
+      // // TODO: WHY?!?!?
+      // var _unmask = $('#unmask-button')[0];
+
+      // var _file = $('#choose-file')[0]
+      
+
+      // _file.addEventListener('click', function(e) {
+      //   console.log
+      //   // file_path = $('#choose-file').val();
+        // if (file_path) {
+        //   console.log(file_path);
+        //   handleFile(file_path);
+        // } else {
+        //   // TODO: get alertify working
+        //   alert("NO PEM")
+        //   alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', 'Missing private key file', function (){
+        //   });
+        // }
+      // });
 
       DropSheet({
         drop: _target,
         choose: _choose,
-        tables: tables,
-        tables_def: table_template,
+        // tables: tables,
+        // tables_def: table_template,
         on: {},
-        errors: {}
-
+        errors: {},
+        handle_file: handle_file
       });
-
-      // tableController.dragDropListen();
     });
   }
-  
+
   return unmaskView;
 
 });

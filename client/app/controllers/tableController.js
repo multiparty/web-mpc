@@ -1,4 +1,4 @@
-define(['jquery', 'Handsontable', 'table_template', 'qtip'], function($, Handsontable, table_template) {
+define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'qtip'], function($, Handsontable, table_template, filesaver) {
 
   'use strict';
 
@@ -381,8 +381,28 @@ define(['jquery', 'Handsontable', 'table_template', 'qtip'], function($, Handson
       result[t] = make_hot_table(table);
       table_widths[result[t].rootElement.id] = get_width(result[t]);
     }
+    // console.log('table', result)
     return result;
   }
+
+  /* unction fill_data(data, table_hot) {
+  var table_meta = table_hot._sail_meta;
+
+  var data_array = new Array(table_meta.rowsCount);
+  for (var r = 0; r < table_meta.rowsCount; r++) {
+    data_array[r] = new Array(table_meta.colsCount);
+    for (var c = 0; c < table_meta.colsCount; c++) {
+      var cell = table_meta.cells[r][c];
+      var row_key = cell.row_key;
+      var col_key = cell.col_key;
+
+      data_array[r][c] = data[row_key][col_key];
+    }
+  }
+
+  table_hot.loadData(data_array);
+}
+*/
 
   /**
    * Creates a hands-on-table from the given definition.
@@ -788,10 +808,17 @@ define(['jquery', 'Handsontable', 'table_template', 'qtip'], function($, Handson
    the first key is the row key, and the second is the column key.
   * @param {hot} table_hot - the handsontable object.
   */
+
+  // function format_table(data) {
+
+  // }
   function fill_data(data, table_hot) {
     var table_meta = table_hot._sail_meta;
 
+    console.log('tm',table_meta);
+  
     var data_array = new Array(table_meta.rowsCount);
+  
     for (var r = 0; r < table_meta.rowsCount; r++) {
       data_array[r] = new Array(table_meta.colsCount);
       for (var c = 0; c < table_meta.colsCount; c++) {
@@ -802,8 +829,6 @@ define(['jquery', 'Handsontable', 'table_template', 'qtip'], function($, Handson
         data_array[r][c] = data[row_key][col_key];
       }
     } 
-    // console.log('data array', data_array);
-    table_hot.loadData(data_array);
     return data_array;
   }
 
@@ -829,6 +854,39 @@ define(['jquery', 'Handsontable', 'table_template', 'qtip'], function($, Handson
       }
   }
 
+  function save_tables(tables) {
+    tables = tables.reverse();
+    var tables_csv = [];
+    var row_map = table_template.tables[0].rows;
+
+    for (var sheet in tables) {
+      tables_csv.push([sheet]);
+      var sheet_csv = [];
+      for (var row in tables[sheet]) {
+        var row_arr = tables[sheet][row];
+        row_arr.unshift(row_map[row].label);
+        row_arr = row_arr.join(',');
+        sheet_csv.push(row_arr);
+      }
+      tables_csv.push(sheet_csv.join('\n'));
+
+    }
+    
+
+
+
+    tables_csv = tables_csv.join('\n\n\n');
+    filesaver.saveAs(new Blob([tables_csv], {type: 'text/plain;charset=utf-8'}), 'Aggregate_Data_' + '.csv');
+    // for (sheet in tables) {
+    //   console.log('s',sheet, tables[sheet]);
+    //   // tables[sheet].unshift([sheet]);
+    // }
+
+    // tables = tables.join('\n\n\n');
+
+
+  }
+  
 
   function dragDropListen() {
     var drop_area = document.getElementById('drop-area');
@@ -869,6 +927,7 @@ define(['jquery', 'Handsontable', 'table_template', 'qtip'], function($, Handson
     construct_data_tables: construct_data_tables,
     fill_data: fill_data,
     read_only_table: read_only_table,
+    save_tables: save_tables
 
     // new
     // getTableTemplate: getTableTemplate

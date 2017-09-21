@@ -166,57 +166,26 @@ var columnDict = {
       table[row_index] = row;
     }
     return row;
-
-      // row.push(rowDict[r][0]);
-    //   for (demoData in dataTable[r]) {
-    //     row[columnDict[demoData]] = dataTable[r][demoData];
-    //   }
-
-    //   row_index = getRowIndex(r, meta_data)
-    
-    //   table[row_index] = row.join(',');
-    // }
-
-    // table[1] = demoDataArr;
-    // table = table.join('\n');
-    
-    // return table;
   }
 
 
 
   function generateAggregateCSV(finalResult, session) {
-    console.log('table data', finalResult);
-    // meta_data = table_format[0]._sail_meta;
 
-    // // table_obj = tableController.make_table_obj(table_data);
-    // // console.log("TABLEEEEE", table_obj)
-    // table = [];
-    // // finalResult = finalResult.reverse();
-    // for (sheet in finalResult) {
-    //   console.log('sheet', sheet)
-    //   if (sheet !== 'questions') {
-    //     table.push(populateSheet(finalResult[sheet], sheet, meta_data));        
-    //   }
-    // }
- 
-    // // }
-    // // table.reverse();
-    // table = table.join('\n\n\n');
-    
-    // filesaver.saveAs(new Blob([table], {type: 'text/plain;charset=utf-8'}), 'Aggregate_Data_' + session + '.csv');
+
+    // console.log('table data', finalResult);
 
   }
 
-  function getRowIndex(key, meta_data) {
-    cells = meta_data.cells;
-    // console.log("ROWS", meta_data.rows)
-    for (var i = 0; i < cells.length; i++) {
-      if (cells[i][0].row_key == key) {
-        return i;
-      }
-    }
-  }
+  // function getRowIndex(key, meta_data) {
+  //   cells = meta_data.cells;
+  //   // console.log("ROWS", meta_data.rows)
+  //   for (var i = 0; i < cells.length; i++) {
+  //     if (cells[i][0].row_key == key) {
+  //       return i;
+  //     }
+  //   }
+  // }
 
   function generateQuestionsCSV(questions, session) {
     if (questions.length == 0) return;

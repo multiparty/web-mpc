@@ -407,7 +407,8 @@ define(['alertify', 'alertify-defaults', 'XLSX'], function(alertify) {
 
     if (opts.choose.addEventListener) {
       if (typeof jQuery !== 'undefined') {
-        $('#choose-file').change(handleFile);
+   
+        $('#choose-file').change(opts.handle_file);
       }
     }
   };
