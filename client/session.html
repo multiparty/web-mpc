@@ -4,18 +4,7 @@
   <meta charset="utf-8">
   <title>Trusted Party Secure Session Creator</title>
 
-  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"
-          integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"
-          integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script>
-
-  <script src="//cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"
-          integrity="sha256-PieqE0QdEDMppwXrTzSZQr6tWFX3W5KkyRVyF1zN3eg=" crossorigin="anonymous"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.0/ladda.min.js"
-          integrity="sha256-/DTavTzjSAI87+voZGCTfhbioWGET1qDJKe76XuWQ5M=" crossorigin="anonymous"></script>
-
-  <script src="/scripts/filesaver.js"></script>
-  <script src="/scripts/analyst.js"></script>
+  <script data-main="app/session" src="app/vendor/require.js"></script>
 
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
         integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -111,22 +100,5 @@
   </div>
 
 </main>
-
-<script type="text/javascript">
-  $(function () {
-    $('#generate').on('click', function (e) {
-      e.preventDefault();
-
-      var la = Ladda.create(document.getElementById('generate'));
-      la.start();
-
-      analyst.generateSession('infoDiv', 'sessionID', 'passwordID', 'pubkeyID', 'privkeyID', 'link-id', 'session-title', 'session-description')
-        .then(function () {
-          la.stop();
-          $('#session-details').removeClass('hidden');
-        });
-    });
-  });
-</script>
 </body>
 </html>

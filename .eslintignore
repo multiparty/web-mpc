@@ -1,3 +1,11 @@
-shared/dist/*
-client/script/sheetjsw.js
-client/script/ResizeSensor.js
+client/app/helper/sheetjsw.js
+client/app/helper/ResizeSensor.js
+client/app/helper/handsontable.js
+client/app/helper/filesaver.js
+client/app/helper/require.js
+client/app/helper/spin.js
+client/app/helper/xlsx.js
+client/app/helper/main.js
+
+
+client/app/vendor/*
