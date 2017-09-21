@@ -1,4 +1,5 @@
-define(['alertify', 'alertify-defaults', 'XLSX'], function(alertify) {
+/* global XLSX, XLS */
+define(['alertify', 'alertify_defaults', 'XLSX'], function(alertify) {
 
   var DropSheet = function DropSheet(opts) {
     if (!opts) {
@@ -97,36 +98,37 @@ define(['alertify', 'alertify-defaults', 'XLSX'], function(alertify) {
       return o;
     }
 
+    // Note: Worker not currently used
     // Use worker.
-    function sheetjsw(data, cb, readtype, xls) {
-      pending = true;
-      opts.on.workstart();
-      var scripts = document.getElementsByTagName('script');
-      var path;
-      for (var i = 0; i < scripts.length; i++) {
-        if (scripts[i].src.indexOf('path') !== -1) {
-          path = scripts[i].src.split('path.js')[0];
-        }
-      }
-      var worker = new Worker(path + 'sheetjsw.js');
-      worker.onmessage = function (e) {
-        switch (e.data.t) {
-          case 'ready':
-            break;
-          case 'e':
-            pending = false;
-            //console.error(e.data.d);
-            opts.errors.badfile(e);
-            break;
-          case 'xls':
-          case 'xlsx':
-            pending = false;
-            opts.on.workend(cb(JSON.parse(e.data.d), e.data.t));
-            break;
-        }
-      };
-      worker.postMessage({d: data, b: readtype, t: 'xlsx'});
-    }
+    // function sheetjsw(data, cb, readtype, xls) {
+    //   pending = true;
+    //   opts.on.workstart();
+    //   var scripts = document.getElementsByTagName('script');
+    //   var path;
+    //   for (var i = 0; i < scripts.length; i++) {
+    //     if (scripts[i].src.indexOf('path') !== -1) {
+    //       path = scripts[i].src.split('path.js')[0];
+    //     }
+    //   }
+    //   var worker = new Worker(path + 'sheetjsw.js');
+    //   worker.onmessage = function (e) {
+    //     switch (e.data.t) {
+    //       case 'ready':
+    //         break;
+    //       case 'e':
+    //         pending = false;
+    //         //console.error(e.data.d);
+    //         opts.errors.badfile(e);
+    //         break;
+    //       case 'xls':
+    //       case 'xlsx':
+    //         pending = false;
+    //         opts.on.workend(cb(JSON.parse(e.data.d), e.data.t));
+    //         break;
+    //     }
+    //   };
+    //   worker.postMessage({d: data, b: readtype, t: 'xlsx'});
+    // }
 
     var last_wb, last_type;
 

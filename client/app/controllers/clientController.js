@@ -1,6 +1,6 @@
 /* global alertify, $ */
 
-define(['jquery', 'helper/sail_HOT', 'helper/mpc', 'alertify', 'alertify-defaults'], function($, sailHOT, mpc, alertify) {
+define(['jquery', 'helper/sail_HOT', 'helper/mpc', 'alertify', 'alertify_defaults'], function($, sailHOT, mpc, alertify) {
 
   var client = (function () {
     var SESSION_KEY_ERROR = 'Invalid session number';

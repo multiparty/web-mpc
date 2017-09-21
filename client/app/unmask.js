@@ -1,5 +1,5 @@
 require(['common'], function(common) {
-    require(['views/unmaskView'], function(unmaskView) {
-        var sv = new unmaskView();
-    });
+  require(['views/unmaskView'], function(unmaskView) {
+    new unmaskView();
+  });
 });

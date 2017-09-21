@@ -1,7 +1,3 @@
-if (typeof define !== 'function') {
-  var define = require('amdefine')(module);
-}
-
 /***************************************************************
  *
  * mpc.js
@@ -9,6 +5,13 @@ if (typeof define !== 'function') {
  * Shared module for MPC functionality.
  *
  */
+
+ /*eslint no-console: ["error", { allow: ["warn", "error"] }] */
+if (typeof define !== 'function') {
+  var define = require('amdefine')(module);
+}
+
+
 define(['forge'], function(forge) {
   
   'use strict';

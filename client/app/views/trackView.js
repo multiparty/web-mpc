@@ -25,7 +25,9 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
           la.stop();
 
           var $existingParticipants = $('#participants-existing');
-          if (urls.length, typeof(urls)) {
+      
+
+          if ((urls.length, typeof(urls) === 'object')) {
             $existingParticipants.html(urls.join('\n'))
           }
 

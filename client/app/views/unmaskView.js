@@ -5,7 +5,7 @@ define(['jquery','controllers/unmaskController', 'helper/sail_hot', 'Ladda'], fu
     $(document).ready(function () {
       //$('#friendly').hide();
 
-      var req = $.ajax({
+      $.ajax({
         type: 'GET',
         url: '/templates/tables.json',
         dataType: 'json'
@@ -94,9 +94,7 @@ define(['jquery','controllers/unmaskController', 'helper/sail_hot', 'Ladda'], fu
                   $('#error').hide();
                   $('#unmask').prop('disabled', true);
                   $('#unmask').hide();
-                }
-
-                else { // !success, display error
+                } else { // !success, display error
                   // console.log(data);
                   $('#error').text(data);
                   $('#error').show();
@@ -132,7 +130,9 @@ define(['jquery','controllers/unmaskController', 'helper/sail_hot', 'Ladda'], fu
         return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
       });
     }
+    /*global getParameterByName b:true*/
 
+    // TODO: clean this function up
     // taken directly from trusted/session_data.html.
     // could probably clean up
     window.getParameterByName = function (name) {
