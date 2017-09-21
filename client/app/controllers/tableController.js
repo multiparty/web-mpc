@@ -381,7 +381,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'qtip'], functi
       result[t] = make_hot_table(table);
       table_widths[result[t].rootElement.id] = get_width(result[t]);
     }
-    // console.log('table', result)
     return result;
   }
 
@@ -814,8 +813,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'qtip'], functi
   // }
   function fill_data(data, table_hot) {
     var table_meta = table_hot._sail_meta;
-
-    console.log('tm',table_meta);
   
     var data_array = new Array(table_meta.rowsCount);
   
@@ -854,37 +851,51 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'qtip'], functi
       }
   }
 
-  function save_tables(tables) {
-    tables = tables.reverse();
+  // TODO: make this generic
+  function populateTableHeaders (sheet_csv) {
+    var col_map = table_template.tables[0].cols;
+    var demo_row = [''];
+
+    for (var i = 0; i < col_map[1].length; i++) {
+      var race_index = Math.floor(i/2);
+      var gender_label = col_map[1][i];
+      var race_label = col_map[0][race_index].label;
+      var label = race_label + " " + gender_label;
+      label = label.replace("<br> ", "");
+
+      demo_row.push(label);
+      
+    }
+
+    sheet_csv.push(demo_row);
+    return sheet_csv;
+  }
+
+  // TODO: should this be here or in the view?
+  function save_tables(tables, session) {
+
     var tables_csv = [];
     var row_map = table_template.tables[0].rows;
 
     for (var sheet in tables) {
-      tables_csv.push([sheet]);
       var sheet_csv = [];
+      sheet_csv.push([sheet]);
+
+      sheet_csv = populateTableHeaders(sheet_csv);
       for (var row in tables[sheet]) {
         var row_arr = tables[sheet][row];
-        row_arr.unshift(row_map[row].label);
+        // add occupation labels
+        row_arr.unshift((row_map[row].label).replace('<br> ', ''));
         row_arr = row_arr.join(',');
         sheet_csv.push(row_arr);
       }
+      tables_csv = tables_csv.reverse();
       tables_csv.push(sheet_csv.join('\n'));
 
     }
     
-
-
-
     tables_csv = tables_csv.join('\n\n\n');
-    filesaver.saveAs(new Blob([tables_csv], {type: 'text/plain;charset=utf-8'}), 'Aggregate_Data_' + '.csv');
-    // for (sheet in tables) {
-    //   console.log('s',sheet, tables[sheet]);
-    //   // tables[sheet].unshift([sheet]);
-    // }
-
-    // tables = tables.join('\n\n\n');
-
-
+    filesaver.saveAs(new Blob([tables_csv], {type: 'text/plain;charset=utf-8'}), 'Aggregate_Data_' + session + '.csv');
   }
   
 

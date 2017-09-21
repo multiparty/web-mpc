@@ -4,7 +4,7 @@ function($, unmaskController, clientController, tableController, DropSheet, Spin
   // TODO: fix this
   var tables_map;
 
-  function callb(e, d) {
+  function callb(e, d, session) {
     var tables = {};
     for (name in d) {
       if (name !== 'questions') {
@@ -13,11 +13,10 @@ function($, unmaskController, clientController, tableController, DropSheet, Spin
         tables[name] = data_array;     
       }
     }
-    tableController.save_tables(tables);
+    tableController.save_tables(tables, session);
   }
 
   function getMasks(sK, sP, pK) {
-    console.log(sK, sP)
     $.ajax({
       type: 'POST',
       url: '/get_masks',
@@ -25,7 +24,6 @@ function($, unmaskController, clientController, tableController, DropSheet, Spin
       data: JSON.stringify({session: sK, password: sP}),
       success: function(data) {
         unmaskController.aggregate_and_unmask(data, pK, sK, sP, callb);
-        // la.stop();
       },
       error: function() {
         // TODO:

@@ -95,8 +95,8 @@ var columnDict = {
         if (!ensure_equal(finalResult.questions, mpc.aggregateShares(resultShares[2]))) {
           console.log('Secret-shared question answers do not aggregate to the same values as publicly collected answers.');
         }
-        var table_data = callback(true, finalResult);
-        generateAggregateCSV(table_data, session);
+        callback(true, finalResult, session);
+        // generateAggregateCSV(table_data, session);
         generateQuestionsCSV(resultShares[2], session);
       }).catch(function (err) {
       console.log(err);
