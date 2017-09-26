@@ -17,5 +17,8 @@
     "joi": "^10.6.0",
     "mongoose": "^4.11.1",
     "spdy": "^3.4.7"
+  },
+  "devDependencies": {
+    "eslint": "^4.6.1"
   }
 }

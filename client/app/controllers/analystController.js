@@ -1,15 +1,15 @@
-/* global saveAs, Uint8Array */
-
-'use strict';
-
 /***************************************************************
  *
  * Interface for generating session key and initiating a new
  * session.
  *
  */
+/* global saveAs, Uint8Array */
 
-var analyst = (function () {
+define(['filesaver'], function (filesaver) {
+
+  'use strict';
+
 
   function checkStatus(session, password) {
     if (!session || session.trim() === '' || !password) {
@@ -139,10 +139,11 @@ var analyst = (function () {
             // TODO clean up how this workflow
             document.getElementById(linkID).innerHTML = 'tracking page';
             document.getElementById(linkID).href = '/track?session=' + rndSess;
-            saveAs(priBlob, 'Session_' + rndSess + '_private_key.pem');
+
+            filesaver.saveAs(priBlob, 'Session_' + rndSess + '_private_key.pem');
 
             var text = 'Session Key:\n' + rndSess + '\nPassword:\n' + password;
-            saveAs(new Blob([text], {type: 'text/plain;charset=utf-8'}), 'Session_' + rndSess + '_password.txt');
+            filesaver.saveAs(new Blob([text], {type: 'text/plain;charset=utf-8'}), 'Session_' + rndSess + '_password.txt');
           })
           .catch(function () {
             var errmsg = 'ERROR!!!: failed to load public key to server, please try again';
@@ -223,6 +224,7 @@ var analyst = (function () {
         }, 10000);
       },
       error: function (err) {
+        /* global errmsg */
         var errmsg = 'Error Connecting: Reconnect Attempt #' + counter.toString();
         if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
           errmsg = err.responseText;
@@ -244,6 +246,7 @@ var analyst = (function () {
     return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
   }
 
+
   return {
     checkStatus: checkStatus,
     changeStatus: changeStatus,
@@ -255,6 +258,7 @@ var analyst = (function () {
     START: 'START',
     PAUSE: 'PAUSE',
     STOP: 'STOP'
-  };
-})();
 
+  }
+
+});

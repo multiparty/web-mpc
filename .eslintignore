@@ -1,3 +1,4 @@
-shared/dist/*
-client/script/sheetjsw.js
-client/script/ResizeSensor.js
+client/app/helper/sheetjsw.js
+
+
+client/app/vendor/*
