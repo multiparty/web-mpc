@@ -1,7 +1,7 @@
-define(['jquery','controllers/unmaskController', 'helper/sail_hot', 'Ladda'], function ($, unmaskController, sailHOT, Ladda) {
-    
+define(['jquery', 'controllers/unmaskController', 'helper/sail_hot', 'Ladda'], function ($, unmaskController, sailHOT, Ladda) {
+
   function unmaskView() {
-      
+
     $(document).ready(function () {
       //$('#friendly').hide();
 
@@ -55,7 +55,7 @@ define(['jquery','controllers/unmaskController', 'helper/sail_hot', 'Ladda'], fu
                       // Show tables
                       $('#' + table._sail_meta.element).show();
                       $('#' + table._sail_meta.element + '-name').show();
-                 
+
                     } else { // Not a table, questions
                       var fields = data[name];
 
@@ -103,7 +103,7 @@ define(['jquery','controllers/unmaskController', 'helper/sail_hot', 'Ladda'], fu
 
               // Remove top and bottom line of pem file
               privateKey = privateKey.split('\n')[1];
-    
+
               $.ajax({
                 type: 'POST',
                 url: '/get_masks',
@@ -130,6 +130,7 @@ define(['jquery','controllers/unmaskController', 'helper/sail_hot', 'Ladda'], fu
         return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
       });
     }
+
     /*global getParameterByName b:true*/
 
     // TODO: clean this function up
@@ -160,7 +161,7 @@ define(['jquery','controllers/unmaskController', 'helper/sail_hot', 'Ladda'], fu
       }
     });
   }
-  
+
   return unmaskView;
 
 });

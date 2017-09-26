@@ -1,4 +1,4 @@
-define(['jquery', 'Handsontable', 'qtip'], function($, Handsontable) {
+define(['jquery', 'Handsontable', 'qtip'], function ($, Handsontable) {
 
   'use strict';
 
@@ -785,8 +785,8 @@ define(['jquery', 'Handsontable', 'qtip'], function($, Handsontable) {
    * Fills in the given table with the given data.
    * @param {json} data - an object of nested objects (like 2D arrays) where
    the first key is the row key, and the second is the column key.
-  * @param {hot} table_hot - the handsontable object.
-  */
+   * @param {hot} table_hot - the handsontable object.
+   */
   function fill_data(data, table_hot) {
     var table_meta = table_hot._sail_meta;
 
@@ -816,10 +816,5 @@ define(['jquery', 'Handsontable', 'qtip'], function($, Handsontable) {
     fill_data: fill_data,
     read_only_table: read_only_table
   }
-
-
-
-
-
 });
 

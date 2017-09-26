@@ -1,6 +1,6 @@
 /* global alertify */
 
-define(['alertify'], function(alertify) {
+define(['alertify'], function (alertify) {
   var defaults = alertify.defaults = {
     autoReset: true,
     basic: false,
@@ -38,11 +38,9 @@ define(['alertify'], function(alertify) {
   };
 
   return {
-    defaults
+    defaults: defaults
   }
 
- 
-    
 
 });
 

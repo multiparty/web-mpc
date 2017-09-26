@@ -1,6 +1,6 @@
 /* global alertify, $ */
 
-define(['jquery', 'helper/sail_HOT', 'helper/mpc', 'alertify', 'alertify_defaults'], function($, sailHOT, mpc, alertify) {
+define(['jquery', 'helper/sail_HOT', 'helper/mpc', 'alertify', 'alertify_defaults'], function ($, sailHOT, mpc, alertify) {
 
   var client = (function () {
     var SESSION_KEY_ERROR = 'Invalid session number';
@@ -258,7 +258,7 @@ define(['jquery', 'helper/sail_HOT', 'helper/mpc', 'alertify', 'alertify_default
             errorMsg = GENERIC_TABLE_ERR;
             errorMsg = errorMsg.replace('%s', table_name);
           }
-          
+
           if (errors.indexOf(errorMsg) === -1) {
             errors = errors.concat(errorMsg);
           }
@@ -448,9 +448,9 @@ define(['jquery', 'helper/sail_HOT', 'helper/mpc', 'alertify', 'alertify_default
       var name = table._sail_meta.name;
       var r = cell.row_index;
       var c = cell.col_index;
-      
+
       // Ignore indices were there is some non-numerical value
-      for (var  i = 0; i < tables.length - 1; i++) {
+      for (var i = 0; i < tables.length - 1; i++) {
         var v = tables[i].getDataAtCell(r, c);
         if (typeof(v) !== 'number' || v < 0) {
           return callback(true);

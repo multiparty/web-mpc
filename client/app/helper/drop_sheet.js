@@ -1,5 +1,5 @@
 /* global XLSX, XLS */
-define(['alertify', 'alertify_defaults', 'XLSX'], function(alertify) {
+define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
 
   var DropSheet = function DropSheet(opts) {
     if (!opts) {
@@ -62,7 +62,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function(alertify) {
           function doit() {
             try {
               opts.on.workstart();
-              
+
               wb = XLSX.read(data, readtype);
               opts.on.workend(process_wb(wb, 'XLSX'));
             } catch (e) {
@@ -405,6 +405,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function(alertify) {
         alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", 'FileReader is not supported in this browser.');
       }
     }
+
     if (opts.choose.addEventListener) {
       if (typeof jQuery !== 'undefined') {
         $('#choose-file').change(handleFile);

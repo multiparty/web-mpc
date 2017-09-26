@@ -9,6 +9,13 @@
     "brace-style": 2,
     "curly": 2,
     "quotes": [2, "single", { "avoidEscape": true }],
+    "no-trailing-spaces": 2,
+    "space-before-function-paren": [2, {
+      "anonymous": "always",
+      "named": "never",
+      "asyncArrow": "always"
+    }],
+    "space-before-blocks": [2, "always"],
     "requirejs/no-invalid-define": 2,
     "requirejs/no-multiple-define": 2,
     "requirejs/no-named-define": 2,

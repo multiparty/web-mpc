@@ -6,9 +6,9 @@
 //  *
 //  */
 
-define(['helper/mpc', 'filesaver'], function (mpc, filesaver){
+define(['helper/mpc', 'filesaver'], function (mpc, filesaver) {
   /*eslint no-console: ["error", { allow: ["warn", "error"] }] */
-  
+
   // Takes callback(true|false, data).
   function aggregate_and_unmask(mOut, privateKey, session, password, callback) {
     mOut = JSON.parse(mOut.data);
@@ -17,7 +17,7 @@ define(['helper/mpc', 'filesaver'], function (mpc, filesaver){
     var questions_public = [];
     for (var i = 0; i < mOut.length; i++) {
       questions_public.push(mOut[i].questions_public);
-    } 
+    }
 
     var skArrayBuffer;
     try {
@@ -55,7 +55,7 @@ define(['helper/mpc', 'filesaver'], function (mpc, filesaver){
 
     // Request service to aggregate its shares and send us the result
     var serviceResultShare = getServiceResultShare(session, password);
-  
+
     Promise.all([analystResultShare, serviceResultShare, questions_public])
       .then(function (resultShares) {
         var analystResult = resultShares[0],
@@ -67,7 +67,8 @@ define(['helper/mpc', 'filesaver'], function (mpc, filesaver){
         }
         callback(true, finalResult);
         generate_questions_csv(resultShares[2], session);
-      }).catch(function (err) {
+      })
+      .catch(function (err) {
         // TODO: alert?
         console.error(err);
         callback(false, 'Error: could not compute result.');
@@ -121,7 +122,7 @@ define(['helper/mpc', 'filesaver'], function (mpc, filesaver){
       }
     }
 
-    var results = [ headers.join(',') ];
+    var results = [headers.join(',')];
     for (var i = 0; i < questions.length; i++) {
       var one_submission = [];
       for (var j = 0; j < headers.length; j++) {
@@ -252,4 +253,5 @@ define(['helper/mpc', 'filesaver'], function (mpc, filesaver){
 
   }
 
-});/*eof*/
+});
+/*eof*/

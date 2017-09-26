@@ -1,4 +1,3 @@
-
 /***************************************************************
  *
  * Interface for generating session key and initiating a new
@@ -7,7 +6,7 @@
  */
 /* global saveAs, Uint8Array */
 
-define(['filesaver'], function(filesaver) {
+define(['filesaver'], function (filesaver) {
 
   'use strict';
 
@@ -140,7 +139,7 @@ define(['filesaver'], function(filesaver) {
             // TODO clean up how this workflow
             document.getElementById(linkID).innerHTML = 'tracking page';
             document.getElementById(linkID).href = '/track?session=' + rndSess;
-         
+
             filesaver.saveAs(priBlob, 'Session_' + rndSess + '_private_key.pem');
 
             var text = 'Session Key:\n' + rndSess + '\nPassword:\n' + password;

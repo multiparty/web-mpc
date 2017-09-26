@@ -19,9 +19,5 @@ define(['jquery', 'controllers/analystController', 'Ladda'], function ($, analys
     });
   }
 
-
-
   return sessionView;
-
-
 });

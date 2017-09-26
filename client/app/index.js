@@ -1,5 +1,5 @@
-require(['common'], function(common) {
-  require(['views/clientView'], function(clientView) {
+require(['common'], function (common) {
+  require(['views/clientView'], function (clientView) {
     new clientView();
   });
 });
