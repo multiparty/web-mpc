@@ -24,6 +24,7 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
       discrepancies: SEMANTIC_CELLS
     };
 
+    // TODO: create new view for alerts
     function error(msg) {
       alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', msg);
     }

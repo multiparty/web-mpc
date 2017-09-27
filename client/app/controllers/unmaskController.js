@@ -8,37 +8,6 @@
 
  define(['helper/mpc', 'controllers/tableController', 'filesaver'], function (mpc, tableController, filesaver){
 
-  // var rowDict = {'Ex/Sen': ['Executive/Senior Level Officials and Managers', 2],
-  //   'F/M': ['First/Mid-Level Officials and Managers', 3],
-  //   'Profs': ['Professionals', 4],
-  //   'Techs': ['Technicians', 5],
-  //   'Sales': ['Sales Workers', 6],
-  //   'Adminis': ['Administrative Support Workers', 7],
-  //   'Craft': ['Craft Workers', 8],
-  //   'Operatives': ['Operatives', 9],
-  //   'Laborers': ['Laborers and Helpers', 10],
-  //   'Service': ['Service Workers', 11]
-  // };
-
-var columnDict = {
-  'hispF': 1,
-  'hispM': 2,
-  'whiteF': 3,
-  'whiteM': 4,
-  'afrF': 5,
-  'afrM': 6,
-  'hawaiiF': 7,
-  'hawaiiM': 8,
-  'asianF': 9,
-  'asianM': 10,
-  'indF': 11,
-  'indM': 12,
-  'twoF': 13,
-  'twoM': 14,
-  'unrF': 15,
-  'unrM': 16
-};
-
   // Takes callback(true|false, data).
   function aggregate_and_unmask(mOut, privateKey, session, password, callback) {
 
@@ -80,7 +49,7 @@ var columnDict = {
       var invalidShareCount = mpc.countInvalidShares(analystShares);
       // TODO: we should set a threshold and abort if there are too
       // many invalid shares
-      console.log('Invalid share count:', invalidShareCount);
+      // console.log('Invalid share count:', invalidShareCount);
       return mpc.aggregateShares(analystShares);
     });
 
@@ -95,9 +64,9 @@ var columnDict = {
         if (!ensure_equal(finalResult.questions, mpc.aggregateShares(resultShares[2]))) {
           console.log('Secret-shared question answers do not aggregate to the same values as publicly collected answers.');
         }
-        callback(true, finalResult, session);
-        // generateAggregateCSV(table_data, session);
-        generateQuestionsCSV(resultShares[2], session);
+        // generateQuestionsCSV(resultShares[2], session)
+        callback(true, finalResult, resultShares[2], session);
+
       }).catch(function (err) {
       console.log(err);
       callback(false, 'Error: could not compute result.');
@@ -139,90 +108,6 @@ var columnDict = {
   }
 
 
-
-  function populateSheet(dataTable, sheet, meta_data) {
- 
-    var TITLE_INDEX = 0;
-    var RACE_INDEX = 1;
-    var GENDER_INDEX = 2;
-
-    var table = [];
-    table[TITLE_INDEX] = [sheet];
-    // table[RACE_INDEX] = 
-
-    var demoDataArr = [""];
-
-
-    for (d in columnDict) {
-      // console.log('d', d);
-      demoDataArr.push(d);
-    }
-
-    for (r in dataTable) {
-      row = []; 
-      row_index = getRowIndex(r, meta_data);
-      row.push(meta_data.rows[row_index].replace('<br> ', ''));
-
-      table[row_index] = row;
-    }
-    return row;
-  }
-
-
-
-  function generateAggregateCSV(finalResult, session) {
-
-
-    // console.log('table data', finalResult);
-
-  }
-
-  // function getRowIndex(key, meta_data) {
-  //   cells = meta_data.cells;
-  //   // console.log("ROWS", meta_data.rows)
-  //   for (var i = 0; i < cells.length; i++) {
-  //     if (cells[i][0].row_key == key) {
-  //       return i;
-  //     }
-  //   }
-  // }
-
-  function generateQuestionsCSV(questions, session) {
-    if (questions.length == 0) return;
-
-    var headers = [];
-    for (var key in questions[0]) {
-      if (questions[0].hasOwnProperty(key)) {
-        headers.push(key);
-      }
-    }
-
-    var results = [ headers.join(',') ];
-    for (var i = 0; i < questions.length; i++) {
-      var one_submission = [];
-      for (var j = 0; j < headers.length; j++) {
-        var q = headers[j];
-        var answers = questions[i][q];
-
-        var answer = '';
-        for (var option in answers) {
-          if (answers.hasOwnProperty(option)) {
-            if (answers[option] == 1) {
-              answer = option;
-              break;
-            }
-          }
-        }
-
-        one_submission.push(answer);
-      }
-      results.push(one_submission.join(','));
-    }
-
-    results = results.join('\n');
-   
-    filesaver.saveAs(new Blob([results], {type: 'text/plain;charset=utf-8'}), 'Questions_' + session + '.csv');
-  }
 
   function construct_tuple(key, buffer) {
     if (buffer) {

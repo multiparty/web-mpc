@@ -1,4 +1,4 @@
-define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'qtip'], function($, Handsontable, table_template, filesaver) {
+define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor', 'qtip'], function($, Handsontable, table_template, filesaver, ResizeSensor) {
 
   'use strict';
 
@@ -644,7 +644,9 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'qtip'], functi
     var colWidths = [];
 
     for (var i = 0; i < table.countRenderedCols(); i++) {
-      colWidths.push(table.getColWidth(i));
+      // TODO:
+      colWidths.push(50);
+      // colWidths.push(table.getColWidth(i));
     }
 
     // Need to account for column header.
@@ -767,21 +769,177 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'qtip'], functi
     table_hot_obj.clear();
   }
 
-  /**
-   * Change the read only attribute of the entire table.
-   * @param {hot} table_hot_obj - the handsontable object.
-   * @param {boolean} read_only - the new value.
-   */
-  function read_only_table(table_hot_obj, read_only) {
-    var meta_table = table_hot_obj._sail_meta;
-    for (var r = 0; r < meta_table.rowsCount; r++) {
-      for (var c = 0; c < meta_table.colsCount; c++) {
-        meta_table.cells[r][c].read_only = read_only;
+  // /**
+  //  * Change the read only attribute of the entire table.
+  //  * @param {hot} table_hot_obj - the handsontable object.
+  //  * @param {boolean} read_only - the new value.
+  //  */
+  // function read_only_table(table_hot_obj, read_only) {
+  //   var meta_table = table_hot_obj._sail_meta;
+  //   for (var r = 0; r < meta_table.rowsCount; r++) {
+  //     for (var c = 0; c < meta_table.colsCount; c++) {
+  //       meta_table.cells[r][c].read_only = read_only;
+  //     }
+  //   }
+
+  //   table_hot_obj.render();
+  // }
+
+  function getMetaData(key) {
+    for (var table_index in table_template.tables) {
+      if (table_template.tables[table_index].name === key) {
+        return table_template.tables[table_index];
       }
     }
-
-    table_hot_obj.render();
   }
+
+/* 
+    var hotSettings = {
+      data: data,
+      // Columns types
+      columns: hot_cols,
+      // Sizes
+      maxRows: table.rowsCount,
+      maxCols: table.colsCount,
+      // Row and column headers and span
+      rowHeaders: table.rows,
+      nestedHeaders: table.cols,
+      // Styling information
+      width: table.width,
+      // Per cell properties
+      cell: cells,
+      // Workaround for handsontable undo issue for readOnly tables
+      beforeChange: function (changes, source) {
+        return !(this.readOnly);
+      },
+      afterSetDataAtCell: function (changes, source) {
+        //update_width(this);
+      },
+      afterChange: function (row, column) {
+        //update_width(this);
+      }
+    }; */
+
+
+    function getWidth(table) {
+      var colWidths = [];
+
+      for (var i = 0; i < table.length; i++) {
+        colWidths.push(50);
+//        colWidths.push(parseFloat(table.getColWidth(i)));
+      }
+
+      // Need to account for column header.
+      var narrowestCol = Math.min.apply(null, colWidths);
+      var colSum = colWidths.reduce(function (a, b) {
+        return a + b
+      }, 0);
+      return narrowestCol * 5 + colSum;
+    }
+
+    function updateWidth(tables, reset) {
+      
+            if (reset) {
+              var $instructions = $('#instructions');
+              $instructions.css('width', '');
+              $instructions.css('max-width', '');
+              $instructions.css('margin-left', '');
+              $('header, #shadow').css('right', 0);
+              tableWidthsOld = [];
+              return;
+            }
+      
+            var tableWidths = [];
+            for (var i = 0; i < tables.length - 1; i++) {
+              var table = tables[i];
+              var header_width = getWidth(table);
+              tableWidths.push(parseFloat(header_width));
+            }
+      
+            // No need to resize if width hasn't changed
+            // Quick and dirty equality check of arrays
+            if (JSON.stringify(tableWidths) === JSON.stringify(tableWidthsOld)) {
+              return;
+            }
+      
+            for (var j = 0; j < tables.length - 1; j++) {
+              table = tables[j];
+              table.updateSettings({
+                // TODO check why reported table width is off
+                // This value is incorrect when expanding table by inputting more data
+                width: tableWidths[j] - 40
+              });
+            }
+      
+            var maxWidth = Math.max.apply(null, tableWidths);
+      
+            // Reset width of instructions.
+            $('#instructions').css('width', maxWidth);
+            $('#instructions').css('max-width', maxWidth);
+            var documentWidth = $(window).width();
+            var containerWidth = parseFloat($('.container').first().width());
+            var offset = (containerWidth - maxWidth) / 2;
+      
+            if (offset < (containerWidth - documentWidth) / 2) {
+              offset = (containerWidth - documentWidth) / 2;
+            }
+      
+            if (maxWidth > documentWidth) {
+              $('header, #shadow').css('right', documentWidth - maxWidth);
+            }
+      
+            // Bootstrap row has margin-left: -15px, add this back to offset to keep card centered
+            $('#instructions').css('margin-left', offset + 15);
+      
+            tableWidthsOld = tableWidths.concat();
+          }
+
+    function resizeCard(table, container, attach) {
+      if (attach) {
+        
+        // new ResizeSensor($('#number-employees-hot').find('.wtHider').first()[0], function () {
+        //   clientController.updateWidth(tables);
+        // });
+        // new ResizeSensor($('#compensation-hot').find('.wtHider').first()[0], function () {
+        //   clientController.updateWidth(tables);
+        // });
+        // new ResizeSensor($('#performance-pay-hot').find('.wtHider').first()[0], function () {
+        //   clientController.updateWidth(tables);
+        // });
+        console.log(container,'c')
+        new ResizeSensor($(container).find('.wtHider').first()[0], function () {
+          console.log("RESIZE!")
+          updateWidth(table);
+        });
+      }
+  
+      // clientController.updateWidth(tables, !attach);
+    }
+
+  function displayReadTable(tables) {
+
+    for (var t in tables) {
+      var meta = getMetaData(t);
+      // console.log('m', meta);
+      // console.log('t',tables['Number Of Employees']);
+      var container = document.querySelector('#' + meta.element);
+      // var container = document.querySelector('#number-employees-hot');
+
+      var settings = {
+        data: tables[t],
+        maxRows: 10,
+        height: 425
+      }
+
+      var handsOn = new Handsontable(container, settings);
+      handsOn.render();
+    }
+    $('#tables-area').show();
+    resizeCard(tables[t], '#' + meta.element, true);
+    
+  }
+
+  
 
   /**
    * Remove all validators from the table, keeping only the built-in
@@ -811,22 +969,45 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'qtip'], functi
   // function format_table(data) {
 
   // }
-  function fill_data(data, table_hot) {
-    var table_meta = table_hot._sail_meta;
-  
-    var data_array = new Array(table_meta.rowsCount);
-  
-    for (var r = 0; r < table_meta.rowsCount; r++) {
-      data_array[r] = new Array(table_meta.colsCount);
-      for (var c = 0; c < table_meta.colsCount; c++) {
-        var cell = table_meta.cells[r][c];
-        var row_key = cell.row_key;
-        var col_key = cell.col_key;
 
-        data_array[r][c] = data[row_key][col_key];
+
+  function createMetaMap() {
+    var meta_table = table_template.tables[0];
+
+    var meta_map = {};
+
+    for (var i = 0; i < meta_table.rows.length; i++) {
+      var row_key = meta_table.rows[i].key
+      meta_map[row_key] = {};
+
+      var cols = meta_table.cols[1];
+      for (var j = 0; j < cols.length; j++) {
+        var col_key = cols[j].key;
+        meta_map[row_key][col_key] = [i,j];
       }
-    } 
-    return data_array;
+    }
+    return meta_map;
+  }
+
+
+  function fill_data(data, table_hot) {
+    var table = [];
+    var meta_map = createMetaMap();
+    
+    // initialize 2d array
+    for (var i = 0; i < Object.keys(data).length; i++) {
+      table[i] = [];     
+    }
+
+    // fill table
+    for (var row in data) {
+      for (var col in data[row]) {
+        var index = meta_map[row][col];
+        table[index[0]][index[1]] = data[row][col];
+      }
+    }
+    
+    return table;
   }
 
 
@@ -897,37 +1078,78 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'qtip'], functi
     tables_csv = tables_csv.join('\n\n\n');
     filesaver.saveAs(new Blob([tables_csv], {type: 'text/plain;charset=utf-8'}), 'Aggregate_Data_' + session + '.csv');
   }
-  
 
-  function dragDropListen() {
-    var drop_area = document.getElementById('drop-area');
-    drop_area.addEventListener('click', function() {
-      $('#choose-file').click();
-      $('#choose-file').change(handleFile);
-    });
+  function save_questions(questions, session) {
 
-    drop_area.addEventListener('drop', function(e) {
-      if (typeof jQuery) {
-                  e.stopPropagation();
-                  e.preventDefault();
-                }
-        
-                // check if pending?
-                var files = e.dataTransfer.files;
-                handleFile(files[0])
-    });
+    if (questions.length == 0) {
+      return;
+    }
 
-    drop_area.addEventListener('dragenter', handleDragover, false);
-    drop_area.addEventListener('dragleave', handleDragLeave);
-    drop_area.addEventListener('dragover', handleDragover, false);
+    var headers = [];
+    for (var key in questions[0]) {
+      if (questions[0].hasOwnProperty(key)) {
+        headers.push(key);
+      }
+    }
 
 
+    var results = [ headers.join(',') ];
+    for (var i = 0; i < questions.length; i++) {
+      var one_submission = [];
+      for (var j = 0; j < headers.length; j++) {
+        var q = headers[j];
+        var answers = questions[i][q];
 
+        var answer = '';
+        for (var option in answers) {
+          if (answers.hasOwnProperty(option)) {
+            if (answers[option] == 1) {
+              answer = option;
+              break;
+            }
+          }
+        }
+
+        one_submission.push(answer);
+      }
+      results.push(one_submission.join(','));
+    }
+
+    results = results.join('\n');
+   
+    filesaver.saveAs(new Blob([results], {type: 'text/plain;charset=utf-8'}), 'Questions_' + session + '.csv');
   }
 
 
+  // function dragDropListen() {
+  //   var drop_area = document.getElementById('drop-area');
+  //   drop_area.addEventListener('click', function() {
+  //     $('#choose-file').click();
+  //     $('#choose-file').change(handleFile);
+  //   });
+
+  //   drop_area.addEventListener('drop', function(e) {
+  //     if (typeof jQuery) {
+  //                 e.stopPropagation();
+  //                 e.preventDefault();
+  //               }
+        
+  //               // check if pending?
+  //               var files = e.dataTransfer.files;
+  //               handleFile(files[0])
+  //   });
+
+  //   drop_area.addEventListener('dragenter', handleDragover, false);
+  //   drop_area.addEventListener('dragleave', handleDragLeave);
+  //   drop_area.addEventListener('dragover', handleDragover, false);
+
+
+
+  // }
+
+
   return {
-    dragDropListen: dragDropListen,
+    // dragDropListen: dragDropListen,
     make_tables: make_tables,
     make_table_obj: make_table_obj,
     register_validator: register_validator,
@@ -937,8 +1159,10 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'qtip'], functi
     remove_error_handler: remove_error_handler,
     construct_data_tables: construct_data_tables,
     fill_data: fill_data,
-    read_only_table: read_only_table,
-    save_tables: save_tables
+    // read_only_table: read_only_table,
+    save_tables: save_tables,
+    save_questions: save_questions,
+    displayReadTable: displayReadTable
 
     // new
     // getTableTemplate: getTableTemplate
