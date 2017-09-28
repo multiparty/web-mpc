@@ -645,7 +645,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor',
 
     for (var i = 0; i < table.countRenderedCols(); i++) {
       // TODO:
-      colWidths.push(50);
+      colWidths.push(50)
       // colWidths.push(table.getColWidth(i));
     }
 
@@ -825,8 +825,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor',
       var colWidths = [];
 
       for (var i = 0; i < table.length; i++) {
-        colWidths.push(50);
-//        colWidths.push(parseFloat(table.getColWidth(i)));
+        colWidths.push(parseFloat(table.getColWidth(i)));
       }
 
       // Need to account for column header.
@@ -915,27 +914,73 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor',
   
       // clientController.updateWidth(tables, !attach);
     }
+/*
+
+    for (var t = 0; t < table_template.tables.length; t++) {
+      var table_def = table_template.tables[t];
+      var table_name = table_def.name;
+      // console.log(table_def, table_name);
+      var element = table_def.element;
+      var width = table_def.width;
+      var hot_parameters = table_def.hot_parameters;
+      var rows_len = table_def.rows.length;
+      var cols_levels = table_def.cols.length;
+
+      console.log('h', hot_parameters) 
+    }
+*/
 
   function displayReadTable(tables) {
+    var hot = make_tables();
 
-    for (var t in tables) {
-      var meta = getMetaData(t);
-      // console.log('m', meta);
-      // console.log('t',tables['Number Of Employees']);
-      var container = document.querySelector('#' + meta.element);
-      // var container = document.querySelector('#number-employees-hot');
+    for (var h in hot) {
+      var changes = [];
 
-      var settings = {
-        data: tables[t],
-        maxRows: 10,
-        height: 425
+      var table_name = hot[h]._sail_meta.name;
+      var meta = getMetaData(table_name);
+      var sheet = tables[table_name];
+
+      if (table_name != 'questions') {
+        for (var row in sheet) {
+          for (var col in sheet[row]) {
+            // todo:
+            // change formatting to prevent this?
+            if (parseInt(col) > 0) {
+              changes.push([parseInt(row), parseInt(col)-1, 2]);
+              // var v = sheet[row][col];
+
+              // hot[h].setDataAtCell(parseInt(row), parseInt(col)-1, 2);
+              
+              
+              // console.log(hot[h].getDataAtCell(parseInt(row), parseInt(col)-1))
+              
+            }
+          }
+        }
+        hot[h].setDataAtCell(changes)  
+        hot[h].render();
       }
-
-      var handsOn = new Handsontable(container, settings);
-      handsOn.render();
     }
+
+
+    // for (var t in tables) {
+    //   var meta = getMetaData(t);
+    //   // console.log('m', meta);
+    //   // console.log('t',tables['Number Of Employees']);
+    //   var container = document.querySelector('#' + meta.element);
+    //   // var container = document.querySelector('#number-employees-hot');
+
+    //   var settings = {
+    //     data: tables[t],
+    //     maxRows: 10,
+    //     height: 425
+    //   }
+
+    //   var handsOn = new Handsontable(container, settings);
+    //   handsOn.render();
+    // }
     $('#tables-area').show();
-    resizeCard(tables[t], '#' + meta.element, true);
+    // resizeCard(tables[t], '#' + meta.element, true);
     
   }
 

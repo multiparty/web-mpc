@@ -183,6 +183,7 @@ define(['alertify', 'alertify-defaults', 'XLSX'], function(alertify) {
         for (tableidx = 0; tableidx < opts.tables_def.tables.length; tableidx++) {
           if (opts.tables_def.tables[tableidx].excel !== undefined) {
             current_sheet = opts.tables_def.tables[tableidx].excel[0].sheet;
+          
             if (wb.SheetNames.indexOf(current_sheet) === -1) {
               // Should override anything that was in HOT originally in case of reupload.
               opts.tables[tableidx].clear();
@@ -230,6 +231,7 @@ define(['alertify', 'alertify-defaults', 'XLSX'], function(alertify) {
 
     // Processes single XLSX JS worksheet and updates one Handsontable.
     function process_ws(ws, table_def, table) {
+      // console.log("WORKSHEET", ws, table_def, table);
 
       // Clear existing values in case user is submitting updated sheet after error.
       //table.clear();
@@ -252,6 +254,7 @@ define(['alertify', 'alertify-defaults', 'XLSX'], function(alertify) {
       // Default settings for matrix boundary.
       var matrix = XLSX.utils.sheet_to_json(ws, {raw: true, range: table_start.r, header: 1});
 
+        // console.log("MATRIX", matrix)
       // Check if default range is correct based on top row name.
       if (!(ws[XLS.utils.encode_cell({r: table_start.r, c: table_start.c - 1})] !== undefined &&
           ws[XLS.utils.encode_cell({r: table_start.r, c: table_start.c - 1})].v === table_def.excel[0].firstrow)) {
@@ -320,16 +323,15 @@ define(['alertify', 'alertify-defaults', 'XLSX'], function(alertify) {
         }
       }
 
-
       // For each sheet, set value in handsontable.
       for (var r = 0; r < num_rows; r++) {
         for (var c = 0; c < num_cols; c++) {
           changes.push([r, c, matrix[r][c]]);
         }
       }
-
+    
       if (changes.length > 0) {
-        table.setDataAtCell(changes);
+        table.setDataAtCell(changes);        
         return true;
       }
 
