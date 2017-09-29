@@ -58,10 +58,45 @@ function($, unmaskController, clientController, tableController, DropSheet, Spin
     }
   }
 
+  function expandTable() {
+
+    var expand_button = $('#expand-table-button');
+    var ta = $('#tables-area');
+
+    $(expand_button).click(function() {
+
+      var ta = $('#tables-area');
+      if (ta.css('display') === 'none') {
+        ta.show();
+      } else {
+        ta.hide();
+      }
+      // if (ta.css.('display') === 'none') {
+
+      // } else {
+
+      // }
+      // if (ta.css.('display') === 'none') {
+      //   $('#tables-area').show();
+      // } else {
+      //   $('#tables-area').hide();
+      // }  
+    });
+    // $(expand_button).addEventListener('click', function () {
+    //   console.log("HELLO")
+    // });
+
+
+    // $(expand_button).addEventListener('click', function() {
+   
+    // });
+  }
+
   function unmaskView() {
     
     $(document).ready(function() {
       $('#tables-area').hide();
+      expandTable();
 
       var _target = document.getElementById('drop-area');
       var _choose = document.getElementById('choose-file-button');
