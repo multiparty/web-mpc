@@ -32,8 +32,7 @@ define(['jquery', 'controllers/unmaskController', 'controllers/clientController'
           unmaskController.aggregate_and_unmask(data, pK, sK, sP, callb);
         },
         error: function () {
-        // TODO:
-          console.error('GET masks failed');
+          alert("Failed to get masks");
         }
       });
     }
