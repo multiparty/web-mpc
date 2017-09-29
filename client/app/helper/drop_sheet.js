@@ -102,76 +102,6 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
       return o;
     }
 
-    // // Use worker.
-    // function sheetjsw(data, cb, readtype, xls) {
-    //   pending = true;
-    //   opts.on.workstart();
-    //   var scripts = document.getElementsByTagName('script');
-    //   var path;
-    //   for (var i = 0; i < scripts.length; i++) {
-    //     if (scripts[i].src.indexOf('path') !== -1) {
-    //       path = scripts[i].src.split('path.js')[0];
-    //     }
-    //   }
-    //   var worker = new Worker(path + 'sheetjsw.js');
-    //   worker.onmessage = function (e) {
-    //     switch (e.data.t) {
-    //       case 'ready':
-    //         break;
-    //       case 'e':
-    //         pending = false;
-    //         //console.error(e.data.d);
-    //         opts.errors.badfile(e);
-    //         break;
-    //       case 'xls':
-    //       case 'xlsx':
-    //         pending = false;
-    //         opts.on.workend(cb(JSON.parse(e.data.d), e.data.t));
-    //         break;
-    //     }
-    //   };
-    //   worker.postMessage({d: data, b: readtype, t: 'xlsx'});
-    // }
-
-    // JS XLSX sheet conversion of workbook to json format.
-    // function to_json(workbook, type) {
-    //   var XL = type.toUpperCase() === 'XLS' ? XLS : XLSX;
-    //   if (useworker && workbook.SSF) {
-    //     XLS.SSF.load_table(workbook.SSF);
-    //   }
-    //   var result = {};
-    //   workbook.SheetNames.forEach(function (sheetName) {
-    //     var roa = XL.utils.sheet_to_row_object_array(workbook.Sheets[sheetName], {raw: true});
-    //     if (roa.length > 0) {
-    //       result[sheetName] = roa;
-    //     }
-    //   });
-    //   return result;
-    // }
-
-
-    // // Gets column headers on sheet. Assumes it's in first row.
-    // function get_columns(sheet, type) {
-    //   var val, rowObject, range, columnHeaders, emptyRow, C;
-    //   if (!sheet['!ref']) {
-    //     return [];
-    //   }
-    //   range = XLS.utils.decode_range(sheet['!ref']);
-    //   columnHeaders = [];
-    //   for (C = range.s.c; C <= range.e.c; ++C) {
-    //     val = sheet[XLS.utils.encode_cell({c: C, r: range.s.r})];
-    //     if (!val) {
-    //       continue;
-    //     }
-    //     columnHeaders[C] = type.toLowerCase() === 'xls' ? XLS.utils.format_cell(val) : val.v;
-    //   }
-    //   return columnHeaders;
-    // }
-
-    // function choose_sheet(sheetidx) {
-    //   process_wb(last_wb, last_type, sheetidx);
-    // }
-
 
     // Parses workbook for relevant cells.
     function process_wb(wb, type, sheetidx) {
@@ -344,15 +274,17 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
     // For drag-and-drop.
 
     function handleDrop(e) {
+
       if (typeof jQuery !== 'undefined') {
         e.stopPropagation();
         e.preventDefault();
         if (pending) {
           return opts.errors.pending();
         }
-        var files = e.dataTransfer.files;
+        // var files = e.dataTransfer.files;
         $('#drop-area').removeClass('dragenter');
-        readFile(files);
+        // readFile(files);
+        opts.handle_file(e);
       } else {
         alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
       }

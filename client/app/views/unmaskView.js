@@ -38,7 +38,15 @@ define(['jquery', 'controllers/unmaskController', 'controllers/clientController'
     }
 
     function handle_file(event) {
-      var f = event.target.files[0];
+      var f; 
+
+      if (event.type === 'drop') {
+        f = event.dataTransfer.files[0];
+      } else if (event.type === 'change') {
+        f = event.target.files[0];        
+      }
+
+      console.log('f', f);
       if (f) {
 
         var keyReader = new FileReader();
@@ -81,15 +89,6 @@ define(['jquery', 'controllers/unmaskController', 'controllers/clientController'
 
         var _target = document.getElementById('drop-area');
         var _choose = document.getElementById('choose-file-button');
-        // var spinner;
-
-        // var _workstart = function () {
-        //   if ($('#tables-area').css('display') !== 'none') {
-        //     $('#tables-area').hide();
-        //     $('#expand-table-button').toggleClass('flip');
-        //   }
-        //   spinner = new Spinner().spin(_target);
-        // }
 
         DropSheet({
           drop: _target,
