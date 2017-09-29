@@ -273,7 +273,8 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
           });
         });
       });
-      /* exported $buoop */
+      
+      /* global $buoop */
       var $buoop = {
         vs: {i: 10, f: -4, o: -4, s: 8, c: -4},
         mobile: false,

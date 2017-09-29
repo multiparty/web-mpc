@@ -46,7 +46,6 @@ define(['jquery', 'controllers/unmaskController', 'controllers/clientController'
         f = event.target.files[0];        
       }
 
-      console.log('f', f);
       if (f) {
 
         var keyReader = new FileReader();

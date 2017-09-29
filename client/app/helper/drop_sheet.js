@@ -47,6 +47,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
 
     // Various functions for reading in, parsing.
     function readFile(files) {
+
       var i, f;
       for (i = 0; i !== files.length; ++i) {
         f = files[i];
@@ -68,7 +69,6 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
 
               wb = XLSX.read(data, readtype);
               opts.on.workend(process_wb(wb, 'XLSX'));
-              // console.log('OPTSTABLE',opts.tables);
             } catch (e) {
               opts.errors.failed(e);
             }
@@ -331,7 +331,13 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
     // For choosing a file using <input> (ie Choose File button).
 
     function handleFile(e) {
-      var files = e.target.files;
+      var files;
+
+      if (e.type === 'drop') {
+        files = e.dataTransfer.files
+      } else if (e.type === 'change') {
+        files = e.target.files;        
+      }
 
       if (window.FileReader) {
         // FileReader is supported.
