@@ -17,6 +17,8 @@ define(['jquery', 'controllers/unmaskController', 'controllers/clientController'
       tableController.save_tables(tables, session);
       tableController.save_questions(questions, session);
       tableController.displayReadTable(tables);
+      // TODO: why is this even here?
+      $('#HandsontableCopyPaste').hide();
 
     }
 
