@@ -894,48 +894,57 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor',
             tableWidthsOld = tableWidths.concat();
           }
 
-    function resizeCard(table, container, attach) {
-      if (attach) {
+    // function resizeCard(table, container, attach) {
+    //   if (attach) {
         
-        // new ResizeSensor($('#number-employees-hot').find('.wtHider').first()[0], function () {
-        //   clientController.updateWidth(tables);
-        // });
-        // new ResizeSensor($('#compensation-hot').find('.wtHider').first()[0], function () {
-        //   clientController.updateWidth(tables);
-        // });
-        // new ResizeSensor($('#performance-pay-hot').find('.wtHider').first()[0], function () {
-        //   clientController.updateWidth(tables);
-        // });
-        console.log(container,'c')
-        new ResizeSensor($(container).find('.wtHider').first()[0], function () {
-          console.log("RESIZE!")
-          updateWidth(table);
-        });
-      }
+    //     // new ResizeSensor($('#number-employees-hot').find('.wtHider').first()[0], function () {
+    //     //   clientController.updateWidth(tables);
+    //     // });
+    //     // new ResizeSensor($('#compensation-hot').find('.wtHider').first()[0], function () {
+    //     //   clientController.updateWidth(tables);
+    //     // });
+    //     // new ResizeSensor($('#performance-pay-hot').find('.wtHider').first()[0], function () {
+    //     //   clientController.updateWidth(tables);
+    //     // });
+    //     console.log(container,'c')
+    //     new ResizeSensor($(container).find('.wtHider').first()[0], function () {
+    //       console.log("RESIZE!")
+    //       updateWidth(table);
+    //     });
+    //   }
   
-      // clientController.updateWidth(tables, !attach);
-    }
+    //   // clientController.updateWidth(tables, !attach);
+    // }
 
   function displayReadTable(tables) {
 
+    $('#tables-area').show();
     for (var t in tables) {
       var meta = getMetaData(t);
-      // console.log('m', meta);
-      // console.log('t',tables['Number Of Employees']);
       var container = document.querySelector('#' + meta.element);
-      // var container = document.querySelector('#number-employees-hot');
 
       var settings = {
-        data: tables[t],
-        maxRows: 10,
-        height: 425
+        data: tables[t]      
       }
-
+      
       var handsOn = new Handsontable(container, settings);
       handsOn.render();
+      $('#' + meta.element + '-name').text(t);
+      
     }
-    $('#tables-area').show();
-    resizeCard(tables[t], '#' + meta.element, true);
+    $('#instructions').width(1200);
+
+    // var w = $(container).width();
+    // var t = $('#tables-area').width();
+    // var tb = $('.wtHider').width();
+    // console.log('w', w, t, tb);
+    // resizeCard(tables[t], '#' + meta.element, true);
+
+    // var sensor = new ResizeSensor($(container), function() {
+    //   console.log("TRYING??")
+    //   var instructions = $('#instructions');
+    //   console.log(instructions)
+    // });
     
   }
 

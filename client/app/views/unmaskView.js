@@ -61,14 +61,7 @@ function($, unmaskController, clientController, tableController, DropSheet, Spin
   function unmaskView() {
     
     $(document).ready(function() {
-      console.log('template',table_template.tables)
       $('#tables-area').hide();
-      // TODO: MOVE THIS TO CALLBACK
-      // var tables = tableController.make_tables();
-      // tables_map = {};
-      // for (var v = 0; v < tables.length; v++) {
-      //   tables_map[tables[v]._sail_meta.name] = tables[v];
-      // }
 
       var _target = document.getElementById('drop-area');
       var _choose = document.getElementById('choose-file-button');

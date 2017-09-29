@@ -205,16 +205,16 @@ function ($, clientController, tableController, DropSheet, Spinner, Ladda, Resiz
       function resizeCard(tables, attach) {
         if (attach) {
           new ResizeSensor($('#number-employees-hot').find('.wtHider').first()[0], function () {
-            clientController.updateWidth(tables);
+            // clientController.updateWidth(tables);
           });
           new ResizeSensor($('#compensation-hot').find('.wtHider').first()[0], function () {
-            clientController.updateWidth(tables);
+            // clientController.updateWidth(tables);
           });
           new ResizeSensor($('#performance-pay-hot').find('.wtHider').first()[0], function () {
-            clientController.updateWidth(tables);
+            // clientController.updateWidth(tables);
           });
           new ResizeSensor($('#service-length-hot').find('.wtHider').first()[0], function () {
-            clientController.updateWidth(tables);
+            // clientController.updateWidth(tables);
           });
         }
 
