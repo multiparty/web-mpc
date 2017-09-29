@@ -1,6 +1,6 @@
 /* global alertify, $ */
 
-define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'alertify-defaults'], function($, tableController, mpc, alertify) {
+define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'alertify_defaults'], function ($, tableController, mpc, alertify) {
 
   var client = (function () {
     var SESSION_KEY_ERROR = 'Invalid session number';
@@ -78,11 +78,6 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
         dataType: 'text'
       }).then(function (response) {
         response = JSON.parse(response);
-        var title = response.title;
-        var description = response.description;
-
-        //$("#session-title").html(title);
-        //$("#session-description").html(description);
 
         var $parent = $('#session, #participation-code').parent();
         $parent.removeClass('has-error').addClass('has-success has-feedback');
@@ -259,7 +254,6 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
             errorMsg = GENERIC_TABLE_ERR;
             errorMsg = errorMsg.replace('%s', table_name);
           }
-          
           if (errors.indexOf(errorMsg) === -1) {
             errors = errors.concat(errorMsg);
           }
@@ -444,12 +438,12 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
      * 2. For the bonus table (3rd table), it can only be non-zero if the other tables are non-zero.
      */
     function checkSemanticDiscrepancies(tables, table, cell, value, callback) {
-      var num_regex = /$[0-9]+^/; // no need to worry about empty spaces, hot removes them for number types.
+      // var num_regex = /$[0-9]+^/; // no need to worry about empty spaces, hot removes them for number types.
       var bonus_table = tables[2];
       var name = table._sail_meta.name;
       var r = cell.row_index;
       var c = cell.col_index;
-      
+
       // Ignore indices were there is some non-numerical value
       for (var  i = 0; i < tables.length - 1; i++) {
         var v = tables[i].getDataAtCell(r, c);

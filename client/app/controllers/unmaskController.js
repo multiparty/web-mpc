@@ -6,7 +6,8 @@
 //  *
 //  */
 
- define(['helper/mpc', 'controllers/tableController', 'filesaver'], function (mpc, tableController, filesaver){
+/*eslint no-console: ["error", { allow: ["warn", "error"] }] */
+define(['helper/mpc', 'controllers/tableController', 'filesaver'], function (mpc, tableController, filesaver) {
 
   // Takes callback(true|false, data).
   function aggregate_and_unmask(mOut, privateKey, session, password, callback) {
@@ -17,13 +18,12 @@
     var questions_public = [];
     for (var i = 0; i < mOut.length; i++) {
       questions_public.push(mOut[i].questions_public);
-    } 
+    }
 
-    var skArrayBuffer; 
+    var skArrayBuffer;
     try {
       skArrayBuffer = str2ab(atob(privateKey));
-    }
-    catch (err) {
+    } catch (err) {
       callback(false, 'Error: invalid key file.');
       return;
     }
@@ -42,11 +42,11 @@
     // corresponding to a submission with decrypted
     // value fields
     var decrypted = decryptValueShares(sk, mOut, true);
-    var questions_public = decryptValueShares(sk, questions_public, false);
+    questions_public = decryptValueShares(sk, questions_public, false);
 
     // Aggregate decrypted values by key
     var analystResultShare = decrypted.then(function (analystShares) {
-      var invalidShareCount = mpc.countInvalidShares(analystShares);
+      // var invalidShareCount = mpc.countInvalidShares(analystShares);
       // TODO: we should set a threshold and abort if there are too
       // many invalid shares
       // console.log('Invalid share count:', invalidShareCount);
@@ -62,23 +62,25 @@
           serviceResult = resultShares[1],
           finalResult = mpc.recombineValues(serviceResult, analystResult);
         if (!ensure_equal(finalResult.questions, mpc.aggregateShares(resultShares[2]))) {
-          console.log('Secret-shared question answers do not aggregate to the same values as publicly collected answers.');
+          console.error('Secret-shared question answers do not aggregate to the same values as publicly collected answers.');
         }
         // generateQuestionsCSV(resultShares[2], session)
         callback(true, finalResult, resultShares[2], session);
 
       }).catch(function (err) {
-      console.log(err);
-      callback(false, 'Error: could not compute result.');
-    });
+        console.error(err);
+        callback(false, 'Error: could not compute result.');
+      });
 
     // Do the Hypercube
-    var cubes = getCubes(session, password);
-    Promise.all([cubes, sk]).then(function (results) {
-      var cubes = results[0];
-      var importedKey = results[1];
-      _decryptWithKey(cubes, importedKey).then(JSON.stringify).then(console.log);
-    });
+    // NOTE: do we need this?
+    // var cubes = getCubes(session, password);
+    // Promise.all([cubes, sk]).then(function (results) {
+    //   var cubes = results[0];
+    //   var importedKey = results[1];
+    //   // _decryptWithKey(cubes, importedKey).then(JSON.stringify).then(console.error);
+    //   _decryptWithKey(cubes, importedKey);
+    // });
   }
 
   function getServiceResultShare(session, password) {
@@ -93,19 +95,19 @@
       dataType: 'json'
     });
   }
-
-  function getCubes(session, password) {
-    return $.ajax({
-      type: 'POST',
-      url: '/get_cubes',
-      contentType: 'application/json',
-      data: JSON.stringify({
-        session: session,
-        password: password
-      }),
-      dataType: 'json'
-    });
-  }
+  // TODO: what is this doing?
+  // function getCubes(session, password) {
+  //   return $.ajax({
+  //     type: 'POST',
+  //     url: '/get_cubes',
+  //     contentType: 'application/json',
+  //     data: JSON.stringify({
+  //       session: session,
+  //       password: password
+  //     }),
+  //     dataType: 'json'
+  //   });
+  // }
 
 
   function construct_tuple(key, buffer) {
@@ -135,14 +137,13 @@
     for (var key in obj) {
       if (obj.hasOwnProperty(key)) {
         var value = obj[key];
-        if (typeof(value) == 'number' || typeof(value) == 'string' || typeof(value) == 'String') {
+        if (typeof(value) === 'number' || typeof(value) === 'string') {
           // decrypt atomic value
           var resultTuple = window.crypto.subtle.decrypt({name: 'RSA-OAEP'}, importedKey, str2ab(value))
             .then(construct_tuple(key, true));
 
           resultTuples.push(resultTuple);
-        }
-        else {
+        } else {
           resultTuples.push(_decryptWithKey(value, importedKey)
             .then(construct_tuple(key, false)));
         }
@@ -192,12 +193,11 @@
     for (var key in obj) {
       if (obj.hasOwnProperty(key) && oth.hasOwnProperty(key)) {
         var value = obj[key];
-        if (typeof(value) == 'number' || typeof(value) == 'string' || typeof(value) == 'String') {
-          if (value != oth[key]) {
+        if (typeof(value) === 'number' || typeof(value) === 'string') {
+          if (value !== oth[key]) {
             return false;
           }
-        }
-        else {
+        } else {
           var res = ensure_equal(value, oth[key]);
           if (!res) {
             return false;
@@ -211,7 +211,5 @@
 
   return {
     aggregate_and_unmask: aggregate_and_unmask
-
   }
-
 });/*eof*/

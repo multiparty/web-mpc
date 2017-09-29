@@ -1,5 +1,5 @@
 define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], function ($, analystController, Ladda) {
-    
+
   function trackView() {
 
     var session, password;
@@ -107,7 +107,7 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
     // Generate new participation links
     $('#participants-submit').on('click', function (e) {
       e.preventDefault();
-      
+
       var la = Ladda.create(document.getElementById('participants-submit'));
       la.start();
 

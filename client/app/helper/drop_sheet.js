@@ -1,4 +1,5 @@
-define(['alertify', 'alertify-defaults', 'XLSX'], function(alertify) {
+/* global XLSX, XLS */
+define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
 
   var DropSheet = function DropSheet(opts) {
     if (!opts) {
@@ -41,7 +42,7 @@ define(['alertify', 'alertify-defaults', 'XLSX'], function(alertify) {
     }
 
     var rABS = typeof FileReader !== 'undefined' && typeof FileReader.prototype !== 'undefined' && typeof FileReader.prototype.readAsBinaryString !== 'undefined';
-    var useworker = typeof Worker !== 'undefined';
+    // var useworker = typeof Worker !== 'undefined';
     var pending = false;
 
     // Various functions for reading in, parsing.
@@ -54,7 +55,7 @@ define(['alertify', 'alertify-defaults', 'XLSX'], function(alertify) {
         reader.onload = function (e) {
           var data = e.target.result;
 
-          var wb, arr, xls = false;
+          var wb, arr = false;
           var readtype = {type: rABS ? 'binary' : 'base64'};
           if (!rABS) {
             arr = fixdata(data);
@@ -64,7 +65,7 @@ define(['alertify', 'alertify-defaults', 'XLSX'], function(alertify) {
           function doit() {
             try {
               opts.on.workstart();
-              
+
               wb = XLSX.read(data, readtype);
               opts.on.workend(process_wb(wb, 'XLSX'));
               // console.log('OPTSTABLE',opts.tables);
@@ -132,46 +133,44 @@ define(['alertify', 'alertify-defaults', 'XLSX'], function(alertify) {
     //   worker.postMessage({d: data, b: readtype, t: 'xlsx'});
     // }
 
-    var last_wb, last_type;
-
     // JS XLSX sheet conversion of workbook to json format.
-    function to_json(workbook, type) {
-      var XL = type.toUpperCase() === 'XLS' ? XLS : XLSX;
-      if (useworker && workbook.SSF) {
-        XLS.SSF.load_table(workbook.SSF);
-      }
-      var result = {};
-      workbook.SheetNames.forEach(function (sheetName) {
-        var roa = XL.utils.sheet_to_row_object_array(workbook.Sheets[sheetName], {raw: true});
-        if (roa.length > 0) {
-          result[sheetName] = roa;
-        }
-      });
-      return result;
-    }
+    // function to_json(workbook, type) {
+    //   var XL = type.toUpperCase() === 'XLS' ? XLS : XLSX;
+    //   if (useworker && workbook.SSF) {
+    //     XLS.SSF.load_table(workbook.SSF);
+    //   }
+    //   var result = {};
+    //   workbook.SheetNames.forEach(function (sheetName) {
+    //     var roa = XL.utils.sheet_to_row_object_array(workbook.Sheets[sheetName], {raw: true});
+    //     if (roa.length > 0) {
+    //       result[sheetName] = roa;
+    //     }
+    //   });
+    //   return result;
+    // }
 
 
-    // Gets column headers on sheet. Assumes it's in first row.
-    function get_columns(sheet, type) {
-      var val, rowObject, range, columnHeaders, emptyRow, C;
-      if (!sheet['!ref']) {
-        return [];
-      }
-      range = XLS.utils.decode_range(sheet['!ref']);
-      columnHeaders = [];
-      for (C = range.s.c; C <= range.e.c; ++C) {
-        val = sheet[XLS.utils.encode_cell({c: C, r: range.s.r})];
-        if (!val) {
-          continue;
-        }
-        columnHeaders[C] = type.toLowerCase() === 'xls' ? XLS.utils.format_cell(val) : val.v;
-      }
-      return columnHeaders;
-    }
+    // // Gets column headers on sheet. Assumes it's in first row.
+    // function get_columns(sheet, type) {
+    //   var val, rowObject, range, columnHeaders, emptyRow, C;
+    //   if (!sheet['!ref']) {
+    //     return [];
+    //   }
+    //   range = XLS.utils.decode_range(sheet['!ref']);
+    //   columnHeaders = [];
+    //   for (C = range.s.c; C <= range.e.c; ++C) {
+    //     val = sheet[XLS.utils.encode_cell({c: C, r: range.s.r})];
+    //     if (!val) {
+    //       continue;
+    //     }
+    //     columnHeaders[C] = type.toLowerCase() === 'xls' ? XLS.utils.format_cell(val) : val.v;
+    //   }
+    //   return columnHeaders;
+    // }
 
-    function choose_sheet(sheetidx) {
-      process_wb(last_wb, last_type, sheetidx);
-    }
+    // function choose_sheet(sheetidx) {
+    //   process_wb(last_wb, last_type, sheetidx);
+    // }
 
 
     // Parses workbook for relevant cells.
@@ -183,7 +182,7 @@ define(['alertify', 'alertify-defaults', 'XLSX'], function(alertify) {
         for (tableidx = 0; tableidx < opts.tables_def.tables.length; tableidx++) {
           if (opts.tables_def.tables[tableidx].excel !== undefined) {
             current_sheet = opts.tables_def.tables[tableidx].excel[0].sheet;
-          
+
             if (wb.SheetNames.indexOf(current_sheet) === -1) {
               // Should override anything that was in HOT originally in case of reupload.
               opts.tables[tableidx].clear();
@@ -254,7 +253,7 @@ define(['alertify', 'alertify-defaults', 'XLSX'], function(alertify) {
       // Default settings for matrix boundary.
       var matrix = XLSX.utils.sheet_to_json(ws, {raw: true, range: table_start.r, header: 1});
 
-        // console.log("MATRIX", matrix)
+      // console.log("MATRIX", matrix)
       // Check if default range is correct based on top row name.
       if (!(ws[XLS.utils.encode_cell({r: table_start.r, c: table_start.c - 1})] !== undefined &&
           ws[XLS.utils.encode_cell({r: table_start.r, c: table_start.c - 1})].v === table_def.excel[0].firstrow)) {
@@ -329,9 +328,9 @@ define(['alertify', 'alertify-defaults', 'XLSX'], function(alertify) {
           changes.push([r, c, matrix[r][c]]);
         }
       }
-    
+
       if (changes.length > 0) {
-        table.setDataAtCell(changes);        
+        table.setDataAtCell(changes);
         return true;
       }
 
@@ -412,7 +411,6 @@ define(['alertify', 'alertify-defaults', 'XLSX'], function(alertify) {
 
     if (opts.choose.addEventListener) {
       if (typeof jQuery !== 'undefined') {
-   
         $('#choose-file').change(opts.handle_file);
       }
     }
