@@ -121,8 +121,7 @@ function approveDomains(opts, certs, cb) {
 
 async function createConnection() {
   try {
-    await
-    mongoose.connect('mongodb://localhost/aggregate', {
+    await mongoose.connect('mongodb://localhost/aggregate', {
       useMongoClient: true
     });
   } catch (err) {

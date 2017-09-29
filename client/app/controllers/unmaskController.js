@@ -108,7 +108,6 @@
   }
 
 
-
   function construct_tuple(key, buffer) {
     if (buffer) {
       return function (decryptedShare) {

@@ -99,8 +99,8 @@ define(['forge'], function(forge) {
     }
   
     return {
-      'data': dataTuples,
-      'mask': maskTuples
+      data: dataTuples,
+      mask: maskTuples
     };
   }
   

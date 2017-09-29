@@ -9,6 +9,16 @@
     "brace-style": 2,
     "curly": 2,
     "quotes": [2, "single", { "avoidEscape": true }],
+<<<<<<< HEAD
+=======
+    "no-trailing-spaces": 2,
+    "space-before-function-paren": [2, {
+      "anonymous": "always",
+      "named": "never",
+      "asyncArrow": "always"
+    }],
+    "space-before-blocks": [2, "always"],
+>>>>>>> f664bac83f2b98e2850bdc058900a32a23d6b172
     "requirejs/no-invalid-define": 2,
     "requirejs/no-multiple-define": 2,
     "requirejs/no-named-define": 2,
@@ -19,9 +29,18 @@
     "browser": true,
     "jquery": true,
     "node": true,
+<<<<<<< HEAD
     "amd":true
   },
   "parserOptions":{
+=======
+    "amd":true,
+    "es6": true
+  },
+
+  "parserOptions":{
+    "ecmaVersion": 6,
+>>>>>>> f664bac83f2b98e2850bdc058900a32a23d6b172
     "ecmaFeatures": {
       "experimentalObjectRestSpread": true
     }
