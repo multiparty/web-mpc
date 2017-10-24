@@ -26,6 +26,9 @@ const joi = require('joi');
 const Promise = require('bluebird');
 const base32Encode = require('base32-encode');
 const path = require('path');
+const compression = require('compression');
+
+app.use(compression());
 
 function templateToJoiSchema(template, joiFieldType) {
   var schema = {};
