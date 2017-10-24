@@ -47,7 +47,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         });
 
         // Create the tabless
-        var tables = tableController.make_tables();
+        var tables = tableController.makeTables();
         window.scrollTo(0, 0);
         var sums = [0, 0]; // Internal total of Non NaNs values.
         var NaNs = [0, 0]; // Counts how many NaNs exist for every cell participating in a total.
@@ -273,7 +273,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
           });
         });
       });
-      
+
       /* global $buoop */
       var $buoop = {
         vs: {i: 10, f: -4, o: -4, s: 8, c: -4},

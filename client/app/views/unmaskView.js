@@ -9,13 +9,13 @@ define(['jquery', 'controllers/unmaskController', 'controllers/clientController'
       for (var name in d) {
         if (name !== 'questions') {
         // var table = tables_map[name];
-          var data_array = tableController.fill_data(d[name]);
+          var data_array = tableController.fillData(d[name]);
           tables[name] = data_array;
         }
       }
 
-      tableController.save_tables(tables, session);
-      tableController.save_questions(questions, session);
+      tableController.saveTables(tables, session);
+      tableController.saveQuestions(questions, session);
       tableController.displayReadTable(tables);
       // TODO: why is this even here?
       $('#HandsontableCopyPaste').hide();

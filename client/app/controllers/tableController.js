@@ -31,12 +31,12 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
   // Registers a validator function with a name for use in the json template.
   // May be called before or after template is parsed or the table is created.
-  function register_validator(name, validator) {
+  function registerValidator(name, validator) {
     validators_map[name] = validator;
   }
 
   // Removes a validator function by its name.
-  function remove_validator(name) {
+  function removeValidator(name) {
     validators_map[name] = null;
   }
 
@@ -69,7 +69,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
    *  2. "type": for values that fail the generic HOT validator (do not match the cell type).
    *  3. some other string: the name of the custom validator that failed according to how it is defined in the json template.
    */
-  function register_error_handler(handler) {
+  function registerErrorHandler(handler) {
     errorHandlers.push(handler);
   }
 
@@ -77,11 +77,11 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
    * Removes a handler by index.
    * @param {int} index - the index of the handler to remove.
    */
-  function remove_error_handler(index) {
-    if (index >= 0 && index < errorHandlers.length) {
-      errorHandlers = errorHandlers.splice(index, 1);
-    }
-  }
+  // function removeErrorHandlers(index) {
+  //   if (index >= 0 && index < errorHandlers.length) {
+  //     errorHandlers = errorHandlers.splice(index, 1);
+  //   }
+  // }
 
   /**
    * Calls all the error handlers with any given arguments.
@@ -366,13 +366,13 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
    * @return {array} containing HOT tables (table_obj may be accesed using hot_table._sail_meta).
    */
 
-  function make_tables() {
+  function makeTables() {
     var result = [];
     for (var t = 0; t < table_template.tables.length; t++) {
       var table_def = table_template.tables[t];
-      var table = make_table_obj(table_def);
+      var table = makeTableObj(table_def);
 
-      result[t] = make_hot_table(table);
+      result[t] = makeHotTable(table);
       table_widths[result[t].rootElement.id] = get_width(result[t]);
     }
     return result;
@@ -383,7 +383,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
    * @param {json} table_def - the json object representing the table.
    * @return {object} an object representing the table
    */
-  function make_table_obj(table_def) {
+  function makeTableObj(table_def) {
     var table_name = table_def.name;
     var element = table_def.element;
     var width = table_def.width;
@@ -498,9 +498,9 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   /**
    * Construct a Handsontable (HOT) object corresponding to the given table object.
    * @param {object} table - the table object to create (constructed by make_table from json definition).
-   * @return {hot} - the handsontable object constructed by make_hot_table.
+   * @return {hot} - the handsontable object constructed by makeHotTable.
    */
-  function make_hot_table(table) {
+  function makeHotTable(table) {
     var element = document.querySelector('#' + table.element);
 
     var hot_cols = new Array(table.colsCount);
@@ -667,7 +667,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
    * @param {array(hot)} table_hot_arr - an array of handsontable objects.
    * @return {array(json)} each element contains 'name' and 'data'.
    */
-  function construct_data_tables(table_hot_arr) {
+  function constructDataTables(table_hot_arr) {
     var result = [];
     for (var i = 0; i < table_hot_arr.length; i++) {
       var table_hot_obj = table_hot_arr[i];
@@ -773,7 +773,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
    *  validators of Handsontable.
    * @param {hot} table_hot_obj - the handsontable object.
    */
-  function remove_validators(table_hot_obj) {
+  function removeValidators(table_hot_obj) {
     var meta_table = table_hot_obj._sail_meta;
     for (var r = 0; r < meta_table.rowsCount; r++) {
       for (var c = 0; c < meta_table.colsCount; c++) {
@@ -817,7 +817,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   }
 
 
-  function fill_data(data, table_hot) {
+  function fillData(data, table_hot) {
     var table = [];
     var meta_map = createMetaMap();
 
@@ -844,20 +844,18 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
     for (var i = 0; i < col_map[1].length; i++) {
       var race_index = Math.floor(i/2);
-      var gender_label = col_map[1][i];
+      var gender_label = col_map[1][i].label;
       var race_label = col_map[0][race_index].label;
       var label = race_label + ' ' + gender_label;
       label = label.replace('<br> ', '');
-
       demo_row.push(label);
     }
-
     sheet_csv.push(demo_row);
     return sheet_csv;
   }
 
   // TODO: should this be here or in the view?
-  function save_tables(tables, session) {
+  function saveTables(tables, session) {
 
     var tables_csv = [];
     var row_map = table_template.tables[0].rows;
@@ -883,7 +881,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     filesaver.saveAs(new Blob([tables_csv], {type: 'text/plain;charset=utf-8'}), 'Aggregate_Data_' + session + '.csv');
   }
 
-  function save_questions(questions, session) {
+  function saveQuestions(questions, session) {
 
     if (questions.length === 0) {
       return;
@@ -925,17 +923,15 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   }
 
   return {
-    make_tables: make_tables,
-    make_table_obj: make_table_obj,
-    register_validator: register_validator,
-    register_error_handler: register_error_handler,
-    remove_validator: remove_validator,
-    remove_validators: remove_validators,
-    remove_error_handler: remove_error_handler,
-    construct_data_tables: construct_data_tables,
-    fill_data: fill_data,
-    save_tables: save_tables,
-    save_questions: save_questions,
+    makeTables: makeTables,
+    registerValidator: registerValidator,
+    registerErrorHandler: registerErrorHandler,
+    removeValidator: removeValidator,
+    removeValidators: removeValidators,
+    constructDataTables: constructDataTables,
+    fillData: fillData,
+    saveTables: saveTables,
+    saveQuestions: saveQuestions,
     displayReadTable: displayReadTable
   }
 });

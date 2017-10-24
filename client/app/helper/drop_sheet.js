@@ -59,7 +59,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
           var wb, arr = false;
           var readtype = {type: rABS ? 'binary' : 'base64'};
           if (!rABS) {
-            arr = fixdata(data);
+            arr = fixData(data);
             data = btoa(arr);
           }
 
@@ -68,7 +68,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
               opts.on.workstart();
 
               wb = XLSX.read(data, readtype);
-              opts.on.workend(process_wb(wb, 'XLSX'));
+              opts.on.workend(processWB(wb, 'XLSX'));
             } catch (e) {
               opts.errors.failed(e);
             }
@@ -93,7 +93,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
     }
 
     // Helper method for array buffer read-in.
-    function fixdata(data) {
+    function fixData(data) {
       var o = '', l = 0, w = 10240;
       for (; l < data.byteLength / w; ++l) {
         o += String.fromCharCode.apply(null, new Uint8Array(data.slice(l * w, l * w + w)));
@@ -104,7 +104,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
 
 
     // Parses workbook for relevant cells.
-    function process_wb(wb, type, sheetidx) {
+    function processWB(wb, type, sheetidx) {
       var current_sheet, tableidx;
 
       if (sheetidx === null) {
@@ -140,7 +140,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
 
           if (opts.tables_def.tables[tableidx].excel !== undefined && opts.tables_def.tables[tableidx].excel !== null && opts.tables_def.tables[tableidx].excel[0] !== null) {
             if (opts.tables_def.tables[tableidx].excel[0].sheet === wb.SheetNames[sheetidx]) {
-              checks[tableidx] = process_ws(current_sheet, opts.tables_def.tables[tableidx], opts.tables[tableidx]);
+              checks[tableidx] = processWS(current_sheet, opts.tables_def.tables[tableidx], opts.tables[tableidx]);
 
             }
           }
@@ -159,7 +159,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
     }
 
     // Processes single XLSX JS worksheet and updates one Handsontable.
-    function process_ws(ws, table_def, table) {
+    function processWS(ws, table_def, table) {
       // console.log("WORKSHEET", ws, table_def, table);
 
       // Clear existing values in case user is submitting updated sheet after error.
@@ -336,7 +336,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
       if (e.type === 'drop') {
         files = e.dataTransfer.files
       } else if (e.type === 'change') {
-        files = e.target.files;        
+        files = e.target.files;  
       }
 
       if (window.FileReader) {

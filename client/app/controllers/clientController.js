@@ -236,8 +236,8 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
         }
 
         // Register semantic discrepancies validator.
-        // console.log("VALIDATE?", register_validator)
-        tableController.register_validator('discrepancies', function (table, cell, value, callback) {
+        // console.log("VALIDATE?", registerValidator)
+        tableController.registerValidator('discrepancies', function (table, cell, value, callback) {
           checkSemanticDiscrepancies(tables, table, cell, value, callback);
         });
 
@@ -258,14 +258,14 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
             errors = errors.concat(errorMsg);
           }
         };
-        tableController.register_error_handler(errorHandler);
+        tableController.registerErrorHandler(errorHandler);
 
         // Validate tables (callback chaining)
         (function validate_callback(i) {
           if (i >= tables.length) {
             // Remove the semantic discrepancies validator.
-            tableController.remove_validator('discrepancies');
-            tableController.remove_error_handler(0);
+            tableController.removeValidator('discrepancies');
+            tableController.removeErrorHandler(0);
             for (i = 0; i < tables.length; i++) {
               tables[i].render();
             }
@@ -331,7 +331,7 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
 
       // Handle table data, tables are represented as 2D associative arrays
       // with the first index being the row key, and the second being the column key
-      var tables_data = tableController.construct_data_tables(tables);
+      var tables_data = tableController.constructDataTables(tables);
       for (var i = 0; i < tables_data.length; i++) {
         data_submission[tables_data[i].name] = tables_data[i].data;
       }
