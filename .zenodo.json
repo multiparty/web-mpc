@@ -1,0 +1,62 @@
+{
+  "description": "Platform for deploying web-based privacy-preserving data surveys using secure multi-party computation (MPC).",
+  "license": "MIT",
+  "title": "multiparty/web-mpc: 100% Talent 2017",
+  "upload_type": "software",
+  "publication_date": "2017-10-25",
+  "creators": [
+    {
+      "affiliation": "Boston University",
+      "name": "Frederick Jansen"
+    },
+    {
+      "affiliation": "Boston University",
+      "name": "Kinan Bab"
+    },
+    {
+      "affiliation": "Boston University",
+      "name": "Nikolaj Volgushev"
+    },
+    {
+      "affiliation": "Boston University",
+      "name": "Andrei Lapets"
+    },
+    {
+      "affiliation": "Boston University",
+      "name": "Jacqueline You"
+    },
+    {
+      "affiliation": "Boston University",
+      "name": "Kyle Holzinger"
+    },
+    {
+      "affiliation": "Boston University",
+      "name": "Ibrahim Shaikh"
+    },
+    {
+      "affiliation": "Boston University",
+      "name": "Eric Dunton"
+    },
+    {
+      "affiliation": "Boston University",
+      "name": "Rawane Issa"
+    },
+    {
+      "affiliation": "Boston University",
+      "name": "Lucy Qin"
+    },
+    {
+      "affiliation": "Boston University",
+      "name": "Azer Bestavros"
+    },
+    {
+      "affiliation": "Boston University",
+      "name": "Mayank Varia"
+    },
+    {
+      "affiliation": "University of Massachusetts-Amherst",
+      "name": "Shannon Roberts"
+    }
+  ],
+  "access_right": "open"
+}
