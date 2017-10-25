@@ -773,34 +773,21 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     $('header, #shadow').css('right', 0);
   }
 
-
-  // function nestedHeaders(){
-    
-  // }
-
   function displayReadTable(tables) {
 
     $('#tables-area').show();
-    
+
     for (var t in tables) {
-      console.log(t, 't')
       var meta = getMetaData(t);
       var container = document.querySelector('#' + meta.element);
 
       var headers = populateTableHeaders();
 
       var settings = {
-        colHeaders: true,
+        colHeaders: headers,
         data: tables[t],
         readOnly: true
-
-        // nestedHeaders: populateTableHeaders()
-        // TODO: row header
       }
-
-      // // TODO: change this in CSS
-
-      
       var handsOn = new Handsontable(container, settings);
       handsOn.render();
       $('#' + meta.element + '-name').text(t);
@@ -892,8 +879,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       label = label.replace('<br> ', '');
       demo_row.push(label);
     }
-    return demo_row; 
- 
+    return demo_row;
   }
 
   // TODO: should this be here or in the view?
