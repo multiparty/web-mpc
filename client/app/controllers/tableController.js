@@ -77,11 +77,11 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
    * Removes a handler by index.
    * @param {int} index - the index of the handler to remove.
    */
-  // function removeErrorHandlers(index) {
-  //   if (index >= 0 && index < errorHandlers.length) {
-  //     errorHandlers = errorHandlers.splice(index, 1);
-  //   }
-  // }
+  function removeErrorHandler(index) {
+    if (index >= 0 && index < errorHandlers.length) {
+      errorHandlers = errorHandlers.splice(index, 1);
+    }
+  }
 
   /**
    * Calls all the error handlers with any given arguments.
@@ -910,6 +910,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
   function saveQuestions(questions, session) {
 
+    console.log(questions)
     if (questions.length === 0) {
       return;
     }
@@ -923,10 +924,13 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
 
     var results = [ headers.join(',') ];
+    
     for (var i = 0; i < questions.length; i++) {
       var one_submission = [];
       for (var j = 0; j < headers.length; j++) {
         var q = headers[j];
+
+        console.log('q',q)
         var answers = questions[i][q];
 
         var answer = '';
@@ -945,7 +949,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     }
 
     results = results.join('\n');
-
+    console.log('results', results)
     filesaver.saveAs(new Blob([results], {type: 'text/plain;charset=utf-8'}), 'Questions_' + session + '.csv');
   }
 
@@ -955,6 +959,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     registerErrorHandler: registerErrorHandler,
     removeValidator: removeValidator,
     removeValidators: removeValidators,
+    removeErrorHandler: removeErrorHandler,
     constructDataTables: constructDataTables,
     fillData: fillData,
     saveTables: saveTables,

@@ -1,7 +1,12 @@
 /*eslint no-console: ["error", { allow: ["warn", "error"] }] */
 
 define(['jquery', 'controllers/unmaskController', 'controllers/clientController', 'controllers/tableController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify', 'table_template'],
-  function ($, unmaskController, clientController, tableController, DropSheet, Spinner, Ladda, ResizeSensor, alertify, table_template) {
+  function ($, unmaskController, clientController, tableController, DropSheet, Spinner, Ladda, ResizeSensor, alertify, alertify_defaults, table_template) {
+
+    function error(msg) {
+      alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', msg);
+    }
+
 
 
     function callb(e, d, questions,session) {
@@ -33,8 +38,8 @@ define(['jquery', 'controllers/unmaskController', 'controllers/clientController'
         success: function (data) {
           unmaskController.aggregate_and_unmask(data, pK, sK, sP, callb);
         },
-        error: function () {
-          alert('Failed to get masks');
+        error: function (e) {
+          error(e.responseText);
         }
       });
     }
