@@ -336,7 +336,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
       if (e.type === 'drop') {
         files = e.dataTransfer.files
       } else if (e.type === 'change') {
-        files = e.target.files;  
+        files = e.target.files;
       }
 
       if (window.FileReader) {

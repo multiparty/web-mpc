@@ -744,6 +744,34 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   //   return headers;
   // }
 
+  function updateTableWidth(maxWidth) {
+
+    $('#instructions').css('width', maxWidth);
+    $('#instructions').css('max-width', maxWidth);
+    var documentWidth = $(window).width();
+    var containerWidth = parseFloat($('.container').first().width());
+    var offset = (containerWidth - maxWidth) / 2;
+
+    if (offset < (containerWidth - documentWidth) / 2) {
+      offset = (containerWidth - documentWidth) / 2;
+    }
+
+    if (maxWidth > documentWidth) {
+      $('header, #shadow').css('right', documentWidth - maxWidth);
+    }
+
+    // Bootstrap row has margin-left: -15px, add this back to offset to keep card centered
+    $('#instructions').css('margin-left', offset + 15);
+  }
+
+  function resetTableWidth() {
+
+    var $instructions = $('#instructions');
+    $instructions.css('width', '');
+    $instructions.css('max-width', '');
+    $instructions.css('margin-left', '');
+    $('header, #shadow').css('right', 0);
+  }
 
   function displayReadTable(tables) {
 
@@ -764,8 +792,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       $('#' + meta.element + '-name').text(t);
 
     }
-    var table_width = $('.wtHider').width()
-    $('#instructions').width(table_width + 100);
+    updateTableWidth($('.wtHider').width() + 50);
   }
 
   /**
@@ -932,6 +959,8 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     fillData: fillData,
     saveTables: saveTables,
     saveQuestions: saveQuestions,
-    displayReadTable: displayReadTable
+    displayReadTable: displayReadTable,
+    resetTableWidth: resetTableWidth,
+    updateTableWidth: updateTableWidth
   }
 });

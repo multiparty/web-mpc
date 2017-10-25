@@ -112,11 +112,8 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
     function updateWidth(tables, reset) {
 
       if (reset) {
-        var $instructions = $('#instructions');
-        $instructions.css('width', '');
-        $instructions.css('max-width', '');
-        $instructions.css('margin-left', '');
-        $('header, #shadow').css('right', 0);
+        tableController.resetTableWidth();
+
         tableWidthsOld = [];
         return;
       }
@@ -145,24 +142,7 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
 
       var maxWidth = Math.max.apply(null, tableWidths);
 
-      // Reset width of instructions.
-      $('#instructions').css('width', maxWidth);
-      $('#instructions').css('max-width', maxWidth);
-      var documentWidth = $(window).width();
-      var containerWidth = parseFloat($('.container').first().width());
-      var offset = (containerWidth - maxWidth) / 2;
-
-      if (offset < (containerWidth - documentWidth) / 2) {
-        offset = (containerWidth - documentWidth) / 2;
-      }
-
-      if (maxWidth > documentWidth) {
-        $('header, #shadow').css('right', documentWidth - maxWidth);
-      }
-
-      // Bootstrap row has margin-left: -15px, add this back to offset to keep card centered
-      $('#instructions').css('margin-left', offset + 15);
-
+      tableController.updateTableWidth(maxWidth);
       tableWidthsOld = tableWidths.concat();
     }
 

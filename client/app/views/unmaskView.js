@@ -34,18 +34,18 @@ define(['jquery', 'controllers/unmaskController', 'controllers/clientController'
           unmaskController.aggregate_and_unmask(data, pK, sK, sP, callb);
         },
         error: function () {
-          alert("Failed to get masks");
+          alert('Failed to get masks');
         }
       });
     }
 
     function handle_file(event) {
-      var f; 
+      var f;
 
       if (event.type === 'drop') {
         f = event.dataTransfer.files[0];
       } else if (event.type === 'change') {
-        f = event.target.files[0];        
+        f = event.target.files[0];
       }
 
       if (f) {
@@ -61,25 +61,26 @@ define(['jquery', 'controllers/unmaskController', 'controllers/clientController'
           privateKey = privateKey.split('\n')[1];
 
           getMasks(sessionKey, sessionPass, privateKey);
-
         });
       }
     }
 
     function expandTable() {
-
       var expand_button = $('#expand-table-button');
 
       $(expand_button).click(function () {
 
         var ta = $('#tables-area');
+
         if (ta.css('display') === 'none') {
           ta.show();
+          var maxWidth = $('.wtHider').width() + 50;
+          tableController.updateTableWidth(maxWidth)
         } else {
           ta.hide();
+          tableController.resetTableWidth()
         }
       });
-
     }
 
     function unmaskView() {
