@@ -1,8 +1,5 @@
 # web-mpc
 
-[![Build Status](https://travis-ci.org/Boston-Women-Work/data-aggregator.svg?branch=master)](https://travis-ci.org/Boston-Women-Work/data-aggregator)
-[![Coverage Status](https://coveralls.io/repos/github/Boston-Women-Work/data-aggregator/badge.svg?branch=angular)](https://coveralls.io/github/Boston-Women-Work/data-aggregator?branch=angular)
-
 Implementation of a web-based data collection and aggregation infrastructure that utilizes secure multi-party computation techniques to allow individual contributors to submit their data without revealing it to the other participants.
 
 
@@ -37,7 +34,8 @@ mongod
 ```
 * Finally, retrieve the application files and in the directory "server/" run:
 ```
-forever -o log.txt -e error.txt start index.js
+export NODE_ENV=production
+authbind --deep forever -o log.txt -e error.txt start index.js
 ```
 
 ## Local machine installation
@@ -85,56 +83,24 @@ Instructions on how to operate the web-mpc application. All steps below are perf
 
 #### Generate session key
 
-* Navigate to `localhost:8080/trusted`
+* Navigate to `localhost:8080/session`.
 * Click on **Generate Session** and copy and share the session key with all participants.
 
 #### Fill out data
 
 * All participants will navigate to `localhost:8080`, paste the session key into its designated field and proceed to fill out the information. Once completed, click **Submit**.
 
+#### Manage session
+
+* Navigate to `localhost:8080/track`.
+* Input your session key and password.
+* Generate participation links.
+* Start the session.
+
 #### Retrieve the result
 
+* Stop the session
 * Navigate to `localhost:8080/unmask`.
-* Paste the session key in its designated field.
+* Paste the session key and password in its designated fields.
 * Click **Browse** and upload the private key file that was downloaded when generating the session key.
-* Click **Unmask Data** and view the result
-
-## Directories and file structure
-
-#### ./client
-
-* This contains the code for the data contribution client application.
-
-* `./client/index.html`: the html page for entering the data.
-
-* `./client/script/client.js`: contains functions for validating, organizing, masking/encrypting, and submitting data to the server.
-
-#### ./server
-
-* This contains the code for the computation server.
-
-* `./server/index.js`: contains API end-points and functions for storing submission, tracking number of participants, aggregating data, and retrieving public keys, data and masks. 
-
-* `./server/template.json`: contains a json template of what a valid submission looks like. The template will be used with Joi to validate that requests abide by the template. 
-
-#### ./trusted
-
-* This contains web pages for creating new sessions and viewing progress of existing sessions.
-
-#### ./unmask
-
-* This contains the code for unmasking and displaying aggregate result.
-
-* `./unmask/index.html`: the webpage that allows the aggregate results to be unmasked and viewed.
-
-* `./unmask/script/unmask.js`: decrypts masks using browser-native encryption/decryption functions.
-
-#### ./shared
-
-* This contains files that are generic and are used by multiple parts of the application.
-
-* `.shared/mpc.js`: contains an implementation of the MPC primitives used for masking and unmasking (recombining), operating on masked/shared data, and encryption using 3rd party libraries. This file is used by **client**, **server**, and **unmask**.
-
-* `.shared/sail_hot.js`: a generic wrapper/library around HandsOnTable that simplifies validation, rendering, and defining tables. This file is used by **client** and **unmask**.
-
-* `.shared/templates/tables.js`: a JSON definition of the HandsOnTable used in the application (including rows and columns, cell types, validators, tooltips, and so on). This file is used by **client** and **unmask**.
+* Click **Unmask Data** and view the result.

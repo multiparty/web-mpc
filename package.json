@@ -1,13 +1,12 @@
 {
   "name": "web-mpc",
   "version": "2.0.0",
-  "description": "[![Build Status](https://travis-ci.org/multiparty/web-mpc.svg?branch=master)](https://travis-ci.org/multiparty/web-mpc)",
+  "description": "Web-based data collection and aggregation infrastructure that utilizes secure multi-party computation techniques.",
   "main": "index.js",
   "directories": {
     "test": "test"
   },
   "dependencies": {
-    "eslint-plugin-require": "0.0.1",
     "forge": "^2.3.0",
     "handsontable": "^0.34.1",
     "ladda": "^1.0.4",
