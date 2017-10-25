@@ -425,7 +425,7 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
       var c = cell.col_index;
 
       // Ignore indices were there is some non-numerical value
-      for (var  i = 0; i < tables.length - 1; i++) {
+      for (var i = 0; i < tables.length - 1; i++) {
         var v = tables[i].getDataAtCell(r, c);
         if (typeof(v) !== 'number' || v < 0) {
           return callback(true);

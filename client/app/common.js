@@ -1,10 +1,10 @@
 require.config({
   paths: {
     jquery: 'vendor/jquery',
-    bootstrap:  'vendor/bootstrap.min',
+    bootstrap: 'vendor/bootstrap.min',
     Handsontable: 'vendor/handsontable',
     filesaver: 'vendor/filesaver',
-    XLSX:'vendor/xlsx',
+    XLSX: 'vendor/xlsx',
     spin: 'vendor/spin',
     forge: 'vendor/forge',
     Ladda: 'vendor/ladda',
@@ -24,7 +24,7 @@ require.config({
     spin: {
       exports: 'spin'
     },
-    Ladda:{
+    Ladda: {
       deps: ['spin'],
       exports: 'Ladda'
     }

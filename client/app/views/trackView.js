@@ -123,5 +123,6 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
         });
     });
   }
+
   return trackView;
 });

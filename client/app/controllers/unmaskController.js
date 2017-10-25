@@ -67,7 +67,8 @@ define(['helper/mpc', 'controllers/tableController', 'filesaver'], function (mpc
         // generateQuestionsCSV(resultShares[2], session)
         callback(true, finalResult, resultShares[2], session);
 
-      }).catch(function (err) {
+      })
+      .catch(function (err) {
         console.error(err);
         callback(false, 'Error: could not compute result.');
       });
@@ -95,6 +96,7 @@ define(['helper/mpc', 'controllers/tableController', 'filesaver'], function (mpc
       dataType: 'json'
     });
   }
+
   // TODO: what is this doing?
   // function getCubes(session, password) {
   //   return $.ajax({
@@ -212,4 +214,4 @@ define(['helper/mpc', 'controllers/tableController', 'filesaver'], function (mpc
   return {
     aggregate_and_unmask: aggregate_and_unmask
   }
-});/*eof*/
+});

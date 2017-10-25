@@ -8,12 +8,11 @@ define(['jquery', 'controllers/unmaskController', 'controllers/clientController'
     }
 
 
-
-    function callb(e, d, questions,session) {
+    function callb(e, d, questions, session) {
       var tables = {};
       for (var name in d) {
         if (name !== 'questions') {
-        // var table = tables_map[name];
+          // var table = tables_map[name];
           var data_array = tableController.fillData(d[name]);
           tables[name] = data_array;
         }
@@ -26,7 +25,6 @@ define(['jquery', 'controllers/unmaskController', 'controllers/clientController'
       $('#HandsontableCopyPaste').hide();
 
     }
-
 
 
     function getMasks(sK, sP, pK) {

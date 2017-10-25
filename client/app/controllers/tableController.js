@@ -819,8 +819,8 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
    * Fills in the given table with the given data.
    * @param {json} data - an object of nested objects (like 2D arrays) where
    the first key is the row key, and the second is the column key.
-  * @param {hot} table_hot - the handsontable object.
-  */
+   * @param {hot} table_hot - the handsontable object.
+   */
 
   // function format_table(data) {
 
@@ -839,7 +839,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       var cols = meta_table.cols[1];
       for (var j = 0; j < cols.length; j++) {
         var col_key = cols[j].key;
-        meta_map[row_key][col_key] = [i,j];
+        meta_map[row_key][col_key] = [i, j];
       }
     }
     return meta_map;
@@ -872,7 +872,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     var demo_row = [''];
 
     for (var i = 0; i < col_map[1].length; i++) {
-      var race_index = Math.floor(i/2);
+      var race_index = Math.floor(i / 2);
       var gender_label = col_map[1][i].label;
       var race_label = col_map[0][race_index].label;
       var label = race_label + ' ' + gender_label;

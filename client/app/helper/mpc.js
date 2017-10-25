@@ -86,14 +86,14 @@ define(['forge'], function (forge) {
     for (var key in obj) {
       if (obj.hasOwnProperty(key)) {
         var value = obj[key];
-        if(typeof(value) === 'number') {
+        if (typeof(value) === 'number') {
           var shares = _secretShare(value, 2);
 
           dataTuples[key] = shares[0];
           maskTuples[key] = shares[1];
         } else {
           // value is a nested object.
-          var tmp = secretShareValues (value);
+          var tmp = secretShareValues(value);
           dataTuples[key] = tmp['data'];
           maskTuples[key] = tmp['mask'];
         }
@@ -116,9 +116,9 @@ define(['forge'], function (forge) {
    */
   function initialize(obj, init_value, fields) {
     var result = {};
-    for(var key in fields(obj)) {
-      if(fields(obj).hasOwnProperty(key) && key !== '0') {
-        if(typeof(fields(obj)[key]) === 'number' || typeof(fields(obj)[key]) === 'string') {
+    for (var key in fields(obj)) {
+      if (fields(obj).hasOwnProperty(key) && key !== '0') {
+        if (typeof(fields(obj)[key]) === 'number' || typeof(fields(obj)[key]) === 'string') {
           result[key] = init_value;
         } else {
           result[key] = initialize(fields(obj)[key], init_value, fields);
@@ -140,9 +140,9 @@ define(['forge'], function (forge) {
    *    and obj (should return the result of accumulation).
    */
   function accumulate(obj, accumulator, fields, convert, f) {
-    for(var key in fields(obj)) {
-      if(fields(obj).hasOwnProperty(key) && key !== '0') {
-        if(typeof(fields(obj)[key]) === 'number' || typeof(fields(obj)[key]) === 'string') {
+    for (var key in fields(obj)) {
+      if (fields(obj).hasOwnProperty(key) && key !== '0') {
+        if (typeof(fields(obj)[key]) === 'number' || typeof(fields(obj)[key]) === 'string') {
           var value = convert(fields(obj)[key]);
           accumulator[key] = f(accumulator[key], value);
         } else {
@@ -172,9 +172,9 @@ define(['forge'], function (forge) {
     var fields = function (x) {
       return x;
     }; // if !db, return the object as it is for access.
-    if(db) { // if db, then the passed object may be a mongo module, use .fields to access its fields.
+    if (db) { // if db, then the passed object may be a mongo module, use .fields to access its fields.
       fields = function (x) {
-        if(x.fields !== undefined) {
+        if (x.fields !== undefined) {
           return x.fields;
         } else {
           return x;
@@ -211,7 +211,7 @@ define(['forge'], function (forge) {
     var invalidCount = initialize(data[0], 0, fields);
 
     // accummulate invalid count
-    for(var i = 0; i < data.length; i++) {
+    for (var i = 0; i < data.length; i++) {
       invalidCount = accumulate(data[i], invalidCount, fields,
         function (v) {
           return v;
@@ -241,9 +241,9 @@ define(['forge'], function (forge) {
     var fields = function (x) {
       return x;
     }; // if !db, return the object as it is for access.
-    if(db) { // if db, then the passed object may be a mongo module, use .fields to access its fields.
+    if (db) { // if db, then the passed object may be a mongo module, use .fields to access its fields.
       fields = function (x) {
-        if(x.fields !== undefined) {
+        if (x.fields !== undefined) {
           return x.fields;
         } else {
           return x;
@@ -256,7 +256,7 @@ define(['forge'], function (forge) {
       return _uint32(x);
     } // node.js way.
 
-    if(!db) { // front end way.
+    if (!db) { // front end way.
       convert = function (x) {
         var result = parseInt(x, 10);
         if (isNaN(result)) {
@@ -284,7 +284,7 @@ define(['forge'], function (forge) {
     var agg = initialize(data[0], _uint32(0), fields);
 
     // aggregate
-    for(var i = 0; i < data.length; i++) {
+    for (var i = 0; i < data.length; i++) {
       agg = accumulate(data[i], agg, fields, convert,
         function (acc, v) {
           return _addShares(acc, v);
@@ -299,7 +299,7 @@ define(['forge'], function (forge) {
     for (var field in serviceTuples) {
       if (serviceTuples.hasOwnProperty(field)) {
         var value = serviceTuples[field];
-        if(typeof(value) === 'number' || typeof(value) === 'string') {
+        if (typeof(value) === 'number' || typeof(value) === 'string') {
           res[field] = _recombine([serviceTuples[field], analystTuples[field]]);
         } else {
           res[field] = recombineValues(serviceTuples[field], analystTuples[field]);
@@ -321,8 +321,8 @@ define(['forge'], function (forge) {
     for (var key in obj) {
       if (obj.hasOwnProperty(key)) {
         var value = obj[key];
-        if(typeof(value) === 'number' || typeof(value) === 'string') {
-          encrypted[key] = publicKey.encrypt(value.toString(), 'RSA-OAEP', { md: forge.md.sha256.create() });
+        if (typeof(value) === 'number' || typeof(value) === 'string') {
+          encrypted[key] = publicKey.encrypt(value.toString(), 'RSA-OAEP', {md: forge.md.sha256.create()});
 
         } else {
           encrypted[key] = _encryptWithKey(value, publicKey);
