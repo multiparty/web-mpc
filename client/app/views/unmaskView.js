@@ -1,167 +1,110 @@
-define(['jquery', 'controllers/unmaskController', 'helper/sail_hot', 'Ladda'], function ($, unmaskController, sailHOT, Ladda) {
+/*eslint no-console: ["error", { allow: ["warn", "error"] }] */
 
-  function unmaskView() {
+define(['jquery', 'controllers/unmaskController', 'controllers/clientController', 'controllers/tableController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify', 'table_template'],
+  function ($, unmaskController, clientController, tableController, DropSheet, Spinner, Ladda, ResizeSensor, alertify, alertify_defaults, table_template) {
 
-    $(document).ready(function () {
-      //$('#friendly').hide();
+    function error(msg) {
+      alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', msg);
+    }
 
-      $.ajax({
-        type: 'GET',
-        url: '/templates/tables.json',
-        dataType: 'json'
-      }).then(function (tables_def) {
-        var tables = sailHOT.make_tables(tables_def);
-        window.scrollTo(0, 0);
-        var tables_map = {};
-        for (var v = 0; v < tables.length; v++) {
-          tables_map[tables[v]._sail_meta.name] = tables[v];
+
+    function callb(e, d, questions, session) {
+      var tables = {};
+      for (var name in d) {
+        if (name !== 'questions') {
+          // var table = tables_map[name];
+          var data_array = tableController.fillData(d[name]);
+          tables[name] = data_array;
         }
+      }
 
-        //$('#friendly').hide();
-        $('#unmask').removeAttr('disabled');
+      tableController.saveTables(tables, session);
+      tableController.saveQuestions(questions, session);
+      tableController.displayReadTable(tables);
+      // TODO: why is this even here?
+      $('#HandsontableCopyPaste').hide();
 
-        // Handler for unmasking
-        $('#unmask').on('click', function () {
-          var maskKey = $('#maskKey').get(0),
-            sessKey = $('#sessKey').val(),
-            password = $('#password').val(),
-            la = Ladda.create(this),
-            keyReader = new FileReader();
-
-          if (maskKey.files.length) {
-            la.start();
-            keyReader.readAsText(maskKey.files[0]);
-            $(keyReader).on('load', function (e) {
-              var privateKey = e.target.result;
-
-              // Callback: display results in HOT
-              var callb = function (success, data) {
-                la.stop();
-
-                if (success) { // Display result
-                  for (var name in data) {
-                    if (!(data.hasOwnProperty(name))) {
-                      continue;
-                    }
-
-                    var table = tables_map[name];
-                    if (table) { // This is a table field
-
-                      var table_data = data[name];
-                      sailHOT.remove_validators(table);
-                      sailHOT.fill_data(table_data, table);
-                      sailHOT.read_only_table(table, true);
-
-                      // Show tables
-                      $('#' + table._sail_meta.element).show();
-                      $('#' + table._sail_meta.element + '-name').show();
-
-                    } else { // Not a table, questions
-                      var fields = data[name];
-
-                      var h3 = $('<h3>').text(toTitleCase(name));
-                      $('#' + name).append(h3);
-                      h3.show();
-
-                      for (var field in fields) {
-                        if (!(fields.hasOwnProperty(field))) {
-                          continue;
-                        }
+    }
 
 
-                        var ul = $('<ul>');
-                        var answers = fields[field];
-                        for (var option in answers) {
-                          if (!(answers.hasOwnProperty(option))) {
-                            continue;
-                          }
+    function getMasks(sK, sP, pK) {
+      $.ajax({
+        type: 'POST',
+        url: '/get_masks',
+        contentType: 'application/json',
+        data: JSON.stringify({session: sK, password: sP}),
+        success: function (data) {
+          unmaskController.aggregate_and_unmask(data, pK, sK, sP, callb);
+        },
+        error: function (e) {
+          error(e.responseText);
+        }
+      });
+    }
 
-                          var text = option + ': ' + answers[option];
-                          ul.append($('<li>').text(text));
-                        }
+    function handle_file(event) {
+      var f;
 
-                        $('#' + name).append($('<h4>').text(field));
-                        $('#' + name).append(ul);
-                        $('#' + name).append($('<br>'));
-                        $('#' + name).show();
-                      }
-                    }
-                  }
+      if (event.type === 'drop') {
+        f = event.dataTransfer.files[0];
+      } else if (event.type === 'change') {
+        f = event.target.files[0];
+      }
 
-                  // Display raw data.
-                  //$('#result').text(JSON.stringify(data, null, 4));
-                  //$('#result').show();
-                  $('#error').hide();
-                  $('#unmask').prop('disabled', true);
-                  $('#unmask').hide();
-                } else { // !success, display error
-                  // console.log(data);
-                  $('#error').text(data);
-                  $('#error').show();
-                }
-              };
+      if (f) {
 
-              // Remove top and bottom line of pem file
-              privateKey = privateKey.split('\n')[1];
+        var keyReader = new FileReader();
+        keyReader.readAsText(f);
 
-              $.ajax({
-                type: 'POST',
-                url: '/get_masks',
-                contentType: 'application/json',
-                data: JSON.stringify({session: sessKey, password: password}),
-                success: function (data) {
-                  unmaskController.aggregate_and_unmask(data, privateKey, sessKey, password, callb);
-                },
-                error: function () {
-                  callb(false, 'Error: failed to load masks');
-                }
-              });
-            });
-          } else {
-            alert('Please upload both files before continuing.');
-          }
+        $(keyReader).on('load', function (e) {
+          var sessionKey = $('#session').val();
+          var sessionPass = $('#session-password').val();
+          var privateKey = e.target.result;
+
+          privateKey = privateKey.split('\n')[1];
+
+          getMasks(sessionKey, sessionPass, privateKey);
+        });
+      }
+    }
+
+    function expandTable() {
+      var expand_button = $('#expand-table-button');
+
+      $(expand_button).click(function () {
+
+        var ta = $('#tables-area');
+
+        if (ta.css('display') === 'none') {
+          ta.show();
+          var maxWidth = $('.wtHider').width() + 50;
+          tableController.updateTableWidth(maxWidth)
+        } else {
+          ta.hide();
+          tableController.resetTableWidth()
+        }
+      });
+    }
+
+    function unmaskView() {
+
+      $(document).ready(function () {
+        $('#tables-area').hide();
+        expandTable();
+
+        var _target = document.getElementById('drop-area');
+        var _choose = document.getElementById('choose-file-button');
+
+        DropSheet({
+          drop: _target,
+          choose: _choose,
+          on: {},
+          errors: {},
+          handle_file: handle_file
         });
       });
-    });
-
-    // Capitalize the first letter of every word
-    function toTitleCase(str) {
-      return str.replace(/\w\S*/g, function (txt) {
-        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-      });
     }
 
-    /*global getParameterByName b:true*/
+    return unmaskView;
 
-    // TODO: clean this function up
-    // taken directly from trusted/session_data.html.
-    // could probably clean up
-    window.getParameterByName = function (name) {
-      name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-      var regex = new RegExp('[\\?&]' + name + '=([^&#]*)'),
-        results = regex.exec(location.search);
-      return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-    }
-
-    if (getParameterByName('session')) {
-      $('#sessKey').val(getParameterByName('session'));
-    }
-
-    // We can attach the `fileselect` event to all file inputs on the page
-    $(document).on('change', ':file', function () {
-      var input = $(this),
-        label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
-      input.trigger('fileselect', [label]);
-    });
-
-    $(':file').on('fileselect', function (event, label) {
-      var input = $(this).parents('.input-group').find('#filename');
-      if (input.length) {
-        input.text(label);
-      }
-    });
-  }
-
-  return unmaskView;
-
-});
+  });

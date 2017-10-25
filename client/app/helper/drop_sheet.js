@@ -10,6 +10,9 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
     if (!opts.errors) {
       opts.errors = {};
     }
+    if (!opts.handle_file) {
+      opts.handle_file = handleFile;
+    }
     if (!opts.errors.badfile) {
       opts.errors.badfile = nullfunc;
     }
@@ -39,11 +42,12 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
     }
 
     var rABS = typeof FileReader !== 'undefined' && typeof FileReader.prototype !== 'undefined' && typeof FileReader.prototype.readAsBinaryString !== 'undefined';
-    var useworker = typeof Worker !== 'undefined';
+    // var useworker = typeof Worker !== 'undefined';
     var pending = false;
 
     // Various functions for reading in, parsing.
     function readFile(files) {
+
       var i, f;
       for (i = 0; i !== files.length; ++i) {
         f = files[i];
@@ -52,10 +56,10 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
         reader.onload = function (e) {
           var data = e.target.result;
 
-          var wb, arr, xls = false;
+          var wb, arr = false;
           var readtype = {type: rABS ? 'binary' : 'base64'};
           if (!rABS) {
-            arr = fixdata(data);
+            arr = fixData(data);
             data = btoa(arr);
           }
 
@@ -64,7 +68,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
               opts.on.workstart();
 
               wb = XLSX.read(data, readtype);
-              opts.on.workend(process_wb(wb, 'XLSX'));
+              opts.on.workend(processWB(wb, 'XLSX'));
             } catch (e) {
               opts.errors.failed(e);
             }
@@ -89,7 +93,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
     }
 
     // Helper method for array buffer read-in.
-    function fixdata(data) {
+    function fixData(data) {
       var o = '', l = 0, w = 10240;
       for (; l < data.byteLength / w; ++l) {
         o += String.fromCharCode.apply(null, new Uint8Array(data.slice(l * w, l * w + w)));
@@ -98,82 +102,9 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
       return o;
     }
 
-    // Note: Worker not currently used
-    // Use worker.
-    // function sheetjsw(data, cb, readtype, xls) {
-    //   pending = true;
-    //   opts.on.workstart();
-    //   var scripts = document.getElementsByTagName('script');
-    //   var path;
-    //   for (var i = 0; i < scripts.length; i++) {
-    //     if (scripts[i].src.indexOf('path') !== -1) {
-    //       path = scripts[i].src.split('path.js')[0];
-    //     }
-    //   }
-    //   var worker = new Worker(path + 'sheetjsw.js');
-    //   worker.onmessage = function (e) {
-    //     switch (e.data.t) {
-    //       case 'ready':
-    //         break;
-    //       case 'e':
-    //         pending = false;
-    //         //console.error(e.data.d);
-    //         opts.errors.badfile(e);
-    //         break;
-    //       case 'xls':
-    //       case 'xlsx':
-    //         pending = false;
-    //         opts.on.workend(cb(JSON.parse(e.data.d), e.data.t));
-    //         break;
-    //     }
-    //   };
-    //   worker.postMessage({d: data, b: readtype, t: 'xlsx'});
-    // }
-
-    var last_wb, last_type;
-
-    // JS XLSX sheet conversion of workbook to json format.
-    function to_json(workbook, type) {
-      var XL = type.toUpperCase() === 'XLS' ? XLS : XLSX;
-      if (useworker && workbook.SSF) {
-        XLS.SSF.load_table(workbook.SSF);
-      }
-      var result = {};
-      workbook.SheetNames.forEach(function (sheetName) {
-        var roa = XL.utils.sheet_to_row_object_array(workbook.Sheets[sheetName], {raw: true});
-        if (roa.length > 0) {
-          result[sheetName] = roa;
-        }
-      });
-      return result;
-    }
-
-
-    // Gets column headers on sheet. Assumes it's in first row.
-    function get_columns(sheet, type) {
-      var val, rowObject, range, columnHeaders, emptyRow, C;
-      if (!sheet['!ref']) {
-        return [];
-      }
-      range = XLS.utils.decode_range(sheet['!ref']);
-      columnHeaders = [];
-      for (C = range.s.c; C <= range.e.c; ++C) {
-        val = sheet[XLS.utils.encode_cell({c: C, r: range.s.r})];
-        if (!val) {
-          continue;
-        }
-        columnHeaders[C] = type.toLowerCase() === 'xls' ? XLS.utils.format_cell(val) : val.v;
-      }
-      return columnHeaders;
-    }
-
-    function choose_sheet(sheetidx) {
-      process_wb(last_wb, last_type, sheetidx);
-    }
-
 
     // Parses workbook for relevant cells.
-    function process_wb(wb, type, sheetidx) {
+    function processWB(wb, type, sheetidx) {
       var current_sheet, tableidx;
 
       if (sheetidx === null) {
@@ -181,6 +112,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
         for (tableidx = 0; tableidx < opts.tables_def.tables.length; tableidx++) {
           if (opts.tables_def.tables[tableidx].excel !== undefined) {
             current_sheet = opts.tables_def.tables[tableidx].excel[0].sheet;
+
             if (wb.SheetNames.indexOf(current_sheet) === -1) {
               // Should override anything that was in HOT originally in case of reupload.
               opts.tables[tableidx].clear();
@@ -208,7 +140,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
 
           if (opts.tables_def.tables[tableidx].excel !== undefined && opts.tables_def.tables[tableidx].excel !== null && opts.tables_def.tables[tableidx].excel[0] !== null) {
             if (opts.tables_def.tables[tableidx].excel[0].sheet === wb.SheetNames[sheetidx]) {
-              checks[tableidx] = process_ws(current_sheet, opts.tables_def.tables[tableidx], opts.tables[tableidx]);
+              checks[tableidx] = processWS(current_sheet, opts.tables_def.tables[tableidx], opts.tables[tableidx]);
 
             }
           }
@@ -227,7 +159,8 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
     }
 
     // Processes single XLSX JS worksheet and updates one Handsontable.
-    function process_ws(ws, table_def, table) {
+    function processWS(ws, table_def, table) {
+      // console.log("WORKSHEET", ws, table_def, table);
 
       // Clear existing values in case user is submitting updated sheet after error.
       //table.clear();
@@ -250,6 +183,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
       // Default settings for matrix boundary.
       var matrix = XLSX.utils.sheet_to_json(ws, {raw: true, range: table_start.r, header: 1});
 
+      // console.log("MATRIX", matrix)
       // Check if default range is correct based on top row name.
       if (!(ws[XLS.utils.encode_cell({r: table_start.r, c: table_start.c - 1})] !== undefined &&
           ws[XLS.utils.encode_cell({r: table_start.r, c: table_start.c - 1})].v === table_def.excel[0].firstrow)) {
@@ -318,7 +252,6 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
         }
       }
 
-
       // For each sheet, set value in handsontable.
       for (var r = 0; r < num_rows; r++) {
         for (var c = 0; c < num_cols; c++) {
@@ -341,15 +274,17 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
     // For drag-and-drop.
 
     function handleDrop(e) {
+
       if (typeof jQuery !== 'undefined') {
         e.stopPropagation();
         e.preventDefault();
         if (pending) {
           return opts.errors.pending();
         }
-        var files = e.dataTransfer.files;
+        // var files = e.dataTransfer.files;
         $('#drop-area').removeClass('dragenter');
-        readFile(files);
+        // readFile(files);
+        opts.handle_file(e);
       } else {
         alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
       }
@@ -396,7 +331,13 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
     // For choosing a file using <input> (ie Choose File button).
 
     function handleFile(e) {
-      var files = e.target.files;
+      var files;
+
+      if (e.type === 'drop') {
+        files = e.dataTransfer.files
+      } else if (e.type === 'change') {
+        files = e.target.files;
+      }
 
       if (window.FileReader) {
         // FileReader is supported.
@@ -408,7 +349,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
 
     if (opts.choose.addEventListener) {
       if (typeof jQuery !== 'undefined') {
-        $('#choose-file').change(handleFile);
+        $('#choose-file').change(opts.handle_file);
       }
     }
   };

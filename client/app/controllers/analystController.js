@@ -225,9 +225,10 @@ define(['filesaver'], function (filesaver) {
       },
       error: function (err) {
         /* global errmsg */
-        var errmsg = 'Error Connecting: Reconnect Attempt #' + counter.toString();
+        // NOTE: commented out because errmsg is assigned a value but never used
+        // var errmsg = 'Error Connecting: Reconnect Attempt #' + counter.toString();
         if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
-          errmsg = err.responseText;
+          // errmsg = err.responseText;
         }
 
         //document.getElementById(status).className = 'alert alert-error';

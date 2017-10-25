@@ -1,6 +1,6 @@
 /* global alertify, $ */
 
-define(['jquery', 'helper/sail_HOT', 'helper/mpc', 'alertify', 'alertify_defaults'], function ($, sailHOT, mpc, alertify) {
+define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'alertify_defaults'], function ($, tableController, mpc, alertify) {
 
   var client = (function () {
     var SESSION_KEY_ERROR = 'Invalid session number';
@@ -24,6 +24,7 @@ define(['jquery', 'helper/sail_HOT', 'helper/mpc', 'alertify', 'alertify_default
       discrepancies: SEMANTIC_CELLS
     };
 
+    // TODO: create new view for alerts
     function error(msg) {
       alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', msg);
     }
@@ -77,11 +78,6 @@ define(['jquery', 'helper/sail_HOT', 'helper/mpc', 'alertify', 'alertify_default
         dataType: 'text'
       }).then(function (response) {
         response = JSON.parse(response);
-        var title = response.title;
-        var description = response.description;
-
-        //$("#session-title").html(title);
-        //$("#session-description").html(description);
 
         var $parent = $('#session, #participation-code').parent();
         $parent.removeClass('has-error').addClass('has-success has-feedback');
@@ -116,11 +112,8 @@ define(['jquery', 'helper/sail_HOT', 'helper/mpc', 'alertify', 'alertify_default
     function updateWidth(tables, reset) {
 
       if (reset) {
-        var $instructions = $('#instructions');
-        $instructions.css('width', '');
-        $instructions.css('max-width', '');
-        $instructions.css('margin-left', '');
-        $('header, #shadow').css('right', 0);
+        tableController.resetTableWidth();
+
         tableWidthsOld = [];
         return;
       }
@@ -149,24 +142,7 @@ define(['jquery', 'helper/sail_HOT', 'helper/mpc', 'alertify', 'alertify_default
 
       var maxWidth = Math.max.apply(null, tableWidths);
 
-      // Reset width of instructions.
-      $('#instructions').css('width', maxWidth);
-      $('#instructions').css('max-width', maxWidth);
-      var documentWidth = $(window).width();
-      var containerWidth = parseFloat($('.container').first().width());
-      var offset = (containerWidth - maxWidth) / 2;
-
-      if (offset < (containerWidth - documentWidth) / 2) {
-        offset = (containerWidth - documentWidth) / 2;
-      }
-
-      if (maxWidth > documentWidth) {
-        $('header, #shadow').css('right', documentWidth - maxWidth);
-      }
-
-      // Bootstrap row has margin-left: -15px, add this back to offset to keep card centered
-      $('#instructions').css('margin-left', offset + 15);
-
+      tableController.updateTableWidth(maxWidth);
       tableWidthsOld = tableWidths.concat();
     }
 
@@ -240,8 +216,8 @@ define(['jquery', 'helper/sail_HOT', 'helper/mpc', 'alertify', 'alertify_default
         }
 
         // Register semantic discrepancies validator.
-        // console.log("VALIDATE?", register_validator)
-        sailHOT.register_validator('discrepancies', function (table, cell, value, callback) {
+        // console.log("VALIDATE?", registerValidator)
+        tableController.registerValidator('discrepancies', function (table, cell, value, callback) {
           checkSemanticDiscrepancies(tables, table, cell, value, callback);
         });
 
@@ -258,19 +234,18 @@ define(['jquery', 'helper/sail_HOT', 'helper/mpc', 'alertify', 'alertify_default
             errorMsg = GENERIC_TABLE_ERR;
             errorMsg = errorMsg.replace('%s', table_name);
           }
-
           if (errors.indexOf(errorMsg) === -1) {
             errors = errors.concat(errorMsg);
           }
         };
-        sailHOT.register_error_handler(errorHandler);
+        tableController.registerErrorHandler(errorHandler);
 
         // Validate tables (callback chaining)
         (function validate_callback(i) {
           if (i >= tables.length) {
             // Remove the semantic discrepancies validator.
-            sailHOT.remove_validator('discrepancies');
-            sailHOT.remove_error_handler(0);
+            tableController.removeValidator('discrepancies');
+            tableController.removeErrorHandler(0);
             for (i = 0; i < tables.length; i++) {
               tables[i].render();
             }
@@ -336,7 +311,7 @@ define(['jquery', 'helper/sail_HOT', 'helper/mpc', 'alertify', 'alertify_default
 
       // Handle table data, tables are represented as 2D associative arrays
       // with the first index being the row key, and the second being the column key
-      var tables_data = sailHOT.construct_data_tables(tables);
+      var tables_data = tableController.constructDataTables(tables);
       for (var i = 0; i < tables_data.length; i++) {
         data_submission[tables_data[i].name] = tables_data[i].data;
       }
@@ -443,7 +418,7 @@ define(['jquery', 'helper/sail_HOT', 'helper/mpc', 'alertify', 'alertify_default
      * 2. For the bonus table (3rd table), it can only be non-zero if the other tables are non-zero.
      */
     function checkSemanticDiscrepancies(tables, table, cell, value, callback) {
-      var num_regex = /$[0-9]+^/; // no need to worry about empty spaces, hot removes them for number types.
+      // var num_regex = /$[0-9]+^/; // no need to worry about empty spaces, hot removes them for number types.
       var bonus_table = tables[2];
       var name = table._sail_meta.name;
       var r = cell.row_index;

@@ -6,11 +6,12 @@
 //  *
 //  */
 
-define(['helper/mpc', 'filesaver'], function (mpc, filesaver) {
-  /*eslint no-console: ["error", { allow: ["warn", "error"] }] */
+/*eslint no-console: ["error", { allow: ["warn", "error"] }] */
+define(['helper/mpc', 'controllers/tableController', 'filesaver'], function (mpc, tableController, filesaver) {
 
   // Takes callback(true|false, data).
   function aggregate_and_unmask(mOut, privateKey, session, password, callback) {
+
     mOut = JSON.parse(mOut.data);
 
     // Questions Public is the public answers to questions.
@@ -45,10 +46,9 @@ define(['helper/mpc', 'filesaver'], function (mpc, filesaver) {
 
     // Aggregate decrypted values by key
     var analystResultShare = decrypted.then(function (analystShares) {
-      var invalidShareCount = mpc.countInvalidShares(analystShares);
+      // var invalidShareCount = mpc.countInvalidShares(analystShares);
       // TODO: we should set a threshold and abort if there are too
       // many invalid shares
-      // Note: ESLint error
       // console.log('Invalid share count:', invalidShareCount);
       return mpc.aggregateShares(analystShares);
     });
@@ -62,26 +62,26 @@ define(['helper/mpc', 'filesaver'], function (mpc, filesaver) {
           serviceResult = resultShares[1],
           finalResult = mpc.recombineValues(serviceResult, analystResult);
         if (!ensure_equal(finalResult.questions, mpc.aggregateShares(resultShares[2]))) {
-          // TODO: turn this into an alert?
           console.error('Secret-shared question answers do not aggregate to the same values as publicly collected answers.');
         }
-        callback(true, finalResult);
-        generate_questions_csv(resultShares[2], session);
+        // generateQuestionsCSV(resultShares[2], session)
+        callback(true, finalResult, resultShares[2], session);
+
       })
       .catch(function (err) {
-        // TODO: alert?
         console.error(err);
         callback(false, 'Error: could not compute result.');
       });
 
     // Do the Hypercube
-    var cubes = getCubes(session, password);
-    Promise.all([cubes, sk]).then(function (results) {
-      var cubes = results[0];
-      var importedKey = results[1];
-      // NOTE: changed log to warn to avoid error but what is this console.log message used for?
-      _decryptWithKey(cubes, importedKey).then(JSON.stringify).then(console.warn);
-    });
+    // NOTE: do we need this?
+    // var cubes = getCubes(session, password);
+    // Promise.all([cubes, sk]).then(function (results) {
+    //   var cubes = results[0];
+    //   var importedKey = results[1];
+    //   // _decryptWithKey(cubes, importedKey).then(JSON.stringify).then(console.error);
+    //   _decryptWithKey(cubes, importedKey);
+    // });
   }
 
   function getServiceResultShare(session, password) {
@@ -97,56 +97,20 @@ define(['helper/mpc', 'filesaver'], function (mpc, filesaver) {
     });
   }
 
-  function getCubes(session, password) {
-    return $.ajax({
-      type: 'POST',
-      url: '/get_cubes',
-      contentType: 'application/json',
-      data: JSON.stringify({
-        session: session,
-        password: password
-      }),
-      dataType: 'json'
-    });
-  }
+  // TODO: what is this doing?
+  // function getCubes(session, password) {
+  //   return $.ajax({
+  //     type: 'POST',
+  //     url: '/get_cubes',
+  //     contentType: 'application/json',
+  //     data: JSON.stringify({
+  //       session: session,
+  //       password: password
+  //     }),
+  //     dataType: 'json'
+  //   });
+  // }
 
-  function generate_questions_csv(questions, session) {
-    if (questions.length === 0) {
-      return;
-    }
-
-    var headers = [];
-    for (var key in questions[0]) {
-      if (questions[0].hasOwnProperty(key)) {
-        headers.push(key);
-      }
-    }
-
-    var results = [headers.join(',')];
-    for (var i = 0; i < questions.length; i++) {
-      var one_submission = [];
-      for (var j = 0; j < headers.length; j++) {
-        var q = headers[j];
-        var answers = questions[i][q];
-
-        var answer = '';
-        for (var option in answers) {
-          if (answers.hasOwnProperty(option)) {
-            if (answers[option] === 1) {
-              answer = option;
-              break;
-            }
-          }
-        }
-
-        one_submission.push(answer);
-      }
-      results.push(one_submission.join(','));
-    }
-
-    results = results.join('\n');
-    filesaver.saveAs(new Blob([results], {type: 'text/plain;charset=utf-8'}), 'Questions_' + session + '.csv');
-  }
 
   function construct_tuple(key, buffer) {
     if (buffer) {
@@ -174,7 +138,6 @@ define(['helper/mpc', 'filesaver'], function (mpc, filesaver) {
 
     for (var key in obj) {
       if (obj.hasOwnProperty(key)) {
-        //console.log(key);
         var value = obj[key];
         if (typeof(value) === 'number' || typeof(value) === 'string') {
           // decrypt atomic value
@@ -250,8 +213,5 @@ define(['helper/mpc', 'filesaver'], function (mpc, filesaver) {
 
   return {
     aggregate_and_unmask: aggregate_and_unmask
-
   }
-
 });
-/*eof*/

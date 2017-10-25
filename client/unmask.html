@@ -5,13 +5,19 @@
   <title>Trusted Party Data Unmasker</title>
 
   <script data-main="app/unmask" src="app/vendor/require.js"></script>
-
+  
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
         integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
         integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.0/ladda-themeless.min.css"
         integrity="sha256-d7VZTlP9P3ZTCZ3Bkl8aGZ/+Vs4i+bpcOGNfibU7+LU=" crossorigin="anonymous"/>
+  
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.10.0/css/alertify.min.css"
+        integrity="sha256-bNEFYRlNlnu0CH4DIKCXv0F6JVl/DdA2M9XVZn317q0=" crossorigin="anonymous"/>
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.10.0/css/themes/bootstrap.min.css"
+        integrity="sha256-vt37wNLVK8ICNWGrl+1MLb+pjq33sn6v37Q/7OPgkSU=" crossorigin="anonymous"/>
+
 
   <link rel="stylesheet" href="/styles/style.css">
 
@@ -19,7 +25,7 @@
     handsontable .ht_clone_top,
     .handsontable .ht_clone_top_left,
     .handsontable .ht_clone_top_left_corner {
-      display: none;
+      display: none !important;
     }
 
     .handsontable col.rowHeader {
@@ -117,39 +123,65 @@
 <div id="shadow" class="ss-style-multitriangles"></div>
 
 <main id="content" class="container">
-
   <div class="row">
-    <section class="card col-md-10 col-md-offset-1">
-      <h4>Input Session Key</h4>
-      <input type=text id="sessKey" placeholder="Session Key" pattern="^[a-z0-9]{26}$" required/>
-
-      <h4>Input Session Password</h4>
-      <input type=password id="password" placeholder="Session Password" pattern="^[a-z0-9]{26}$" required/>
-
-      <h4>Upload Private Key
-        <small>(Note this does not upload the key to the network)</small>
-      </h4>
-
-      <div class="col-xs-4">
-        <div class="input-group">
-          <label class="input-group-btn">
-            <label class="btn btn-default btn-file">
-              Browse… <input id="maskKey" style="display:none;" type="file">
-            </label>
-          </label>
-          <p id="filename">No File selected...</p>
+    <section id="session-area" class="card col-md-10 col-md-offset-1">
+      <h2 class="text-center">Unmask Aggregate Data</h2>
+      <p class="text-center">Please make sure you have the correct session key, session password, and private key</p>
+      <hr/>
+      <div class="row">
+        <div class="col-md-6">
+          <form>
+            <div class="form-group">
+              <label class="control-label" for="session">Session Key</label>
+              <input type="text" id="session" class="form-control" placeholder="Session Key" pattern="^[a-zA-Z0-9]{26}$" autocomplete="off" required/>
+              <span id="session-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
+              aria-hidden="true"></span>
+              <span id="session-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
+              aria-hidden="true"></span>
+              <span id="session-fail-help"
+              class="fail-help help-block hidden">Please input the 26-character session key.</span>
+              <span id="session-fail-custom-help"
+              class="fail-custom help-block hidden"></span>
+            </div>
+            <div class="form-group">
+              <label class="control-label" for="session-password">Session Password</label>
+              <input type="text" id="session-password" class="form-control" placeholder="Session Password"
+              pattern="^[a-zA-Z0-9]{26}$"
+              autocomplete="off" required>
+              <span id="session-password-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden" aria-hidden="true"></span>
+              <span id="session-password-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden" aria-hidden="true"></span>
+              <span id="session-password-fail-help" class="fail-help help-block hidden">Please input the 26-character session password</span>
+              <span id="session-password-fail-custom-help" class="fail-custom help-block hidden"></span>
+            </div>
+          </form>
+        </div>
+        <div class="col-md-6">
+          <div id="drop-area">
+            Drag and drop your private key here 
+            <br/>
+            <p>&mdash;or&mdash;</p><br/>
+            <button id="choose-file-button" class="btn btn-primary">Choose file</button>
+          </div>
+          <input type="file" id="choose-file" accept=".pem">
+        </div>
+        <div class="col-md-6">
+          <div id="submit">
+            <!-- <button id="unmask-button" class="btn btn-primary">Unmask</button> -->
+          </div>
         </div>
       </div>
-
-      <button id="unmask" class="btn btn-primary ladda-button" data-style="zoom-out" disabled="disabled">
-        <span class="ladda-label">Unmask Data</span>
-      </button>
     </section>
   </div>
 
   <div class="row">
-    <section class="card col-md-10 col-md-offset-1">
-      <div id="friendly">
+    <section id="instructions" class="card col-md-10 col-md-offset-1">
+      <h2 class="text-center">Aggregate data</h2>
+      <p class="text-center">Your data will appear here after you submit the session key, password, and private key</p>
+      <span id="expand-table-button" class="arrow-down"></span>
+
+  
+      <div id="tables-area">
+        <hr/>
         <h3 id="number-employees-hot-name" class="head_element"></h3>
         <div id="number-employees-hot" class="head_element"></div>
         <br>
@@ -166,9 +198,9 @@
         <div id="totals-hot" class="head_element"></div>
         <br>
 
-        <div id="questions" class="head_element"></div>
+        <!-- <div id="questions" class="head_element"></div>
         <pre id="result" class="head_element"></pre>
-        <pre id="error" class="head_element"></pre>
+        <pre id="error" class="head_element"></pre> -->
       </div>
     </section>
   </div>

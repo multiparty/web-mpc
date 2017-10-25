@@ -13,7 +13,9 @@ require.config({
     alertify_defaults: 'helper/alertify_defaults',
     DropSheet: 'helper/drop_sheet',
     mpc: 'helper/mpc',
-    ResizeSensor: 'vendor/ResizeSensor'
+    ResizeSensor: 'vendor/ResizeSensor',
+    table_template: 'data/tables'
+
   },
   shim: {
     bootstrap: {

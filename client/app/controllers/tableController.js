@@ -1,4 +1,4 @@
-define(['jquery', 'Handsontable', 'qtip'], function ($, Handsontable) {
+define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qtip'], function ($, Handsontable, table_template, filesaver, alertify) {
 
   'use strict';
 
@@ -31,12 +31,12 @@ define(['jquery', 'Handsontable', 'qtip'], function ($, Handsontable) {
 
   // Registers a validator function with a name for use in the json template.
   // May be called before or after template is parsed or the table is created.
-  function register_validator(name, validator) {
+  function registerValidator(name, validator) {
     validators_map[name] = validator;
   }
 
   // Removes a validator function by its name.
-  function remove_validator(name) {
+  function removeValidator(name) {
     validators_map[name] = null;
   }
 
@@ -58,12 +58,6 @@ define(['jquery', 'Handsontable', 'qtip'], function ($, Handsontable) {
 
   var table_widths = {};
 
-  // Registers a type (an object with attributes matching HOT format) for use in the json template.
-  // This must be called BEFORE the template is parsed.
-  function register_type(name, type) {
-    types_map[name] = type;
-  }
-
   // Change this to add additional custom handling of errors when validating.
   var errorHandlers = [];
 
@@ -75,7 +69,7 @@ define(['jquery', 'Handsontable', 'qtip'], function ($, Handsontable) {
    *  2. "type": for values that fail the generic HOT validator (do not match the cell type).
    *  3. some other string: the name of the custom validator that failed according to how it is defined in the json template.
    */
-  function register_error_handler(handler) {
+  function registerErrorHandler(handler) {
     errorHandlers.push(handler);
   }
 
@@ -83,7 +77,7 @@ define(['jquery', 'Handsontable', 'qtip'], function ($, Handsontable) {
    * Removes a handler by index.
    * @param {int} index - the index of the handler to remove.
    */
-  function remove_error_handler(index) {
+  function removeErrorHandler(index) {
     if (index >= 0 && index < errorHandlers.length) {
       errorHandlers = errorHandlers.splice(index, 1);
     }
@@ -369,18 +363,18 @@ define(['jquery', 'Handsontable', 'qtip'], function ($, Handsontable) {
 
   /**
    * Creates hands-on-tables from the given definition.
-   * @param {json} tables_def - the json object representing the tables.
    * @return {array} containing HOT tables (table_obj may be accesed using hot_table._sail_meta).
    */
-  function make_tables(tables_def) {
+
+  function makeTables() {
     var result = [];
-    for (var t = 0; t < tables_def.tables.length; t++) {
-      var table_def = tables_def.tables[t];
-      var table = make_table_obj(table_def);
-      result[t] = make_hot_table(table);
+    for (var t = 0; t < table_template.tables.length; t++) {
+      var table_def = table_template.tables[t];
+      var table = makeTableObj(table_def);
+
+      result[t] = makeHotTable(table);
       table_widths[result[t].rootElement.id] = get_width(result[t]);
     }
-
     return result;
   }
 
@@ -389,7 +383,7 @@ define(['jquery', 'Handsontable', 'qtip'], function ($, Handsontable) {
    * @param {json} table_def - the json object representing the table.
    * @return {object} an object representing the table
    */
-  function make_table_obj(table_def) {
+  function makeTableObj(table_def) {
     var table_name = table_def.name;
     var element = table_def.element;
     var width = table_def.width;
@@ -504,9 +498,9 @@ define(['jquery', 'Handsontable', 'qtip'], function ($, Handsontable) {
   /**
    * Construct a Handsontable (HOT) object corresponding to the given table object.
    * @param {object} table - the table object to create (constructed by make_table from json definition).
-   * @return {hot} - the handsontable object constructed by make_hot_table.
+   * @return {hot} - the handsontable object constructed by makeHotTable.
    */
-  function make_hot_table(table) {
+  function makeHotTable(table) {
     var element = document.querySelector('#' + table.element);
 
     var hot_cols = new Array(table.colsCount);
@@ -554,6 +548,7 @@ define(['jquery', 'Handsontable', 'qtip'], function ($, Handsontable) {
       data[r] = [];
     }
 
+    // Todo: table.width is undefined
     var hotSettings = {
       // Enable tooltips
       comments: true,
@@ -591,40 +586,20 @@ define(['jquery', 'Handsontable', 'qtip'], function ($, Handsontable) {
 
     // Put name in the title element (if it exists)
     document.getElementById(table.element + '-name').innerHTML = table.name;
-    handsOnTable.clear();
 
-    //update_width(handsOnTable);
+    // TODO: why is clear needed?
+    // handsOnTable.clear();
 
     return handsOnTable;
-  }
-
-  // Update card width to match table width.
-  function update_width(table) {
-    var cardWidth = parseFloat($('#instructions').css('width'));
-    var tableWidth = get_width(table);
-    var tableId = table.rootElement.id;
-    table_widths[tableId] = tableWidth;
-
-    var maxWidth = 0;
-
-    for (var prop in table_widths) {
-      if (table_widths[prop] > maxWidth) {
-        maxWidth = table_widths[prop];
-      }
-    }
-
-    if (maxWidth > 0) {
-      $('header').css('width', maxWidth + 100);
-      $('main').css('width', maxWidth + 100);
-      $('#instructions').css('width', maxWidth + 50);
-    }
   }
 
   function get_width(table) {
     var colWidths = [];
 
     for (var i = 0; i < table.countRenderedCols(); i++) {
-      colWidths.push(table.getColWidth(i));
+      // TODO:
+      colWidths.push(50);
+      // colWidths.push(table.getColWidth(i));
     }
 
     // Need to account for column header.
@@ -692,7 +667,7 @@ define(['jquery', 'Handsontable', 'qtip'], function ($, Handsontable) {
    * @param {array(hot)} table_hot_arr - an array of handsontable objects.
    * @return {array(json)} each element contains 'name' and 'data'.
    */
-  function construct_data_tables(table_hot_arr) {
+  function constructDataTables(table_hot_arr) {
     var result = [];
     for (var i = 0; i < table_hot_arr.length; i++) {
       var table_hot_obj = table_hot_arr[i];
@@ -743,24 +718,83 @@ define(['jquery', 'Handsontable', 'qtip'], function ($, Handsontable) {
    * Empty all cells.
    * @param {hot} table_hot_obj - the handsontable object.
    */
-  function empty_table(table_hot_obj) {
-    table_hot_obj.clear();
-  }
+  // function empty_table(table_hot_obj) {
+  //   table_hot_obj.clear();
+  // }
 
-  /**
-   * Change the read only attribute of the entire table.
-   * @param {hot} table_hot_obj - the handsontable object.
-   * @param {boolean} read_only - the new value.
-   */
-  function read_only_table(table_hot_obj, read_only) {
-    var meta_table = table_hot_obj._sail_meta;
-    for (var r = 0; r < meta_table.rowsCount; r++) {
-      for (var c = 0; c < meta_table.colsCount; c++) {
-        meta_table.cells[r][c].read_only = read_only;
+
+  function getMetaData(key) {
+    for (var table_index in table_template.tables) {
+      if (table_template.tables[table_index].name === key) {
+        return table_template.tables[table_index];
       }
     }
+  }
 
-    table_hot_obj.render();
+  // function parseColHeaders() {
+  //   var headers = [];
+  //   var race_arr = table_template.tables[0].cols[0];
+  //   headers.push([""].concat(race_arr));
+  //   var gender_arr = table_template.tables[0].cols[1];
+  //   headers[1] = [""];
+  //   for (var i = 0; i < gender_arr.length; i++) {
+  //     headers[1].push(gender_arr[i].label);
+  //   }
+
+  //   return headers;
+  // }
+
+  function updateTableWidth(maxWidth) {
+
+    $('#instructions').css('width', maxWidth);
+    $('#instructions').css('max-width', maxWidth);
+    var documentWidth = $(window).width();
+    var containerWidth = parseFloat($('.container').first().width());
+    var offset = (containerWidth - maxWidth) / 2;
+
+    if (offset < (containerWidth - documentWidth) / 2) {
+      offset = (containerWidth - documentWidth) / 2;
+    }
+
+    if (maxWidth > documentWidth) {
+      $('header, #shadow').css('right', documentWidth - maxWidth);
+    }
+
+    // Bootstrap row has margin-left: -15px, add this back to offset to keep card centered
+    $('#instructions').css('margin-left', offset + 15);
+  }
+
+  function resetTableWidth() {
+
+    var $instructions = $('#instructions');
+    $instructions.css('width', '');
+    $instructions.css('max-width', '');
+    $instructions.css('margin-left', '');
+    $('header, #shadow').css('right', 0);
+  }
+
+  function displayReadTable(tables) {
+
+    $('#tables-area').show();
+
+    for (var t in tables) {
+      var meta = getMetaData(t);
+      var container = document.querySelector('#' + meta.element);
+
+      var headers = populateTableHeaders();
+
+      var settings = {
+        colHeaders: headers,
+        data: tables[t],
+        readOnly: true
+      }
+      var handsOn = new Handsontable(container, settings);
+      handsOn.render();
+      $('#' + meta.element + '-name').text(t);
+
+    }
+    updateTableWidth($('.wtHider').width() + 50);
+    $('.ht_clone_top').hide();
   }
 
   /**
@@ -768,7 +802,7 @@ define(['jquery', 'Handsontable', 'qtip'], function ($, Handsontable) {
    *  validators of Handsontable.
    * @param {hot} table_hot_obj - the handsontable object.
    */
-  function remove_validators(table_hot_obj) {
+  function removeValidators(table_hot_obj) {
     var meta_table = table_hot_obj._sail_meta;
     for (var r = 0; r < meta_table.rowsCount; r++) {
       for (var c = 0; c < meta_table.colsCount; c++) {
@@ -787,34 +821,145 @@ define(['jquery', 'Handsontable', 'qtip'], function ($, Handsontable) {
    the first key is the row key, and the second is the column key.
    * @param {hot} table_hot - the handsontable object.
    */
-  function fill_data(data, table_hot) {
-    var table_meta = table_hot._sail_meta;
 
-    var data_array = new Array(table_meta.rowsCount);
-    for (var r = 0; r < table_meta.rowsCount; r++) {
-      data_array[r] = new Array(table_meta.colsCount);
-      for (var c = 0; c < table_meta.colsCount; c++) {
-        var cell = table_meta.cells[r][c];
-        var row_key = cell.row_key;
-        var col_key = cell.col_key;
+  // function format_table(data) {
 
-        data_array[r][c] = data[row_key][col_key];
+  // }
+
+
+  function createMetaMap() {
+    var meta_table = table_template.tables[0];
+
+    var meta_map = {};
+
+    for (var i = 0; i < meta_table.rows.length; i++) {
+      var row_key = meta_table.rows[i].key
+      meta_map[row_key] = {};
+
+      var cols = meta_table.cols[1];
+      for (var j = 0; j < cols.length; j++) {
+        var col_key = cols[j].key;
+        meta_map[row_key][col_key] = [i, j];
+      }
+    }
+    return meta_map;
+  }
+
+
+  function fillData(data, table_hot) {
+    var table = [];
+    var meta_map = createMetaMap();
+
+    // initialize 2d array
+    for (var i = 0; i < Object.keys(data).length; i++) {
+      table[i] = [];
+    }
+
+    // fill table
+    for (var row in data) {
+      for (var col in data[row]) {
+        var index = meta_map[row][col];
+        table[index[0]][index[1]] = data[row][col];
       }
     }
 
-    table_hot.loadData(data_array);
+    return table;
+  }
+
+  // TODO: make this generic
+  function populateTableHeaders() {
+    var col_map = table_template.tables[0].cols;
+    var demo_row = [''];
+
+    for (var i = 0; i < col_map[1].length; i++) {
+      var race_index = Math.floor(i / 2);
+      var gender_label = col_map[1][i].label;
+      var race_label = col_map[0][race_index].label;
+      var label = race_label + ' ' + gender_label;
+      label = label.replace('<br> ', '');
+      demo_row.push(label);
+    }
+    return demo_row;
+  }
+
+  // TODO: should this be here or in the view?
+  function saveTables(tables, session) {
+
+    var tables_csv = [];
+    var row_map = table_template.tables[0].rows;
+
+    for (var sheet in tables) {
+      var sheet_csv = [];
+      sheet_csv.push([sheet]);
+      sheet_csv.push(populateTableHeaders());
+
+      for (var row in tables[sheet]) {
+        var row_arr = tables[sheet][row];
+        // add occupation labels
+        row_arr.unshift((row_map[row].label).replace('<br> ', ''));
+        row_arr = row_arr.join(',');
+        sheet_csv.push(row_arr);
+      }
+      tables_csv = tables_csv.reverse();
+      tables_csv.push(sheet_csv.join('\n'));
+
+    }
+
+    tables_csv = tables_csv.join('\n\n\n');
+    filesaver.saveAs(new Blob([tables_csv], {type: 'text/plain;charset=utf-8'}), 'Aggregate_Data_' + session + '.csv');
+  }
+
+  function saveQuestions(questions, session) {
+    if (questions.length === 0) {
+      return;
+    }
+
+    var headers = [];
+    for (var key in questions[0]) {
+      if (questions[0].hasOwnProperty(key)) {
+        headers.push(key);
+      }
+    }
+
+    var results = [headers.join(',')];
+    for (var i = 0; i < questions.length; i++) {
+      var one_submission = [];
+      for (var j = 0; j < headers.length; j++) {
+        var q = headers[j];
+        var answers = questions[i][q];
+
+        var answer = '';
+        for (var option in answers) {
+          if (answers.hasOwnProperty(option)) {
+            if (parseInt(answers[option]) === 1) {
+              answer = option;
+              break;
+            }
+          }
+        }
+
+        one_submission.push(answer);
+      }
+      results.push(one_submission.join(','));
+    }
+
+    results = results.join('\n');
+    filesaver.saveAs(new Blob([results], {type: 'text/plain;charset=utf-8'}), 'Questions_' + session + '.csv');
   }
 
   return {
-    make_tables: make_tables,
-    register_validator: register_validator,
-    register_error_handler: register_error_handler,
-    remove_validator: remove_validator,
-    remove_validators: remove_validators,
-    remove_error_handler: remove_error_handler,
-    construct_data_tables: construct_data_tables,
-    fill_data: fill_data,
-    read_only_table: read_only_table
+    makeTables: makeTables,
+    registerValidator: registerValidator,
+    registerErrorHandler: registerErrorHandler,
+    removeValidator: removeValidator,
+    removeValidators: removeValidators,
+    removeErrorHandler: removeErrorHandler,
+    constructDataTables: constructDataTables,
+    fillData: fillData,
+    saveTables: saveTables,
+    saveQuestions: saveQuestions,
+    displayReadTable: displayReadTable,
+    resetTableWidth: resetTableWidth,
+    updateTableWidth: updateTableWidth
   }
 });
-
