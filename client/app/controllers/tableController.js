@@ -909,8 +909,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   }
 
   function saveQuestions(questions, session) {
-
-    console.log(questions)
     if (questions.length === 0) {
       return;
     }
@@ -922,21 +920,17 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       }
     }
 
-
-    var results = [ headers.join(',') ];
-    
+    var results = [headers.join(',')];
     for (var i = 0; i < questions.length; i++) {
       var one_submission = [];
       for (var j = 0; j < headers.length; j++) {
         var q = headers[j];
-
-        console.log('q',q)
         var answers = questions[i][q];
 
         var answer = '';
         for (var option in answers) {
           if (answers.hasOwnProperty(option)) {
-            if (answers[option] === 1) {
+            if (parseInt(answers[option]) === 1) {
               answer = option;
               break;
             }
@@ -949,7 +943,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     }
 
     results = results.join('\n');
-    console.log('results', results)
     filesaver.saveAs(new Blob([results], {type: 'text/plain;charset=utf-8'}), 'Questions_' + session + '.csv');
   }
 
