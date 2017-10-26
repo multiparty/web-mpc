@@ -13,6 +13,13 @@
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.0/ladda-themeless.min.css"
         integrity="sha256-d7VZTlP9P3ZTCZ3Bkl8aGZ/+Vs4i+bpcOGNfibU7+LU=" crossorigin="anonymous"/>
 
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.10.0/css/alertify.min.css"
+        integrity="sha256-bNEFYRlNlnu0CH4DIKCXv0F6JVl/DdA2M9XVZn317q0=" crossorigin="anonymous"/>
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.10.0/css/themes/bootstrap.min.css"
+        integrity="sha256-vt37wNLVK8ICNWGrl+1MLb+pjq33sn6v37Q/7OPgkSU=" crossorigin="anonymous"/>
+
+
+
   <link rel="stylesheet" href="/styles/style.css">
 
 </head>
@@ -111,8 +118,8 @@
         <form>
           <div class="form-group">
             <label class="control-label" for="participants-count">New participants</label>
-            <input type="number" id="participants-count" class="form-control" placeholder="0" pattern="^[1-9]\d*{1,5}$"
-                   autocomplete="off" required/>
+            <input type="number" id="participants-count" class="form-control" min="1" placeholder="0" pattern="^[1-9]\d*{1,5}$"
+            autocomplete="off" required/>
             <span id="new-participants-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
                   aria-hidden="true"></span>
             <span id="new-participants-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
