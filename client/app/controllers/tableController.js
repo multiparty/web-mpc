@@ -372,6 +372,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       var table_def = table_template.tables[t];
       var table = makeTableObj(table_def);
 
+
       result[t] = makeHotTable(table);
       table_widths[result[t].rootElement.id] = get_width(result[t]);
     }
@@ -501,7 +502,9 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
    * @return {hot} - the handsontable object constructed by makeHotTable.
    */
   function makeHotTable(table) {
+
     var element = document.querySelector('#' + table.element);
+
 
     var hot_cols = new Array(table.colsCount);
     for (var i = 0; i < table.colsCount; i++) {

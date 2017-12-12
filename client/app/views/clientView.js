@@ -5,6 +5,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
       $(document).ready(function () {
 
+        console.log('tableTemplate', table_template);
         var $verify = $('#verify');
         var $session = $('#session');
         var $participationCode = $('#participation-code');
@@ -203,21 +204,20 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         });
 
         function resizeCard(tables, attach) {
+          // GENERIC
           if (attach) {
-            new ResizeSensor($('#number-employees-hot').find('.wtHider').first()[0], function () {
-              // clientController.updateWidth(tables);
-            });
-            new ResizeSensor($('#compensation-hot').find('.wtHider').first()[0], function () {
-              // clientController.updateWidth(tables);
-            });
-            new ResizeSensor($('#performance-pay-hot').find('.wtHider').first()[0], function () {
-              // clientController.updateWidth(tables);
-            });
-            new ResizeSensor($('#service-length-hot').find('.wtHider').first()[0], function () {
-              // clientController.updateWidth(tables);
-            });
-          }
 
+            var table_divs = $('.table-section');
+
+            for (var i = 0; i < table_divs.length; i++) {
+              var table = table_divs[i];
+              // TODO!
+
+              // new ResizeSensor((table).find('.wtHider').first()[0], function() {
+      //   // clientController.updateWidth(tables);
+              // });
+            }
+          }
           clientController.updateWidth(tables, !attach);
         }
 
