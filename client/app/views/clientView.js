@@ -94,12 +94,13 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
             totals = ['#VALUE!', '#VALUE!', '#VALUE!'];
           }
 
+          // NOTE: for survey quetsions
           // Note: took out declarations to fix eslint error
-          changes = []; // [ [row, col, change], [row, col, change], ..]
-          for (i = 0; i < totals.length; i++) {
-            changes.push([0, i, totals[i]]);
-          }
-          tables[4].setDataAtCell(changes); // This changes the data without changing cellProperties (e.g. keeps readOnly)
+          // changes = []; // [ [row, col, change], [row, col, change], ..]
+          // for (i = 0; i < totals.length; i++) {
+          //   changes.push([0, i, totals[i]]);
+          // }
+          // tables[4].setDataAtCell(changes); // This changes the data without changing cellProperties (e.g. keeps readOnly)
         };
         // Alerts, page elements, etc. for drag-and-drop/choose file.
         // var workbook_js = null;

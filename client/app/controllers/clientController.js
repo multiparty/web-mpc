@@ -210,16 +210,17 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
             $(questions[q]).removeClass('has-error');
           }
         }
-
-        if (!questionsValid) {
-          errors = errors.concat(ADD_QUESTIONS_ERR);
-        }
+        // NOTE: no error check available
+        // if (!questionsValid) {
+        //   errors = errors.concat(ADD_QUESTIONS_ERR);
+        // }
 
         // Register semantic discrepancies validator.
         // console.log("VALIDATE?", registerValidator)
-        tableController.registerValidator('discrepancies', function (table, cell, value, callback) {
-          checkSemanticDiscrepancies(tables, table, cell, value, callback);
-        });
+        // NOTE: semantic discrepancies for sal equity?!
+        // tableController.registerValidator('discrepancies', function (table, cell, value, callback) {
+        //   checkSemanticDiscrepancies(tables, table, cell, value, callback);
+        // });
 
         // Receive errors from validator and puts them in the errors array.
         var errorHandler = function (table_name, value, row, col, validator_name) {
@@ -431,6 +432,8 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
           return callback(true);
         }
       }
+
+      console.log('bonus',bonus_table);
 
       // bonus can only be non-zero if the other tables are non-zero.
       if (name === bonus_table._sail_meta.name) {
