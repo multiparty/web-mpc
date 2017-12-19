@@ -146,7 +146,7 @@ var Aggregate = mongoose.model('Aggregate', {
 var Mask = mongoose.model('Mask', {
   _id: String, // concat of session + user.
   fields: Object,
-  questions_public: Object,
+  // questions_public: Object,
   session: String
 });
 var Cube = mongoose.model('Cubes', {
@@ -242,11 +242,12 @@ app.post('/', function (req, res) {
   var body = req.body;
   console.log(body);
 
+
   // TODO: set length restrictions on session and user
   var bodySchema = {
     mask: maskSchema.required(),
     data: dataSchema.required(),
-    questions_public: encryptedPublicQuestionsSchema.required(),
+    // questions_public: encryptedPublicQuestionsSchema.required(),
     pairwise_hypercubes: pairwiseHyperCubeScheme.required(),
     session: joi.string().alphanum().required(),
     user: joi.string().alphanum().required()
@@ -268,7 +269,7 @@ app.post('/', function (req, res) {
 
       var mask = body.mask,
         req_data = body.data,
-        questions_public = body.questions_public,
+        // questions_public = body.questions_public,
         pairwise_hypercubes = body.pairwise_hypercubes,
         session = body.session,
         user = body.user,
@@ -297,7 +298,7 @@ app.post('/', function (req, res) {
           var maskToSave = new Mask({
             _id: ID,
             fields: mask,
-            questions_public: questions_public,
+            // questions_public: questions_public,
             session: session
           });
 
