@@ -224,11 +224,19 @@ app.get('/', function (req, res) {
 });
 
 app.get('/session', function (req, res) {
-  res.sendFile((path.join(__dirname + '/../client/session.html')));
+  res.sendFile((path.join(__dirname + '/../client/create.html')));
+});
+
+app.get('/create', function (req, res) {
+  res.sendFile((path.join(__dirname + '/../client/create.html')));
 });
 
 app.get('/track', function (req, res) {
-  res.sendFile((path.join(__dirname + '/../client/track.html')));
+  res.sendFile((path.join(__dirname + '/../client/manage.html')));
+});
+
+app.get('/manage', function (req, res) {
+  res.sendFile((path.join(__dirname + '/../client/manage.html')));
 });
 
 app.get('/unmask', function (req, res) {
