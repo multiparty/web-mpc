@@ -59,7 +59,7 @@ function genPairs(num) {
 const maskSchema = templateToJoiSchema(template, joi.string().required());
 const dataSchema = templateToJoiSchema(template, joi.number().required());
 const encryptedPublicQuestionsSchema = templateToJoiSchema(template.questions, joi.string().required());
-const pairwiseHyperCubeScheme = templateToJoiSchema(genPairs(5), joi.string().required());
+const pairwiseHyperCubeScheme = templateToJoiSchema(genPairs(0), joi.string().required());
 
 // Override deprecated mpromise
 mongoose.Promise = Promise;
@@ -255,7 +255,7 @@ app.post('/', function (req, res) {
   var bodySchema = {
     mask: maskSchema.required(),
     data: dataSchema.required(),
-    // questions_public: encryptedPublicQuestionsSchema.required(),
+    questions_public: encryptedPublicQuestionsSchema.required(),
     pairwise_hypercubes: pairwiseHyperCubeScheme.required(),
     session: joi.string().alphanum().required(),
     user: joi.string().alphanum().required()
