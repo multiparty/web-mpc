@@ -7,7 +7,7 @@
 //  */
 
 /*eslint no-console: ["error", { allow: ["warn", "error"] }] */
-define(['helper/mpc', 'controllers/tableController', 'filesaver'], function (mpc, tableController, filesaver) {
+define(['helper/mpc'], function (mpc) {
 
   // Takes callback(true|false, data).
   function aggregate_and_unmask(mOut, privateKey, session, password, callback) {

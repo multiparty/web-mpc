@@ -832,14 +832,13 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
   function createMetaMap() {
     var meta_table = table_template.tables[0];
-
     var meta_map = {};
 
     for (var i = 0; i < meta_table.rows.length; i++) {
       var row_key = meta_table.rows[i].key
       meta_map[row_key] = {};
 
-      var cols = meta_table.cols[1];
+       var cols = meta_table.cols[0];
       for (var j = 0; j < cols.length; j++) {
         var col_key = cols[j].key;
         meta_map[row_key][col_key] = [i, j];
