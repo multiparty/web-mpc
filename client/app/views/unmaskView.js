@@ -9,6 +9,7 @@ define(['jquery', 'controllers/unmaskController', 'controllers/clientController'
 
 
     function callb(e, d, questions, session) {
+      console.log(d, e, questions);
       var tables = {};
       for (var name in d) {
         if (name !== 'questions') {
@@ -19,7 +20,7 @@ define(['jquery', 'controllers/unmaskController', 'controllers/clientController'
       }
 
       tableController.saveTables(tables, session);
-      tableController.saveQuestions(questions, session);
+      // tableController.saveQuestions(questions, session);
       tableController.displayReadTable(tables);
       // TODO: why is this even here?
       $('#HandsontableCopyPaste').hide();
@@ -34,7 +35,7 @@ define(['jquery', 'controllers/unmaskController', 'controllers/clientController'
         contentType: 'application/json',
         data: JSON.stringify({session: sK, password: sP}),
         success: function (data) {
-          unmaskController.aggregate_and_unmask(data, pK, sK, sP, callb);
+          unmaskController.aggregateAndUnmask(data, pK, sK, sP, callb);
         },
         error: function (e) {
           error(e.responseText);

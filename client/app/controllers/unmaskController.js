@@ -10,7 +10,7 @@
 define(['helper/mpc'], function (mpc) {
 
   // Takes callback(true|false, data).
-  function aggregate_and_unmask(mOut, privateKey, session, password, callback) {
+  function aggregateAndUnmask(mOut, privateKey, session, password, callback) {
 
     mOut = JSON.parse(mOut.data);
 
@@ -42,7 +42,6 @@ define(['helper/mpc'], function (mpc) {
     // corresponding to a submission with decrypted
     // value fields
     var decrypted = decryptValueShares(sk, mOut, true);
-    questions_public = decryptValueShares(sk, questions_public, false);
 
     // Aggregate decrypted values by key
     var analystResultShare = decrypted.then(function (analystShares) {
@@ -56,14 +55,14 @@ define(['helper/mpc'], function (mpc) {
     // Request service to aggregate its shares and send us the result
     var serviceResultShare = getServiceResultShare(session, password);
 
-    Promise.all([analystResultShare, serviceResultShare, questions_public])
+    Promise.all([analystResultShare, serviceResultShare])
       .then(function (resultShares) {
         var analystResult = resultShares[0],
           serviceResult = resultShares[1],
           finalResult = mpc.recombineValues(serviceResult, analystResult);
-        if (!ensure_equal(finalResult.questions, mpc.aggregateShares(resultShares[2]))) {
-          console.error('Secret-shared question answers do not aggregate to the same values as publicly collected answers.');
-        }
+        // if (!ensure_equal(finalResult.questions, mpc.aggregateShares(resultShares[2]))) {
+        //   console.error('Secret-shared question answers do not aggregate to the same values as publicly collected answers.');
+        // }
         // generateQuestionsCSV(resultShares[2], session)
         callback(true, finalResult, resultShares[2], session);
 
@@ -136,6 +135,7 @@ define(['helper/mpc'], function (mpc) {
     // decrypt one level of obj, decrypt nested object recursively
     var resultTuples = [];
 
+
     for (var key in obj) {
       if (obj.hasOwnProperty(key)) {
         var value = obj[key];
@@ -152,10 +152,12 @@ define(['helper/mpc'], function (mpc) {
       }
     }
 
-    return Promise.all(resultTuples).then(function (tuples) {
-      // recombine individual key-value pairs into single object
-      return Object.assign(...tuples);
-    });
+    if (resultTuples !== undefined) {
+      return Promise.all(resultTuples).then(function (tuples) {
+        // recombine individual key-value pairs into single object
+        return Object.assign(...tuples);
+      });
+    }
   }
 
   /**
@@ -212,6 +214,6 @@ define(['helper/mpc'], function (mpc) {
   }
 
   return {
-    aggregate_and_unmask: aggregate_and_unmask
+    aggregateAndUnmask: aggregateAndUnmask
   }
 });
