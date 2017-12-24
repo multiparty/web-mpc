@@ -776,28 +776,46 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     $('header, #shadow').css('right', 0);
   }
 
+  function formatData(tables) {
+
+    var data = [];
+    var rows = table_template.tables[0].rows;
+    for (var k in tables) {
+      for (var i = 0; i < rows.length; i++) {
+        if (k === rows[i].key) {
+          data.push([rows[i].label, tables[k].value]);
+          
+        }
+      }
+    }
+    return data;
+  }
+
   function displayReadTable(tables) {
 
+    var title = 'Pacesetters Procurement Measure';
     $('#tables-area').show();
 
-    for (var t in tables) {
-      var meta = getMetaData(t);
-      var container = document.querySelector('#' + meta.element);
+    tables = tables['Pacesetter Procurement Measure'];
 
-      var headers = populateTableHeaders();
+    
 
-      var settings = {
-        colHeaders: headers,
-        data: tables[t],
-        readOnly: true
-      }
-      var handsOn = new Handsontable(container, settings);
-      handsOn.render();
-      $('#' + meta.element + '-name').text(t);
+    var container = document.getElementById('pacesetter-measure-hot');
 
+    var data = formatData(tables);
+
+    var settings = {
+      colHeaders: ["Measure", "Value"],
+      data: data,
+      readOnly: true
     }
+    var handsOn = new Handsontable(container, settings);
+    handsOn.render();
+    $('#pacesetter-measure-hot-name').text(title);
+
     updateTableWidth($('.wtHider').width() + 50);
     $('.ht_clone_top').hide();
+  
   }
 
   /**
@@ -888,26 +906,15 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   function saveTables(tables, session) {
 
     var tables_csv = [];
-    var row_map = table_template.tables[0].rows;
 
-    for (var sheet in tables) {
-      var sheet_csv = [];
-      sheet_csv.push([sheet]);
-      sheet_csv.push(populateTableHeaders());
+    tables_csv.push(['Pacesetter Procurement Measure']);
+    tables = tables['Pacesetter Procurement Measure']
 
-      for (var row in tables[sheet]) {
-        var row_arr = tables[sheet][row];
-        // add occupation labels
-        row_arr.unshift((row_map[row].label).replace('<br> ', ''));
-        row_arr = row_arr.join(',');
-        sheet_csv.push(row_arr);
-      }
-      tables_csv = tables_csv.reverse();
-      tables_csv.push(sheet_csv.join('\n'));
-
+    for (var k in tables) {
+      var value = tables[k].value;
+      tables_csv.push([k, value]);
     }
-
-    tables_csv = tables_csv.join('\n\n\n');
+    tables_csv = tables_csv.join('\n');
     filesaver.saveAs(new Blob([tables_csv], {type: 'text/plain;charset=utf-8'}), 'Aggregate_Data_' + session + '.csv');
   }
 

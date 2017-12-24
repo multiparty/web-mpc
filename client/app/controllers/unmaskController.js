@@ -60,11 +60,12 @@ define(['helper/mpc'], function (mpc) {
         var analystResult = resultShares[0],
           serviceResult = resultShares[1],
           finalResult = mpc.recombineValues(serviceResult, analystResult);
+
         // if (!ensure_equal(finalResult.questions, mpc.aggregateShares(resultShares[2]))) {
         //   console.error('Secret-shared question answers do not aggregate to the same values as publicly collected answers.');
         // }
         // generateQuestionsCSV(resultShares[2], session)
-        callback(true, finalResult, resultShares[2], session);
+        callback(true, finalResult, [], session);
 
       })
       .catch(function (err) {

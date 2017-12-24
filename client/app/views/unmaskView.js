@@ -9,19 +9,16 @@ define(['jquery', 'controllers/unmaskController', 'controllers/clientController'
 
 
     function callb(e, d, questions, session) {
-      console.log(d, e, questions);
-      var tables = {};
-      for (var name in d) {
-        if (name !== 'questions') {
-          // var table = tables_map[name];
-          var data_array = tableController.fillData(d[name]);
-          tables[name] = data_array;
-        }
+      if (typeof(d) !== 'object') {
+        return;
       }
+      var tables = {};
+   
+      tables = d;
 
       tableController.saveTables(tables, session);
-      // tableController.saveQuestions(questions, session);
       tableController.displayReadTable(tables);
+    
       // TODO: why is this even here?
       $('#HandsontableCopyPaste').hide();
 
