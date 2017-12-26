@@ -14,8 +14,6 @@ define(['helper/mpc'], function (mpc) {
 
     mOut = JSON.parse(mOut.data);
 
-    console.log(mOut);
-
     var skArrayBuffer;
     try {
       skArrayBuffer = str2ab(atob(privateKey));
