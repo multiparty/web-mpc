@@ -12,9 +12,6 @@ module.exports = {
     "TotalAmt": {
       'value':0
     },
-    "AverageSpent": {
-      'value':0
-    },
     "NumContracted": {
       'value':0
     }

@@ -14,11 +14,7 @@ define(['helper/mpc'], function (mpc) {
 
     mOut = JSON.parse(mOut.data);
 
-    // Questions Public is the public answers to questions.
-    var questions_public = [];
-    for (var i = 0; i < mOut.length; i++) {
-      questions_public.push(mOut[i].questions_public);
-    }
+    console.log(mOut);
 
     var skArrayBuffer;
     try {

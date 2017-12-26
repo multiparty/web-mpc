@@ -19,9 +19,6 @@ define([], function () {
             "key": "TotalAmt",
             "label": "Total Dollar Amount Spent Procuring All Goods and Services"
           },{
-            "key": "AverageSpent",
-            "label": "Average Spent per Local MBE"
-          }, {
             "key": "NumContracted",
             "label": "Number of Local MBEs Contracted"
           }

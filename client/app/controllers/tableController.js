@@ -578,25 +578,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       afterChange: function (row, column) {
         //update_width(this);
       }
-      // // CUSTOM for pacesetters
-      // columnSummary: [{
-      //   destinationRow: 0,
-      //   destinationColumn: 3,
-      //   type: 'custom',
-      //   customFunction: function(endpoint) {
-      //     // this function counts the even values 
-  		// 	var hotInstance = this.hot;
-			// 	var avg = 0;
-        
-      //   var a = parseInt(hotInstance.getDataAtCell(0, endpoint.sourceColumn), 10);
-      //   console.log(a)
-      //   var b = 10;
-  
-      //   return a+b;
-
-      //   }
-
-			// }],
     };
 
     // other parameters from config
@@ -795,10 +776,15 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     $('header, #shadow').css('right', 0);
   }
 
-  function formatData(tables) {
+  function formatPacesettersData(tables) {
 
     var data = [];
     var rows = table_template.tables[0].rows;
+    var numContracted = tables['NumContracted'].value;
+    var amtSpent = tables['DollarAmtLocal'].value;
+
+    var average = amtSpent / numContracted;
+
     for (var k in tables) {
       for (var i = 0; i < rows.length; i++) {
         if (k === rows[i].key) {
@@ -807,6 +793,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
         }
       }
     }
+    data.push(['Average Spent per Local MBE', average]);
     return data;
   }
 
@@ -821,7 +808,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
     var container = document.getElementById('pacesetter-measure-hot');
 
-    var data = formatData(tables);
+    var data = formatPacesettersData(tables);
 
     var settings = {
       colHeaders: ["Measure", "Value"],
@@ -834,7 +821,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
     updateTableWidth($('.wtHider').width() + 50);
     $('.ht_clone_top').hide();
-  
   }
 
   /**
