@@ -5,7 +5,6 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
       $(document).ready(function () {
 
-        console.log('tableTemplate', table_template);
         var $verify = $('#verify');
         var $session = $('#session');
         var $participationCode = $('#participation-code');

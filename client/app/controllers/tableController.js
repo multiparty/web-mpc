@@ -578,6 +578,25 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       afterChange: function (row, column) {
         //update_width(this);
       }
+      // // CUSTOM for pacesetters
+      // columnSummary: [{
+      //   destinationRow: 0,
+      //   destinationColumn: 3,
+      //   type: 'custom',
+      //   customFunction: function(endpoint) {
+      //     // this function counts the even values 
+  		// 	var hotInstance = this.hot;
+			// 	var avg = 0;
+        
+      //   var a = parseInt(hotInstance.getDataAtCell(0, endpoint.sourceColumn), 10);
+      //   console.log(a)
+      //   var b = 10;
+  
+      //   return a+b;
+
+      //   }
+
+			// }],
     };
 
     // other parameters from config
