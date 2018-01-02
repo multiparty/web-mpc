@@ -105,8 +105,8 @@ if (process.env.NODE_ENV === 'production') {
 
 
 function approveDomains(opts, certs, cb) {
-  if (!/\.100talent\.org$/.test(opts.domain) && opts.domain !== '100talent.org') {
-    console.error("bad domain '" + opts.domain + "', not a subdomain of 100talent.org");
+  if (!/\.appliedmpc\.org$/.test(opts.domain) && opts.domain !== 'appliedmpc.org') {
+    console.error("bad domain '" + opts.domain + "', not a subdomain of appliedmpc.org");
     cb(null, null);
     return;
   }
@@ -115,7 +115,7 @@ function approveDomains(opts, certs, cb) {
     opts.domains = certs.altnames;
   }
   else {
-    opts.domains = ['100talent.org'];
+    opts.domains = ['appliedmpc.org'];
     opts.email = 'fjansen@bu.edu';
     opts.agreeTos = true;
   }
