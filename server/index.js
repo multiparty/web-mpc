@@ -95,12 +95,12 @@ process.env.NODE_ENV = '';
 
 if (process.env.NODE_ENV === 'production') {
   //handles acme-challenge and redirects to https
-  http.createServer(lex.middleware(require('redirect-https')())).listen(80, function () {
+  http.createServer(lex.middleware(app)).listen(8080, function () {
     console.log("Listening for ACME http-01 challenges on", this.address());
   });
 } else {
   // Run on port 8080 without forced https for development
-  server = http.createServer(lex.middleware(app)).listen(80, function () {
+  server = http.createServer(lex.middleware(app)).listen(8080, function () {
     console.log("Listening for ACME http-01 challenges on", this.address());
   });
 }
