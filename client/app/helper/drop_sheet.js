@@ -108,17 +108,28 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
       var hotTable = opts.tables[0];
       var sheet = wb.Sheets[wb.SheetNames[0]];
 
+      
       if ((sheet['A2'].h === 'Dollar Amount Spent with Local MBEs') && 
           (sheet['A3'].h === 'Dollar Amount Spent with MBEs') && 
           (sheet['A4'].h  === 'Total Dollar Amount Spent Procuring All Goods and Services') && 
           (sheet['A5'].h === 'Number of Local MBEs Contracted')) {
-            hotTable.setDataAtCell(0,0, sheet['B2'].v);
-            hotTable.setDataAtCell(1,0, sheet['B3'].v);
-            hotTable.setDataAtCell(2,0, sheet['B4'].v);
-            hotTable.setDataAtCell(3,0, sheet['B5'].v);
+            try{
+              hotTable.setDataAtCell(0,0, sheet['B2'].v);
+              hotTable.setDataAtCell(1,0, sheet['B3'].v);
+              hotTable.setDataAtCell(2,0, sheet['B4'].v);
+              hotTable.setDataAtCell(3,0, sheet['B5'].v);
+  
+              alertify.alert('<img src="/images/accept.png" alt="Success">Success',
+              'The tables below have been populated. Please confirm that your data is accurate and scroll down to answer the multiple choice questions, verify, and submit your data');
+              
+              return true;
+            } catch(err) {
+              alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", "Data improperly formatted");      
+              return false;                      
+            }
 
-            return true;
       }
+      alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", "Data improperly formatted");      
       return false;
     }
 
