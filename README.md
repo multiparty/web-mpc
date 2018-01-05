@@ -84,7 +84,7 @@ Instructions on how to operate the web-mpc application. All steps below are perf
 
 #### Generate session key
 
-* Navigate to `localhost:8080/session`.
+* Navigate to `localhost:8080/create`.
 * Click on **Generate Session** and copy and share the session key with all participants.
 
 #### Fill out data
@@ -93,7 +93,7 @@ Instructions on how to operate the web-mpc application. All steps below are perf
 
 #### Manage session
 
-* Navigate to `localhost:8080/track`.
+* Navigate to `localhost:8080/manage`.
 * Input your session key and password.
 * Generate participation links.
 * Start the session.
