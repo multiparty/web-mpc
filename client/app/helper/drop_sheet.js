@@ -144,9 +144,8 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
         if (pending) {
           return opts.errors.pending();
         }
-        // var files = e.dataTransfer.files;
         $('#drop-area').removeClass('dragenter');
-        // readFile(files);
+      
         opts.handle_file(e);
       } else {
         alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
