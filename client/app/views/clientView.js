@@ -282,7 +282,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         noclose: true,
         reminder: 0,
         reminderClosed: 0,
-        text: '<strong>Your web browser {brow_name} is not supported.</strong> Please upgrade to a more modern browser to participate in the 100% Talent Data Submission.'
+        text: '<strong>Your web browser {brow_name} is not supported.</strong> Please upgrade to a more modern browser to participate in the Pacesetters Data Submission.'
       };
 
       function $buo_f() {

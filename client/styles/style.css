@@ -12,10 +12,23 @@
 }
 
 .handsontable th {
-  font-size: 13px;
+  font-size: 16px;
   white-space: pre-line;
   max-width: 110px;
   vertical-align: middle;
+  height: 50px;
+  font-weight: 500;
+}
+
+.handsontable td {
+  font-size: 15px;
+  white-space: pre-line;
+  vertical-align: middle;
+}
+
+textarea.handsontableInput {
+  line-height: 49px;
+  text-align: right;
 }
 
 body {

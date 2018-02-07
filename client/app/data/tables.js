@@ -5,8 +5,9 @@ define([], function () {
         "name": "Pacesetter Procurement Measure",
         "element": "pacesetter-measure-hot",
         "hot_parameters": {
-          "rowHeaderWidth": 200,
-          "height": 425
+          "rowHeaderWidth": 400,
+          "height": 275,
+          "colWidths": [200]
         },
         "rows": [
           {
@@ -34,12 +35,25 @@ define([], function () {
         "types": [
           {
             "range": {
-              "row": "*",
+              "row": "0:2",
+              "col": "*"
+            },
+            "type": "currency",
+            "min": 0,
+            "max_warning": 10000000,
+            "empty": false,
+            "validators": [
+              "discrepancies"
+            ]
+          },
+          {
+            "range": {
+              "row": "3",
               "col": "*"
             },
             "type": "int",
             "min": 0,
-            "max_warning": 10000,
+            "max_warning": 200,
             "empty": false,
             "validators": [
               "discrepancies"
@@ -59,30 +73,14 @@ define([], function () {
             "range": {
               "row": "*",
               "col": "*"
-              // "col": "0-2-4-6-8-10-12-14"
             },
             "tooltip": {
               // "//promptTitle": "Number of Female Employees",
               // "//prompt": "Please input the total number of female employees in this race/ethnicity and job category.",
-              // "errorTitle": "Invalid Data Entry",
-              // "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero.",
-              // "warningTitle": "Warning: Data is too big",
-              // "warning": "Are you sure this value is correct?"
-            }
-          },
-          {
-            "range": {
-              "row": "*",
-              "col": "*"
-              // "col": "1-3-5-7-9-11-13-15"
-            },
-            "tooltip": {
-              // "//promptTitle": "Number of Male Employees",
-              // "//prompt": "Please input the total number of male employees in this race/ethnicity and job category.",
-              // "errorTitle": "Invalid Data Entry",
-              // "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero.",
-              // "warningTitle": "Warning: Data is too big",
-              // "warning": "Are you sure this value is correct?"
+              "errorTitle": "Invalid Data Entry",
+              "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero.",
+              "warningTitle": "Warning: Data is too big",
+              "warning": "Are you sure this value is correct?"
             }
           }
         ]
