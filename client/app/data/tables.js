@@ -5,9 +5,10 @@ define([], function () {
         "name": "Pacesetter Procurement Measure",
         "element": "pacesetter-measure-hot",
         "hot_parameters": {
-          "rowHeaderWidth": 400,
+          "rowHeaderWidth": 480,
           "height": 275,
-          "colWidths": [200]
+          "colWidths": [190],
+          "stretchH": "last",
         },
         "rows": [
           {

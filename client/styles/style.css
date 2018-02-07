@@ -18,6 +18,7 @@
   vertical-align: middle;
   height: 50px;
   font-weight: 500;
+  padding: 0 10px;
 }
 
 .handsontable td {
@@ -38,6 +39,7 @@ body {
   line-height: 1.5;
   color: #212529;
   background-color: #eee;
+  font-size: 16px;
 }
 
 h1, h2, h3 {
@@ -111,41 +113,6 @@ header #logos img:not(:first-child) {
   margin-left: 50px;
 }
 
-@media (min-width: 992px) and (max-width: 1200px) {
-  h1 {
-    font-size: 35px;
-    margin-top: 42px;
-  }
-}
-
-@media (min-width: 768px) and (max-width: 992px) {
-  h1 {
-    font-size: 30px;
-    margin-top: 50px;
-  }
-
-  header #logos img {
-    display: block;
-    width: 50%;
-    margin-top: 20px;
-  }
-
-  header #logos img:not(:first-child) {
-    margin-left: 0;
-  }
-}
-
-@media (max-width: 768px) {
-  h1 {
-    font-size: 30px;
-    margin-top: 50px;
-  }
-
-  header #logos img {
-    display: none;
-  }
-}
-
 #content {
   margin-top: 270px;
 }
@@ -153,13 +120,9 @@ header #logos img:not(:first-child) {
 .card {
   background: #fff;
   box-shadow: 0 2px 4px 0 rgba(170, 170, 170, .80);
-  padding: 30px;
+  padding: 50px;
   margin-bottom: 35px;
   border-radius: 2px;
-}
-
-#instructions {
-  transition: width 1s, margin-left 1s;
 }
 
 #expand-table-button {
@@ -311,6 +274,41 @@ span.success {
 
 #submit {
   margin-top: 20px;
+}
+
+@media (min-width: 992px) and (max-width: 1200px) {
+  h1 {
+    font-size: 35px;
+    margin-top: 42px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 992px) {
+  h1 {
+    font-size: 30px;
+    margin-top: 50px;
+  }
+}
+
+@media (max-width: 768px) {
+  h1 {
+    font-size: 30px;
+    margin-top: 50px;
+  }
+
+  header #logos img:not(:first-child) {
+    margin-left: 10px;
+  }
+}
+
+@media (max-width: 500px) {
+  header #logos {
+    display: none;
+  }
+
+  .card {
+    padding: 25px;
+  }
 }
 
 /* Triangles, based on https://tympanus.net/codrops/2013/10/03/a-collection-of-separator-styles/ */
