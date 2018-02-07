@@ -108,15 +108,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     var table = this.instance;
     var cell = table._sail_meta.cells[this.row][this.col];
 
-    // Makes initializing the table faster.
-    // Dont validate empty on intialization cells until they receive values.
-    if (cell.first_time === undefined) {
-      cell.first_time = true;
-      cell.status = 'ok';
-      callback(true);
-      return;
-    }
-
     if (value !== '' && value !== null && cell.max !== null && value > cell.max) {
       fire_all_error_handlers(table._sail_meta.name, value, cell.row_index, cell.col_index, 'max');
       cell.status = 'error';
@@ -590,9 +581,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     // Put name in the title element (if it exists)
     document.getElementById(table.element + '-name').innerHTML = table.name;
 
-    // TODO: why is clear needed?
-    // handsOnTable.clear();
-
     return handsOnTable;
   }
 
@@ -789,7 +777,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       for (var i = 0; i < rows.length; i++) {
         if (k === rows[i].key) {
           data.push([rows[i].label, tables[k].value]);
-          
+
         }
       }
     }
@@ -804,7 +792,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
     tables = tables['Pacesetter Procurement Measure'];
 
-    
 
     var container = document.getElementById('pacesetter-measure-hot');
 
@@ -861,7 +848,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       var row_key = meta_table.rows[i].key
       meta_map[row_key] = {};
 
-       var cols = meta_table.cols[0];
+      var cols = meta_table.cols[0];
       for (var j = 0; j < cols.length; j++) {
         var col_key = cols[j].key;
         meta_map[row_key][col_key] = [i, j];
