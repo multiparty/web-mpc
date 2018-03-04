@@ -50,7 +50,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
     currency: {
       type: 'numeric',
-      format: '$0,0.00',
+      format: '$0,0',
       language: 'en-US' // this is the default locale, set up for USD
     }
   };

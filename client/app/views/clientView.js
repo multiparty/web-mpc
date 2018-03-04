@@ -190,7 +190,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         });
 
         // Table accordion.
-        $('#tables-area').hide();
+        //$('#tables-area').hide();
 
         $('#expand-table-button').click(function (e) {
           $('#tables-area').slideToggle(function () {

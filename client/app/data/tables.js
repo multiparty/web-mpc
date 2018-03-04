@@ -8,27 +8,27 @@ define([], function () {
           "rowHeaderWidth": 480,
           "height": 275,
           "colWidths": [190],
-          "stretchH": "last",
+          "stretchH": "last"
         },
         "rows": [
           {
             "key": "DollarAmtLocal",
-            "label": "Dollar Amount Spent with Local MBEs"
+            "label": "Dollar Amount Spent with Local MBEs in Whole Dollars"
           },{
             "key": "DollarAmt",
-            "label": "Dollar Amount Spent with MBEs"
+            "label": "Dollar Amount Spent with MBEs in Whole Dollars"
           },{
             "key": "TotalAmt",
-            "label": "Total Dollar Amount Spent Procuring All Goods and Services"
+            "label": "Total Dollar Amount Spent Procuring All Goods and Services in Whole Dollars"
           },{
             "key": "NumContracted",
-            "label": "Number of Local MBEs Contracted"
+            "label": "Number of Local MBEs With Whom You've Done Business"
           }
         ],
         "cols": [
           [
             {
-              "label": "Value",
+              "label": "Value for FY17",
               "key": "value"
             }
           ]
@@ -41,7 +41,7 @@ define([], function () {
             },
             "type": "currency",
             "min": 0,
-            "max_warning": 10000000,
+            "max_warning": 1000000000,
             "empty": false,
             "validators": [
               "discrepancies"
@@ -54,7 +54,7 @@ define([], function () {
             },
             "type": "int",
             "min": 0,
-            "max_warning": 200,
+            "max_warning": 1000,
             "empty": false,
             "validators": [
               "discrepancies"
