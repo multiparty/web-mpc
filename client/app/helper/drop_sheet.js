@@ -108,28 +108,28 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
       var hotTable = opts.tables[0];
       var sheet = wb.Sheets[wb.SheetNames[0]];
 
-      
-      if ((sheet['A2'].h === 'Dollar Amount Spent with Local MBEs') && 
-          (sheet['A3'].h === 'Dollar Amount Spent with MBEs') && 
-          (sheet['A4'].h  === 'Total Dollar Amount Spent Procuring All Goods and Services') && 
-          (sheet['A5'].h === 'Number of Local MBEs Contracted')) {
-            try{
-              hotTable.setDataAtCell(0,0, sheet['B2'].v);
-              hotTable.setDataAtCell(1,0, sheet['B3'].v);
-              hotTable.setDataAtCell(2,0, sheet['B4'].v);
-              hotTable.setDataAtCell(3,0, sheet['B5'].v);
-  
-              alertify.alert('<img src="/images/accept.png" alt="Success">Success',
-              'The tables below have been populated. Please confirm that your data is accurate and scroll down to answer the multiple choice questions, verify, and submit your data');
-              
-              return true;
-            } catch(err) {
-              alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", "Data improperly formatted");      
-              return false;                      
-            }
+
+      if ((sheet['A3'].h === 'Dollar Amount Spent with Local MBEs in Whole Dollars') &&
+        (sheet['A4'].h === 'Dollar Amount Spent with MBEs in Whole Dollars') &&
+        (sheet['A5'].h === 'Total Dollar Amount Spent Procuring All Goods and Services in Whole Dollars') &&
+        (sheet['A6'].h === 'Number of Local MBEs With Whom You Have Done Business')) {
+        try {
+          hotTable.setDataAtCell(0, 0, sheet['B3'].v);
+          hotTable.setDataAtCell(1, 0, sheet['B4'].v);
+          hotTable.setDataAtCell(2, 0, sheet['B5'].v);
+          hotTable.setDataAtCell(3, 0, sheet['B6'].v);
+
+          alertify.alert('<img src="/images/accept.png" alt="Success">Success',
+            'The tables below have been populated. Please confirm that your data is accurate and scroll down to verify and submit your data.');
+
+          return true;
+        } catch (err) {
+          alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", 'Data improperly formatted');
+          return false;
+        }
 
       }
-      alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", "Data improperly formatted");      
+      alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", 'Data improperly formatted');
       return false;
     }
 
@@ -145,7 +145,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
           return opts.errors.pending();
         }
         $('#drop-area').removeClass('dragenter');
-      
+
         opts.handle_file(e);
       } else {
         alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");

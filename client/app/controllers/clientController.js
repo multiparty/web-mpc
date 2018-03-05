@@ -433,7 +433,7 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
         }
       }
 
-      console.log('bonus',bonus_table);
+      //console.log('bonus',bonus_table);
 
       // bonus can only be non-zero if the other tables are non-zero.
       if (name === bonus_table._sail_meta.name) {

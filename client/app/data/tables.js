@@ -22,7 +22,7 @@ define([], function () {
             "label": "Total Dollar Amount Spent Procuring All Goods and Services in Whole Dollars"
           },{
             "key": "NumContracted",
-            "label": "Number of Local MBEs With Whom You've Done Business"
+            "label": "Number of Local MBEs With Whom You Have Done Business"
           }
         ],
         "cols": [
