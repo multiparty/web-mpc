@@ -105,3 +105,6 @@ Instructions on how to operate the web-mpc application. All steps below are perf
 * Paste the session key and password in its designated fields.
 * Click **Browse** and upload the private key file that was downloaded when generating the session key.
 * Click **Unmask Data** and view the result.
+
+## License
+Web-mpc is freely distributable under the terms of the [MIT license](https://github.com/multiparty/web-mpc/blob/master/LICENSE). This release supports Handsontable's "[Nested headers](https://docs.handsontable.com/pro/1.17.0/demo-nested-headers.html)", a Pro feature. A [valid license](https://handsontable.com/pricing) must be obtained when using this feature.

@@ -7,12 +7,6 @@
     "test": "test"
   },
   "dependencies": {
-    "forge": "^2.3.0",
-    "handsontable": "^0.34.1",
-    "ladda": "^1.0.4",
-    "moment": "^2.18.1",
-    "pikaday": "^1.6.1",
-    "zeroclipboard": "^2.3.0"
   },
   "devDependencies": {
     "eslint": "^3.19.0",
