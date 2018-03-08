@@ -111,7 +111,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
 
       if ((sheet['A3'].h === 'Dollar Amount Spent with Local MBEs in Whole Dollars') &&
         (sheet['A4'].h === 'Dollar Amount Spent with MBEs in Whole Dollars') &&
-        (sheet['A5'].h === 'Total Dollar Amount Spent Procuring All Goods and Services in Whole Dollars') &&
+        (sheet['A5'].h === 'Total Dollar Amount Spent Procuring All Goods and Services in the United States in Whole Dollars') &&
         (sheet['A6'].h === 'Number of Local MBEs With Whom You Have Done Business')) {
         try {
           hotTable.setDataAtCell(0, 0, sheet['B3'].v);

@@ -19,7 +19,7 @@ define([], function () {
             "label": "Dollar Amount Spent with MBEs in Whole Dollars"
           },{
             "key": "TotalAmt",
-            "label": "Total Dollar Amount Spent Procuring All Goods and Services in Whole Dollars"
+            "label": "Total Dollar Amount Spent Procuring All Goods and Services in the United States in Whole Dollars"
           },{
             "key": "NumContracted",
             "label": "Number of Local MBEs With Whom You Have Done Business"
@@ -76,8 +76,6 @@ define([], function () {
               "col": "*"
             },
             "tooltip": {
-              // "//promptTitle": "Number of Female Employees",
-              // "//prompt": "Please input the total number of female employees in this race/ethnicity and job category.",
               "errorTitle": "Invalid Data Entry",
               "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero.",
               "warningTitle": "Warning: Data is too big",
