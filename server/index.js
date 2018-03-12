@@ -245,6 +245,10 @@ app.get('/unmask', function (req, res) {
   res.sendFile((path.join(__dirname + '/../client/unmask.html')));
 });
 
+app.get('/definitions', function (req, res) {
+  res.sendFile((path.join(__dirname + '/../client/definitions.html')));
+});
+
 // protocol for accepting new data
 app.post('/', function (req, res) {
   console.log('POST /');
