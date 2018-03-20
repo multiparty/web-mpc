@@ -152,6 +152,14 @@ hr.short {
   width: 30%;
 }
 
+dd {
+  margin-bottom: 20px;
+}
+
+dd table {
+  margin-top: 30px;
+}
+
 form .form-group-lg label {
   font-size: 18px;
 }

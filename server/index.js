@@ -79,11 +79,11 @@ var lex = LEX.create({
   server: serverUrl,
   challenges: {
     'http-01': require('le-challenge-fs').create({
-      webrootPath: '~/letsencrypt/var/:hostname'
+      webrootPath: '/tmp/acme-challenges'
     })
   },
   store: require('le-store-certbot').create({
-    webrootPath: '~/letsencrypt/var/:hostname'
+    webrootPath: '/tmp/acme-challenges'
   }),
   approveDomains: approveDomains,
   debug: false
@@ -95,7 +95,7 @@ process.env.NODE_ENV = '';
 
 if (process.env.NODE_ENV === 'production') {
   //handles acme-challenge and redirects to https
-  http.createServer(lex.middleware(app)).listen(8080, function () {
+  http.createServer(lex.middleware(require('redirect-https')())).listen(80, function () {
     console.log("Listening for ACME http-01 challenges on", this.address());
   });
 } else {
@@ -107,8 +107,8 @@ if (process.env.NODE_ENV === 'production') {
 
 
 function approveDomains(opts, certs, cb) {
-  if (!/\.appliedmpc\.org$/.test(opts.domain) && opts.domain !== 'appliedmpc.org') {
-    console.error("bad domain '" + opts.domain + "', not a subdomain of appliedmpc.org");
+  if (!/\.pacesettersdata\.org$/.test(opts.domain) && opts.domain !== 'pacesettersdata.org') {
+    console.error("bad domain '" + opts.domain + "', not a subdomain of pacesettersdata.org");
     cb(null, null);
     return;
   }
@@ -117,7 +117,7 @@ function approveDomains(opts, certs, cb) {
     opts.domains = certs.altnames;
   }
   else {
-    opts.domains = ['appliedmpc.org'];
+    opts.domains = ['www.pacesettersdata.org', 'pacesettersdata.org'];
     opts.email = 'fjansen@bu.edu';
     opts.agreeTos = true;
   }
@@ -243,6 +243,10 @@ app.get('/manage', function (req, res) {
 
 app.get('/unmask', function (req, res) {
   res.sendFile((path.join(__dirname + '/../client/unmask.html')));
+});
+
+app.get('/definitions', function (req, res) {
+  res.sendFile((path.join(__dirname + '/../client/definitions.html')));
 });
 
 // protocol for accepting new data

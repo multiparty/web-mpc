@@ -108,26 +108,10 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         var _choose = document.getElementById('choose-file-button');
         var spinner;
         var _workstart = function () {
-
-          if ($('#tables-area').css('display') !== 'none') {
-            $('#tables-area').hide();
-            $('#expand-table-button').toggleClass('flip');
-            resizeCard(tables, false);
-          }
           spinner = new Spinner().spin(_target);
         };
         var _workend = function (status) {
           spinner.stop();
-          if (status) {
-            $('#tables-area').slideToggle(function () {
-              $('#expand-table-button').toggleClass('flip');
-              if ($('#tables-area').css('display') === 'none') {
-                resizeCard(tables, false);
-              } else {
-                resizeCard(tables, true);
-              }
-            });
-          }
         };
 
         var _badfile = function () {
