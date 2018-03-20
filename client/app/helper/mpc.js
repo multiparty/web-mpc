@@ -15,14 +15,15 @@ define(['forge'], function (forge) {
 
   'use strict';
 
-  var MAX_VALUE = 4294967296; // 2^32
+  var MAX_VALUE = 1099511627776; // 2^40
 
   /**
    *
    * @param value
    */
   function _uint32(value) {
-    return value >>> 0;
+    //return value >>> 0;
+    return ((value % MAX_VALUE) + MAX_VALUE) % MAX_VALUE;
   }
 
   /**
@@ -44,16 +45,19 @@ define(['forge'], function (forge) {
     }
     var uvalue = _uint32(value),
       shares = new Uint32Array(n),
+      rvalues,
       cryptoObj = window.crypto || window.msCrypto; // IE 11 fix
 
     cryptoObj.getRandomValues(shares);
 
-    shares[n - 1] = _uint32(0);
-    var sumRandomShares = shares.reduce(function (e1, e2) {
+    rvalues = Array.from(shares);
+    rvalues[n - 1] = _uint32(0);
+
+    var sumRandomShares = rvalues.reduce(function (e1, e2) {
       return _uint32(e1 + e2);
     });
-    shares[n - 1] = _uint32(uvalue - sumRandomShares);
-    return shares;
+    rvalues[n - 1] = _uint32(uvalue - sumRandomShares);
+    return rvalues;
   }
 
   /**
