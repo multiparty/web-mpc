@@ -986,7 +986,7 @@ var jiff_instance = require('../client/jiff/ext/jiff-server-bignumber').make_jif
 var mod = "18446744073709551557"; // 64 bits
 jiff_instance.compute('reconstruction-session', {Zp: new BigNumber(mod), onConnect: function(computation_instance) {
   computation_instance.listen('begin', function(_, session) {
-    console.log("HI");
+    console.log("Begin");
     var compute = function(data) {
       var old_mod = new BigNumber("1099511627776"); // 40 bits
       
@@ -1008,7 +1008,7 @@ jiff_instance.compute('reconstruction-session', {Zp: new BigNumber(mod), onConne
 
           var shares = computation_instance.share(data[i].fields['Pacesetter Procurement Measure'][key].value, 2, [1, "s1"], [1, "s1"]);
           var recons = shares["s1"].sadd(shares[1]);
-          recons = recons.ssub(recons.cgteq(old_mod, 42).cmult(old_mod));
+          recons = recons.ssub(recons.cgteq(old_mod, 42).cmult(old_mod)).cadd(new BigNumber("1000000000000000"));;
           numbers[i][key] = recons;
         }
       }
@@ -1026,7 +1026,6 @@ jiff_instance.compute('reconstruction-session', {Zp: new BigNumber(mod), onConne
       
       // open
       for(var i = 0; i < keys.length; i++) {
-        console.log(keys[i]);
         computation_instance.open(results[keys[i]], [1]);
       };
     };

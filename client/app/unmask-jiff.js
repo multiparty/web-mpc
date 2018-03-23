@@ -40,7 +40,7 @@ define([], function () {
 
           var shares = jiff_instance.share(masks[i]['Pacesetter Procurement Measure'][key].value, 2, [1, "s1"], [1, "s1"]);
           var recons = shares["s1"].sadd(shares[1]);
-          recons = recons.ssub(recons.cgteq(old_mod, 42).cmult(old_mod));
+          recons = recons.ssub(recons.cgteq(old_mod, 42).cmult(old_mod)).cadd(new BigNumber("1000000000000000"));
           numbers[i][key] = recons;
         }
       }
@@ -60,20 +60,18 @@ define([], function () {
       var promises = [];
       for(var i = 0; i < keys.length; i++) {
         var key = keys[i];
-        console.log(keys[i]);
         promises.push(jiff_instance.open(results[key], [1]));
       };
       
       // process
       Promise.all(promises).then(function(results) {
-        console.log("res");
         var final_results = {};
         for(var i = 0; i < keys.length; i++) {
-          final_results[keys[i]] = results[i].toString();
+          final_results[keys[i]] = { value: results[i].toString() };
         }
-        
+                
         jiff_instance.disconnect();
-        callback(final_results);
+        callback({'Pacesetter Procurement Measure': final_results});
       });
     }
 

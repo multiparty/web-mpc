@@ -39,8 +39,10 @@ define(['helper/mpc', 'unmask-jiff'], function (mpc, unmask_jiff) {
 
     // Aggregate decrypted values by key
     var analystResultShare = decrypted.then(function (analystShares) {      
-      unmask_jiff.reconstruct(session, analystShares, console.log);
-      //callback(true, {}, [], session);
+      unmask_jiff.reconstruct(session, analystShares, function(results){
+        callback(true, results, [], session);
+      });
+      //
       // var invalidShareCount = mpc.countInvalidShares(analystShares);
       // TODO: we should set a threshold and abort if there are too
       // many invalid shares
