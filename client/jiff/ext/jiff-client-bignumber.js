@@ -13,16 +13,9 @@
 
   /* Decrypt and sign parsing numbers as BigNumbers */
   function decrypt_and_sign(cipher_text, decryption_secret_key, signing_public_key, operation_type) {
-    var nonce = new Uint8Array(JSON.parse(cipher_text.nonce));
-    cipher_text = new Uint8Array(JSON.parse(cipher_text.cipher));
-
-    try {
-      var decryption = sodium.crypto_box_open_easy(cipher_text, nonce, signing_public_key, decryption_secret_key, 'text');
-      if(operation_type == 'share' || operation_type == 'open') return new BigNumber(decryption, 10);
-      return decryption;
-    } catch (_) {
-      throw "Bad signature or Bad nonce";
-    }
+    var decryption = cipher_text;
+    if(operation_type == 'share' || operation_type == 'open') return new BigNumber(decryption, 10);
+    return decryption;
   }
 
   /* Equivalent Shamir Sharing for BigNumbers */

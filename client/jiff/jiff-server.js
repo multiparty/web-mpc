@@ -10,8 +10,8 @@ module.exports = {
     var jiff = {};
 
     // require sodium instance
-    jiff.sodium = require('libsodium-wrappers');
-    jiff.sodium_promise = jiff.sodium.ready;
+    //jiff.sodium = require('libsodium-wrappers');
+    //jiff.sodium_promise = jiff.sodium.ready;
 
     // parse options
     if(options == null) options = {};
@@ -222,19 +222,19 @@ module.exports = {
 
       // Receive each user's public key
       socket.on('public_key', function(msg) {
-        jiff.sodium_promise.then(function() {
+//        jiff.sodium_promise.then(function() {
           var party_id = party_map[socket.id];
           var computation_id = computation_map[socket.id];
 
           // store public key in key_map
           var tmp = key_map[computation_id];
           if(tmp == null) { // generate public and secret key for server if they dont exist
-            var genkey = jiff.sodium.crypto_box_keypair();
-            secret_key_map[computation_id] = genkey.privateKey;
-            tmp = { "s1": genkey.publicKey };
+            //var genkey = jiff.sodium.crypto_box_keypair();
+            secret_key_map[computation_id] = "empty"; //genkey.privateKey;
+            tmp = { "s1": "empty" };
           }
 
-          tmp[party_id] = new Uint8Array(JSON.parse(msg));
+          tmp[party_id] = msg; //new Uint8Array(JSON.parse(msg));
           key_map[computation_id] = tmp;
 
           // add the server public/secret key to any server side computation instance if needed
@@ -265,7 +265,7 @@ module.exports = {
           computation_instances_deferred[computation_id].then(function() {
             computation_instances_map[computation_id].socket.receive('public_key', keymap_to_send);
           });
-        });
+        //});
       });
 
       socket.on('disconnect', function() {

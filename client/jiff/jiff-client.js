@@ -9,10 +9,10 @@
     io = require('socket.io-client');
     $ = require('jquery-deferred');
     // Setup libsodium wrapper instance for this client
-    sodium = require('libsodium-wrappers');
-    sodium_promise = sodium.ready;
+//    sodium = require('libsodium-wrappers');
+//    sodium_promise = sodium.ready;
   } else { // sodium should be available in global scope from including sodium.js
-    sodium_promise = sodium.ready;
+//    sodium_promise = sodium.ready;
   }
 
   /**
@@ -75,12 +75,15 @@
    * @returns {object} the signed cipher, includes two properties: 'cipher' and 'nonce'.
    */
   function encrypt_and_sign(message, encryption_public_key, signing_private_key, operation_type) {
+    return message;
+    /*
     if(operation_type == 'share' || operation_type == 'open') message = message.toString(10);
 
     var nonce = sodium.randombytes_buf(sodium.crypto_box_NONCEBYTES);
     var cipher = sodium.crypto_box_easy(message, nonce, encryption_public_key, signing_private_key);
 
     return { "nonce": '['+nonce.toString()+']', "cipher": '['+cipher.toString()+']'};
+    */
   }
 
   /**
@@ -98,6 +101,8 @@
    * @throws error if signature or nonce was forged/incorrect.
    */
   function decrypt_and_sign(cipher_text, decryption_secret_key, signing_public_key, operation_type) {
+    return cipher_text;
+    /*
     var nonce = new Uint8Array(JSON.parse(cipher_text.nonce));
     cipher_text = new Uint8Array(JSON.parse(cipher_text.cipher));
 
@@ -107,7 +112,7 @@
       return decryption;
     } catch (_) {
       throw "Bad signature or Bad nonce";
-    }
+    } */
   }
 
   /**
@@ -2344,7 +2349,7 @@
 
     // Store the id when server sends it back
     jiff.socket.on('init', function(msg) {
-      sodium_promise.then(function() {
+//      sodium_promise.then(function() {
         msg = JSON.parse(msg);
         if(jiff.id == null)
           jiff.id = msg.party_id;
@@ -2354,27 +2359,27 @@
 
         if(jiff.secret_key == null || jiff.public_key == null) {
           // this party's public and secret key
-          var genkey = sodium.crypto_box_keypair();
-          jiff.secret_key = genkey.privateKey;
-          jiff.public_key = genkey.publicKey;
+          //var genkey = sodium.crypto_box_keypair();
+          jiff.secret_key = "empty";
+          jiff.public_key = "empty";
         }
 
-        jiff.socket.emit("public_key", '['+jiff.public_key.toString()+']');
+        jiff.socket.emit("public_key", jiff.public_key);
         // Now: (1) this party is connect (2) server (and other parties) know this public key
         // Resend all pending messages
         jiff.socket.resend_mailbox();
 
         jiff.execute_wait_callbacks();
-      });
+      //});
     });
 
     jiff.socket.on('public_key', function(msg) {
-      sodium_promise.then(function() {
+      //sodium_promise.then(function() {
         jiff.keymap = JSON.parse(msg);
 
         for(var i in jiff.keymap)
           if(jiff.keymap.hasOwnProperty(i))
-            jiff.keymap[i] = new Uint8Array(JSON.parse(jiff.keymap[i]));
+            jiff.keymap[i] = jiff.keymap[i];
 
         // Resolve any pending waits that have satisfied conditions
         jiff.execute_wait_callbacks();
@@ -2390,7 +2395,7 @@
           if(options.onConnect != null)
             options.onConnect(jiff);
         }
-      });
+      //});
     });
 
     // Store sharing and shares counter which keeps track of the count of
