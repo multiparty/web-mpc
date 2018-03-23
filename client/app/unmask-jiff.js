@@ -12,6 +12,7 @@
 // var masks: Array of form { fields: [], _id: user_id }
 define([], function () {
   function reconstruct(session, masks, callback) {
+    if(window.crypto == undefined) window.crypto = window.msCrypto;
     var hostname = window.location.href;
     hostname = hostname.substring(0, hostname.lastIndexOf("/"));
 
