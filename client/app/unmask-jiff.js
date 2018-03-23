@@ -16,62 +16,66 @@ define([], function () {
     hostname = hostname.substring(0, hostname.lastIndexOf("/"));
 
     var mod = "18446744073709551557"; // 64 bits
-    var old_mod = new BigNumber("1099511627776"); // 40 bits
     var jiff_instance;
 
     var options = {party_count: 1, party_id: 1, Zp: new BigNumber(mod), autoConnect: false };
     options.onConnect = function(jiff_instance) {
       jiff_instance.emit('begin', ["s1"], session);
-
-      // Agree on ordering on keys
-      var keys = [];
-      for(var key in masks[0]['Pacesetter Procurement Measure']) {
-        if(!masks[0]['Pacesetter Procurement Measure'].hasOwnProperty(key)) continue;
-        keys.push(key);
-      }
-      keys.sort();
       
-      // unmask
-      var numbers = [];
-      for(var i = 0; i < masks.length; i++) {
-        numbers[i] = {};
+      jiff_instance.listen('mods', function(_, mods) {
+        // Agree on ordering on keys
+        var keys = [];
+        for(var key in masks[0]['Pacesetter Procurement Measure']) {
+          if(!masks[0]['Pacesetter Procurement Measure'].hasOwnProperty(key)) continue;
+          keys.push(key);
+        }
+        keys.sort();
+        
+        // unmask
+        var numbers = [];
+        for(var i = 0; i < masks.length; i++) {
+          numbers[i] = {};
+          mods[i] = new BigNumber(mods[i]);
+
+          for(var j = 0; j < keys.length; j++) {
+            var key = keys[j];
+
+            var shares = jiff_instance.share(masks[i]['Pacesetter Procurement Measure'][key].value, 2, [1, "s1"], [1, "s1"]);
+            var recons = shares["s1"].sadd(shares[1]);
+            recons = recons.ssub(recons.cgteq(mods[i], 42).cmult(mods[i]));
+            numbers[i][key] = recons;
+          }
+        }
+
+        // sum
+        var results = {};
         for(var j = 0; j < keys.length; j++) {
           var key = keys[j];
-
-          var shares = jiff_instance.share(masks[i]['Pacesetter Procurement Measure'][key].value, 2, [1, "s1"], [1, "s1"]);
-          var recons = shares["s1"].sadd(shares[1]);
-          recons = recons.ssub(recons.cgteq(old_mod, 42).cmult(old_mod)).cadd(new BigNumber("1000000000000000"));
-          numbers[i][key] = recons;
+          
+          results[key] = numbers[0][key];
+          for(var i = 1; i < numbers.length; i++) {
+            results[key] = results[key].sadd(numbers[i][key]);
+          }
         }
-      }
-
-      // sum
-      var results = {};
-      for(var j = 0; j < keys.length; j++) {
-        var key = keys[j];
         
-        results[key] = numbers[0][key];
-        for(var i = 1; i < numbers.length; i++) {
-          results[key] = results[key].sadd(numbers[i][key]);
-        }
-      }
-      
-      // open
-      var promises = [];
-      for(var i = 0; i < keys.length; i++) {
-        var key = keys[i];
-        promises.push(jiff_instance.open(results[key], [1]));
-      };
-      
-      // process
-      Promise.all(promises).then(function(results) {
-        var final_results = {};
+        // open
+        var promises = [];
         for(var i = 0; i < keys.length; i++) {
-          final_results[keys[i]] = { value: results[i].toString() };
-        }
-                
-        jiff_instance.disconnect();
-        callback({'Pacesetter Procurement Measure': final_results});
+          var key = keys[i];
+          promises.push(jiff_instance.open(results[key], [1]));
+        };
+        
+        // process
+        Promise.all(promises).then(function(results) {
+          var final_results = {};
+          for(var i = 0; i < keys.length; i++) {
+            final_results[keys[i]] = { value: results[i].toString() };
+          }
+                  
+          jiff_instance.disconnect();
+          callback({'Pacesetter Procurement Measure': final_results});
+        });
+      
       });
     }
 

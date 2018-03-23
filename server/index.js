@@ -984,12 +984,22 @@ var base_instance = require('../client/jiff/jiff-server').make_jiff(server, {log
 var jiff_instance = require('../client/jiff/ext/jiff-server-bignumber').make_jiff(base_instance);  
 
 var mod = "18446744073709551557"; // 64 bits
+var mod_switch_date = new Date("Mar 20 02:53:01 2018 -0400").getTime();
 jiff_instance.compute('reconstruction-session', {Zp: new BigNumber(mod), onConnect: function(computation_instance) {
   computation_instance.listen('begin', function(_, session) {
     console.log("Begin");
     var compute = function(data) {
-      var old_mod = new BigNumber("1099511627776"); // 40 bits
+      var old_mod1 = new BigNumber("4294967296"); // 32 bits
+      var old_mod2 = new BigNumber("1099511627776"); // 40 bits
       
+      // Figure out which mod to use for which party
+      var mods = [];
+      for(var i = 0; i < data.length; i++) {
+        mods[i] = old_mod1;
+        if(data[i].date > mod_switch_date) mods[i] = old_mod2;
+      }
+      
+      computation_instance.emit("mods", [1], mods);
       
       // Agree on ordering on keys
       var keys = [];
@@ -1008,7 +1018,7 @@ jiff_instance.compute('reconstruction-session', {Zp: new BigNumber(mod), onConne
 
           var shares = computation_instance.share(data[i].fields['Pacesetter Procurement Measure'][key].value, 2, [1, "s1"], [1, "s1"]);
           var recons = shares["s1"].sadd(shares[1]);
-          recons = recons.ssub(recons.cgteq(old_mod, 42).cmult(old_mod)).cadd(new BigNumber("1000000000000000"));;
+          recons = recons.ssub(recons.cgteq(mods[i], 42).cmult(mods[i]));
           numbers[i][key] = recons;
         }
       }
