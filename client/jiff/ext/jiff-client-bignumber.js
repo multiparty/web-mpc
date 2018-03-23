@@ -4,7 +4,7 @@
   }
 
   // Same as javascript remainder
-  BigNumber.config({ RANGE: 100000000, EXPONENTIAL_AT: 100000000 });
+  BigNumber.config({ RANGE: 100000000, EXPONENTIAL_AT: 100000000, CRYPTO: true });
 
   /** Return the maximum of two numbers */
   function max(x, y) {
