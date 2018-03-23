@@ -91,8 +91,6 @@ var lex = LEX.create({
 
 var server;
 
-process.env.NODE_ENV = '';
-
 if (process.env.NODE_ENV === 'production') {
   //handles acme-challenge and redirects to https
   http.createServer(lex.middleware(require('redirect-https')())).listen(80, function () {
