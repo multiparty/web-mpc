@@ -28,6 +28,8 @@ const base32Encode = require('base32-encode');
 const path = require('path');
 const compression = require('compression');
 
+let https;
+
 app.use(compression());
 
 function templateToJoiSchema(template, joiFieldType) {
@@ -974,33 +976,33 @@ app.get(/.*/, function (req, res) {
 });
 
 if (process.env.NODE_ENV === 'production') {
-  require('https').createServer(lex.httpsOptions, lex.middleware(app)).listen(443, function () {
+  https = require('https').createServer(lex.httpsOptions, lex.middleware(app)).listen(443, function () {
     console.log("Listening for ACME tls-sni-01 challenges and serve app on", this.address());
   });
 }
 
 /** JIFF SETUP **/
-var base_instance = require('../client/jiff/jiff-server').make_jiff(server, {logs:false});
-var jiff_instance = require('../client/jiff/ext/jiff-server-bignumber').make_jiff(base_instance);  
+var base_instance = require('../client/jiff/jiff-server').make_jiff(https, {logs:false});
+var jiff_instance = require('../client/jiff/ext/jiff-server-bignumber').make_jiff(base_instance);
 
 var mod = "18446744073709551557"; // 64 bits
-var mod_switch_date = new Date("Mar 20 02:53:01 2018 -0400").getTime();
+var mod_switch_date = new Date("Mar 23 13:39:01 2018 -0400").getTime();
 jiff_instance.compute('reconstruction-session', {Zp: new BigNumber(mod), onConnect: function(computation_instance) {
   computation_instance.listen('begin', function(_, session) {
     console.log("Begin");
     var compute = function(data) {
       var old_mod1 = new BigNumber("4294967296"); // 32 bits
       var old_mod2 = new BigNumber("1099511627776"); // 40 bits
-      
+
       // Figure out which mod to use for which party
       var mods = [];
       for(var i = 0; i < data.length; i++) {
         mods[i] = old_mod1;
         if(data[i].date > mod_switch_date) mods[i] = old_mod2;
       }
-      
+
       computation_instance.emit("mods", [1], mods);
-      
+
       // Agree on ordering on keys
       var keys = [];
       for(var key in data[0].fields['Pacesetter Procurement Measure']) {
