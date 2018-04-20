@@ -276,9 +276,17 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
       }
 
       try {
-        document.addEventListener('DOMContentLoaded', $buo_f, false)
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', $buo_f, false)
+        } else {
+          $buo_f();
+        }
       } catch (e) {
-        window.attachEvent('onload', $buo_f)
+        if (document.readyState !== 'complete') {
+          window.attachEvent('onload', $buo_f)
+        } else {
+          $buo_f();
+        }
       }
     }
 
