@@ -19,7 +19,7 @@ const express = require('express');
 const app = express();
 const body_parser = require('body-parser');
 const mongoose = require('mongoose');
-const template = require('./template');
+const template = require('../client/app/data/tables');
 const mpc = require('../client/app/helper/mpc');
 const crypto = require('crypto');
 const joi = require('joi');
@@ -32,15 +32,12 @@ app.use(compression());
 
 function templateToJoiSchema(template, joiFieldType) {
   var schema = {};
-  for (var key in template) {
-    if (template.hasOwnProperty(key)) {
-      if (template[key] === 0) {
-        schema[key] = joiFieldType;
-      }// safe to re-use since immutable
-      else // since format may have nested objects, recurse!
-      {
-        schema[key] = templateToJoiSchema(template[key], joiFieldType);
-      }
+  if (!template.length) {
+    return joi.object().keys(schema);
+  }
+  for (var table of template) {
+    for (var row of table['rows']) {
+      schema[row['key']] = joiFieldType
     }
   }
   return joi.object().keys(schema);
@@ -56,9 +53,9 @@ function genPairs(num) {
   return objPairs;
 }
 
-const maskSchema = templateToJoiSchema(template, joi.string().required());
-const dataSchema = templateToJoiSchema(template, joi.number().required());
-const encryptedPublicQuestionsSchema = templateToJoiSchema(template.questions, joi.string().required());
+const maskSchema = templateToJoiSchema(template['tables'], joi.string().required());
+const dataSchema = templateToJoiSchema(template['tables'], joi.number().required());
+const encryptedPublicQuestionsSchema = templateToJoiSchema(template['questions'], joi.string().required());
 const pairwiseHyperCubeScheme = templateToJoiSchema(genPairs(0), joi.string().required());
 
 // Override deprecated mpromise
