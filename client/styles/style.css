@@ -353,6 +353,6 @@ span.success {
 }
 
 #pacesetter-measure-hot td.htRight.htNumeric:after,
-#pacesetter-measure-hot2 td.htRight.htNumeric:after{
+#pacesetter-measure-hot-2 td.htRight.htNumeric:after{
   content: 'K'
 }
