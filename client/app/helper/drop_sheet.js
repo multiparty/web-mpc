@@ -106,18 +106,26 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
     // Parses workbook for relevant cells.
     function processWB(wb, type, sheetidx) {
       var hotTable = opts.tables[0];
+      var hotTable2 = opts.tables[1];
+      var hotTable3 = opts.tables[2];
       var sheet = wb.Sheets[wb.SheetNames[0]];
 
 
-      if ((sheet['A3'].h === 'Dollar Amount Spent with Local MBEs in Whole Dollars') &&
-        (sheet['A4'].h === 'Dollar Amount Spent with MBEs in Whole Dollars') &&
-        (sheet['A5'].h === 'Total Dollar Amount Spent Procuring All Goods and Services in the United States in Whole Dollars') &&
-        (sheet['A6'].h === 'Number of Local MBEs With Whom You Have Done Business')) {
+      if ((sheet['A3'].h === 'Amount spent with MBEs') &&
+        (sheet['A9'].h === 'Addressable spend') &&
+        (sheet['A15'].h === 'Number of MBEs')) {
         try {
-          hotTable.setDataAtCell(0, 0, sheet['B3'].v);
-          hotTable.setDataAtCell(1, 0, sheet['B4'].v);
-          hotTable.setDataAtCell(2, 0, sheet['B5'].v);
-          hotTable.setDataAtCell(3, 0, sheet['B6'].v);
+          hotTable.setDataAtCell(0, 0, sheet['B5'].v);
+          hotTable.setDataAtCell(1, 0, sheet['B6'].v);
+          hotTable.setDataAtCell(2, 0, sheet['B7'].v);
+
+          hotTable2.setDataAtCell(0, 0, sheet['B11'].v);
+          hotTable2.setDataAtCell(1, 0, sheet['B12'].v);
+          hotTable2.setDataAtCell(2, 0, sheet['B13'].v);
+
+          hotTable3.setDataAtCell(0, 0, sheet['B17'].v);
+          hotTable3.setDataAtCell(1, 0, sheet['B18'].v);
+          hotTable3.setDataAtCell(2, 0, sheet['B19'].v);
 
           alertify.alert('<img src="/images/accept.png" alt="Success">Success',
             'The tables below have been populated. Please confirm that your data is accurate and scroll down to verify and submit your data.');
