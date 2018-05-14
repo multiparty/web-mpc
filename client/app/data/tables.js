@@ -170,7 +170,7 @@ define([], function () {
             },
             "type": "int",
             "min": 0,
-            "max_warning": 10000,
+            "max_warning": 50000,
             "empty": false,
             "validators": [
               "discrepancies"

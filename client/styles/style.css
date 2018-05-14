@@ -351,3 +351,8 @@ span.success {
 .flip {
   transform: scaleY(-1);
 }
+
+#pacesetter-measure-hot td.htRight.htNumeric:after,
+#pacesetter-measure-hot2 td.htRight.htNumeric:after{
+  content: 'K'
+}
