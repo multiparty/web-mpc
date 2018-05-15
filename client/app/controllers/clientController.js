@@ -281,7 +281,8 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
      */
     function construct_and_send(tables, la) {
       // Begin constructing the data
-      var data_submission = {questions: {}};
+      var questions = $('#questions form');
+      var data_submission = questions.length ? {questions: {}} : {};
       var questions_public = {};
 
       var session = $('#session').val().trim().toLowerCase();
@@ -289,7 +290,6 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
 
       // Add questions data, each question has three parts:
       //  'YES', 'NO', and 'NA' and each one has value 0 or 1
-      var questions = $('#questions form');
       var questions_text = questions.find('.question-text');
       var questions_values = [];
       for (var q = 0; q < questions.length; q++) {

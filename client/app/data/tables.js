@@ -204,8 +204,7 @@ define([], function () {
           }
         ]
       }
-    ],
-    questions: []
+    ]
 
   }
 });

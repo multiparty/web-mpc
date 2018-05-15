@@ -32,12 +32,20 @@ app.use(compression());
 
 function templateToJoiSchema(template, joiFieldType) {
   var schema = {};
-  if (!template.length) {
+  if (!template || !template.length) {
     return joi.object().keys(schema);
   }
   for (var table of template) {
+    schema[table['name']] = {};
+
     for (var row of table['rows']) {
-      schema[row['key']] = joiFieldType
+      schema[table['name']][row['key']] = {};
+
+      for (var col_levels of table['cols']) {
+        for (var col of col_levels) {
+          schema[table['name']][row['key']][col['key']] = joiFieldType
+        }
+      }
     }
   }
   return joi.object().keys(schema);
