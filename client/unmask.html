@@ -5,17 +5,17 @@
   <title>Trusted Party Data Unmasker</title>
   <link rel="icon" type="image" href="images/gbcc-small.png">
 
-  
 
   <script data-main="app/unmask" src="app/vendor/require.js"></script>
-  
+
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
         integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
         integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.0/ladda-themeless.min.css"
         integrity="sha256-d7VZTlP9P3ZTCZ3Bkl8aGZ/+Vs4i+bpcOGNfibU7+LU=" crossorigin="anonymous"/>
-  
+  <link rel="stylesheet" type="text/css" href="styles/handsontable.full.min.css">
+
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.10.0/css/alertify.min.css"
         integrity="sha256-bNEFYRlNlnu0CH4DIKCXv0F6JVl/DdA2M9XVZn317q0=" crossorigin="anonymous"/>
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.10.0/css/themes/bootstrap.min.css"
@@ -25,89 +25,7 @@
   <link rel="stylesheet" href="/styles/style.css">
 
   <style type="text/css">
-    handsontable .ht_clone_top,
-    .handsontable .ht_clone_top_left,
-    .handsontable .ht_clone_top_left_corner {
-      display: none !important;
-    }
 
-    .handsontable col.rowHeader {
-      width: 200px !important;
-    }
-
-    .handsontable th:first-child {
-      text-align: left;
-      white-space: normal;
-    }
-
-    .handsontable th {
-      font-size: 12px;
-      white-space: pre-line;
-      max-width: 110px;
-      vertical-align: middle;
-    }
-
-    pre {
-      text-align: left;
-      margin-bottom: 0px;
-    }
-
-    pre p {
-      font-size: 12px;
-    }
-
-    .btn-file {
-      position: relative;
-      overflow: hidden;
-    }
-
-    .btn-file input[type=file] {
-      position: absolute;
-      top: 0;
-      right: 0;
-      min-width: 100%;
-      min-height: 100%;
-      font-size: 100px;
-      text-align: right;
-      opacity: 0;
-      outline: none;
-      background: white;
-      cursor: inherit;
-      display: block;
-    }
-
-    input:invalid {
-      border: 1px solid red;
-    }
-
-    input:valid {
-      border: 1px solid green;
-    }
-
-    #friendly {
-      margin-left: 150px;
-      margin-right: 50px;
-    }
-
-    #friendly div.head_element {
-      margin-bottom: 30px;
-      display: none;
-    }
-
-    #friendly h3.head_element {
-      display: none;
-    }
-
-    #friendly pre.head_element {
-      margin: 0;
-      display: none;
-      margin-right: 100px;
-    }
-
-    #my_container {
-      margin-left: 150px;
-      margin-right: 150px;
-    }
   </style>
 
 </head>
@@ -136,23 +54,26 @@
           <form>
             <div class="form-group">
               <label class="control-label" for="session">Session Key</label>
-              <input type="text" id="session" class="form-control" placeholder="Session Key" value="cpw3p20hdgnswszjftjjgxcb94" pattern="^[a-zA-Z0-9]{26}$" autocomplete="off" required/>
+              <input type="text" id="session" class="form-control" placeholder="Session Key" value=""
+                     pattern="^[a-zA-Z0-9]{26}$" autocomplete="off" required/>
               <span id="session-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
-              aria-hidden="true"></span>
+                    aria-hidden="true"></span>
               <span id="session-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
-              aria-hidden="true"></span>
+                    aria-hidden="true"></span>
               <span id="session-fail-help"
-              class="fail-help help-block hidden">Please input the 26-character session key.</span>
+                    class="fail-help help-block hidden">Please input the 26-character session key.</span>
               <span id="session-fail-custom-help"
-              class="fail-custom help-block hidden"></span>
+                    class="fail-custom help-block hidden"></span>
             </div>
             <div class="form-group">
               <label class="control-label" for="session-password">Session Password</label>
-              <input type="text" id="session-password" class="form-control" value="zb3nxqn8k25d1wfc5wbqxjrnf4" placeholder="Session Password"
-              pattern="^[a-zA-Z0-9]{26}$"
-              autocomplete="off" required>
-              <span id="session-password-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden" aria-hidden="true"></span>
-              <span id="session-password-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden" aria-hidden="true"></span>
+              <input type="text" id="session-password" class="form-control" value="" placeholder="Session Password"
+                     pattern="^[a-zA-Z0-9]{26}$"
+                     autocomplete="off" required>
+              <span id="session-password-success"
+                    class="success-icon glyphicon glyphicon-ok form-control-feedback hidden" aria-hidden="true"></span>
+              <span id="session-password-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
+                    aria-hidden="true"></span>
               <span id="session-password-fail-help" class="fail-help help-block hidden">Please input the 26-character session password</span>
               <span id="session-password-fail-custom-help" class="fail-custom help-block hidden"></span>
             </div>
@@ -160,7 +81,7 @@
         </div>
         <div class="col-md-6">
           <div id="drop-area">
-            Drag and drop your private key here 
+            Drag and drop your private key here
             <br/>
             <p>&mdash;or&mdash;</p><br/>
             <button id="choose-file-button" class="btn btn-primary">Choose file</button>
@@ -182,20 +103,18 @@
       <p class="text-center">Your data will appear here after you submit the session key, password, and private key</p>
       <span id="expand-table-button" class="arrow-down"></span>
 
-  
       <div id="tables-area">
         <hr/>
         <h3 id="number-of-mbes-name" class="head_element"></h3>
-        <div id="number-of-mbes" class="table-section head_element"></div>
+        <div id="number-of-mbes" class="table-section"></div>
 
         <h3 id="addressable-spend-name" class="head_element"></h3>
-        <div id="addressable-spend" class="table-section head_element"></div>
-        
+        <div id="addressable-spend" class="table-section"></div>
+
         <h3 id="amount-spent-with-mbes-name" class="head_element"></h3>
-        <div id="amount-spent-with-mbes" class="table-section head_element"></div>
-
-
+        <div id="amount-spent-with-mbes" class="table-section"></div>
       </div>
+
     </section>
   </div>
 </main>
