@@ -896,18 +896,26 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
   // TODO: should this be here or in the view?
   function saveTables(tables, session) {
+    console.log(tables)
 
     var tables_csv = [];
 
-    tables_csv.push(['Pacesetter Procurement Measure']);
-    tables = tables['Pacesetter Procurement Measure']
+    for (var sheet in tables) {
+      var sheet_csv = [];
 
-    for (var k in tables) {
-      var value = tables[k].value;
-      tables_csv.push([k, value]);
+      sheet_csv.push([sheet]);
+
+      for (var row in tables[sheet]) {
+        // console.log(row)
+        console.log(tables[sheet][row])
+        sheet_csv.push([row, tables[sheet][row].value].join(','))
+      }
+      tables_csv.push(sheet_csv.join('\n'));
     }
-    tables_csv = tables_csv.join('\n');
+
+    tables_csv = tables_csv.join('\n\n\n');
     filesaver.saveAs(new Blob([tables_csv], {type: 'text/plain;charset=utf-8'}), 'Aggregate_Data_' + session + '.csv');
+
   }
 
   function saveQuestions(questions, session) {
