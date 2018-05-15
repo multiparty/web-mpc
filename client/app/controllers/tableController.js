@@ -55,6 +55,18 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     }
   };
 
+  const headerMap = {
+    'NumContractedNational': 'Number of National MBEs Contracted',
+    'NumContractedState': 'Number of State MBEs Contracted',
+    'NumContractedLocal': 'Number of Local MBEs Contracted',
+    'TotalAmtNational': 'Total Dollar Amount Spent Procuring All Goods and Services in the United States',
+    'TotalAmtState': 'Total Dollar Amount Spent Procuring All Goods and Services at the State Level',
+    'TotalAmtLocal': 'Total Dollar Amount Spent Procuring All Goods and Services at the Local Level',
+    'DollarAmtNational': 'Dollar Amount Spent with National MBEs',
+    'DollarAmtState': 'Dollar Amount Spent with State MBEs',
+    'DollarAmtLocal': 'Dollar Amount Spent with Local MBEs',
+  }
+
 
   var table_widths = {};
 
@@ -764,50 +776,62 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     $('header, #shadow').css('right', 0);
   }
 
-  function formatPacesettersData(tables) {
+  function formatPacesettersData(table) {
 
     var data = [];
-    var rows = table_template.tables[0].rows;
-    var numContracted = tables['NumContracted'].value;
-    var amtSpent = tables['DollarAmtLocal'].value;
 
-    var average = amtSpent / numContracted;
-
-    for (var k in tables) {
-      for (var i = 0; i < rows.length; i++) {
-        if (k === rows[i].key) {
-          data.push([rows[i].label, tables[k].value]);
-
-        }
-      }
+    for (var t in table) {
+      data.push([headerMap[t], table[t].value])
     }
-    data.push(['Average Spent per Local MBE', average]);
+
     return data;
   }
 
   function displayReadTable(tables) {
 
-    var title = 'Pacesetters Procurement Measure';
     $('#tables-area').show();
 
-    tables = tables['Pacesetter Procurement Measure'];
+    for (var t in tables) {
+      var cl = t.toLowerCase().replace(/ /gi, '-');
+      
+      var container = document.getElementById(cl);
 
+      var formattedTable = formatPacesettersData(tables[t]);
 
-    var container = document.getElementById('pacesetter-measure-hot');
+      var settings = {
+        colHeaders: ['category', 'value'],
+        data: formattedTable,
+        readOnly: true
+      }
 
-    var data = formatPacesettersData(tables);
+      var handsOn = new Handsontable(container, settings);
 
-    var settings = {
-      colHeaders: ["Measure", "Value"],
-      data: data,
-      readOnly: true
+      handsOn.render();
+
+      $('#' + cl + '-name').text(t)
+
+      // updateTableWidth($('.wtHider').width() + 150);
+      $('.ht_clone_top').hide();
+
     }
-    var handsOn = new Handsontable(container, settings);
-    handsOn.render();
-    $('#pacesetter-measure-hot-name').text(title);
 
-    updateTableWidth($('.wtHider').width() + 50);
-    $('.ht_clone_top').hide();
+
+    
+    // var container = document.getElementById('pacesetter-measure-hot');
+
+    // var data = formatPacesettersData(tables);
+
+    // var settings = {
+    //   colHeaders: ["Measure", "Value"],
+    //   data: data,
+    //   readOnly: true
+    // }
+    // var handsOn = new Handsontable(container, settings);
+    // handsOn.render();
+    // $('#pacesetter-measure-hot-name').text(title);
+
+    // updateTableWidth($('.wtHider').width() + 50);
+    // $('.ht_clone_top').hide();
   }
 
   /**
@@ -896,7 +920,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
   // TODO: should this be here or in the view?
   function saveTables(tables, session) {
-    console.log(tables)
 
     var tables_csv = [];
 
@@ -906,8 +929,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       sheet_csv.push([sheet]);
 
       for (var row in tables[sheet]) {
-        // console.log(row)
-        console.log(tables[sheet][row])
         sheet_csv.push([row, tables[sheet][row].value].join(','))
       }
       tables_csv.push(sheet_csv.join('\n'));
