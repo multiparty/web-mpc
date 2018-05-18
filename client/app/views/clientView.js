@@ -1,9 +1,59 @@
 define(['jquery', 'controllers/clientController', 'controllers/tableController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify', 'table_template', 'bootstrap'],
   function ($, clientController, tableController, DropSheet, Spinner, Ladda, ResizeSensor, alertify, table_template) {
 
+    function createQuestionText(text) {
+      var p = document.createElement('p');
+      p.classList.add('question-text');
+      p.classList.add('help-block')
+      p.innerHTML = text;
+      return p;
+    }
+
+    function createQuestionElements(question, form) {
+
+      var input_type = question.input_type;
+
+      for (var i = 0; i < question.inputs.length; i++) {
+        var div = document.createElement('div');
+        div.classList.add(input_type);
+
+
+        var label = $('<label>');
+
+        var input = document.createElement('input');
+        $(input).attr('type', input_type)
+                .attr('value', i+1)
+                .attr('name', 'opt' + input_type)
+                .text(question.inputs[i].label)
+                .appendTo(label);
+
+        $(label).appendTo(div);
+        $(div).appendTo(form);
+      }
+
+    }
+
+    function displaySurveyQuestions() {
+      if ('survey' in table_template) {
+        questions = table_template.survey.questions;
+
+        var questionsDiv = $('#questions');
+        
+        for (var i = 0; i < questions.length; i++) {
+          var form = document.createElement('form');
+          form.append(createQuestionText(questions[i].question_text));
+          var inputs = createQuestionElements(questions[i], form);
+          questionsDiv.append(form);
+  
+        }
+      }
+    }
+
     function clientControllerView() {
 
       $(document).ready(function () {
+
+        displaySurveyQuestions();
 
         var $verify = $('#verify');
         var $session = $('#session');
