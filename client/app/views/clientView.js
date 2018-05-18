@@ -9,7 +9,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
       return p;
     }
 
-    function createQuestionElements(question, form) {
+    function renderSurveyInputs(question, form) {
 
       var input_type = question.input_type;
 
@@ -18,34 +18,54 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         div.classList.add(input_type);
 
 
-        var label = $('<label>');
+        var label = $('<label>').text(question.inputs[i].label);
 
         var input = document.createElement('input');
         $(input).attr('type', input_type)
                 .attr('value', i+1)
                 .attr('name', 'opt' + input_type)
-                .text(question.inputs[i].label)
                 .appendTo(label);
 
         $(label).appendTo(div);
         $(div).appendTo(form);
       }
-
     }
 
     function displaySurveyQuestions() {
-      if ('survey' in table_template) {
-        questions = table_template.survey.questions;
+      if (!('survey' in table_template)) {
+        return;
+      } 
+      
+      questions = table_template.survey.questions;
 
-        var questionsDiv = $('#questions');
-        
-        for (var i = 0; i < questions.length; i++) {
-          var form = document.createElement('form');
-          form.append(createQuestionText(questions[i].question_text));
-          var inputs = createQuestionElements(questions[i], form);
-          questionsDiv.append(form);
-  
-        }
+      var questionsDiv = $('#questions');
+      
+      for (var i = 0; i < questions.length; i++) {
+        var form = document.createElement('form');
+        form.append(createQuestionText(questions[i].question_text));
+        var inputs = renderSurveyInputs(questions[i], form);
+        questionsDiv.append(form);
+
+      }
+    
+    }
+
+    function createTableElems() {
+
+      var tablesArea = $('#tables-area');
+
+      var tables = table_template.tables;
+
+      for (var i = 0; i < tables.length; i++) {
+        var div = $('<div>').addClass('table');
+        var header = $('<h4>').attr('id', tables[i].element)
+                          .text(tables[i].name)
+                          .appendTo(div);
+        var tableDiv = $('<div>').attr('class', 'table-section')
+                          .attr('id', tables[i].element)
+                          .appendTo(div);
+
+        $(div).appendTo(tablesArea);
       }
     }
 
@@ -53,6 +73,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
       $(document).ready(function () {
 
+        createTableElems();
         displaySurveyQuestions();
 
         var $verify = $('#verify');
@@ -97,7 +118,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         });
 
         // Create the tabless
-        var tables = tableController.makeTables();
+        // var tables = tableController.makeTables();
         window.scrollTo(0, 0);
         var sums = [0, 0]; // Internal total of Non NaNs values.
         var NaNs = [0, 0]; // Counts how many NaNs exist for every cell participating in a total.

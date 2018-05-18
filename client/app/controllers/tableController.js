@@ -375,8 +375,9 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       var table_def = table_template.tables[t];
       var table = makeTableObj(table_def);
 
+      // console.log(table)
 
-      result[t] = makeHotTable(table);
+      // result[t] = makeHotTable(table);
       table_widths[result[t].rootElement.id] = get_width(result[t]);
     }
     return result;
