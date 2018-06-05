@@ -7,7 +7,7 @@
 //  */
 
 /*eslint no-console: ["error", { allow: ["warn", "error"] }] */
-define(['helper/mpc'], function (mpc) {
+define(['helper/mpc', 'unmask-jiff'], function (mpc, unmask_jiff) {
 
   // Takes callback(true|false, data).
   function aggregateAndUnmask(mOut, privateKey, session, password, callback) {
@@ -38,14 +38,18 @@ define(['helper/mpc'], function (mpc) {
     var decrypted = decryptValueShares(sk, mOut, true);
 
     // Aggregate decrypted values by key
-    var analystResultShare = decrypted.then(function (analystShares) {
+    var analystResultShare = decrypted.then(function (analystShares) {      
+      unmask_jiff.reconstruct(session, analystShares, function(results){
+        callback(true, results, [], session);
+      });
+      //
       // var invalidShareCount = mpc.countInvalidShares(analystShares);
       // TODO: we should set a threshold and abort if there are too
       // many invalid shares
       // console.log('Invalid share count:', invalidShareCount);
-      return mpc.aggregateShares(analystShares);
+      //return mpc.aggregateShares(analystShares);
     });
-
+/*
     // Request service to aggregate its shares and send us the result
     var serviceResultShare = getServiceResultShare(session, password);
 
@@ -76,6 +80,7 @@ define(['helper/mpc'], function (mpc) {
     //   // _decryptWithKey(cubes, importedKey).then(JSON.stringify).then(console.error);
     //   _decryptWithKey(cubes, importedKey);
     // });
+    */
   }
 
   function getServiceResultShare(session, password) {
