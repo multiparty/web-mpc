@@ -28,8 +28,6 @@ const base32Encode = require('base32-encode');
 const path = require('path');
 const compression = require('compression');
 
-let https;
-
 app.use(compression());
 
 function templateToJoiSchema(template, joiFieldType) {
@@ -100,7 +98,7 @@ var server;
 
 if (process.env.NODE_ENV === 'production') {
   //handles acme-challenge and redirects to https
-  server = http.createServer(lex.middleware(require('redirect-https')())).listen(80, function () {
+  http.createServer(lex.middleware(require('redirect-https')())).listen(80, function () {
     console.log("Listening for ACME http-01 challenges on", this.address());
   });
 } else {
@@ -225,10 +223,6 @@ app.use(body_parser.json({limit: '50mb'}));
 
 // serve static files in designated folders
 app.use(express.static(__dirname + '/../client'));
-app.use("/lib", express.static(__dirname + '/../client/jiff'));
-app.use("/lib/ext", express.static(__dirname + '/../client/jiff/ext'));
-app.use("/bignumber.js", express.static(__dirname + "/node_modules/bignumber.js"));
-app.use("/socket.io", express.static(__dirname + "/node_modules/socket.io-client/dist"));
 
 app.get('/', function (req, res) {
   res.sendFile((path.join(__dirname + '/../client/index.html')));
@@ -309,12 +303,6 @@ app.post('/', function (req, res) {
         if (data == null) {
           res.status(500).send('Invalid participation code.');
         } else { // User Key Found.
-          console.log("1_--------------");
-          console.log(req_data);
-          console.log("_--------------");
-          console.log(mask);
-          console.log("_____--------------");
-        
           // save the mask and individual aggregate
           var aggToSave = new Aggregate({
             _id: ID,
@@ -977,91 +965,9 @@ app.get(/.*/, function (req, res) {
 });
 
 if (process.env.NODE_ENV === 'production') {
-  https = require('https').createServer(lex.httpsOptions, lex.middleware(app)).listen(443, function () {
+  require('https').createServer(lex.httpsOptions, lex.middleware(app)).listen(443, function () {
     console.log("Listening for ACME tls-sni-01 challenges and serve app on", this.address());
   });
 }
 
-/** JIFF SETUP **/
-var base_instance = require('../client/jiff/jiff-server').make_jiff(https, {logs:false});
-var jiff_instance = require('../client/jiff/ext/jiff-server-bignumber').make_jiff(base_instance);
-
-var mod = "18446744073709551557"; // 64 bits
-var mod_switch_date = new Date("Mar 23 13:39:01 2018 -0400").getTime();
-jiff_instance.compute('reconstruction-session', {Zp: new BigNumber(mod), onConnect: function(computation_instance) {
-  computation_instance.listen('begin', function(_, session) {
-    console.log("Begin");
-    var compute = function(data) {
-      var old_mod1 = new BigNumber("4294967296"); // 32 bits
-      var old_mod2 = new BigNumber("1099511627776"); // 40 bits
-
-      // Figure out which mod to use for which party
-      var mods = [];
-      for(var i = 0; i < data.length; i++) {
-        mods[i] = old_mod1;
-        if(data[i].date > mod_switch_date) mods[i] = old_mod2;
-      }
-
-      computation_instance.emit("mods", [1], mods);
-
-      // Agree on ordering on keys
-      var keys = [];
-      for(var key in data[0].fields['Pacesetter Procurement Measure']) {
-        if(!data[0].fields['Pacesetter Procurement Measure'].hasOwnProperty(key)) continue;
-        keys.push(key);
-      }
-      keys.sort();
-
-      // unmask
-      var numbers = [];
-      for(var i = 0; i < data.length; i++) {
-        numbers[i] = {};
-        for(var j = 0; j < keys.length; j++) {
-          var key = keys[j];
-
-          var shares = computation_instance.share(data[i].fields['Pacesetter Procurement Measure'][key].value, 2, [1, "s1"], [1, "s1"]);
-          var recons = shares["s1"].sadd(shares[1]);
-          recons = recons.ssub(recons.cgteq(mods[i], 42).cmult(mods[i]));
-          numbers[i][key] = recons;
-        }
-      }
-
-      // add
-      var results = {};
-      for(var j = 0; j < keys.length; j++) {
-        var key = keys[j];
-        
-        results[key] = numbers[0][key];
-        for(var i = 1; i < numbers.length; i++) {
-          results[key] = results[key].sadd(numbers[i][key]);
-        }
-      }
-      
-      // open
-      for(var i = 0; i < keys.length; i++) {
-        computation_instance.open(results[keys[i]], [1]);
-      };
-    };
-    
-    Aggregate.where({session: session}).find(function (err, data) {
-      if (err) {
-        console.log(err);
-        computation_instance.emit('error', [1], 'Error computing aggregate.');
-        return;
-      }
-
-      // make sure query result is not empty
-      if (data.length >= 1) {
-        compute(data);
-        return;
-      }
-      else {
-        computation_instance.emit('error', [1], 'No submissions yet. Please come back later.');
-        return;
-      }
-    });
-  });
-}});
-
 /*eof*/
-
