@@ -18,7 +18,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         div.classList.add(input_type);
 
 
-        var label = $('<label>').text(question.inputs[i].label);
+        var label = $('<label>');
 
         var input = document.createElement('input');
         $(input).attr('type', input_type)
@@ -26,6 +26,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
                 .attr('name', 'opt' + input_type)
                 .appendTo(label);
 
+        label.text(question.inputs[i].label);
         $(label).appendTo(div);
         $(div).appendTo(form);
       }
@@ -43,7 +44,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
       for (var i = 0; i < questions.length; i++) {
         var form = document.createElement('form');
         form.append(createQuestionText(questions[i].question_text));
-        var inputs = renderSurveyInputs(questions[i], form);
+        renderSurveyInputs(questions[i], form);
         questionsDiv.append(form);
 
       }
@@ -118,7 +119,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         });
 
         // Create the tabless
-        // var tables = tableController.makeTables();
+        var tables = tableController.makeTables();
         window.scrollTo(0, 0);
         var sums = [0, 0]; // Internal total of Non NaNs values.
         var NaNs = [0, 0]; // Counts how many NaNs exist for every cell participating in a total.

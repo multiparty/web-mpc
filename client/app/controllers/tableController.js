@@ -377,7 +377,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
       // console.log(table)
 
-      // result[t] = makeHotTable(table);
+      result[t] = makeHotTable(table);
       table_widths[result[t].rootElement.id] = get_width(result[t]);
     }
     return result;
@@ -592,7 +592,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     handsOnTable._sail_meta = table;
 
     // Put name in the title element (if it exists)
-    document.getElementById(table.element + '-name').innerHTML = table.name;
+    // document.getElementById(table.element + '-name').innerHTML = table.name;
 
     return handsOnTable;
   }
