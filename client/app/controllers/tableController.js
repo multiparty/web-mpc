@@ -591,9 +591,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     var handsOnTable = new Handsontable(element, hotSettings);
     handsOnTable._sail_meta = table;
 
-    // Put name in the title element (if it exists)
-    // document.getElementById(table.element + '-name').innerHTML = table.name;
-
     return handsOnTable;
   }
 

@@ -33,10 +33,9 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
     }
 
     function displaySurveyQuestions() {
-      if (!('survey' in table_template)) {
+      if (!('survey' in table_template) || Object.keys(table_template.survey).length === 0) {
         return;
-      } 
-      
+      }       
       questions = table_template.survey.questions;
 
       var questionsDiv = $('#questions');
