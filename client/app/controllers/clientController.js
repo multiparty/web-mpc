@@ -450,6 +450,8 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
         var submission = {
           data: data,
           mask: mask,
+          analytic_data: analytic_data,
+          analytic_mask: analytic_mask,
           user: participationCode,
           questions_public: questions_public,
           pairwise_hypercubes: pairwise_hypercubes,
