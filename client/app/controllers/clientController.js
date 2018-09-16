@@ -2,6 +2,7 @@
 
 define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'alertify_defaults'], function ($, tableController, mpc, alertify) {
 
+
   var client = (function () {
     var SESSION_KEY_ERROR = 'Invalid session number';
     var PARTICIPATION_CODE_ERROR = 'Invalid participation code';
@@ -23,6 +24,74 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
       min: NAN_EMPTY_CELLS,
       discrepancies: SEMANTIC_CELLS
     };
+
+
+    let analytics = {
+      validation_errors: {},
+      mouse_positions: [],
+      time_ms: 0,
+    }
+
+    document.addEventListener('mousemove', handleMouseMove, false);
+    function getPos(event) {
+
+      // TODO: make sure this is consistent across browsers
+      var height;
+      var width;
+      if (event.pageX === null && event.clientX !== null) {
+        var doc = eventDoc.documentElement;
+        var body = eventDoc.body;
+
+
+        event.pageX = event.clientX +
+          (doc && doc.scrollLeft || body && body.scrollLeft || 0) -
+          (doc && doc.clientLeft || body && body.clientLeft || 0);
+        event.pageY = event.clientY +
+          (doc && doc.scrollTop  || body && body.scrollTop  || 0) -
+          (doc && doc.clientTop  || body && body.clientTop  || 0 );
+      }
+      width = window.innerWidth
+        || document.documentElement.clientWidth
+        || document.body.clientWidth;
+
+      height = document.body.scrollHeight;
+      return [event.pageX / width, event.pageY / height];
+    }
+
+    function handleMouseMove(event) {
+      // y coord should potentially be mult. by 100
+      // to account for difference in x, y page size
+      var pos = getPos(event);
+      var x = Math.floor(pos[0] * 100);
+      var y = Math.floor(pos[1] * 1000);
+      analytics['mouse_positions'].push([x,y]);
+    }
+
+    let startDate = new Date();
+    let elapsedTime = 0;
+
+    const focus = function () {
+      startDate = new Date();
+    };
+
+    const blur = function () {
+      const endDate = new Date();
+      const spentTime = endDate.getTime() - startDate.getTime();
+      elapsedTime += spentTime;
+    };
+
+    const beforeunload = function () {
+      const endDate = new Date();
+      const spentTime = endDate.getTime() - startDate.getTime();
+      elapsedTime += spentTime;
+      analytics['time_ms'] = elapsedTime;
+      // elapsedTime contains the time spent on page in milliseconds
+    };
+
+    // TODO EventListeners prolly shouldn't be in this file
+    window.addEventListener('focus', focus);
+    window.addEventListener('blur', blur);
+    window.addEventListener('beforeunload', beforeunload);
 
     // TODO: create new view for alerts
     function error(msg) {
@@ -170,11 +239,19 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
       var $session = $('#session');
       if (!validateSessionInput($session, false)) {
         errors = errors.concat(SESSION_KEY_ERROR);
+        if(analytics[SESSION_KEY_ERROR] == null) {
+          analytics[SESSION_KEY_ERROR] = 0;
+        }
+        analytics[SESSION_KEY_ERROR]++;
       }
 
       var $participationCode = $('#participation-code');
       if (!validateSessionInput($participationCode, false)) {
         errors = errors.concat(PARTICIPATION_CODE_ERROR);
+        if(analytics[PARTICIPATION_CODE_ERROR] == null) {
+          analytics[PARTICIPATION_CODE_ERROR] = 0;
+        }
+        analytics[PARTICIPATION_CODE_ERROR]++;
       }
 
       // Validate the remaining components after session and
@@ -182,12 +259,20 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
       var validateRemainingComponents = function (result) {
         if (!result) {
           errors = errors.concat(SESSION_PARTICIPATION_CODE_SERVER_ERROR);
+          if(analytics[SESSION_PARTICIPATION_CODE_SERVER_ERROR] == null) {
+            analytics[SESSION_PARTICIPATION_CODE_SERVER_ERROR] = 0;
+          }
+          analytics[SESSION_PARTICIPATION_CODE_SERVER_ERROR]++;
         }
 
         // Verify confirmation check box was checked
         var verifyChecked = $('#verify').is(':checked');
         if (!verifyChecked) {
           errors = errors.concat(UNCHECKED_ERR);
+          if(analytics[UNCHECKED_ERR] == null) {
+            analytics[UNCHECKED_ERR] = 0;
+          }
+          analytics[UNCHECKED_ERR]++;
         }
 
         // Verify additional questions
@@ -213,6 +298,10 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
 
         if (!questionsValid) {
           errors = errors.concat(ADD_QUESTIONS_ERR);
+          if(analytics[ADD_QUESTIONS_ERR] == null) {
+            analytics[ADD_QUESTIONS_ERR] = 0;
+          }
+          analytics[ADD_QUESTIONS_ERR]++;
         }
 
         // Register semantic discrepancies validator.
@@ -321,6 +410,14 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
       var data = shares['data'];
       var mask = shares['mask'];
 
+      // For now, keeping analytic data separate from submission data
+      // analytics is a global var, probably not that chill
+
+      beforeunload(); // updates time analytic
+      var analytic_shares = mpc.secretShareValues(analytics);
+      var analytic_data = analytic_shares['data'];
+      var analytic_mask = analytic_shares['mask'];
+
       // Correlation using modified small pairwise 'hypercubes'. (one cube for each pair of questions)
       // For every pair of questions, compute and encrypt the two chosen answers.
       var pairwise_hypercubes = {};
@@ -330,12 +427,12 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
         }
       }
 
-      encrypt_and_send(session, participationCode, data, mask, questions_public, pairwise_hypercubes, la);
+      encrypt_and_send(session, participationCode, data, mask, analytic_data, analytic_mask, questions_public, pairwise_hypercubes, la);
     }
 
     var submitEntries = [];
 
-    function encrypt_and_send(session, participationCode, data, mask, questions_public, pairwise_hypercubes, la) {
+    function encrypt_and_send(session, participationCode, data, mask, analytic_data, analytic_mask, questions_public, pairwise_hypercubes, la) {
       // Get the public key to encrypt with
       var pkey_request = $.ajax({
         type: 'POST',
