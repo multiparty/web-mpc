@@ -26,6 +26,21 @@ define(['jquery', 'controllers/unmaskController', 'controllers/clientController'
 
     }
 
+    function getAnalyticsMasks(sK, sP, pK, masks, callB) {
+      $.ajax({
+        type: 'POST',
+        url: '/get_analytics_masks',
+        contentType: 'application/json',
+        data: JSON.stringify({session: sK, password: sP}),
+        success: function (analyticsMasks) {
+          unmaskController.aggregate_and_unmask(masks, analyticsMasks, pK, sK, sP, callB);
+        },
+        error: function(e) {
+          error(e.responseText);
+        }
+      })
+
+    }
 
     function getMasks(sK, sP, pK) {
       $.ajax({
@@ -34,7 +49,7 @@ define(['jquery', 'controllers/unmaskController', 'controllers/clientController'
         contentType: 'application/json',
         data: JSON.stringify({session: sK, password: sP}),
         success: function (data) {
-          unmaskController.aggregate_and_unmask(data, pK, sK, sP, callb);
+          getAnalyticsMasks(sK, sP, pK, data, callb);
         },
         error: function (e) {
           error(e.responseText);

@@ -10,7 +10,11 @@
 define(['helper/mpc', 'controllers/tableController', 'filesaver'], function (mpc, tableController, filesaver) {
 
   // Takes callback(true|false, data).
-  function aggregate_and_unmask(mOut, privateKey, session, password, callback) {
+  function aggregate_and_unmask(mOut, analyticsMasks, privateKey, session, password, callback) {
+
+    aMOut = JSON.parse(analyticsMasks.data);
+
+    console.log('analytics mask',aMOut);
 
     mOut = JSON.parse(mOut.data);
     console.log(mOut);
@@ -57,6 +61,10 @@ define(['helper/mpc', 'controllers/tableController', 'filesaver'], function (mpc
     // Request service to aggregate its shares and send us the result
     var serviceResultShare = getServiceResultShare(session, password);
 
+    var analyticsShares = getAnalyticsShares(session, password);
+
+    console.log(analyticsShares);
+
     Promise.all([analystResultShare, serviceResultShare, questions_public])
       .then(function (resultShares) {
         var analystResult = resultShares[0],
@@ -84,6 +92,21 @@ define(['helper/mpc', 'controllers/tableController', 'filesaver'], function (mpc
     //   _decryptWithKey(cubes, importedKey);
     // });
   }
+
+
+  function getAnalyticsShares(session, password) {
+    return $.ajax({
+      type: 'POST',
+      url: '/get_analytics',
+      contentType: 'application/json',
+      data: JSON.stringify({
+        session: session,
+        password: password
+      }),
+      dataType: 'json'
+    });
+  }
+
 
   function getServiceResultShare(session, password) {
     return $.ajax({

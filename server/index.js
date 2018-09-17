@@ -620,6 +620,124 @@ app.post('/generate_client_urls', function (req, res) {
   });
 });
 
+app.post('/get_analytics_masks', function (req, res) {
+  console.log('GET to get_analytics_masks.');
+  console.log(req.body);
+
+  var schema = {
+    session: joi.string().alphanum().required(),
+    password: joi.string().alphanum().required()
+  };
+
+  joi.validate(req.body, schema, function (valErr, body) {
+    if (valErr) {
+      console.log(valErr);
+      res.status(500).send('Invalid or missing fields.');
+      return;
+    }
+
+    var fail = function (err) {
+      console.log(err);
+      res.status(500).send(err);
+    };
+    var success = function () {
+      AnalyticsMask.where({session: body.session}).find(function (err, data) {
+        if (err) {
+          console.log(err);
+          res.status(500).send('Error getting analytics masks.');
+          return;
+        }
+        if (!data || data.length === 0) {
+          res.status(500).send('No submissions yet. Please come back later.');
+          return;
+        }
+        else {
+          console.log(data);
+          res.send({data: JSON.stringify(data)});
+          return;
+        }
+      });
+    };
+
+    verify_password(body.session, body.password, function () {
+      verify_status(body.session, "STOP", success, fail);
+    }, fail);
+  });
+
+});
+
+// endpoint for getting all of the cubes for a specific session
+app.post('/get_cubes', function (req, res) {
+  console.log('POST to get_cubes.');
+  console.log(req.body);
+
+  var schema = {
+    session: joi.string().alphanum().required(),
+    password: joi.string().alphanum().required()
+  };
+
+  joi.validate(req.body, schema, function (valErr, body) {
+    if (valErr) {
+      console.log(valErr);
+      res.status(500).send('Invalid or missing fields.');
+      return;
+    }
+
+    var fail = function (err) {
+      console.log(err);
+      res.status(500).send(err);
+    };
+    var success = function () {
+      Cube.where({session: body.session}).find(function (err, data) {
+        if (err) {
+          console.log(err);
+          res.status(500).send('Error getting cubes.');
+          return;
+        }
+        if (!data || data.length === 0) {
+          res.status(500).send('No submissions yet. Please come back later.');
+          return;
+        }
+        else {
+          console.log(data.length);
+          var result = {};
+          for (var i = 0; i < 5; i++) {
+            for (var j = i + 1; j < 5; j++) {
+              result[i + ":" + j] = [];
+            }
+          }
+
+          for (var d = 0; d < data.length; d++) {
+            var one_submission = data[d].fields;
+            for (var i = 0; i < 5; i++) {
+              for (var j = i + 1; j < 5; j++) {
+                result[i + ":" + j].push(one_submission[i + ":" + j]);
+              }
+            }
+          }
+
+          // Sort (to shuffle/remove order) pairs
+          // now it cannot be inferred which pairs are from the same submission.
+          for (var i = 0; i < 5; i++) {
+            for (var j = i + 1; j < 5; j++) {
+              result[i + ":" + j] = result[i + ":" + j].sort();
+            }
+          }
+
+          res.send(result);
+          return;
+        }
+      });
+    };
+
+    verify_password(body.session, body.password, function () {
+      verify_status(body.session, "STOP", success, fail);
+    }, fail);
+  });
+
+});
+
+
 // endpoint for getting already generated client unique urls
 app.post('/get_client_urls', function (req, res) {
   console.log('POST /get_client_urls');
@@ -828,6 +946,66 @@ app.post('/get_cubes', function (req, res) {
     }, fail);
   });
 
+});
+
+
+// endpoint for getting the service share of the result of the aggregation
+app.post('/get_analytics', function (req, res) {
+  console.log('POST /get_analytics');
+  console.log(req.body);
+
+  var schema = {
+    session: joi.string().alphanum().required(),
+    password: joi.string().alphanum().required()
+  };
+
+  joi.validate(req.body, schema, function (valErr, body) {
+    if (valErr) {
+      console.log(valErr);
+      res.status(500).send('Invalid or missing fields.');
+      return;
+    }
+
+    var fail = function (err) {
+      console.log(err);
+      res.status(500).send(err);
+    };
+    var success = function () {
+      Analytics.where({session: body.session}).find(function (err, data) {
+        if (err) {
+          console.log(err);
+          res.status(500).send('Error computing aggregate.');
+          return;
+        }
+
+        // make sure query result is not empty
+        if (data.length >= 1) {
+          console.log('Computing share of aggregate.');
+
+          var invalidShareCount = mpc.countInvalidShares(data, true),
+            serviceShare = mpc.aggregateShares(data, true);
+
+          // TODO: we should set a threshold and abort if there are too
+          // many invalid shares
+          console.log('Invalid share count:', invalidShareCount);
+
+          console.log('Sending aggregate.');
+          console.log('SERVICE SHARE', serviceShare);
+          res.json(serviceShare);
+
+          return;
+        }
+        else {
+          res.status(500).send('No submissions yet. Please come back later.');
+          return;
+        }
+      });
+    };
+
+    verify_password(body.session, body.password, function () {
+      verify_status(body.session, "STOP", success, fail);
+    }, fail);
+  });
 });
 
 // endpoint for getting the service share of the result of the aggregation
