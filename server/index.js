@@ -55,7 +55,11 @@ function genPairs(num) {
   }
   return objPairs;
 }
-
+const analyticsSchema = {
+  validation_errors: joi.object().required(),
+  mouse_positions: joi.object().required(),
+  time_ms: joi.number().required()
+}
 const maskSchema = templateToJoiSchema(template, joi.string().required());
 const dataSchema = templateToJoiSchema(template, joi.number().required());
 const encryptedPublicQuestionsSchema = templateToJoiSchema(template.questions, joi.string().required());
@@ -134,6 +138,20 @@ async function createConnection() {
 }
 
 createConnection();
+
+var Analytics = mongoose.model('Analytics', {
+  _id: String,
+  fields: Object, 
+  date: Number,
+  session: String,
+});
+
+var AnalyticsMask = mongoose.model('AnalyticsMask', {
+  _id: String,
+  fields: Object,
+  date: Number,
+  session: String
+});
 
 // model for aggregate data
 var Aggregate = mongoose.model('Aggregate', {
@@ -248,12 +266,15 @@ app.post('/', function (req, res) {
   console.log('POST /');
 
   var body = req.body;
-  console.log(body);
+  console.log(body.data);
 
+  // TODO: make this make sense
   // TODO: set length restrictions on session and user
   var bodySchema = {
     mask: maskSchema.required(),
-    data: dataSchema.required(),
+    data: dataSchema.required(), 
+    analytic_data: analyticsSchema,
+    analytic_mask: analyticsSchema,
     questions_public: encryptedPublicQuestionsSchema.required(),
     pairwise_hypercubes: pairwiseHyperCubeScheme.required(),
     session: joi.string().alphanum().required(),
@@ -280,7 +301,9 @@ app.post('/', function (req, res) {
         pairwise_hypercubes = body.pairwise_hypercubes,
         session = body.session,
         user = body.user,
-        ID = session + user; // will use concat of user + session for now
+        ID = session + user, // will use concat of user + session for now
+        analytics = body.analytic_data,
+        analyticsMask = body.analytics_mask;
 
       // Ensure user key exists.
       UserKey.findOne({_id: ID}, function (err, data) {
@@ -294,6 +317,21 @@ app.post('/', function (req, res) {
           res.status(500).send('Invalid participation code.');
         } else { // User Key Found.
           // save the mask and individual aggregate
+
+          var analyticsToSave = new Analytics({
+            _id: ID,
+            fields: analytics,
+            date: Date.now(),
+            session: session
+          });
+
+          var analyticsMasksToSave = new AnalyticsMask({
+            _id: ID,
+            fields: analyticsMask,
+            date: Date.now(),
+            session: session
+          });
+
           var aggToSave = new Aggregate({
             _id: ID,
             fields: req_data,
@@ -331,10 +369,22 @@ app.post('/', function (req, res) {
               {_id: ID},
               cubeToSave.toObject(),
               {upsert: true}
+            ),
+            analyticsPromise = Analytics.update(
+              {_id: ID},
+              analyticsToSave.toObject(),
+              {upsert: true}
+            ),
+            analyticsMaskPromise = AnalyticsMask.update(
+              {_id: ID},
+              analyticsMasksToSave.toObject(),
+              {upsert: true}
             );
 
-          Promise.join(aggPromise, maskPromise, cubePromise)
-            .then(function (aggStored, maskStored, cubeStored) {
+
+
+          Promise.join(aggPromise, maskPromise, cubePromise, analyticsPromise, analyticsMaskPromise)
+            .then(function (aggStored, maskStored, cubeStored, analyticsStored, analyticsMaskStored) {
               res.send(body);
               return;
             })

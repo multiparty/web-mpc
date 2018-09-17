@@ -239,19 +239,19 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
       var $session = $('#session');
       if (!validateSessionInput($session, false)) {
         errors = errors.concat(SESSION_KEY_ERROR);
-        if(analytics[SESSION_KEY_ERROR] == null) {
-          analytics[SESSION_KEY_ERROR] = 0;
+        if(analytics.validation_errors[SESSION_KEY_ERROR] == null) {
+          analytics.validation_errors[SESSION_KEY_ERROR] = 0;
         }
-        analytics[SESSION_KEY_ERROR]++;
+        analytics.validation_errors[SESSION_KEY_ERROR]++;
       }
 
       var $participationCode = $('#participation-code');
       if (!validateSessionInput($participationCode, false)) {
         errors = errors.concat(PARTICIPATION_CODE_ERROR);
-        if(analytics[PARTICIPATION_CODE_ERROR] == null) {
-          analytics[PARTICIPATION_CODE_ERROR] = 0;
+        if(analytics.validation_errors[PARTICIPATION_CODE_ERROR] == null) {
+          analytics.validation_errors[PARTICIPATION_CODE_ERROR] = 0;
         }
-        analytics[PARTICIPATION_CODE_ERROR]++;
+        analytics.validation_errors[PARTICIPATION_CODE_ERROR]++;
       }
 
       // Validate the remaining components after session and
@@ -259,20 +259,20 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
       var validateRemainingComponents = function (result) {
         if (!result) {
           errors = errors.concat(SESSION_PARTICIPATION_CODE_SERVER_ERROR);
-          if(analytics[SESSION_PARTICIPATION_CODE_SERVER_ERROR] == null) {
-            analytics[SESSION_PARTICIPATION_CODE_SERVER_ERROR] = 0;
+          if(analytics.validation_errors[SESSION_PARTICIPATION_CODE_SERVER_ERROR] == null) {
+            analytics.validation_errors[SESSION_PARTICIPATION_CODE_SERVER_ERROR] = 0;
           }
-          analytics[SESSION_PARTICIPATION_CODE_SERVER_ERROR]++;
+          analytics.validation_errors[SESSION_PARTICIPATION_CODE_SERVER_ERROR]++;
         }
 
         // Verify confirmation check box was checked
         var verifyChecked = $('#verify').is(':checked');
         if (!verifyChecked) {
           errors = errors.concat(UNCHECKED_ERR);
-          if(analytics[UNCHECKED_ERR] == null) {
-            analytics[UNCHECKED_ERR] = 0;
+          if(analytics.validation_errors[UNCHECKED_ERR] == null) {
+            analytics.validation_errors[UNCHECKED_ERR] = 0;
           }
-          analytics[UNCHECKED_ERR]++;
+          analytics.validation_errors[UNCHECKED_ERR]++;
         }
 
         // Verify additional questions
@@ -298,10 +298,10 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
 
         if (!questionsValid) {
           errors = errors.concat(ADD_QUESTIONS_ERR);
-          if(analytics[ADD_QUESTIONS_ERR] == null) {
-            analytics[ADD_QUESTIONS_ERR] = 0;
+          if(analytics.validation_errors[ADD_QUESTIONS_ERR] == null) {
+            analytics.validation_errors[ADD_QUESTIONS_ERR] = 0;
           }
-          analytics[ADD_QUESTIONS_ERR]++;
+          analytics.validation_errors[ADD_QUESTIONS_ERR]++;
         }
 
         // Register semantic discrepancies validator.
@@ -447,6 +447,8 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
         pairwise_hypercubes = mpc.encryptWithKey(pairwise_hypercubes, public_key);
         questions_public = mpc.encryptWithKey(questions_public, public_key); // This encrypts the public answers to questions
 
+        console.log('data', analytic_data);
+        console.log('mask!',analytic_mask);
         var submission = {
           data: data,
           mask: mask,

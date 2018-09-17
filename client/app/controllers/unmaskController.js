@@ -13,7 +13,7 @@ define(['helper/mpc', 'controllers/tableController', 'filesaver'], function (mpc
   function aggregate_and_unmask(mOut, privateKey, session, password, callback) {
 
     mOut = JSON.parse(mOut.data);
-
+    console.log(mOut);
     // Questions Public is the public answers to questions.
     var questions_public = [];
     for (var i = 0; i < mOut.length; i++) {
@@ -42,6 +42,7 @@ define(['helper/mpc', 'controllers/tableController', 'filesaver'], function (mpc
     // corresponding to a submission with decrypted
     // value fields
     var decrypted = decryptValueShares(sk, mOut, true);
+    console.log(decrypted)
     questions_public = decryptValueShares(sk, questions_public, false);
 
     // Aggregate decrypted values by key
