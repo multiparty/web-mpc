@@ -31,6 +31,21 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
       mouse_positions: [],
       time_ms: 0,
     }
+    /*
+    [ [ [], [], ..., [] ],
+      [ [], [], ..., [] ],
+      [ [], [], ..., [] ],
+      [ [], [], ..., [] ],
+    ]
+    */
+
+    // define mouse_positions as 100x1000 array
+    for (var i = 0; i < 100; i++) {
+      analytics.mouse_positions.push([]);
+      for (var k = 0; k < 1000; k++) {
+        analytics.mouse_positions[i].push([0])
+      }
+    }
 
     document.addEventListener('mousemove', handleMouseMove, false);
     function getPos(event) {
@@ -61,10 +76,12 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
     function handleMouseMove(event) {
       // y coord should potentially be mult. by 100
       // to account for difference in x, y page size
+
       var pos = getPos(event);
       var x = Math.floor(pos[0] * 100);
       var y = Math.floor(pos[1] * 1000);
-      analytics['mouse_positions'].push([x,y]);
+      //each array stores # of hits at this area
+      analytics['mouse_positions'][x][y]++;
     }
 
     let startDate = new Date();
@@ -418,6 +435,8 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
       var analytic_data = analytic_shares['data'];
       var analytic_mask = analytic_shares['mask'];
 
+      console.log("analytic data", analytic_data);
+      console.log("analytic masks", analytic_mask);
       // Correlation using modified small pairwise 'hypercubes'. (one cube for each pair of questions)
       // For every pair of questions, compute and encrypt the two chosen answers.
       var pairwise_hypercubes = {};
@@ -447,8 +466,6 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
         pairwise_hypercubes = mpc.encryptWithKey(pairwise_hypercubes, public_key);
         questions_public = mpc.encryptWithKey(questions_public, public_key); // This encrypts the public answers to questions
 
-        console.log('data', analytic_data);
-        console.log('mask!',analytic_mask);
         var submission = {
           data: data,
           mask: mask,
@@ -460,7 +477,6 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
           session: session
         };
 
-        //console.log(submission);
 
         return $.ajax({
           type: 'POST',
