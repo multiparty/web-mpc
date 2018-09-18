@@ -81,7 +81,7 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
       var x = Math.floor(pos[0] * 100);
       var y = Math.floor(pos[1] * 1000);
       //each array stores # of hits at this area
-      analytics['mouse_positions'][x][y]++;
+      analytics.mouse_positions[x][y]++;
     }
 
     let startDate = new Date();
@@ -431,6 +431,9 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
       // analytics is a global var, probably not that chill
 
       beforeunload(); // updates time analytic
+      analytics.time_ms = Math.floor(analytics.time_ms / 1000);
+      console.log("analytics", analytics);
+
       var analytic_shares = mpc.secretShareValues(analytics);
       var analytic_data = analytic_shares['data'];
       var analytic_mask = analytic_shares['mask'];

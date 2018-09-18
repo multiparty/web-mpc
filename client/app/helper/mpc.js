@@ -87,6 +87,7 @@ define(['forge'], function (forge) {
       if (obj.hasOwnProperty(key)) {
         var value = obj[key];
         if (typeof(value) === 'number') {
+          console.log("secretsharevalue:",value);
           var shares = _secretShare(value, 2);
 
           dataTuples[key] = shares[0];
