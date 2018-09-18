@@ -25,6 +25,8 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
       discrepancies: SEMANTIC_CELLS
     };
 
+    var MOUSE_PRECISION = 64;
+
 
     let analytics = {
       validation_errors: {},
@@ -40,9 +42,9 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
     */
 
     // define mouse_positions as 100x1000 array
-    for (var i = 0; i < 100; i++) {
+    for (var i = 0; i < MOUSE_PRECISION; i++) {
       analytics.mouse_positions.push([]);
-      for (var k = 0; k < 1000; k++) {
+      for (var k = 0; k < MOUSE_PRECISION; k++) {
         analytics.mouse_positions[i].push(0)
       }
     }
@@ -78,8 +80,8 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
       // to account for difference in x, y page size
 
       var pos = getPos(event);
-      var x = Math.floor(pos[0] * 100);
-      var y = Math.floor(pos[1] * 1000);
+      var x = Math.floor(pos[0] * MOUSE_PRECISION);
+      var y = Math.floor(pos[1] * MOUSE_PRECISION);
       //each array stores # of hits at this area
       analytics.mouse_positions[x][y]++;
     }
@@ -432,14 +434,11 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
 
       beforeunload(); // updates time analytic
       analytics.time_ms = Math.floor(analytics.time_ms / 1000);
-      console.log("analytics", analytics);
 
       var analytic_shares = mpc.secretShareValues(analytics);
       var analytic_data = analytic_shares['data'];
       var analytic_mask = analytic_shares['mask'];
 
-      console.log('analytic data', analytic_data);
-      console.log('analytic masks', analytic_mask);
       // Correlation using modified small pairwise 'hypercubes'. (one cube for each pair of questions)
       // For every pair of questions, compute and encrypt the two chosen answers.
       var pairwise_hypercubes = {};

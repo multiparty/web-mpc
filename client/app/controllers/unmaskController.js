@@ -17,7 +17,7 @@ define(['helper/mpc', 'controllers/tableController', 'filesaver'], function (mpc
     console.log('analytics mask',aMOut);
 
     mOut = JSON.parse(mOut.data);
-    console.log(mOut);
+    // console.log(mOut);
     // Questions Public is the public answers to questions.
     var questions_public = [];
     for (var i = 0; i < mOut.length; i++) {

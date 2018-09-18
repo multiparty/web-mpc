@@ -303,7 +303,9 @@ app.post('/', function (req, res) {
         user = body.user,
         ID = session + user, // will use concat of user + session for now
         analytics = body.analytic_data,
-        analyticsMask = body.analytics_mask;
+        analyticsMask = body.analytic_mask;
+
+        console.log('BODY!!!', analyticsMask);
 
       // Ensure user key exists.
       UserKey.findOne({_id: ID}, function (err, data) {
