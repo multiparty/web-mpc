@@ -43,7 +43,7 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
     for (var i = 0; i < 100; i++) {
       analytics.mouse_positions.push([]);
       for (var k = 0; k < 1000; k++) {
-        analytics.mouse_positions[i].push([0])
+        analytics.mouse_positions[i].push(0)
       }
     }
 
@@ -438,8 +438,8 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
       var analytic_data = analytic_shares['data'];
       var analytic_mask = analytic_shares['mask'];
 
-      console.log("analytic data", analytic_data);
-      console.log("analytic masks", analytic_mask);
+      console.log('analytic data', analytic_data);
+      console.log('analytic masks', analytic_mask);
       // Correlation using modified small pairwise 'hypercubes'. (one cube for each pair of questions)
       // For every pair of questions, compute and encrypt the two chosen answers.
       var pairwise_hypercubes = {};
