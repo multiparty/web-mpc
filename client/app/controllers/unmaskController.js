@@ -9,15 +9,19 @@
 /*eslint no-console: ["error", { allow: ["warn", "error"] }] */
 define(['helper/mpc', 'controllers/tableController', 'filesaver'], function (mpc, tableController, filesaver) {
 
+  function parseWebShares(data) {
+    let arr = [];
+    for (var d of data) {
+      arr.push(d.fields);
+    }
+    return arr;
+  }
+
   // Takes callback(true|false, data).
   function aggregate_and_unmask(mOut, analyticsMasks, privateKey, session, password, callback) {
 
     aMOut = JSON.parse(analyticsMasks.data);
-
-    console.log('analytics mask',aMOut);
-
     mOut = JSON.parse(mOut.data);
-    // console.log(mOut);
     // Questions Public is the public answers to questions.
     var questions_public = [];
     for (var i = 0; i < mOut.length; i++) {
@@ -45,36 +49,36 @@ define(['helper/mpc', 'controllers/tableController', 'filesaver'], function (mpc
     // decrypted is a list of promises, each promise
     // corresponding to a submission with decrypted
     // value fields
+    // var decryptedLytics = decryptValueShares(sk, aMOut, true);
     var decrypted = decryptValueShares(sk, mOut, true);
-    console.log(decrypted)
     questions_public = decryptValueShares(sk, questions_public, false);
 
     // Aggregate decrypted values by key
     var analystResultShare = decrypted.then(function (analystShares) {
-      // var invalidShareCount = mpc.countInvalidShares(analystShares);
-      // TODO: we should set a threshold and abort if there are too
-      // many invalid shares
-      // console.log('Invalid share count:', invalidShareCount);
       return mpc.aggregateShares(analystShares);
     });
+
+    var webShares = parseWebShares(aMOut);
+    var webCombinedShares = mpc.aggregateShares(webShares);
 
     // Request service to aggregate its shares and send us the result
     var serviceResultShare = getServiceResultShare(session, password);
 
-    var analyticsShares = getAnalyticsShares(session, password);
+    var webAggShares = getAnalyticsShares(session, password);
 
-    console.log(analyticsShares);
-
-    Promise.all([analystResultShare, serviceResultShare, questions_public])
+    Promise.all([analystResultShare, serviceResultShare, questions_public, webAggShares])
       .then(function (resultShares) {
         var analystResult = resultShares[0],
           serviceResult = resultShares[1],
           finalResult = mpc.recombineValues(serviceResult, analystResult);
+
+          usabilityResults = mpc.recombineValues(resultShares[3], webCombinedShares);
+
         if (!ensure_equal(finalResult.questions, mpc.aggregateShares(resultShares[2]))) {
           console.error('Secret-shared question answers do not aggregate to the same values as publicly collected answers.');
         }
         // generateQuestionsCSV(resultShares[2], session)
-        callback(true, finalResult, resultShares[2], session);
+        callback(true, finalResult, resultShares[2], usabilityResults, session);
 
       })
       .catch(function (err) {
@@ -83,7 +87,7 @@ define(['helper/mpc', 'controllers/tableController', 'filesaver'], function (mpc
       });
 
     // Do the Hypercube
-    // NOTE: do we need this?
+    // // NOTE: do we need this?
     // var cubes = getCubes(session, password);
     // Promise.all([cubes, sk]).then(function (results) {
     //   var cubes = results[0];
@@ -159,7 +163,6 @@ define(['helper/mpc', 'controllers/tableController', 'filesaver'], function (mpc
   function _decryptWithKey(obj, importedKey) {
     // decrypt one level of obj, decrypt nested object recursively
     var resultTuples = [];
-
     for (var key in obj) {
       if (obj.hasOwnProperty(key)) {
         var value = obj[key];
@@ -167,7 +170,6 @@ define(['helper/mpc', 'controllers/tableController', 'filesaver'], function (mpc
           // decrypt atomic value
           var resultTuple = window.crypto.subtle.decrypt({name: 'RSA-OAEP'}, importedKey, str2ab(value))
             .then(construct_tuple(key, true));
-
           resultTuples.push(resultTuple);
         } else {
           resultTuples.push(_decryptWithKey(value, importedKey)
@@ -187,7 +189,7 @@ define(['helper/mpc', 'controllers/tableController', 'filesaver'], function (mpc
    */
   function decryptValueShares(sk, maskedData, fields) {
     return sk.then(function (importedKey) {
-      // decrypt all masks
+
       var all = [];
       for (var d = 0; d < maskedData.length; d++) {
         all.push(_decryptWithKey(fields ? maskedData[d].fields : maskedData[d], importedKey));

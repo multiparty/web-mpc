@@ -8,7 +8,7 @@ define(['jquery', 'controllers/unmaskController', 'controllers/clientController'
     }
 
 
-    function callb(e, d, questions, session) {
+    function callb(e, d, questions, usability, session) {
       var tables = {};
       for (var name in d) {
         if (name !== 'questions') {
@@ -18,6 +18,7 @@ define(['jquery', 'controllers/unmaskController', 'controllers/clientController'
         }
       }
 
+      tableController.saveUsability(usability, session);
       tableController.saveTables(tables, session);
       tableController.saveQuestions(questions, session);
       tableController.displayReadTable(tables);

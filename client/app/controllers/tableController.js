@@ -906,7 +906,31 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     }
 
     tables_csv = tables_csv.join('\n\n\n');
-    filesaver.saveAs(new Blob([tables_csv], {type: 'text/plain;charset=utf-8'}), 'Aggregate_Data_' + session + '.csv');
+    // filesaver.saveAs(new Blob([tables_csv], {type: 'text/plain;charset=utf-8'}), 'Aggregate_Data_' + session + '.csv');
+  }
+
+  function saveUsability(usability, session) {
+    if (Object.keys(usability).length === 0) {
+      return;
+    }
+    let mousePositions = usability.mouse_positions;
+
+    let results = [];
+
+    for (let row in mousePositions) {
+      results[parseInt(row)] = [];
+      for (let col in mousePositions[row]) {
+        results[parseInt(row)].push(mousePositions[row][col]);
+      }
+    }
+
+    results = results.join('\n');
+
+    // let results = mousePositions.join('\n');
+    // results = results.join()
+    filesaver.saveAs(new Blob([results], {type: 'text/plain;charset=utf-8'}), 'Usability_' + session + '.csv');
+
+
   }
 
   function saveQuestions(questions, session) {
@@ -944,7 +968,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     }
 
     results = results.join('\n');
-    filesaver.saveAs(new Blob([results], {type: 'text/plain;charset=utf-8'}), 'Questions_' + session + '.csv');
+    // filesaver.saveAs(new Blob([results], {type: 'text/plain;charset=utf-8'}), 'Questions_' + session + '.csv');
   }
 
   return {
@@ -960,6 +984,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     saveQuestions: saveQuestions,
     displayReadTable: displayReadTable,
     resetTableWidth: resetTableWidth,
-    updateTableWidth: updateTableWidth
+    updateTableWidth: updateTableWidth,
+    saveUsability: saveUsability
   }
 });
