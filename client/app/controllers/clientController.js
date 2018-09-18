@@ -81,7 +81,7 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
       var x = Math.floor(pos[0] * 100);
       var y = Math.floor(pos[1] * 1000);
       //each array stores # of hits at this area
-      analytics['mouse_positions'][x][y]++;
+      analytics.mouse_positions[x][y]++;
     }
 
     let startDate = new Date();
