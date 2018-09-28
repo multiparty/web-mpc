@@ -910,6 +910,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   }
 
   function saveUsability(usability, session) {
+    console.log(usability);
     if (Object.keys(usability).length === 0) {
       return;
     }

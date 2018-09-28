@@ -60,6 +60,13 @@ const analyticsSchema = {
   mouse_positions: joi.object().required(),
   time_ms: joi.number().required()
 }
+
+const analyticsMaskSchema = {
+  validation_errors: joi.object().required(),
+  mouse_positions: joi.object().required(),
+  time_ms: joi.string().required()
+}
+
 const maskSchema = templateToJoiSchema(template, joi.string().required());
 const dataSchema = templateToJoiSchema(template, joi.number().required());
 const encryptedPublicQuestionsSchema = templateToJoiSchema(template.questions, joi.string().required());
@@ -274,7 +281,7 @@ app.post('/', function (req, res) {
     mask: maskSchema.required(),
     data: dataSchema.required(), 
     analytic_data: analyticsSchema,
-    analytic_mask: analyticsSchema,
+    analytic_mask: analyticsMaskSchema,
     questions_public: encryptedPublicQuestionsSchema.required(),
     pairwise_hypercubes: pairwiseHyperCubeScheme.required(),
     session: joi.string().alphanum().required(),

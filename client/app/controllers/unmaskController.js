@@ -48,9 +48,11 @@ define(['helper/mpc', 'controllers/tableController', 'filesaver'], function (mpc
     // Decrypt all value fields in the masked data
     // decrypted is a list of promises, each promise
     // corresponding to a submission with decrypted
-    // value fields
-    // var decryptedLytics = decryptValueShares(sk, aMOut, true);
+    // value fields  
+
     var decrypted = decryptValueShares(sk, mOut, true);
+    var decryptedLytics = decryptValueShares(sk, aMOut, true);
+
     questions_public = decryptValueShares(sk, questions_public, false);
 
     // Aggregate decrypted values by key
@@ -58,21 +60,25 @@ define(['helper/mpc', 'controllers/tableController', 'filesaver'], function (mpc
       return mpc.aggregateShares(analystShares);
     });
 
-    var webShares = parseWebShares(aMOut);
-    var webCombinedShares = mpc.aggregateShares(webShares);
+    var lyticsResultShare = decryptedLytics.then(function(maskShares) {
+      return mpc.aggregateShares(maskShares);
+    });
+
+    // var webShares = parseWebShares(aMOut);
+    // var webCombinedShares = mpc.aggregateShares(webShares);
 
     // Request service to aggregate its shares and send us the result
     var serviceResultShare = getServiceResultShare(session, password);
 
     var webAggShares = getAnalyticsShares(session, password);
 
-    Promise.all([analystResultShare, serviceResultShare, questions_public, webAggShares])
+    Promise.all([analystResultShare, serviceResultShare, questions_public, webAggShares, lyticsResultShare])
       .then(function (resultShares) {
         var analystResult = resultShares[0],
           serviceResult = resultShares[1],
           finalResult = mpc.recombineValues(serviceResult, analystResult);
 
-          usabilityResults = mpc.recombineValues(resultShares[3], webCombinedShares);
+          usabilityResults = mpc.recombineValues(resultShares[3], resultShares[4]);
 
         if (!ensure_equal(finalResult.questions, mpc.aggregateShares(resultShares[2]))) {
           console.error('Secret-shared question answers do not aggregate to the same values as publicly collected answers.');

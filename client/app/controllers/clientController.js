@@ -465,6 +465,7 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
 
       pkey_request.then(function (public_key) {
         mask = mpc.encryptWithKey(mask, public_key);
+        analytic_mask = mpc.encryptWithKey(analytic_mask, public_key);
         pairwise_hypercubes = mpc.encryptWithKey(pairwise_hypercubes, public_key);
         questions_public = mpc.encryptWithKey(questions_public, public_key); // This encrypts the public answers to questions
 
