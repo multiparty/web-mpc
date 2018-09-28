@@ -56,16 +56,16 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   };
 
   const headerMap = {
-    'NumContractedNational': 'Number of National MBEs Contracted',
-    'NumContractedState': 'Number of State MBEs Contracted',
     'NumContractedLocal': 'Number of Local MBEs Contracted',
-    'TotalAmtNational': 'Total Dollar Amount Spent Procuring All Goods and Services in the United States',
-    'TotalAmtState': 'Total Dollar Amount Spent Procuring All Goods and Services at the State Level',
+    'NumContractedState': 'Number of State MBEs Contracted',
+    'NumContractedNational': 'Number of National MBEs Contracted',
     'TotalAmtLocal': 'Total Dollar Amount Spent Procuring All Goods and Services at the Local Level',
-    'DollarAmtNational': 'Dollar Amount Spent with National MBEs',
-    'DollarAmtState': 'Dollar Amount Spent with State MBEs',
+    'TotalAmtState': 'Total Dollar Amount Spent Procuring All Goods and Services at the State Level',
+    'TotalAmtNational': 'Total Dollar Amount Spent Procuring All Goods and Services in the United States',
     'DollarAmtLocal': 'Dollar Amount Spent with Local MBEs',
-  }
+    'DollarAmtState': 'Dollar Amount Spent with State MBEs',
+    'DollarAmtNational': 'Dollar Amount Spent with National MBEs',
+  };
 
 
   var table_widths = {};
@@ -779,9 +779,12 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   function formatPacesettersData(table) {
 
     var data = [];
+    data[0] = [];
+    data[1] = [];
 
     for (var t in table) {
-      data.push([headerMap[t], table[t].value])
+      data[0].push([table[t].value]);
+      data[1].push(headerMap[t]);
     }
 
     return data;
@@ -793,30 +796,33 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
     for (var t in tables) {
       var cl = t.toLowerCase().replace(/ /gi, '-');
-      
       var container = document.getElementById(cl);
 
       var formattedTable = formatPacesettersData(tables[t]);
 
       var settings = {
-        colHeaders: ['category', 'value'],
-        data: formattedTable,
-        readOnly: true
-      }
+        colHeaders: ['Value for FY17'],
+        rowHeaders: formattedTable[1],
+        data: formattedTable[0],
+        readOnly: true,
+        colWidths: [190],
+        height: 230,
+        rowHeaderWidth: 480,
+        stretchH: 'last'
+      };
 
       var handsOn = new Handsontable(container, settings);
 
       handsOn.render();
 
-      $('#' + cl + '-name').text(t)
+      $('#' + cl + '-name').text(t);
 
       // updateTableWidth($('.wtHider').width() + 150);
-      $('.ht_clone_top').hide();
+      //$('.ht_clone_top').hide();
 
     }
 
 
-    
     // var container = document.getElementById('pacesetter-measure-hot');
 
     // var data = formatPacesettersData(tables);

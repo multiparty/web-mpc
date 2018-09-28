@@ -631,8 +631,6 @@ app.post('/get_client_urls', function (req, res) {
 
 // endpoint for returning the emails that have submitted already
 app.post('/get_data', function (req, res) {
-  console.log('POST /get_data');
-  console.log(req.body);
 
   var schema = {
     session: joi.string().alphanum().required(),

@@ -42,7 +42,7 @@ define([], function () {
             },
             "type": "currency",
             "min": 0,
-            "max_warning": 1000000,
+            "max_warning": 50000000,
             "empty": false,
             "validators": [
               "discrepancies"
@@ -108,7 +108,7 @@ define([], function () {
             },
             "type": "currency",
             "min": 0,
-            "max_warning": 1000000,
+            "max_warning": 50000000,
             "empty": false,
             "validators": [
               "discrepancies"
