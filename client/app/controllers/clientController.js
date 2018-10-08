@@ -25,14 +25,29 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
       discrepancies: SEMANTIC_CELLS
     };
 
-    var MOUSE_PRECISION = 64;
+    // currently the client width:height ratio is ~ 0.45:1
+    var MOUSE_PRECISION_WIDTH = 90;
+    var MOUSE_PRECISION_HEIGHT = 200;
 
 
     let analytics = {
-      validation_errors: {},
+
+      validation_errors: {
+
+        SESSION_KEY_ERROR: 0,
+        PARTICIPATION_CODE_ERROR: 0,
+        SESSION_PARTICIPATION_CODE_SERVER_ERROR: 0,
+        UNCHECKED_ERR: 0,
+        ADD_QUESTIONS_ERR: 0,
+        GENERIC_TABLE_ERR: 0,
+        SERVER_ERR: 0,
+        GENERIC_SUBMISSION_ERR: 0,
+        NAN_EMPTY_CELLS: 0,
+        SEMANTIC_CELLS: 0,
+      },
       mouse_positions: [],
       time_ms: 0,
-    }
+    };
     /*
     [ [ [], [], ..., [] ],
       [ [], [], ..., [] ],
@@ -42,9 +57,9 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
     */
 
     // define mouse_positions as 100x1000 array
-    for (var i = 0; i < MOUSE_PRECISION; i++) {
+    for (var i = 0; i < MOUSE_PRECISION_WIDTH; i++) {
       analytics.mouse_positions.push([]);
-      for (var k = 0; k < MOUSE_PRECISION; k++) {
+      for (var k = 0; k < MOUSE_PRECISION_HEIGHT; k++) {
         analytics.mouse_positions[i].push(0)
       }
     }
@@ -80,8 +95,8 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
       // to account for difference in x, y page size
 
       var pos = getPos(event);
-      var x = Math.floor(pos[0] * MOUSE_PRECISION);
-      var y = Math.floor(pos[1] * MOUSE_PRECISION);
+      var x = Math.floor(pos[0] * MOUSE_PRECISION_WIDTH);
+      var y = Math.floor(pos[1] * MOUSE_PRECISION_HEIGHT);
       //each array stores # of hits at this area
       analytics.mouse_positions[x][y]++;
     }
@@ -258,18 +273,12 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
       var $session = $('#session');
       if (!validateSessionInput($session, false)) {
         errors = errors.concat(SESSION_KEY_ERROR);
-        if(analytics.validation_errors[SESSION_KEY_ERROR] == null) {
-          analytics.validation_errors[SESSION_KEY_ERROR] = 0;
-        }
         analytics.validation_errors[SESSION_KEY_ERROR]++;
       }
 
       var $participationCode = $('#participation-code');
       if (!validateSessionInput($participationCode, false)) {
         errors = errors.concat(PARTICIPATION_CODE_ERROR);
-        if(analytics.validation_errors[PARTICIPATION_CODE_ERROR] == null) {
-          analytics.validation_errors[PARTICIPATION_CODE_ERROR] = 0;
-        }
         analytics.validation_errors[PARTICIPATION_CODE_ERROR]++;
       }
 
@@ -278,9 +287,6 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
       var validateRemainingComponents = function (result) {
         if (!result) {
           errors = errors.concat(SESSION_PARTICIPATION_CODE_SERVER_ERROR);
-          if(analytics.validation_errors[SESSION_PARTICIPATION_CODE_SERVER_ERROR] == null) {
-            analytics.validation_errors[SESSION_PARTICIPATION_CODE_SERVER_ERROR] = 0;
-          }
           analytics.validation_errors[SESSION_PARTICIPATION_CODE_SERVER_ERROR]++;
         }
 
@@ -288,9 +294,6 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
         var verifyChecked = $('#verify').is(':checked');
         if (!verifyChecked) {
           errors = errors.concat(UNCHECKED_ERR);
-          if(analytics.validation_errors[UNCHECKED_ERR] == null) {
-            analytics.validation_errors[UNCHECKED_ERR] = 0;
-          }
           analytics.validation_errors[UNCHECKED_ERR]++;
         }
 
@@ -317,9 +320,6 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
 
         if (!questionsValid) {
           errors = errors.concat(ADD_QUESTIONS_ERR);
-          if(analytics.validation_errors[ADD_QUESTIONS_ERR] == null) {
-            analytics.validation_errors[ADD_QUESTIONS_ERR] = 0;
-          }
           analytics.validation_errors[ADD_QUESTIONS_ERR]++;
         }
 
