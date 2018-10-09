@@ -1,7 +1,9 @@
 /* global alertify, $ */
 
-define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'alertify_defaults'], function ($, tableController, mpc, alertify) {
+define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'alertify_defaults', 'controllers/confirmationCodes'], function ($, tableController, mpc, alertify, _, confirmationCodes) {
 
+  console.log(confirmationCodes);
+  console.log(confirmationCodes.get_confirmation_code());
 
   var client = (function () {
     var SESSION_KEY_ERROR = 'Invalid session number';
@@ -46,6 +48,7 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
         SEMANTIC_CELLS: 0,
       },
       mouse_positions: [],
+      mouse_clicks: [],
       time_ms: 0,
     };
     /*
@@ -59,12 +62,15 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
     // define mouse_positions as 100x1000 array
     for (var i = 0; i < MOUSE_PRECISION_WIDTH; i++) {
       analytics.mouse_positions.push([]);
+      analytics.mouse_clicks.push([]);
       for (var k = 0; k < MOUSE_PRECISION_HEIGHT; k++) {
         analytics.mouse_positions[i].push(0)
+        analytics.mouse_clicks[i].push(0)
       }
     }
 
     document.addEventListener('mousemove', handleMouseMove, false);
+    document.addEventListener('click', handleMouseClick, false);
     function getPos(event) {
 
       // TODO: make sure this is consistent across browsers
@@ -90,6 +96,16 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
       return [event.pageX / width, event.pageY / height];
     }
 
+    function handleMouseClick(event) {
+      // y coord should potentially be mult. by 100
+      // to account for difference in x, y page size
+
+      var pos = getPos(event);
+      var x = Math.floor(pos[0] * MOUSE_PRECISION_WIDTH);
+      var y = Math.floor(pos[1] * MOUSE_PRECISION_HEIGHT);
+      //each array stores # of hits at this area
+      analytics.mouse_clicks[x][y]++;
+    }
     function handleMouseMove(event) {
       // y coord should potentially be mult. by 100
       // to account for difference in x, y page size
@@ -492,6 +508,8 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
 
         success('Submitted data.');
         convertToHTML(submitEntries);
+        // post confirmation or completion code for mturk users to submit to in aws/mturk site
+        alert(confirmationCodes.get_confirmation_code());
 
         // Stop loading animation
         la.stop();
@@ -586,6 +604,7 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
 
       callback(true);
     }
+
 
     return {
       errors: errors,
