@@ -58,7 +58,9 @@ function genPairs(num) {
 const analyticsSchema = {
   validation_errors: joi.object().required(),
   mouse_positions: joi.object().required(),
+  mouse_clicks: joi.object().required(),
   time_ms: joi.number().required()
+
 }
 
 const analyticsMaskSchema = {
@@ -148,7 +150,7 @@ createConnection();
 
 var Analytics = mongoose.model('Analytics', {
   _id: String,
-  fields: Object, 
+  fields: Object,
   date: Number,
   session: String,
 });
@@ -279,7 +281,7 @@ app.post('/', function (req, res) {
   // TODO: set length restrictions on session and user
   var bodySchema = {
     mask: maskSchema.required(),
-    data: dataSchema.required(), 
+    data: dataSchema.required(),
     analytic_data: analyticsSchema,
     analytic_mask: analyticsMaskSchema,
     questions_public: encryptedPublicQuestionsSchema.required(),
