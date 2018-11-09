@@ -27,8 +27,8 @@ define(['jquery', 'filesaver', 'alertify', 'qtip'], function ($, filesaver, aler
     analytics.mouse_positions.push([]);
     analytics.mouse_clicks.push([]);
     for (var k = 0; k < MOUSE_PRECISION_HEIGHT; k++) {
-      analytics.mouse_positions[i].push(0)
-      analytics.mouse_clicks[i].push(0)
+      analytics.mouse_positions[i].push(0);
+      analytics.mouse_clicks[i].push(0);
     }
   }
   // currently the client width:height ratio is ~ 0.45:1
@@ -113,6 +113,5 @@ define(['jquery', 'filesaver', 'alertify', 'qtip'], function ($, filesaver, aler
     focus: focus,
     blur: blur,
     beforeunload: beforeunload,
-
-  }
+  };
 });
