@@ -1,9 +1,6 @@
 /* global alertify, $ */
 
-define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'alertify_defaults', 'controllers/confirmationCodes'], function ($, tableController, mpc, alertify, _, confirmationCodes) {
-
-  console.log(confirmationCodes);
-  console.log(confirmationCodes.get_confirmation_code());
+define(['jquery', 'controllers/tableController', 'controllers/usabilityController', 'helper/mpc', 'alertify', 'alertify_defaults'], function ($, tableController, usabilityController, mpc, alertify, _) {
 
   var client = (function () {
     var SESSION_KEY_ERROR = 'Invalid session number';
@@ -27,121 +24,16 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
       discrepancies: SEMANTIC_CELLS
     };
 
-    // currently the client width:height ratio is ~ 0.45:1
-    var MOUSE_PRECISION_WIDTH = 90;
-    var MOUSE_PRECISION_HEIGHT = 200;
-
-
-    let analytics = {
-
-      validation_errors: {
-
-        SESSION_KEY_ERROR: 0,
-        PARTICIPATION_CODE_ERROR: 0,
-        SESSION_PARTICIPATION_CODE_SERVER_ERROR: 0,
-        UNCHECKED_ERR: 0,
-        ADD_QUESTIONS_ERR: 0,
-        GENERIC_TABLE_ERR: 0,
-        SERVER_ERR: 0,
-        GENERIC_SUBMISSION_ERR: 0,
-        NAN_EMPTY_CELLS: 0,
-        SEMANTIC_CELLS: 0,
-      },
-      mouse_positions: [],
-      mouse_clicks: [],
-      time_ms: 0,
-    };
-    /*
-    [ [ [], [], ..., [] ],
-      [ [], [], ..., [] ],
-      [ [], [], ..., [] ],
-      [ [], [], ..., [] ],
-    ]
-    */
 
     // define mouse_positions as 100x1000 array
-    for (var i = 0; i < MOUSE_PRECISION_WIDTH; i++) {
-      analytics.mouse_positions.push([]);
-      analytics.mouse_clicks.push([]);
-      for (var k = 0; k < MOUSE_PRECISION_HEIGHT; k++) {
-        analytics.mouse_positions[i].push(0)
-        analytics.mouse_clicks[i].push(0)
-      }
-    }
 
-    document.addEventListener('mousemove', handleMouseMove, false);
-    document.addEventListener('click', handleMouseClick, false);
-    function getPos(event) {
-
-      // TODO: make sure this is consistent across browsers
-      var height;
-      var width;
-      if (event.pageX === null && event.clientX !== null) {
-        var doc = eventDoc.documentElement;
-        var body = eventDoc.body;
-
-
-        event.pageX = event.clientX +
-          (doc && doc.scrollLeft || body && body.scrollLeft || 0) -
-          (doc && doc.clientLeft || body && body.clientLeft || 0);
-        event.pageY = event.clientY +
-          (doc && doc.scrollTop  || body && body.scrollTop  || 0) -
-          (doc && doc.clientTop  || body && body.clientTop  || 0 );
-      }
-      width = window.innerWidth
-        || document.documentElement.clientWidth
-        || document.body.clientWidth;
-
-      height = document.body.scrollHeight;
-      return [event.pageX / width, event.pageY / height];
-    }
-
-    function handleMouseClick(event) {
-      // y coord should potentially be mult. by 100
-      // to account for difference in x, y page size
-
-      var pos = getPos(event);
-      var x = Math.floor(pos[0] * MOUSE_PRECISION_WIDTH);
-      var y = Math.floor(pos[1] * MOUSE_PRECISION_HEIGHT);
-      //each array stores # of hits at this area
-      analytics.mouse_clicks[x][y]++;
-    }
-    function handleMouseMove(event) {
-      // y coord should potentially be mult. by 100
-      // to account for difference in x, y page size
-
-      var pos = getPos(event);
-      var x = Math.floor(pos[0] * MOUSE_PRECISION_WIDTH);
-      var y = Math.floor(pos[1] * MOUSE_PRECISION_HEIGHT);
-      //each array stores # of hits at this area
-      analytics.mouse_positions[x][y]++;
-    }
-
-    let startDate = new Date();
-    let elapsedTime = 0;
-
-    const focus = function () {
-      startDate = new Date();
-    };
-
-    const blur = function () {
-      const endDate = new Date();
-      const spentTime = endDate.getTime() - startDate.getTime();
-      elapsedTime += spentTime;
-    };
-
-    const beforeunload = function () {
-      const endDate = new Date();
-      const spentTime = endDate.getTime() - startDate.getTime();
-      elapsedTime += spentTime;
-      analytics['time_ms'] = elapsedTime;
-      // elapsedTime contains the time spent on page in milliseconds
-    };
+    document.addEventListener('mousemove', usabilityController.handleMouseMove, false);
+    document.addEventListener('click', usabilityController.handleMouseClick, false);
 
     // TODO EventListeners prolly shouldn't be in this file
-    window.addEventListener('focus', focus);
-    window.addEventListener('blur', blur);
-    window.addEventListener('beforeunload', beforeunload);
+    window.addEventListener('focus', usabilityController.focus);
+    window.addEventListener('blur', usabilityController.blur);
+    window.addEventListener('beforeunload', usabilityController.beforeunload);
 
     // TODO: create new view for alerts
     function error(msg) {
@@ -295,7 +187,7 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
       var $participationCode = $('#participation-code');
       if (!validateSessionInput($participationCode, false)) {
         errors = errors.concat(PARTICIPATION_CODE_ERROR);
-        analytics.validation_errors[PARTICIPATION_CODE_ERROR]++;
+        usabilityController.analytics.validation_errors[PARTICIPATION_CODE_ERROR]++;
       }
 
       // Validate the remaining components after session and
@@ -303,14 +195,14 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
       var validateRemainingComponents = function (result) {
         if (!result) {
           errors = errors.concat(SESSION_PARTICIPATION_CODE_SERVER_ERROR);
-          analytics.validation_errors[SESSION_PARTICIPATION_CODE_SERVER_ERROR]++;
+          usabilityController.analytics.validation_errors[SESSION_PARTICIPATION_CODE_SERVER_ERROR]++;
         }
 
         // Verify confirmation check box was checked
         var verifyChecked = $('#verify').is(':checked');
         if (!verifyChecked) {
           errors = errors.concat(UNCHECKED_ERR);
-          analytics.validation_errors[UNCHECKED_ERR]++;
+          usabilityController.analytics.validation_errors[UNCHECKED_ERR]++;
         }
 
         // Verify additional questions
@@ -336,7 +228,7 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
 
         if (!questionsValid) {
           errors = errors.concat(ADD_QUESTIONS_ERR);
-          analytics.validation_errors[ADD_QUESTIONS_ERR]++;
+          usabilityController.analytics.validation_errors[ADD_QUESTIONS_ERR]++;
         }
 
         // Register semantic discrepancies validator.
@@ -448,10 +340,10 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
       // For now, keeping analytic data separate from submission data
       // analytics is a global var, probably not that chill
 
-      beforeunload(); // updates time analytic
-      analytics.time_ms = Math.floor(analytics.time_ms / 1000);
+      usabilityController.beforeunload(); // updates time analytic
+      usabilityController.analytics.time_ms = Math.floor(usabilityController.analytics.time_ms / 1000);
 
-      var analytic_shares = mpc.secretShareValues(analytics);
+      var analytic_shares = mpc.secretShareValues(usabilityController.analytics);
       var analytic_data = analytic_shares['data'];
       var analytic_mask = analytic_shares['mask'];
 
@@ -508,8 +400,6 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
 
         success('Submitted data.');
         convertToHTML(submitEntries);
-        // post confirmation or completion code for mturk users to submit to in aws/mturk site
-        alert(confirmationCodes.get_confirmation_code());
 
         // Stop loading animation
         la.stop();
