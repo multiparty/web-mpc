@@ -1,4 +1,4 @@
-define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qtip'], function ($, Handsontable, table_template, filesaver, alertify) {
+define(['jquery', 'Handsontable', 'table_template', 'filesaver'], function ($, Handsontable, table_template, filesaver) {
 
   'use strict';
 

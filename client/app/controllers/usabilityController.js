@@ -1,13 +1,10 @@
-define(['jquery', 'filesaver', 'alertify', 'qtip'], function ($, filesaver, alertify) {
+define([], function () {
 
   var MOUSE_PRECISION_WIDTH = 90;
   var MOUSE_PRECISION_HEIGHT = 200;
 
-
   var analytics = {
-
     validation_errors: {
-
       SESSION_KEY_ERROR: 0,
       PARTICIPATION_CODE_ERROR: 0,
       SESSION_PARTICIPATION_CODE_SERVER_ERROR: 0,

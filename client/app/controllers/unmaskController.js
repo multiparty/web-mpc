@@ -7,15 +7,7 @@
 //  */
 
 /*eslint no-console: ["error", { allow: ["warn", "error"] }] */
-define(['helper/mpc', 'controllers/tableController', 'filesaver'], function (mpc, tableController, filesaver) {
-
-  function parseWebShares(data) {
-    let arr = [];
-    for (var d of data) {
-      arr.push(d.fields);
-    }
-    return arr;
-  }
+define(['helper/mpc'], function (mpc) {
 
   // Takes callback(true|false, data).
   function aggregate_and_unmask(mOut, analyticsMasks, privateKey, session, password, callback) {
