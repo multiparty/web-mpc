@@ -914,6 +914,9 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     if (Object.keys(usability).length === 0) {
       return;
     }
+
+    console.log('usability',usability);
+
     let mousePositions = usability.mouse_positions;
 
     let results = [];

@@ -78,7 +78,7 @@ define(['helper/mpc', 'controllers/tableController', 'filesaver'], function (mpc
           serviceResult = resultShares[1],
           finalResult = mpc.recombineValues(serviceResult, analystResult);
 
-          usabilityResults = mpc.recombineValues(resultShares[3], resultShares[4]);
+          var usabilityResults = mpc.recombineValues(resultShares[3], webCombinedShares);
 
         if (!ensure_equal(finalResult.questions, mpc.aggregateShares(resultShares[2]))) {
           console.error('Secret-shared question answers do not aggregate to the same values as publicly collected answers.');
