@@ -33,6 +33,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
       }
     }
 
+    // Creates survey
     function displaySurveyQuestions() {
       if (!('survey' in table_template) || Object.keys(table_template.survey).length === 0) {
         return;
@@ -51,6 +52,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
     
     }
 
+    // Creates the div for each of the tables in the template
     function createTableElems() {
 
       var tablesArea = $('#tables-area');
@@ -59,12 +61,15 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
       for (var i = 0; i < tables.length; i++) {
         var div = $('<div>').addClass('table');
-        var header = $('<h4>').attr('id', tables[i].element)
-                          .text(tables[i].name)
-                          .appendTo(div);
-        var tableDiv = $('<div>').attr('class', 'table-section')
-                          .attr('id', tables[i].element)
-                          .appendTo(div);
+
+        // Header
+        $('<h4>').text(tables[i].name)
+          .appendTo(div);
+    
+        // Table Div
+        $('<div>').attr('class', 'table-section')
+          .attr('id', tables[i].element)
+          .appendTo(div);
 
         $(div).appendTo(tablesArea);
       }
