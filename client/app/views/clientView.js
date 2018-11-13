@@ -15,20 +15,21 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
       for (var i = 0; i < question.inputs.length; i++) {
         var div = document.createElement('div');
-        div.classList.add(input_type);
-
-
-        var label = $('<label>');
-
+        
         var input = document.createElement('input');
+
         $(input).attr('type', input_type)
                 .attr('value', i+1)
                 .attr('name', 'opt' + input_type)
-                .appendTo(label);
 
-        label.text(question.inputs[i].label);
-        $(label).appendTo(div);
-        $(div).appendTo(form);
+
+        var label = document.createElement('label');
+        $(label).text(question.inputs[i].label); 
+
+        div.appendChild(input);
+        div.appendChild(label)
+
+        form.appendChild(div);
       }
     }
 
