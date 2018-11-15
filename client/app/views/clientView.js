@@ -205,8 +205,9 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
           alertify.confirm('<img src="/images/cancel.png" alt="Error">Error!', 'This file is ' + (len / (1024 * 1024)).toFixed(2) + ' MB and may take a few moments. Your browser may lock up during this process. Continue?', cb);
         };
         var _failed = function (e) {
-          alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', 'This format is not supported.', function () {
-          });
+          console.log(e);
+          // alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', 'This format is not supported.', function () {
+          // });
 
           spinner.stop();
         };

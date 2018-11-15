@@ -922,7 +922,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     return demo_row;
   }
 
-  // TODO: should this be here or in the view?
   function saveTables(tables, session) {
 
     var tables_csv = [];
