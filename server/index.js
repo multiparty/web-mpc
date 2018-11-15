@@ -27,6 +27,9 @@ const Promise = require('bluebird');
 const base32Encode = require('base32-encode');
 const path = require('path');
 const compression = require('compression');
+const indexJiff = require('./index-jiff');
+
+var https;
 
 app.use(compression());
 
@@ -223,6 +226,10 @@ app.use(body_parser.json({limit: '50mb'}));
 
 // serve static files in designated folders
 app.use(express.static(__dirname + '/../client'));
+app.use('/jiff', express.static(__dirname + '/../jiff/lib'));
+app.use('/jiff/ext', express.static(__dirname + '/../jiff/ext'));
+app.use('/bignumber.js', express.static(__dirname + '/../jiff/node_modules/bignumber.js'));
+app.use('/socket.io.js', express.static(__dirname + '/../jiff/node_modules/socket.io-client/dist/socket.io.js'));
 
 app.get('/', function (req, res) {
   res.sendFile((path.join(__dirname + '/../client/index.html')));
@@ -965,9 +972,16 @@ app.get(/.*/, function (req, res) {
 });
 
 if (process.env.NODE_ENV === 'production') {
-  require('https').createServer(lex.httpsOptions, lex.middleware(app)).listen(443, function () {
+   https = require('https').createServer(lex.httpsOptions, lex.middleware(app)).listen(443, function () {
     console.log("Listening for ACME tls-sni-01 challenges and serve app on", this.address());
   });
+}
+
+
+if (process.env.NODE_ENV === 'production') {
+  indexJiff(https);
+} else {
+  indexJiff(server);
 }
 
 /*eof*/
