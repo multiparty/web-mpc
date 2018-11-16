@@ -38,6 +38,10 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
       if (!('survey' in table_template) || Object.keys(table_template.survey).length === 0) {
         return;
       }       
+
+      $('#additional-questions').show();
+
+
       questions = table_template.survey.questions;
 
       var questionsDiv = $('#questions');
@@ -78,6 +82,8 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
     function clientControllerView() {
 
       $(document).ready(function () {
+        // Hide by default
+        $('#additional-questions').hide();
 
         createTableElems();
         displaySurveyQuestions();
