@@ -369,13 +369,11 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
    * @return {array} containing HOT tables (table_obj may be accesed using hot_table._sail_meta).
    */
 
-  function makeTables() {
+  function makeTables(tables) {
     var result = [];
-    for (var t = 0; t < table_template.tables.length; t++) {
-      var table_def = table_template.tables[t];
+    for (var t = 0; t < tables.length; t++) {
+      var table_def = tables[t];
       var table = makeTableObj(table_def);
-
-      // console.log(table)
 
       result[t] = makeHotTable(table);
       table_widths[result[t].rootElement.id] = get_width(result[t]);
@@ -715,36 +713,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     return data;
   }
 
-  /**
-   * Empty all cells.
-   * @param {hot} table_hot_obj - the handsontable object.
-   */
-  // function empty_table(table_hot_obj) {
-  //   table_hot_obj.clear();
-  // }
-
-
-  function getMetaData(key) {
-    for (var table_index in table_template.tables) {
-      if (table_template.tables[table_index].name === key) {
-        return table_template.tables[table_index];
-      }
-    }
-  }
-
-  // function parseColHeaders() {
-  //   var headers = [];
-  //   var race_arr = table_template.tables[0].cols[0];
-  //   headers.push([""].concat(race_arr));
-  //   var gender_arr = table_template.tables[0].cols[1];
-  //   headers[1] = [""];
-  //   for (var i = 0; i < gender_arr.length; i++) {
-  //     headers[1].push(gender_arr[i].label);
-  //   }
-
-  //   return headers;
-  // }
-
   function updateTableWidth(maxWidth) {
 
     $('#instructions').css('width', maxWidth);
@@ -819,23 +787,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       //$('.ht_clone_top').hide();
 
     }
-
-
-    // var container = document.getElementById('pacesetter-measure-hot');
-
-    // var data = formatPacesettersData(tables);
-
-    // var settings = {
-    //   colHeaders: ["Measure", "Value"],
-    //   data: data,
-    //   readOnly: true
-    // }
-    // var handsOn = new Handsontable(container, settings);
-    // handsOn.render();
-    // $('#pacesetter-measure-hot-name').text(title);
-
-    // updateTableWidth($('.wtHider').width() + 50);
-    // $('.ht_clone_top').hide();
   }
 
   /**
@@ -906,20 +857,51 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     return table;
   }
 
-  // TODO: make this generic
-  function populateTableHeaders() {
-    var col_map = table_template.tables[0].cols;
-    var demo_row = [''];
+  function checkTotals(table, changes, sums, NaNs) {
 
-    for (var i = 0; i < col_map[1].length; i++) {
-      var race_index = Math.floor(i / 2);
-      var gender_label = col_map[1][i].label;
-      var race_label = col_map[0][race_index].label;
-      var label = race_label + ' ' + gender_label;
-      label = label.replace('<br> ', '');
-      demo_row.push(label);
+    for (var i = 0; i < changes.length; i++) {
+      var change = changes[i];
+      var old = change[2];
+      var val = change[3];
+
+      var c = change[1];
+      var index = c % 2; // Even columns are for females, odd are for males.
+
+      if (old === undefined) {
+        old = null;
+      }
+      if (val === undefined) {
+        val = null;
+      }
+
+      // Keep track of how many NaNs there are.
+      if (isNaN(old) && !isNaN(val)) {
+        NaNs[index]--;
+      }
+      if (!isNaN(old) && isNaN(val)) {
+        NaNs[index]++;
+      }
+
+      // If either values is a NaN, discard it when computing internal sum.
+      old = (old === '' || old === null || isNaN(old)) ? 0 : old;
+      val = (val === '' || val === null || isNaN(val)) ? 0 : val;
+      sums[index] += val - old;
     }
-    return demo_row;
+
+    // Display a NaN in the totals Column if you need too.
+    var totals = [sums[0], sums[1], sums[0] + sums[1]];
+    if (NaNs[0] + NaNs[1] > 0) { // If there is at least one NaN, change every thing to Excel's NaN equivalent.
+      totals = ['#VALUE!', '#VALUE!', '#VALUE!'];
+    }
+
+    // NOTE: for survey quetsions
+    // Note: took out declarations to fix eslint error
+    changes = []; // [ [row, col, change], [row, col, change], ..]
+    for (i = 0; i < totals.length; i++) {
+      changes.push([0, i, totals[i]]);
+    }
+    table.setDataAtCell(changes); // This changes the data without changing cellProperties (e.g. keeps readOnly)
+    return {sums, NaNs}
   }
 
   function saveTables(tables, session) {
@@ -993,6 +975,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     saveQuestions: saveQuestions,
     displayReadTable: displayReadTable,
     resetTableWidth: resetTableWidth,
-    updateTableWidth: updateTableWidth
+    updateTableWidth: updateTableWidth,
+    checkTotals
   }
 });

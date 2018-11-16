@@ -130,59 +130,30 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         });
 
         // Create the tabless
-        var tables = tableController.makeTables();
+        var tables = tableController.makeTables(table_template.tables);
+
+        var totals_table = null;
+
+        if (table_template.totals) {
+          totals_table = tableController.makeTables(table_template.totals);
+        }
+
         window.scrollTo(0, 0);
+
         var sums = [0, 0]; // Internal total of Non NaNs values.
         var NaNs = [0, 0]; // Counts how many NaNs exist for every cell participating in a total.
+    
 
         // Custom afterChange hook that computes the totals
-        var afterChange = function (changes, source) {
+        var afterChange = function (changes) {
           if (changes === null) {
             return;
           }
 
-          for (var i = 0; i < changes.length; i++) {
-            var change = changes[i];
-            var old = change[2];
-            var val = change[3];
+          var running = tableController.checkTotals(totals_table, changes, sums, NaNs);
+          sums = running.sums;
+          Nans = running.NaNs;
 
-            var c = change[1];
-            var index = c % 2; // Even columns are for females, odd are for males.
-
-            if (old === undefined) {
-              old = null;
-            }
-            if (val === undefined) {
-              val = null;
-            }
-
-            // Keep track of how many NaNs there are.
-            if (isNaN(old) && !isNaN(val)) {
-              NaNs[index]--;
-            }
-            if (!isNaN(old) && isNaN(val)) {
-              NaNs[index]++;
-            }
-
-            // If either values is a NaN, discard it when computing internal sum.
-            old = (old === '' || old === null || isNaN(old)) ? 0 : old;
-            val = (val === '' || val === null || isNaN(val)) ? 0 : val;
-            sums[index] += val - old;
-          }
-
-          // Display a NaN in the totals Column if you need too.
-          var totals = [sums[0], sums[1], sums[0] + sums[1]];
-          if (NaNs[0] + NaNs[1] > 0) { // If there is at least one NaN, change every thing to Excel's NaN equivalent.
-            totals = ['#VALUE!', '#VALUE!', '#VALUE!'];
-          }
-
-          // NOTE: for survey quetsions
-          // Note: took out declarations to fix eslint error
-          // changes = []; // [ [row, col, change], [row, col, change], ..]
-          // for (i = 0; i < totals.length; i++) {
-          //   changes.push([0, i, totals[i]]);
-          // }
-          // tables[4].setDataAtCell(changes); // This changes the data without changing cellProperties (e.g. keeps readOnly)
         };
         // Alerts, page elements, etc. for drag-and-drop/choose file.
         // var workbook_js = null;
