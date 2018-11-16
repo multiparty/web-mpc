@@ -77,7 +77,7 @@ var serverUrl = '';
 if (process.env.NODE_ENV === 'production') {
   serverUrl = 'https://acme-v01.api.letsencrypt.org/directory';
 } else {
-  serverUrl = 'staging';
+  serverUrl = 'https://acme-staging.api.letsencrypt.org/directory';
 }
 
 var lex = LEX.create({
@@ -87,6 +87,7 @@ var lex = LEX.create({
       webrootPath: '/tmp/acme-challenges'
     })
   },
+  version: 'v01',
   store: require('le-store-certbot').create({
     webrootPath: '/tmp/acme-challenges'
   }),
