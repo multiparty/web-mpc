@@ -57,9 +57,9 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
     }
 
     // Creates the div for each of the tables in the template
-    function createTableElems(tables) {
+    function createTableElems(tables, tablesDiv) {
 
-      var tablesArea = $('#tables-area');
+      var tablesArea = $(tablesDiv);
 
       for (var i = 0; i < tables.length; i++) {
         var div = $('<div>').addClass('table');
@@ -83,7 +83,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         // Hide by default
         $('#additional-questions').hide();
 
-        createTableElems(table_template.tables);
+        createTableElems(table_template.tables, '#tables-area');
         displaySurveyQuestions();
 
         // Create the tabless
@@ -92,7 +92,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         var totals_table = null;
 
         if (table_template.totals) {
-          createTableElems([table_template.totals]);
+          createTableElems([table_template.totals], '#totals-table');
           totals_table = tableController.makeTables([table_template.totals])[0];
         }
 
