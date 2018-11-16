@@ -279,7 +279,7 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
     /**
      * All inputs are valid. Construct JSON objects and send them to the server.
      */
-    function construct_and_send(tables, la) {
+    function constructAndSend(tables, la) {
       // Begin constructing the data
       var questions = $('#questions form');
       var data_submission = questions.length ? {questions: {}} : {};
@@ -472,12 +472,12 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
     }
 
     return {
-      errors: errors,
-      submitEntries: submitEntries,
-      validate: validate,
-      constructAndSend: construct_and_send,
-      validateSessionInput: validateSessionInput,
-      updateWidth: updateWidth
+      errors,
+      submitEntries,
+      validate,
+      constructAndSend,
+      validateSessionInput,
+      updateWidth
     };
   })();
 

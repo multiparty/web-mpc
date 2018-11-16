@@ -209,6 +209,6 @@ define(['helper/mpc'], function (mpc) {
   }
 
   return {
-    aggregateAndUnmask: aggregateAndUnmask
+    aggregateAndUnmask
   }
 });

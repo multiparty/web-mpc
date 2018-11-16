@@ -249,13 +249,13 @@ define(['filesaver'], function (filesaver) {
 
 
   return {
-    checkStatus: checkStatus,
-    changeStatus: changeStatus,
-    generateUrls: generateUrls,
-    getExistingParticipants: getExistingParticipants,
-    generateTable: generateTable,
-    generateSession: generateSession,
-    getParameterByName: getParameterByName,
+    checkStatus,
+    changeStatus,
+    generateUrls,
+    getExistingParticipants,
+    generateTable,
+    generateSession,
+    getParameterByName,
     START: 'START',
     PAUSE: 'PAUSE',
     STOP: 'STOP'
