@@ -101,43 +101,6 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
       return o;
     }
 
-    function getSheetRange(ws, table_def) {
-      var sheet_start = table_def.excel[0].start;
-      var sheet_end = table_def.excel[0].end;
-
-      // Ranges for handsontable.
-      var table_start = XLS.utils.decode_cell(sheet_start);
-      var table_end = XLS.utils.decode_cell(sheet_end);
-      var num_rows = table_end.r - table_start.r + 1;
-      var num_cols = table_end.c - table_start.c + 1;
-
-
-      // Keys of XLSX js worksheet.
-      var ws_keys = Object.keys(ws);
-
-      if (!(ws[XLS.utils.encode_cell({r: table_start.r, c: table_start.c - 1})] !== undefined &&
-          ws[XLS.utils.encode_cell({r: table_start.r, c: table_start.c - 1})].v === table_def.excel[0].firstrow)) {
-
-        // If table is not in expected position, get new boundaries.
-        for (var i = 0; i < ws_keys.length; i++) {
-          var key = ws_keys[i];
-
-          // Parse for location of top row name.
-          if (ws[key].v !== undefined && ws[key].v !== null && table_def.excel[0].firstrow.toString() === ws[key].v.toString()) {
-            // Update to boundaries of table (start, end, etc.)
-            var new_start_row = Number(XLS.utils.decode_cell(key).r);
-            var new_start_col = Number(XLS.utils.decode_cell(key).c) + 1;
-            sheet_start = XLSX.utils.encode_cell({r: new_start_row, c: new_start_col});
-            sheet_end = XLSX.utils.encode_cell({r: new_start_row + num_rows - 1, c: new_start_col + num_cols - 1});
-            table_start = XLSX.utils.decode_cell(sheet_start);
-            table_end = XLSX.utils.decode_cell(sheet_end);
-            break;
-          }
-        }
-      }
-      return table_start;
-    }
-
     // Process individual sheet.
     function processWS(ws, table, start, end) {
 
