@@ -145,14 +145,15 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
         // Custom afterChange hook that computes the totals
         var afterChange = function (changes) {
-          if (changes === null) {
-            return;
+          if (table_template.totals) {
+            if (changes === null) {
+              return;
+            }
+
+            var running = tableController.checkTotals(totals_table, changes, sums, NaNs);
+            sums = running.sums;
+            NaNs = running.NaNs;
           }
-
-          var running = tableController.checkTotals(totals_table, changes, sums, NaNs);
-          sums = running.sums;
-          NaNs = running.NaNs;
-
         };
         // Alerts, page elements, etc. for drag-and-drop/choose file.
         // var workbook_js = null;
