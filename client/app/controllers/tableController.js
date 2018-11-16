@@ -374,10 +374,12 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     for (var t = 0; t < tables.length; t++) {
       var table_def = tables[t];
       var table = makeTableObj(table_def);
-
       result[t] = makeHotTable(table);
       table_widths[result[t].rootElement.id] = get_width(result[t]);
     }
+
+    
+
     return result;
   }
 
@@ -894,8 +896,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       totals = ['#VALUE!', '#VALUE!', '#VALUE!'];
     }
 
-    // NOTE: for survey quetsions
-    // Note: took out declarations to fix eslint error
+    
     changes = []; // [ [row, col, change], [row, col, change], ..]
     for (i = 0; i < totals.length; i++) {
       changes.push([0, i, totals[i]]);

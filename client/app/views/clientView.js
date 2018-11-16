@@ -57,11 +57,9 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
     }
 
     // Creates the div for each of the tables in the template
-    function createTableElems() {
+    function createTableElems(tables) {
 
       var tablesArea = $('#tables-area');
-
-      var tables = table_template.tables;
 
       for (var i = 0; i < tables.length; i++) {
         var div = $('<div>').addClass('table');
@@ -85,8 +83,18 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         // Hide by default
         $('#additional-questions').hide();
 
-        createTableElems();
+        createTableElems(table_template.tables);
         displaySurveyQuestions();
+
+        // Create the tabless
+        var tables = tableController.makeTables(table_template.tables);
+
+        var totals_table = null;
+
+        if (table_template.totals) {
+          createTableElems([table_template.totals]);
+          totals_table = tableController.makeTables([table_template.totals])[0];
+        }
 
         var $verify = $('#verify');
         var $session = $('#session');
@@ -129,15 +137,6 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
           $verify.prop('checked', false);
         });
 
-        // Create the tabless
-        var tables = tableController.makeTables(table_template.tables);
-
-        var totals_table = null;
-
-        if (table_template.totals) {
-          totals_table = tableController.makeTables(table_template.totals);
-        }
-
         window.scrollTo(0, 0);
 
         var sums = [0, 0]; // Internal total of Non NaNs values.
@@ -152,7 +151,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
           var running = tableController.checkTotals(totals_table, changes, sums, NaNs);
           sums = running.sums;
-          Nans = running.NaNs;
+          NaNs = running.NaNs;
 
         };
         // Alerts, page elements, etc. for drag-and-drop/choose file.
@@ -182,10 +181,8 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
           alertify.confirm('<img src="/images/cancel.png" alt="Error">Error!', 'This file is ' + (len / (1024 * 1024)).toFixed(2) + ' MB and may take a few moments. Your browser may lock up during this process. Continue?', cb);
         };
         var _failed = function (e) {
-          console.log(e);
-          // alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', 'This format is not supported.', function () {
-          // });
-
+          alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', 'This format is not supported.', function () {
+          });
           spinner.stop();
         };
 
