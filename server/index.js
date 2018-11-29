@@ -31,11 +31,15 @@ const compression = require('compression');
 app.use(compression());
 
 function templateToJoiSchema(template, joiFieldType) {
+  template = template.tables;
+
   var schema = {};
-  if (!template || !template.length) {
+
+  if (!template || template === undefined) {
     return joi.object().keys(schema);
   }
   for (var table of template) {
+
     schema[table['name']] = {};
 
     for (var row of table['rows']) {
@@ -61,9 +65,10 @@ function genPairs(num) {
   return objPairs;
 }
 
-const maskSchema = templateToJoiSchema(template['tables'], joi.string().required());
-const dataSchema = templateToJoiSchema(template['tables'], joi.number().required());
-const encryptedPublicQuestionsSchema = templateToJoiSchema(template['questions'], joi.string().required());
+const maskSchema = templateToJoiSchema(template, joi.number().required());
+console.log(maskSchema);
+const dataSchema = templateToJoiSchema(template, joi.number().required());
+const encryptedPublicQuestionsSchema = templateToJoiSchema(template, joi.string().required());
 const pairwiseHyperCubeScheme = templateToJoiSchema(genPairs(0), joi.string().required());
 
 // Override deprecated mpromise
