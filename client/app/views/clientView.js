@@ -77,12 +77,13 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
       }
     }
 
-    function createResizeSensor(elementId) {
-      var div = $('#' + elementId);
-      console.log(elementId)
-      new ResizeSensor((div).find('.wtHider').first()[0], function() {
-        tableController.updateWidth(div);
-      });
+    function createResizeSensors(tables) {
+      for (t of tables) {
+        var div = $('#' + t.rootElement.id);
+        new ResizeSensor((div).find('.wtHider').first()[0], function() {
+          tableController.updateWidth(tables);
+        });
+      }
     }
 
 
@@ -98,10 +99,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         // Create the tabless
         var tables = tableController.makeTables(table_template.tables);
 
-        console.log(tables)
-        for (t of tables) {
-          createResizeSensor(t.rootElement.id);
-        }
+        createResizeSensors(tables);
 
         var totals_table = null;
 
@@ -258,9 +256,8 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         function resizeCard(tables) {
           // GENERIC
           // if (attach) {
-            for (t of tables) {
-              tableController.updateWidth(t);
-            }
+
+              tableController.updateWidth(tables);
 
             // for (t of tables) {
               // var div = $('#' + t.rootElement.id);

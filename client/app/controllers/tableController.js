@@ -926,32 +926,39 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   }
 
   function getHeaderWidth(table) {
+
+    var id = table.rootElement.id;
+
     for (t of table_template.tables) {
-      return t.hot_parameters.rowHeaderWidth + 20;
+      if (id === t.element) {
+        return t.hot_parameters.rowHeaderWidth + 20;
+      }
     }
+    
+    return 0;
   }
   
   function getPadding(div) {
     return parseInt($(div).css('padding-right').split('px')[0]) + parseInt($(div).css('padding-left').split('px')[0]);
   }
 
-  function updateWidth(table) {
+  function updateWidth(tables) {
 
     var maxWidth = 0;
 
-    var hw = getHeaderWidth();
-    try {
-      var w = getWidth(table) + hw;
+    for (var i = 0; i < tables.length; i++) {
 
-      table.updateSettings({
+      var t = tables[i];
+
+      var w = getWidth(t) + getHeaderWidth(t);
+
+      t.updateSettings({
         width: w,
       });
 
       if (w > maxWidth) {
         maxWidth = w;
       }
-    } catch(e) {
-
     }
 
     var padding = getPadding('#instructions') 
