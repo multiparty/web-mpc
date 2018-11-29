@@ -77,6 +77,15 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
       }
     }
 
+    function createResizeSensor(elementId) {
+      var div = $('#' + elementId);
+      console.log(elementId)
+      new ResizeSensor((div).find('.wtHider').first()[0], function() {
+        tableController.updateWidth(div);
+      });
+    }
+
+
     function clientControllerView() {
 
       $(document).ready(function () {
@@ -88,6 +97,11 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
         // Create the tabless
         var tables = tableController.makeTables(table_template.tables);
+
+        console.log(tables)
+        for (t of tables) {
+          createResizeSensor(t.rootElement.id);
+        }
 
         var totals_table = null;
 
@@ -227,35 +241,34 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         });
 
         // Table accordion.
-        //$('#tables-area').hide();
+        $('#tables-area').hide();
 
         $('#expand-table-button').click(function (e) {
           $('#tables-area').slideToggle(function () {
-            if ($('#tables-area').css('display') === 'none') {
-              resizeCard(tables, false);
-            } else {
-              resizeCard(tables, true);
-            }
+            // if ($('#tables-area').css('display') === 'none') {
+            //   resizeCard(tables);
+            // } else {
+            //   resizeCard(tables);
+            // }
+            resizeCard(tables);
           });
           $(e.target).toggleClass('flip');
         });
 
-        function resizeCard(tables, attach) {
+        function resizeCard(tables) {
           // GENERIC
-          if (attach) {
-
-            var table_divs = $('.table-section');
-
-            for (var i = 0; i < table_divs.length; i++) {
-              var table = table_divs[i];
-              // TODO!
-
-              // new ResizeSensor((table).find('.wtHider').first()[0], function() {
-      //   // clientController.updateWidth(tables);
-              // });
+          // if (attach) {
+            for (t of tables) {
+              tableController.updateWidth(t);
             }
-          }
-          clientController.updateWidth(tables, !attach);
+
+            // for (t of tables) {
+              // var div = $('#' + t.rootElement.id);
+              // new ResizeSensor((div).find('.wtHider').first()[0], function() {
+              //   tableController.updateWidth(div);
+              // });
+            // }
+          // }
         }
 
         function addValidationErrors(msg) {
