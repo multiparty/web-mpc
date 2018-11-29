@@ -19,7 +19,7 @@ const express = require('express');
 const app = express();
 const body_parser = require('body-parser');
 const mongoose = require('mongoose');
-const template = require('../client/app/data/tables');
+const template = require('../client/app/data/pacesetters');
 const mpc = require('../client/app/helper/mpc');
 const crypto = require('crypto');
 const joi = require('joi');
@@ -31,23 +31,19 @@ const compression = require('compression');
 app.use(compression());
 
 function templateToJoiSchema(template, joiFieldType) {
-  template = template.tables;
-
   var schema = {};
-
-  if (!template || template === undefined) {
+  if (!template || !template.length) {
     return joi.object().keys(schema);
   }
   for (var table of template) {
+    schema[table.name] = {};
 
-    schema[table['name']] = {};
+    for (var row of table.rows) {
+      schema[table.name][row.key] = {};
 
-    for (var row of table['rows']) {
-      schema[table['name']][row['key']] = {};
-
-      for (var col_levels of table['cols']) {
-        for (var col of col_levels) {
-          schema[table['name']][row['key']][col['key']] = joiFieldType
+      for (var cols of table.cols) {
+        for (var col of cols) {
+          schema[table.name][row.key][col.key] = joiFieldType;
         }
       }
     }
@@ -65,10 +61,10 @@ function genPairs(num) {
   return objPairs;
 }
 
-const maskSchema = templateToJoiSchema(template, joi.number().required());
-console.log(maskSchema);
-const dataSchema = templateToJoiSchema(template, joi.number().required());
-const encryptedPublicQuestionsSchema = templateToJoiSchema(template, joi.string().required());
+const maskSchema = templateToJoiSchema(template.tables, joi.string().required());
+console.log(maskSchema)
+const dataSchema = templateToJoiSchema(template.tables, joi.number().required());
+const encryptedPublicQuestionsSchema = templateToJoiSchema(template['questions'], joi.string().required());
 const pairwiseHyperCubeScheme = templateToJoiSchema(genPairs(0), joi.string().required());
 
 // Override deprecated mpromise
@@ -82,7 +78,7 @@ var serverUrl = '';
 if (process.env.NODE_ENV === 'production') {
   serverUrl = 'https://acme-v01.api.letsencrypt.org/directory';
 } else {
-  serverUrl = 'https://acme-staging.api.letsencrypt.org/directory';
+  serverUrl = 'staging';
 }
 
 var lex = LEX.create({
@@ -92,7 +88,6 @@ var lex = LEX.create({
       webrootPath: '/tmp/acme-challenges'
     })
   },
-  version: 'v01',
   store: require('le-store-certbot').create({
     webrootPath: '/tmp/acme-challenges'
   }),

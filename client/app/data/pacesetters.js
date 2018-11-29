@@ -29,6 +29,7 @@ define([], function () {
         "cols": [
           [
             {
+              "key": "value",
               "label": "Value for FY in Thousands of Dollars"
             }
           ]
@@ -96,6 +97,7 @@ define([], function () {
         "cols": [
           [
             {
+              "key": "value",
               "label": "Value for FY in Thousands of Dollars"
             }
           ]
@@ -163,6 +165,7 @@ define([], function () {
         "cols": [
           [
             {
+              "key": "value",
               "label": "Value for FY"
             }
           ]
