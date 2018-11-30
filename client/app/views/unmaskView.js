@@ -1,7 +1,10 @@
 /*eslint no-console: ["error", { allow: ["warn", "error"] }] */
 
-define(['jquery', 'controllers/unmaskController', 'controllers/clientController', 'controllers/tableController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify', 'table_template'],
-  function ($, unmaskController, clientController, tableController, DropSheet, Spinner, Ladda, ResizeSensor, alertify, alertify_defaults, table_template) {
+// define(['jquery', 'controllers/unmaskController', 'controllers/tableController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify', 'table_template'],
+//   function ($, unmaskController, tableController, DropSheet, Spinner, Ladda, ResizeSensor, alertify, alertify_defaults, table_template) {
+define(['jquery', 'controllers/unmaskController', 'controllers/tableController', 'helper/drop_sheet', 'alertify', 'table_template'],
+  function ($, unmaskController, tableController, DropSheet, alertify, table_template) {
+  
 
     function error(msg) {
       alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', msg);
@@ -12,15 +15,17 @@ define(['jquery', 'controllers/unmaskController', 'controllers/clientController'
       if (typeof(d) !== 'object') {
         return;
       }
-      var tables = {};
-   
-      tables = d;
+      var tables = d;
+  
+      tableController.createTableElems(table_template.tables, '#tables-area');
+      // tableController.saveTables(tables, session);
 
-      tableController.saveTables(tables, session);
       tableController.displayReadTable(tables);
-    
+      $('#tables-area').show();
+
+      
       // TODO: why is this even here?
-      $('#HandsontableCopyPaste').hide();
+      // $('#HandsontableCopyPaste').hide();
 
     }
 

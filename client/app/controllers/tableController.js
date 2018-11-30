@@ -370,15 +370,13 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
    */
 
   function makeTables(tables) {
-    var result = [];
+    var result = []; 
     for (var t = 0; t < tables.length; t++) {
       var table_def = tables[t];
       var table = makeTableObj(table_def);
       result[t] = makeHotTable(table);
       table_widths[result[t].rootElement.id] = get_width(result[t]);
     }
-
-    
 
     return result;
   }
@@ -757,38 +755,61 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
     return data;
   }
+  
+  function getTemplate(value, field) {
+    for (var t of table_template.tables) {
+      if (t[field] === value) {
+        return t;
+      }
+    }
+    return {};
+  }
+
 
   function displayReadTable(tables) {
 
-    $('#tables-area').show();
+    for (var name in tables) {
+      var template = getTemplate(name, 'name');
+      // console.log('t', template)
+      // var setting = {
+      //   readyOnly: true,
+      //   rowHeaderWidth: template.hot_parameters.rowHeaderWidth,
+      //   height: template.hot_parameters.height,
+      //   data: formattedPacesettersData(tables[name])
 
-    for (var t in tables) {
-      var cl = t.toLowerCase().replace(/ /gi, '-');
-      var container = document.getElementById(cl);
+      // }
 
-      var formattedTable = formatPacesettersData(tables[t]);
+      // var handsOn = new Handsontable(container, settings);
 
-      var settings = {
-        colHeaders: ['Value for FY17'],
-        rowHeaders: formattedTable[1],
-        data: formattedTable[0],
-        readOnly: true,
-        colWidths: [190],
-        height: 230,
-        rowHeaderWidth: 480,
-        stretchH: 'last'
-      };
+      // handsOn.render();
 
-      var handsOn = new Handsontable(container, settings);
 
-      handsOn.render();
 
-      $('#' + cl + '-name').text(t);
-
-      // updateTableWidth($('.wtHider').width() + 150);
-      //$('.ht_clone_top').hide();
 
     }
+    // for (var t in tables) {
+    //   var cl = t.toLowerCase().replace(/ /gi, '-');
+    //   var container = document.getElementById(cl);
+
+    //   var formattedTable = formatPacesettersData(tables[t]);
+
+    //   var settings = {
+    //     colHeaders: ['Value for FY17'],
+    //     rowHeaders: formattedTable[1],
+    //     data: formattedTable[0],
+    //     readOnly: true,
+    //     colWidths: [190],
+    //     height: 230,
+    //     rowHeaderWidth: 480,
+    //     stretchH: 'last'
+    //   };
+
+
+    //   $('#' + cl + '-name').text(t);
+
+    //   // updateTableWidth($('.wtHider').width() + 150);
+    //   //$('.ht_clone_top').hide();
+
   }
 
   /**
@@ -942,6 +963,26 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     return parseInt($(div).css('padding-right').split('px')[0]) + parseInt($(div).css('padding-left').split('px')[0]);
   }
 
+  function createTableElems(tables, tablesDiv) {
+
+    var tablesArea = $(tablesDiv);
+
+    for (var i = 0; i < tables.length; i++) {
+      var div = $('<div>').addClass('table');
+
+      // Header
+      $('<h4>').text(tables[i].name)
+        .appendTo(div);
+  
+      // Table Div
+      $('<div>').attr('class', 'table-section')
+        .attr('id', tables[i].element)
+        .appendTo(div);
+
+      $(div).appendTo(tablesArea);
+    }
+  }
+
   function updateWidth(tables) {
 
     var maxWidth = 0;
@@ -1041,6 +1082,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     updateTableWidth,
     getWidth,
     updateWidth,
-    checkTotals
+    checkTotals,
+    createTableElems
   }
 });
