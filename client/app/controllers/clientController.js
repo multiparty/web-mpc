@@ -153,6 +153,7 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
             $(questions[q]).removeClass('has-error');
           }
         }
+        // TODO: need to handle these
         // NOTE: no error check available
         // if (!questionsValid) {
         //   errors = errors.concat(ADD_QUESTIONS_ERR);
@@ -303,8 +304,6 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
           session: session
         };
 
-        //console.log(submission);
-
         return $.ajax({
           type: 'POST',
           url: '/',
@@ -375,8 +374,6 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
           return callback(true);
         }
       }
-
-      //console.log('bonus',bonus_table);
 
       // bonus can only be non-zero if the other tables are non-zero.
       if (name === bonus_table._sail_meta.name) {

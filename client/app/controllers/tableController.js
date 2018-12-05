@@ -558,15 +558,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   function makeHotTable(table) {
 
     var element = document.querySelector('#' + table.element);
-    var hot_cols = createCols(table);
-    var cells = createCells(table);
-    var data = createData(table);
 
-    // Work around not rendering the entire table
-    // Make enough space in data for all rows ahead of time
-
-    console.log(table.rows)
-    // Todo: table.width is undefined
     var hotSettings = {
       // Enable tooltips
       comments: true,
@@ -792,7 +784,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       for (let row in table) {
         data[i] = [];
         for (let col in table[row]) {
-          console.log('col', col, table[row][col]);
           data[i].push(table[row][col]);
         }
         i++;
@@ -808,7 +799,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
         width: template.width
       }
 
-      console.log(template.element);
       var handsOn = new Handsontable(document.getElementById(template.element), settings);
 
       handsOn.render();
@@ -992,7 +982,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   }
 
   function createTableElems(tables, tablesDiv) {
-    console.log('tables', tables);
 
     var tablesArea = $(tablesDiv);
 

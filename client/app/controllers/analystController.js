@@ -43,7 +43,6 @@ define(['filesaver'], function (filesaver) {
     } else {
       // TODO add better error reporting
       alert('Error Not a valid Session Status');
-      //console.log('Error Not a valid Session Status');
     }
   }
 
