@@ -498,24 +498,18 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     };
   }
 
-  /**
-   * Construct a Handsontable (HOT) object corresponding to the given table object.
-   * @param {object} table - the table object to create (constructed by make_table from json definition).
-   * @return {hot} - the handsontable object constructed by makeHotTable.
-   */
-  function makeHotTable(table) {
-
-    var element = document.querySelector('#' + table.element);
-
-
+  function createCols(table) {
     var hot_cols = new Array(table.colsCount);
     for (var i = 0; i < table.colsCount; i++) {
       hot_cols[i] = {type: 'text'}; //default thing that does not matter, will be overridden cell by cell
     }
+    return hot_cols;
+  }
 
+  function createCells(table) {
     var cells = [];
     // construct cell by cell properties
-    for (i = 0; i < table.rowsCount; i++) {
+    for (var i = 0; i < table.rowsCount; i++) {
       for (var j = 0; j < table.colsCount; j++) {
         var cell_def = table.cells[i][j];
         var type = cell_def.type;
@@ -545,13 +539,31 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
         cells.push(cell);
       }
     }
+    return cells;
+  }
 
-    // Work around not rendering the entire table
-    // Make enough space in data for all rows ahead of time
+  function createData(table) {
     var data = new Array(table.rowsCount);
     for (var r = 0; r < table.rowsCount; r++) {
       data[r] = [];
     }
+    return data;
+  }
+
+  /**
+   * Construct a Handsontable (HOT) object corresponding to the given table object.
+   * @param {object} table - the table object to create (constructed by make_table from json definition).
+   * @return {hot} - the handsontable object constructed by makeHotTable.
+   */
+  function makeHotTable(table) {
+
+    var element = document.querySelector('#' + table.element);
+    var hot_cols = createCols(table);
+    var cells = createCells(table);
+    var data = createData(table);
+
+    // Work around not rendering the entire table
+    // Make enough space in data for all rows ahead of time
 
     // Todo: table.width is undefined
     var hotSettings = {
@@ -770,14 +782,13 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
     for (var name in tables) {
       var template = getTemplate(name, 'name');
-      // console.log('t', template)
-      // var setting = {
-      //   readyOnly: true,
-      //   rowHeaderWidth: template.hot_parameters.rowHeaderWidth,
-      //   height: template.hot_parameters.height,
-      //   data: formattedPacesettersData(tables[name])
 
-      // }
+      var setting = {
+        readyOnly: true,
+        rowHeaderWidth: template.hot_parameters.rowHeaderWidth,
+        height: template.hot_parameters.height,
+        data: formattedPacesettersData(tables[name])
+      }
 
       // var handsOn = new Handsontable(container, settings);
 
