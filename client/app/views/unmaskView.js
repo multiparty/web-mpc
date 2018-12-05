@@ -18,14 +18,10 @@ define(['jquery', 'controllers/unmaskController', 'controllers/tableController',
       var tables = d;
   
       tableController.createTableElems(table_template.tables, '#tables-area');
-      // tableController.saveTables(tables, session);
+      tableController.saveTables(tables, session);
 
-      tableController.displayReadTable(tables);
       $('#tables-area').show();
-
-      
-      // TODO: why is this even here?
-      // $('#HandsontableCopyPaste').hide();
+      tableController.displayReadTable(tables);
 
     }
 

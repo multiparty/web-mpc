@@ -565,13 +565,14 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     // Work around not rendering the entire table
     // Make enough space in data for all rows ahead of time
 
+    console.log(table.rows)
     // Todo: table.width is undefined
     var hotSettings = {
       // Enable tooltips
       comments: true,
-      data: data,
+      data: createData(table),
       // Columns types
-      columns: hot_cols,
+      columns: createCols(table),
       // Sizes
       maxRows: table.rowsCount,
       maxCols: table.colsCount,
@@ -581,7 +582,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       // Styling information
       width: table.width,
       // Per cell properties
-      cell: cells,
+      cell: createCells(table),
       // Workaround for handsontable undo issue for readOnly tables
       beforeChange: function (changes, source) {
         return !(this.readOnly);
@@ -754,19 +755,19 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     $('header, #shadow').css('right', 0);
   }
 
-  function formatPacesettersData(table) {
+  // function formatPacesettersData(table) {
 
-    var data = [];
-    data[0] = [];
-    data[1] = [];
+  //   var data = [];
+  //   data[0] = [];
+  //   data[1] = [];
 
-    for (var t in table) {
-      data[0].push([table[t].value]);
-      data[1].push(headerMap[t]);
-    }
+  //   for (var t in table) {
+  //     data[0].push([table[t].value]);
+  //     data[1].push(headerMap[t]);
+  //   }
 
-    return data;
-  }
+  //   return data;
+  // }
   
   function getTemplate(value, field) {
     for (var t of table_template.tables) {
@@ -782,46 +783,62 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
     for (var name in tables) {
       var template = getTemplate(name, 'name');
+      var table = tables[name];
 
-      var setting = {
+      var i = 0;
+
+      var data = [];
+
+      for (let row in table) {
+        data[i] = [];
+        for (let col in table[row]) {
+          console.log('col', col, table[row][col]);
+          data[i].push(table[row][col]);
+        }
+        i++;
+      }
+
+      var settings = {
         readyOnly: true,
         rowHeaderWidth: template.hot_parameters.rowHeaderWidth,
         height: template.hot_parameters.height,
-        data: formattedPacesettersData(tables[name])
+        rowHeaders: getHeaders(template.rows),
+        nestedHeaders: getNestedHeaders(template.cols),
+        data: data,
+        width: template.width
       }
 
-      // var handsOn = new Handsontable(container, settings);
+      console.log(template.element);
+      var handsOn = new Handsontable(document.getElementById(template.element), settings);
 
-      // handsOn.render();
-
-
-
+      handsOn.render();
 
     }
-    // for (var t in tables) {
-    //   var cl = t.toLowerCase().replace(/ /gi, '-');
-    //   var container = document.getElementById(cl);
-
-    //   var formattedTable = formatPacesettersData(tables[t]);
-
-    //   var settings = {
-    //     colHeaders: ['Value for FY17'],
-    //     rowHeaders: formattedTable[1],
-    //     data: formattedTable[0],
-    //     readOnly: true,
-    //     colWidths: [190],
-    //     height: 230,
-    //     rowHeaderWidth: 480,
-    //     stretchH: 'last'
-    //   };
-
-
-    //   $('#' + cl + '-name').text(t);
-
-    //   // updateTableWidth($('.wtHider').width() + 150);
-    //   //$('.ht_clone_top').hide();
-
   }
+
+  // TODO: combien the two functions below based on BWWC
+  function getNestedHeaders(headers) {
+    var h = [];
+    var i = 0;
+    for (let row of headers) {
+      h[i] = [];
+      for (let col of row) {
+        h[i].push(col.label);
+      }
+      i++;
+    }
+    return h;
+  }
+
+  // TODO: will need to adjust for BWWC
+  function getHeaders(headers) {
+    var h = [];
+    for (let row of headers) {
+      h.push(row.label);
+    }
+    return h;
+  }
+
 
   /**
    * Remove all validators from the table, keeping only the built-in
@@ -975,6 +992,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   }
 
   function createTableElems(tables, tablesDiv) {
+    console.log('tables', tables);
 
     var tablesArea = $(tablesDiv);
 
