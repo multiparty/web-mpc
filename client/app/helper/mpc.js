@@ -22,7 +22,6 @@ define(['forge'], function (forge) {
    * @param value
    */
   function _uint32(value) {
-    //return value >>> 0;
     return ((value % MAX_VALUE) + MAX_VALUE) % MAX_VALUE;
   }
 

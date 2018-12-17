@@ -15,16 +15,16 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
       for (var i = 0; i < question.inputs.length; i++) {
         var div = document.createElement('div');
-        
+
         var input = document.createElement('input');
 
         $(input).attr('type', input_type)
-                .attr('value', i+1)
-                .attr('name', 'opt' + input_type)
+          .attr('value', i+1)
+          .attr('name', 'opt' + input_type)
 
 
         var label = document.createElement('label');
-        $(label).text(question.inputs[i].label); 
+        $(label).text(question.inputs[i].label);
 
         div.appendChild(input);
         div.appendChild(label)
@@ -34,18 +34,19 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
     }
 
     // Creates survey
+    // TODO: put instructions in the config
     function displaySurveyQuestions() {
       if (!('survey' in table_template) || Object.keys(table_template.survey).length === 0) {
         return;
-      }       
+      }
 
       $('#additional-questions').show();
 
 
-      questions = table_template.survey.questions;
+      const questions = table_template.survey.questions;
 
       var questionsDiv = $('#questions');
-      
+
       for (var i = 0; i < questions.length; i++) {
         var form = document.createElement('form');
         form.append(createQuestionText(questions[i].question_text));
@@ -53,13 +54,13 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         questionsDiv.append(form);
 
       }
-    
+
     }
 
     function createResizeSensors(tables) {
-      for (t of tables) {
+      for (let t of tables) {
         var div = $('#' + t.rootElement.id);
-        new ResizeSensor((div).find('.wtHider').first()[0], function() {
+        new ResizeSensor((div).find('.wtHider').first()[0], function () {
           tableController.updateWidth(tables);
         });
       }
@@ -70,14 +71,13 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
       $(document).ready(function () {
         // Hide by default
+        // TODO:
         $('#additional-questions').hide();
 
         tableController.createTableElems(table_template.tables, '#tables-area');
         displaySurveyQuestions();
 
-        // Create the tabless
         var tables = tableController.makeTables(table_template.tables);
-
         createResizeSensors(tables);
 
         var totals_table = null;
@@ -132,7 +132,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
         var sums = [0, 0]; // Internal total of Non NaNs values.
         var NaNs = [0, 0]; // Counts how many NaNs exist for every cell participating in a total.
-    
+
 
         // Custom afterChange hook that computes the totals
         var afterChange = function (changes) {
@@ -178,20 +178,20 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
           spinner.stop();
         };
 
-        var $window, availableWidth, availableHeight;
-        var calculateSize = function () {
-          availableWidth = Math.max($('#drop-area').width(), 600);
-          availableHeight = Math.max($window.height() - 250, 400);
-        };
+        // let $window, availableWidth, availableHeight;
+        // var calculateSize = function () {
+        //   availableWidth = Math.max($('#drop-area').width(), 600);
+        //   availableHeight = Math.max($window.height() - 250, 400);
+        // };
 
-        $(document).ready(function () {
-          $window = $(window);
-          $window.on('resize', calculateSize);
-        });
+        // $(document).ready(function () {
+        //   $window = $(window);
+        //   $window.on('resize', calculateSize);
+        // });
 
 
-        var _onsheet = function (json, cols, sheetnames, select_sheet_cb) {
-          calculateSize();
+        var _onsheet = function (json, cols) {
+          // calculateSize();
           if (!json) {
             json = [];
           }
@@ -205,7 +205,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
             return o;
           }(cols));
-          calculateSize();
+          // calculateSize();
         };
 
         DropSheet({
@@ -222,30 +222,10 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
         $('#expand-table-button').click(function (e) {
           $('#tables-area').slideToggle(function () {
-            // if ($('#tables-area').css('display') === 'none') {
-            //   resizeCard(tables);
-            // } else {
-            //   resizeCard(tables);
-            // }
-            resizeCard(tables);
+            tableController.updateWidth(tables);
           });
           $(e.target).toggleClass('flip');
         });
-
-        function resizeCard(tables) {
-          // GENERIC
-          // if (attach) {
-
-              tableController.updateWidth(tables);
-
-            // for (t of tables) {
-              // var div = $('#' + t.rootElement.id);
-              // new ResizeSensor((div).find('.wtHider').first()[0], function() {
-              //   tableController.updateWidth(div);
-              // });
-            // }
-          // }
-        }
 
         function addValidationErrors(msg) {
           $verify.prop('checked', false);
@@ -301,15 +281,15 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
       });
 
       /* global $buoop */
-      var $buoop = {
-        vs: {i: 10, f: -4, o: -4, s: 8, c: -4},
-        mobile: false,
-        api: 4,
-        noclose: true,
-        reminder: 0,
-        reminderClosed: 0,
-        text: '<strong>Your web browser {brow_name} is not supported.</strong> Please upgrade to a more modern browser to participate in the Pacesetters Data Submission.'
-      };
+      // var $buoop = {
+      //   vs: {i: 10, f: -4, o: -4, s: 8, c: -4},
+      //   mobile: false,
+      //   api: 4,
+      //   noclose: true,
+      //   reminder: 0,
+      //   reminderClosed: 0,
+      //   text: '<strong>Your web browser {brow_name} is not supported.</strong> Please upgrade to a more modern browser to participate in the Pacesetters Data Submission.'
+      // };
 
       function $buo_f() {
         var e = document.createElement('script');

@@ -184,25 +184,25 @@ define(['helper/mpc'], function (mpc) {
     return byteString;
   }
 
-  function ensure_equal(obj, oth) {
-    for (var key in obj) {
-      if (obj.hasOwnProperty(key) && oth.hasOwnProperty(key)) {
-        var value = obj[key];
-        if (typeof(value) === 'number' || typeof(value) === 'string') {
-          if (value !== oth[key]) {
-            return false;
-          }
-        } else {
-          var res = ensure_equal(value, oth[key]);
-          if (!res) {
-            return false;
-          }
-        }
-      }
-    }
+  // function ensure_equal(obj, oth) {
+  //   for (var key in obj) {
+  //     if (obj.hasOwnProperty(key) && oth.hasOwnProperty(key)) {
+  //       var value = obj[key];
+  //       if (typeof(value) === 'number' || typeof(value) === 'string') {
+  //         if (value !== oth[key]) {
+  //           return false;
+  //         }
+  //       } else {
+  //         var res = ensure_equal(value, oth[key]);
+  //         if (!res) {
+  //           return false;
+  //         }
+  //       }
+  //     }
+  //   }
 
-    return true;
-  }
+  //   return true;
+  // }
 
   return {
     aggregateAndUnmask

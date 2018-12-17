@@ -62,7 +62,6 @@ function genPairs(num) {
 }
 
 const maskSchema = templateToJoiSchema(template.tables, joi.string().required());
-console.log(maskSchema)
 const dataSchema = templateToJoiSchema(template.tables, joi.number().required());
 const encryptedPublicQuestionsSchema = templateToJoiSchema(template['questions'], joi.string().required());
 const pairwiseHyperCubeScheme = templateToJoiSchema(genPairs(0), joi.string().required());
@@ -168,12 +167,12 @@ var SessionInfo = mongoose.model('SessionInfo', {
   title: String,
   description: String
 });
-var FinalAggregate = mongoose.model('FinalAggregate', {
-  _id: String,
-  aggregate: Object,
-  date: Number,
-  session: String
-});
+// var FinalAggregate = mongoose.model('FinalAggregate', {
+//   _id: String,
+//   aggregate: Object,
+//   date: Number,
+//   session: String
+// });
 var UserKey = mongoose.model('UserKey', {
   _id: String, // concat of session + user.
   session: String,

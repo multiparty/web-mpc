@@ -9,7 +9,7 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
     var SESSION_PARTICIPATION_CODE_SERVER_ERROR = 'Session number and participation code do not match';
 
     var UNCHECKED_ERR = 'Please acknowledge that all data is correct and verified';
-    var ADD_QUESTIONS_ERR = 'Please answer all Additional Questions';
+    // var ADD_QUESTIONS_ERR = 'Please answer all Additional Questions';
 
     var GENERIC_TABLE_ERR = 'Please double-check the "%s" table';
     var SERVER_ERR = 'Server not reachable';
@@ -360,56 +360,56 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
      * 1. For all tables except bonus (3rd table), the cell must be either zero in all tables, or non-zero in all tables.
      * 2. For the bonus table (3rd table), it can only be non-zero if the other tables are non-zero.
      */
-    function checkSemanticDiscrepancies(tables, table, cell, value, callback) {
-      // var num_regex = /$[0-9]+^/; // no need to worry about empty spaces, hot removes them for number types.
-      var bonus_table = tables[2];
-      var name = table._sail_meta.name;
-      var r = cell.row_index;
-      var c = cell.col_index;
+    // function checkSemanticDiscrepancies(tables, table, cell, value, callback) {
+    //   // var num_regex = /$[0-9]+^/; // no need to worry about empty spaces, hot removes them for number types.
+    //   var bonus_table = tables[2];
+    //   var name = table._sail_meta.name;
+    //   var r = cell.row_index;
+    //   var c = cell.col_index;
 
-      // Ignore indices were there is some non-numerical value
-      for (var i = 0; i < tables.length - 1; i++) {
-        var v = tables[i].getDataAtCell(r, c);
-        if (typeof(v) !== 'number' || v < 0) {
-          return callback(true);
-        }
-      }
+    //   // Ignore indices were there is some non-numerical value
+    //   for (var i = 0; i < tables.length - 1; i++) {
+    //     var v = tables[i].getDataAtCell(r, c);
+    //     if (typeof(v) !== 'number' || v < 0) {
+    //       return callback(true);
+    //     }
+    //   }
 
-      // bonus can only be non-zero if the other tables are non-zero.
-      if (name === bonus_table._sail_meta.name) {
-        // bonus can only be non-zero if the other tables are non-zero.
-        if (value > 0) {
-          for (var j = 0; j < tables.length - 1; j++) { // length-1 because of the totals table
-            if (j === 2) {
-              continue;
-            }
+    //   // bonus can only be non-zero if the other tables are non-zero.
+    //   if (name === bonus_table._sail_meta.name) {
+    //     // bonus can only be non-zero if the other tables are non-zero.
+    //     if (value > 0) {
+    //       for (var j = 0; j < tables.length - 1; j++) { // length-1 because of the totals table
+    //         if (j === 2) {
+    //           continue;
+    //         }
 
-            if (!(tables[j].getDataAtCell(r, c) > 0)) {
-              return callback(false); // No need to invalidate other cells here.
-            }
-          }
-        }
-      } else { // Not bonus table
+    //         if (!(tables[j].getDataAtCell(r, c) > 0)) {
+    //           return callback(false); // No need to invalidate other cells here.
+    //         }
+    //       }
+    //     }
+    //   } else { // Not bonus table
 
-        // the cell must be either zero in all tables, or non-zero in all tables
-        var compare = value > 0;
-        for (i = 0; i < tables.length - 1; i++) { // length-1 because of the totals table
-          if (name === tables[i]._sail_meta.name) {
-            continue;
-          }
+    //     // the cell must be either zero in all tables, or non-zero in all tables
+    //     var compare = value > 0;
+    //     for (i = 0; i < tables.length - 1; i++) { // length-1 because of the totals table
+    //       if (name === tables[i]._sail_meta.name) {
+    //         continue;
+    //       }
 
-          if (i === 2) { // bonus table can only be greater than zero if this value is greater than 0.
-            if (tables[i].getDataAtCell(r, c) > 0 && !compare) {
-              return callback(false);
-            }
-          } else if ((tables[i].getDataAtCell(r, c) > 0) !== compare) {
-            return callback(false);
-          }
-        }
-      }
+    //       if (i === 2) { // bonus table can only be greater than zero if this value is greater than 0.
+    //         if (tables[i].getDataAtCell(r, c) > 0 && !compare) {
+    //           return callback(false);
+    //         }
+    //       } else if ((tables[i].getDataAtCell(r, c) > 0) !== compare) {
+    //         return callback(false);
+    //       }
+    //     }
+    //   }
 
-      callback(true);
-    }
+    //   callback(true);
+    // }
 
     return {
       errors,
