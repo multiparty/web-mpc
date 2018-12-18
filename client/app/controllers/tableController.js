@@ -734,20 +734,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     $('header, #shadow').css('right', 0);
   }
 
-  // function formatPacesettersData(table) {
-
-  //   var data = [];
-  //   data[0] = [];
-  //   data[1] = [];
-
-  //   for (var t in table) {
-  //     data[0].push([table[t].value]);
-  //     data[1].push(headerMap[t]);
-  //   }
-
-  //   return data;
-  // }
-
   function getTemplate(value, field) {
     for (var t of table_template.tables) {
       if (t[field] === value) {
@@ -990,7 +976,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
   function updateWidth(tables) {
 
-    var maxWidth = 0;
+    var maxWidth = $('#instructions').width;
 
     for (var i = 0; i < tables.length; i++) {
 
