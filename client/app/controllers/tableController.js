@@ -55,19 +55,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     }
   };
 
-  const headerMap = {
-    'NumContractedLocal': 'Number of Local MBEs Contracted',
-    'NumContractedState': 'Number of State MBEs Contracted',
-    'NumContractedNational': 'Number of National MBEs Contracted',
-    'TotalAmtLocal': 'Total Dollar Amount Spent Procuring All Goods and Services at the Local Level',
-    'TotalAmtState': 'Total Dollar Amount Spent Procuring All Goods and Services at the State Level',
-    'TotalAmtNational': 'Total Dollar Amount Spent Procuring All Goods and Services in the United States',
-    'DollarAmtLocal': 'Dollar Amount Spent with Local MBEs',
-    'DollarAmtState': 'Dollar Amount Spent with State MBEs',
-    'DollarAmtNational': 'Dollar Amount Spent with National MBEs',
-  };
-
-
   var table_widths = {};
 
   // Change this to add additional custom handling of errors when validating.
@@ -370,7 +357,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
    */
 
   function makeTables(tables) {
-    var result = []; 
+    var result = [];
     for (var t = 0; t < tables.length; t++) {
       var table_def = tables[t];
       var table = makeTableObj(table_def);
@@ -760,7 +747,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
   //   return data;
   // }
-  
+
   function getTemplate(value, field) {
     for (var t of table_template.tables) {
       if (t[field] === value) {
@@ -935,7 +922,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       totals = ['#VALUE!', '#VALUE!', '#VALUE!'];
     }
 
-    
+
     changes = []; // [ [row, col, change], [row, col, change], ..]
     for (i = 0; i < totals.length; i++) {
       changes.push([0, i, totals[i]]);
@@ -968,15 +955,15 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
     var id = table.rootElement.id;
 
-    for (t of table_template.tables) {
+    for (const t of table_template.tables) {
       if (id === t.element) {
         return t.hot_parameters.rowHeaderWidth + 20;
       }
     }
-    
+
     return 0;
   }
-  
+
   function getPadding(div) {
     return parseInt($(div).css('padding-right').split('px')[0]) + parseInt($(div).css('padding-left').split('px')[0]);
   }
@@ -991,7 +978,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       // Header
       $('<h4>').text(tables[i].name)
         .appendTo(div);
-  
+
       // Table Div
       $('<div>').attr('class', 'table-section')
         .attr('id', tables[i].element)
@@ -1020,7 +1007,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       }
     }
 
-    var padding = getPadding('#instructions') 
+    var padding = getPadding('#instructions')
 
     if (maxWidth > 0) {
       updateTableWidth(maxWidth + padding);
