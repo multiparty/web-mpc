@@ -777,7 +777,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       }
 
       var settings = {
-        readyOnly: true,
+        readOnly: true,
         rowHeaderWidth: template.hot_parameters.rowHeaderWidth,
         height: template.hot_parameters.height,
         rowHeaders: getHeaders(template.rows),
@@ -957,7 +957,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
     for (const t of table_template.tables) {
       if (id === t.element) {
-        return t.hot_parameters.rowHeaderWidth + 20;
+        return t.hot_parameters.rowHeaderWidth;
       }
     }
 
@@ -1015,23 +1015,13 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   }
 
   function getWidth(table) {
-    // var colWidths = [];
     var colWidths = 0;
     for (var i = 0; i < table.countRenderedCols(); i++) {
       colWidths += parseFloat(table.getColWidth(i));
     }
 
-    // // Need to account for column header.
-    // var narrowestCol = Math.min.apply(null, colWidths);
-    // var colSum = colWidths.reduce(function (a, b) {
-    //   return a + b
-    // }, 0);
-
     return colWidths;
-    // return narrowestCol * 5 + colSum;
   }
-
-
 
   function saveQuestions(questions, session) {
     if (questions.length === 0) {

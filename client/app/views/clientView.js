@@ -15,16 +15,16 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
       for (var i = 0; i < question.inputs.length; i++) {
         var div = document.createElement('div');
-        
+
         var input = document.createElement('input');
 
         $(input).attr('type', input_type)
-                .attr('value', i+1)
-                .attr('name', 'opt' + input_type)
+          .attr('value', i+1)
+          .attr('name', 'opt' + input_type)
 
 
         var label = document.createElement('label');
-        $(label).text(question.inputs[i].label); 
+        $(label).text(question.inputs[i].label);
 
         div.appendChild(input);
         div.appendChild(label)
@@ -37,29 +37,26 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
     function displaySurveyQuestions() {
       if (!('survey' in table_template) || Object.keys(table_template.survey).length === 0) {
         return;
-      }       
+      }
 
       $('#additional-questions').show();
 
-
-      questions = table_template.survey.questions;
+      const questions = table_template.survey.questions;
 
       var questionsDiv = $('#questions');
-      
+
       for (var i = 0; i < questions.length; i++) {
         var form = document.createElement('form');
         form.append(createQuestionText(questions[i].question_text));
         renderSurveyInputs(questions[i], form);
         questionsDiv.append(form);
-
       }
-    
     }
 
     function createResizeSensors(tables) {
-      for (t of tables) {
+      for (const t of tables) {
         var div = $('#' + t.rootElement.id);
-        new ResizeSensor((div).find('.wtHider').first()[0], function() {
+        new ResizeSensor((div).find('.wtHider').first()[0], function () {
           tableController.updateWidth(tables);
         });
       }
@@ -132,7 +129,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
         var sums = [0, 0]; // Internal total of Non NaNs values.
         var NaNs = [0, 0]; // Counts how many NaNs exist for every cell participating in a total.
-    
+
 
         // Custom afterChange hook that computes the totals
         var afterChange = function (changes) {
