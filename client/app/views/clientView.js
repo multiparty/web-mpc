@@ -146,8 +146,6 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
             NaNs = running.NaNs;
           }
         };
-        // Alerts, page elements, etc. for drag-and-drop/choose file.
-        // var workbook_js = null;
 
         var _target = document.getElementById('drop-area');
         var _choose = document.getElementById('choose-file-button');
@@ -156,6 +154,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
           spinner = new Spinner().spin(_target);
         };
         var _workend = function (status) {
+          $('#tables-area').show();
           spinner.stop();
         };
 
@@ -222,30 +221,10 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
         $('#expand-table-button').click(function (e) {
           $('#tables-area').slideToggle(function () {
-            // if ($('#tables-area').css('display') === 'none') {
-            //   resizeCard(tables);
-            // } else {
-            //   resizeCard(tables);
-            // }
-            resizeCard(tables);
+            tableController.updateWidth(tables);
           });
           $(e.target).toggleClass('flip');
         });
-
-        function resizeCard(tables) {
-          // GENERIC
-          // if (attach) {
-
-              tableController.updateWidth(tables);
-
-            // for (t of tables) {
-              // var div = $('#' + t.rootElement.id);
-              // new ResizeSensor((div).find('.wtHider').first()[0], function() {
-              //   tableController.updateWidth(div);
-              // });
-            // }
-          // }
-        }
 
         function addValidationErrors(msg) {
           $verify.prop('checked', false);

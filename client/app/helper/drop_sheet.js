@@ -67,7 +67,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
               opts.on.workstart();
 
               wb = XLSX.read(data, readtype);
-              opts.on.workend(processWB(wb, 'XLSX'));
+              opts.on.workend(processWB(wb));
             } catch (e) {
               opts.errors.failed(e);
             }
@@ -112,7 +112,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
           var cell = XLSX.utils.encode_cell({r: i, c: j});
           if (ws[cell] && !isNaN(ws[cell].v)) {
             // subtract initial offset
-            table.setDataAtCell(i-s.r, j-s.c, ws[cell].v);            
+            table.setDataAtCell(i-s.r, j-s.c, ws[cell].v);
           } else {
             alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", "Spreadsheet format does not match original template, or there are empty cells, or non-numeric data. Please copy-and-paste or type data into the 'Number Of Employees' table manually.");
             return false;
@@ -123,15 +123,13 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
     }
 
     // Parses workbook for relevant cells.
-    function processWB(wb, type, sheetidx) {
+    function processWB(wb) {
       var tableDef = opts.tables_def.tables;
 
-      var checks = [];
-
-      for (name of wb.SheetNames) {
+      for (const name of wb.SheetNames) {
         let tableId = 0;
-        for (table of tableDef) {
-          if (table.excel && table.excel[0] && table.excel[0].sheet == name) {
+        for (const table of tableDef) {
+          if (table.excel && table.excel[0] && table.excel[0].sheet === name) {
             if (!processWS(wb.Sheets[name], opts.tables[tableId], table.excel[0].start, table.excel[0].end)) {
               return false; // mistake in processing sheet
             }
@@ -141,7 +139,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
       }
 
       alertify.alert('<img src="/images/accept.png" alt="Success">Success', 'The tables below have been populated. Please confirm that your data is accurate and scroll down to answer the multiple choice questions, verify, and submit your data');
-    
+
       return true;
     }
 

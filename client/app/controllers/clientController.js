@@ -153,18 +153,13 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
             $(questions[q]).removeClass('has-error');
           }
         }
-        // TODO: need to handle these
-        // NOTE: no error check available
-        // if (!questionsValid) {
-        //   errors = errors.concat(ADD_QUESTIONS_ERR);
-        // }
+        if (!questionsValid) {
+          errors = errors.concat(ADD_QUESTIONS_ERR);
+        }
 
-        // Register semantic discrepancies validator.
-        // console.log("VALIDATE?", registerValidator)
-        // NOTE: semantic discrepancies for sal equity?!
-        // tableController.registerValidator('discrepancies', function (table, cell, value, callback) {
-        //   checkSemanticDiscrepancies(tables, table, cell, value, callback);
-        // });
+        tableController.registerValidator('discrepancies', function (table, cell, value, callback) {
+          checkSemanticDiscrepancies(tables, table, cell, value, callback);
+        });
 
         // Receive errors from validator and puts them in the errors array.
         var errorHandler = function (table_name, value, row, col, validator_name) {
