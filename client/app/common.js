@@ -14,7 +14,7 @@ require.config({
     DropSheet: 'helper/drop_sheet',
     mpc: 'helper/mpc',
     ResizeSensor: 'vendor/ResizeSensor',
-    table_template: 'data/tables'
+    table_template: 'data/pacesetters'
 
   },
   shim: {
