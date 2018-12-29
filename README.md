@@ -66,7 +66,7 @@ mongod
 
 * For testing, start the Node.js server with no environment variables:
 ```
-node index.js
+node server/index.js
 ```
 
 #### Production release
@@ -74,7 +74,7 @@ node index.js
 * For production, start the Node.js server with a production environment variable:
 ```
 export NODE_ENV=production
-node index.js
+node server/index.js
 ```
 * Open up the browser and navigate to "localhost:8080"
 
@@ -85,11 +85,7 @@ Instructions on how to operate the web-mpc application. All steps below are perf
 #### Generate session key
 
 * Navigate to `localhost:8080/create`.
-* Click on **Generate Session** and copy and share the session key with all participants.
-
-#### Fill out data
-
-* All participants will navigate to `localhost:8080`, paste the session key into its designated field and proceed to fill out the information. Once completed, click **Submit**.
+* Click on **Generate Session** and save the two given files, one contains the session key and password which are needed for managing the session. The other contains a secret key needed to unmask the aggregate.
 
 #### Manage session
 
@@ -98,10 +94,14 @@ Instructions on how to operate the web-mpc application. All steps below are perf
 * Generate participation links.
 * Start the session.
 
+#### Fill out data
+
+* All participants will open a unique participation link, and proceed to fill out the information. Once completed, click **Submit**.
+
 #### Retrieve the result
 
-* Stop the session
-* Navigate to `localhost:8080/unmask`.
+* Stop the session in `localhost:8080/manage`.
+* Click the **unmask** link.
 * Paste the session key and password in its designated fields.
 * Click **Browse** and upload the private key file that was downloaded when generating the session key.
 * Click **Unmask Data** and view the result.
