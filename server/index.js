@@ -19,7 +19,7 @@ const express = require('express');
 const app = express();
 const body_parser = require('body-parser');
 const mongoose = require('mongoose');
-const template = require('../client/app/data/tables');
+const template = require('../client/app/data/pacesetters');
 const mpc = require('../client/app/helper/mpc');
 const crypto = require('crypto');
 const joi = require('joi');
@@ -39,14 +39,14 @@ function templateToJoiSchema(template, joiFieldType) {
     return joi.object().keys(schema);
   }
   for (var table of template) {
-    schema[table['name']] = {};
+    schema[table.name] = {};
 
-    for (var row of table['rows']) {
-      schema[table['name']][row['key']] = {};
+    for (var row of table.rows) {
+      schema[table.name][row.key] = {};
 
-      for (var col_levels of table['cols']) {
-        for (var col of col_levels) {
-          schema[table['name']][row['key']][col['key']] = joiFieldType
+      for (var cols of table.cols) {
+        for (var col of cols) {
+          schema[table.name][row.key][col.key] = joiFieldType;
         }
       }
     }
@@ -64,8 +64,9 @@ function genPairs(num) {
   return objPairs;
 }
 
-const maskSchema = templateToJoiSchema(template['tables'], joi.string().required());
-const dataSchema = templateToJoiSchema(template['tables'], joi.number().required());
+const maskSchema = templateToJoiSchema(template.tables, joi.string().required());
+console.log(maskSchema)
+const dataSchema = templateToJoiSchema(template.tables, joi.number().required());
 const encryptedPublicQuestionsSchema = templateToJoiSchema(template['questions'], joi.string().required());
 const pairwiseHyperCubeScheme = templateToJoiSchema(genPairs(0), joi.string().required());
 
@@ -976,7 +977,6 @@ if (process.env.NODE_ENV === 'production') {
     console.log("Listening for ACME tls-sni-01 challenges and serve app on", this.address());
   });
 }
-
 
 if (process.env.NODE_ENV === 'production') {
   indexJiff(https);

@@ -84,7 +84,7 @@ Instructions on how to operate the web-mpc application. All steps below are perf
 
 #### Generate session key
 
-* Navigate to `localhost:8080/session`.
+* Navigate to `localhost:8080/create`.
 * Click on **Generate Session** and copy and share the session key with all participants.
 
 #### Fill out data
@@ -93,7 +93,7 @@ Instructions on how to operate the web-mpc application. All steps below are perf
 
 #### Manage session
 
-* Navigate to `localhost:8080/track`.
+* Navigate to `localhost:8080/manage`.
 * Input your session key and password.
 * Generate participation links.
 * Start the session.
@@ -105,3 +105,6 @@ Instructions on how to operate the web-mpc application. All steps below are perf
 * Paste the session key and password in its designated fields.
 * Click **Browse** and upload the private key file that was downloaded when generating the session key.
 * Click **Unmask Data** and view the result.
+
+## License
+Web-mpc is freely distributable under the terms of the [MIT license](https://github.com/multiparty/web-mpc/blob/master/LICENSE). This release supports Handsontable's "[Nested headers](https://docs.handsontable.com/pro/1.17.0/demo-nested-headers.html)", a Pro feature. A [valid license](https://handsontable.com/pricing) must be obtained when using this feature.

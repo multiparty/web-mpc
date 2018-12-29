@@ -104,63 +104,6 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
 
     var errors = [];
 
-    /*
-    Called when the instructions card is expanded.
-    */
-    var tableWidthsOld = [];
-
-    function updateWidth(tables, reset) {
-
-      if (reset) {
-        tableController.resetTableWidth();
-
-        tableWidthsOld = [];
-        return;
-      }
-
-      var tableWidths = [];
-      for (var i = 0; i < tables.length - 1; i++) {
-        var table = tables[i];
-        var header_width = getWidth(table);
-        tableWidths.push(parseFloat(header_width));
-      }
-
-      // No need to resize if width hasn't changed
-      // Quick and dirty equality check of arrays
-      if (JSON.stringify(tableWidths) === JSON.stringify(tableWidthsOld)) {
-        return;
-      }
-
-      for (var j = 0; j < tables.length - 1; j++) {
-        table = tables[j];
-        table.updateSettings({
-          // TODO check why reported table width is off
-          // This value is incorrect when expanding table by inputting more data
-          width: tableWidths[j] - 40
-        });
-      }
-
-      var maxWidth = Math.max.apply(null, tableWidths);
-
-      tableController.updateTableWidth(maxWidth);
-      tableWidthsOld = tableWidths.concat();
-    }
-
-    function getWidth(table) {
-      var colWidths = [];
-
-      for (var i = 0; i < table.countRenderedCols(); i++) {
-        colWidths.push(parseFloat(table.getColWidth(i)));
-      }
-
-      // Need to account for column header.
-      var narrowestCol = Math.min.apply(null, colWidths);
-      var colSum = colWidths.reduce(function (a, b) {
-        return a + b
-      }, 0);
-      return narrowestCol * 5 + colSum;
-    }
-
     /**
      * Called when the submit button is pressed.
      */
@@ -210,14 +153,10 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
             $(questions[q]).removeClass('has-error');
           }
         }
-        // NOTE: no error check available
         // if (!questionsValid) {
         //   errors = errors.concat(ADD_QUESTIONS_ERR);
         // }
 
-        // Register semantic discrepancies validator.
-        // console.log("VALIDATE?", registerValidator)
-        // NOTE: semantic discrepancies for sal equity?!
         // tableController.registerValidator('discrepancies', function (table, cell, value, callback) {
         //   checkSemanticDiscrepancies(tables, table, cell, value, callback);
         // });
@@ -279,7 +218,7 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
     /**
      * All inputs are valid. Construct JSON objects and send them to the server.
      */
-    function construct_and_send(tables, la) {
+    function constructAndSend(tables, la) {
       // Begin constructing the data
       var questions = $('#questions form');
       var data_submission = questions.length ? {questions: {}} : {};
@@ -360,8 +299,6 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
           session: session
         };
 
-        //console.log(submission);
-
         return $.ajax({
           type: 'POST',
           url: '/',
@@ -433,8 +370,6 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
         }
       }
 
-      //console.log('bonus',bonus_table);
-
       // bonus can only be non-zero if the other tables are non-zero.
       if (name === bonus_table._sail_meta.name) {
         // bonus can only be non-zero if the other tables are non-zero.
@@ -472,12 +407,11 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
     }
 
     return {
-      errors: errors,
-      submitEntries: submitEntries,
-      validate: validate,
-      constructAndSend: construct_and_send,
-      validateSessionInput: validateSessionInput,
-      updateWidth: updateWidth
+      errors,
+      submitEntries,
+      validate,
+      constructAndSend,
+      validateSessionInput,
     };
   })();
 

@@ -39,10 +39,6 @@ define(['helper/mpc'], function (mpc) {
 
     // Aggregate decrypted values by key
     var analystResultShare = decrypted.then(function (analystShares) {
-      // var invalidShareCount = mpc.countInvalidShares(analystShares);
-      // TODO: we should set a threshold and abort if there are too
-      // many invalid shares
-      // console.log('Invalid share count:', invalidShareCount);
       return mpc.aggregateShares(analystShares);
     });
 
@@ -209,6 +205,6 @@ define(['helper/mpc'], function (mpc) {
   }
 
   return {
-    aggregateAndUnmask: aggregateAndUnmask
+    aggregateAndUnmask
   }
 });
