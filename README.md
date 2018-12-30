@@ -78,6 +78,23 @@ node server/index.js
 ```
 * Open up the browser and navigate to "localhost:8080"
 
+## Specifying a Deployment
+
+This application can be used for a variety of deployments. Each deployment may have a different domain name 
+and https certificate settings, as well as a different data format/layout.
+
+server/config contains configuration files for each deployment specifying its https parameters and its data template.
+Data templates are json files typically located in client/app/data/, they are used to automatically render HTML UI and
+handle data aggregation.
+
+The deployment is set to pacesetters by default, to change it, set a deployment environment variable"
+```bash
+export WEBMPC_DEPLOYMENT=deployment_name
+```
+
+It is required that server/config/<deployment_name>.json is a valid configuration file. If the file is
+invalid, the server will fail on start.
+
 ## Application usage
 
 Instructions on how to operate the web-mpc application. All steps below are performed in the browser.
