@@ -1,24 +1,18 @@
 const jiffServer = require('../../jiff/lib/jiff-server.js');
 const jiffServerBigNumber = require('../../jiff/lib/ext/jiff-server-bignumber.js');
+const jiffServerRestAPI = require('../../jiff/lib/ext/jiff-server-restful.js');
 
-const options = { logs: false, sodium: false };
+const options = { logs: false, sodium: false, hooks: {} };
 
 module.exports = function (server) {
-  const mailbox_hooks = {
-    put_in_mailbox: function (label, msg, session_key, to_id) {
-      // to_id: either 1 or s1
+  // var mailbox_hooks = require('./mailbox.js');
+  var mailbox_hooks = {};
+  var authentication_hooks = require('./auth.js');
 
-    },
-    get_mailbox : function (session_key, party_id) {
-      // party_id: either 1 or s1
-    },
-    remove_from_mailbox: function () { },
-    slice_mailbox: function () { }
-  };
+  options.hooks = Object.assign(options.hooks, mailbox_hooks, authentication_hooks);
 
-  options.hooks = Object.assign({}, mailbox_hooks);
-
-  // const serverInstance = jiffServer.make_jiff(server, options);
+  const serverInstance = jiffServer.make_jiff(server, options);
   // serverInstance.apply_extension(jiffServerBigNumber, options);
-  // return serverInstance;
+  serverInstance.apply_extension(jiffServerRestAPI, options);
+  return serverInstance;
 };

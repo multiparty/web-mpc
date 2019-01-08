@@ -135,8 +135,10 @@ module.exports.createClientUrls = function (body, response) {
     }
 
     var userKeys = {}; // fast lookup
+    var count = 1; // starts at 1, because the first party is the analyst
     for (var d of data) {
       userKeys[d.userkey] = true;
+      count++;
     }
 
     // Create count many unique (per session) user keys.
@@ -155,7 +157,8 @@ module.exports.createClientUrls = function (body, response) {
       dbObjs.push(new modules.UserKey({
         _id: body.session + userkey,
         session: body.session,
-        userkey: userkey
+        userkey: userkey,
+        party_id: count+i+1
       }));
     }
 
