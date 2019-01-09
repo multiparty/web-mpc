@@ -97,12 +97,6 @@ module.exports.submitData = function (body, response) {
       session: session
     });
 
-    var cubeToSave = new modules.Cube({
-      _id: ID,
-      fields: pairwise_hypercubes,
-      session: session
-    });
-
     // for both the aggregate and the mask, update the old aggregate
     // for the company with that userkey. Update or insert, hence the upsert flag
     var aggPromise = modules.Aggregate.update(
@@ -115,13 +109,8 @@ module.exports.submitData = function (body, response) {
       maskToSave.toObject(),
       { upsert: true }
     );
-    var cubePromise = modules.Cube.update(
-      { _id: ID },
-      cubeToSave.toObject(),
-      { upsert: true }
-    );
 
-    Promise.join(aggPromise, maskPromise, cubePromise)
+    Promise.join(aggPromise, maskPromise)
       .then(function () {
         response.send(body);
       }).catch(function (err) {

@@ -39,18 +39,6 @@ function templateToJoiSchema(template, joiFieldType) {
   return joi.object().keys(schema).required();
 }
 
-// generate all unique pairs (x, y) where 0 <= x, y < num, and y > x
-function genPairs(num) {
-  const objPairs = {};
-  for (var i = 0; i < num; i++) {
-    for (var j = i + 1; j < num; j++) {
-      objPairs[i + ':' + j] = 0;
-    }
-  }
-  return objPairs;
-}
-
-
 // Use helpers to generate base joi schemas: these are building blocks for the schemas of requests.
 // TODO: set length restrictions on sessionKey and userKey
 const schemaTemplates = {
@@ -62,7 +50,6 @@ schemaTemplates.keyPasswordTemplate = {
   session: schemaTemplates.sessionKeySchema,
   password: schemaTemplates.passwordSchema
 };
-
 
 
 // Concrete Request schemas!
@@ -87,7 +74,6 @@ module.exports = {
 
   getClientUrls: Object.assign({}, schemaTemplates.keyPasswordTemplate),
   getMasks: Object.assign({}, schemaTemplates.keyPasswordTemplate),
-  getCubes: Object.assign({}, schemaTemplates.keyPasswordTemplate),
   getAggregate: Object.assign({}, schemaTemplates.keyPasswordTemplate),
 
   createClientUrls: Object.assign({
@@ -106,7 +92,6 @@ module.exports = {
     mask: templateToJoiSchema(template['tables'], joi.string().required()),
     data: templateToJoiSchema(template['tables'], joi.number().required()),
     questions_public: templateToJoiSchema(template['questions'], joi.string().required()),
-    pairwise_hypercubes: templateToJoiSchema(genPairs(0), joi.string().required()),
     session: schemaTemplates.sessionKeySchema,
     user: schemaTemplates.userKeySchema
   }

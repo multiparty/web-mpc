@@ -33,57 +33,6 @@ module.exports.getMasks = function (body, response, sessionInfoObj) {
   });
 };
 
-
-// endpoint for getting all of the cubes for a specific session
-module.exports.getCubes = function (body, response, sessionInfoObj) {
-  if (sessionInfoObj.status !== 'STOP') {
-    response.status(500).send('Session status is ' + sessionInfoObj.status);
-    return;
-  }
-
-  modules.Cube.where({ session: body.session }).find(function (err, data) {
-    if (err) {
-      console.log(err);
-      response.status(500).send('Error getting cubes.');
-      return;
-    }
-
-    if (!data || data.length === 0) {
-      response.status(500).send('No submissions yet. Please come back later.');
-    } else {
-      console.log(data.length);
-
-      var result = {};
-      var i, j;
-      for (i = 0; i < 5; i++) {
-        for (j = i + 1; j < 5; j++) {
-          result[i + ':' + j] = [];
-        }
-      }
-
-      for (var d = 0; d < data.length; d++) {
-        var one_submission = data[d].fields;
-        for (i = 0; i < 5; i++) {
-          for (j = i + 1; j < 5; j++) {
-            result[i + ':' + j].push(one_submission[i + ':' + j]);
-          }
-        }
-      }
-
-      // Sort (to shuffle/remove order) pairs
-      // now it cannot be inferred which pairs are from the same submission.
-      for (i = 0; i < 5; i++) {
-        for (j = i + 1; j < 5; j++) {
-          result[i + ':' + j] = result[i + ':' + j].sort();
-        }
-      }
-
-      response.send(result);
-    }
-  });
-};
-
-
 // endpoint for getting the service share of the result of the aggregation
 module.exports.getAggregate = function (body, response, sessionInfoObj) {
   if (sessionInfoObj.status !== 'STOP') {

@@ -56,22 +56,11 @@ define(['helper/mpc'], function (mpc) {
         // }
         // generateQuestionsCSV(resultShares[2], session)
         callback(true, finalResult, [], session);
-
       })
       .catch(function (err) {
         console.error(err);
         callback(false, 'Error: could not compute result.');
       });
-
-    // Do the Hypercube
-    // NOTE: do we need this?
-    // var cubes = getCubes(session, password);
-    // Promise.all([cubes, sk]).then(function (results) {
-    //   var cubes = results[0];
-    //   var importedKey = results[1];
-    //   // _decryptWithKey(cubes, importedKey).then(JSON.stringify).then(console.error);
-    //   _decryptWithKey(cubes, importedKey);
-    // });
   }
 
   function getServiceResultShare(session, password) {
@@ -86,21 +75,6 @@ define(['helper/mpc'], function (mpc) {
       dataType: 'json'
     });
   }
-
-  // TODO: what is this doing?
-  // function getCubes(session, password) {
-  //   return $.ajax({
-  //     type: 'POST',
-  //     url: '/get_cubes',
-  //     contentType: 'application/json',
-  //     data: JSON.stringify({
-  //       session: session,
-  //       password: password
-  //     }),
-  //     dataType: 'json'
-  //   });
-  // }
-
 
   function construct_tuple(key, buffer) {
     if (buffer) {

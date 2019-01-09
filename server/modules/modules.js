@@ -33,11 +33,6 @@ const MaskModule = mongoose.model('Mask', new mongoose.Schema({
   // questions_public: Object,
   session: String
 }));
-const CubeModule = mongoose.model('Cubes', new mongoose.Schema({
-  _id: String, // concat of session + user.
-  fields: Object,
-  session: String
-}));
 const SessionInfoModule = mongoose.model('SessionInfo', new mongoose.Schema({
   _id: String,
   session: String,
@@ -53,24 +48,13 @@ const UserKeyModule = mongoose.model('UserKey', new mongoose.Schema({
   userkey: String,
   party_id: Number
 }));
-/*
-// Future work
-const FinalAggregateModule = mongoose.model('FinalAggregate', new mongoose.Schema({
-  _id: String,
-  aggregate: Object,
-  date: Number,
-  session: String
-}));
-*/
 
 
 // Export modules
 module.exports = {
   Aggregate: AggregateModule,
   Mask: MaskModule,
-  Cube: CubeModule,
   SessionInfo: SessionInfoModule,
-  // FinalAggregate: FinalAggregateModule,
-  UserKey: UserKeyModule,
+  UserKey: UserKeyModule
 };
 

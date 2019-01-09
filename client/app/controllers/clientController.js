@@ -261,21 +261,12 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
       var data = shares['data'];
       var mask = shares['mask'];
 
-      // Correlation using modified small pairwise 'hypercubes'. (one cube for each pair of questions)
-      // For every pair of questions, compute and encrypt the two chosen answers.
-      var pairwise_hypercubes = {};
-      for (var k = 0; k < questions.length; k++) {
-        for (var l = k + 1; l < questions.length; l++) {
-          pairwise_hypercubes[k + ':' + l] = questions_values[k] + '' + questions_values[l];
-        }
-      }
-
-      encrypt_and_send(session, participationCode, data, mask, questions_public, pairwise_hypercubes, la);
+      encrypt_and_send(session, participationCode, data, mask, questions_public, la);
     }
 
     var submitEntries = [];
 
-    function encrypt_and_send(session, participationCode, data, mask, questions_public, pairwise_hypercubes, la) {
+    function encrypt_and_send(session, participationCode, data, mask, questions_public, la) {
       // Get the public key to encrypt with
       var pkey_request = $.ajax({
         type: 'POST',
@@ -287,7 +278,6 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
 
       pkey_request.then(function (public_key) {
         mask = mpc.encryptWithKey(mask, public_key);
-        pairwise_hypercubes = mpc.encryptWithKey(pairwise_hypercubes, public_key);
         questions_public = mpc.encryptWithKey(questions_public, public_key); // This encrypts the public answers to questions
 
         var submission = {
@@ -295,7 +285,6 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
           mask: mask,
           user: participationCode,
           questions_public: questions_public,
-          pairwise_hypercubes: pairwise_hypercubes,
           session: session
         };
 

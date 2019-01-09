@@ -42,6 +42,5 @@ module.exports = [
 
   // Final aggregation routes
   { url: '/get_masks', route: aggregateRoutes.getMasks, validation: validation.getMasks, authentication: auth.password },
-  { url: '/get_cubes', route: aggregateRoutes.getCubes, validation: validation.getCubes, authentication: auth.password },
   { url: '/get_aggregate', route: aggregateRoutes.getAggregate, validation: validation.getAggregate, authentication: auth.password },
 ];
