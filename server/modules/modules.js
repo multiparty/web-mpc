@@ -19,19 +19,23 @@ mongoose.Promise = Promise;
   }
 }());
 
-// model for aggregate data
-const AggregateModule = mongoose.model('Aggregate', new mongoose.Schema({
+// Mongoose Model definitions
+const HistoryModule = mongoose.model('History', new mongoose.Schema({
+  // Keeps track of submission history
   _id: String, // concat of session + userkey.
-  fields: Object,
-  date: Number,
   session: String,
-  userkey: String
+  userkey: String,
+  date: Number
 }));
-const MaskModule = mongoose.model('Mask', new mongoose.Schema({
-  _id: String, // concat of session + user.
-  fields: Object,
-  // questions_public: Object,
-  session: String
+const MailboxModule = mongoose.model('Mailbox', new mongoose.Schema({
+  // Store messages/shares
+  _id: String, // "session:from_id:to_id:op_id"
+  session: String, // Session Key
+  from_id: String, // Sender id
+  to_id: String, // either 1 or s1
+  op_id: String,
+  label: String,
+  message: String
 }));
 const SessionInfoModule = mongoose.model('SessionInfo', new mongoose.Schema({
   _id: String,
@@ -52,8 +56,8 @@ const UserKeyModule = mongoose.model('UserKey', new mongoose.Schema({
 
 // Export modules
 module.exports = {
-  Aggregate: AggregateModule,
-  Mask: MaskModule,
+  History: HistoryModule,
+  Mailbox: MailboxModule,
   SessionInfo: SessionInfoModule,
   UserKey: UserKeyModule
 };
