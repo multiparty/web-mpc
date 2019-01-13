@@ -3,7 +3,7 @@
  * Each object in the module.exports array is a single route.
  * Each object must define a url suffix for the route, a route function, a joi validation schema, and an optional authentication function.
  *
- * The route function is of type function(request_body{object}, response{express response}, [ authentication_output])
+ * The route function is of type function(context{object}, request_body{object}, response{express response}, [ authentication_output])
  *    where authentication_output is the result of the authentication function.
  *
  * Validation schema must be defined using the joi library, check ./app/validation.js for examples.

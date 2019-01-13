@@ -5,6 +5,7 @@
 
 const base32Encode = require('base32-encode');
 const crypto = require('crypto');
+const MAX_SIZE = 10000;
 
 const TOKEN_LENGTH = 16;
 function generateRandomBase32(length) {
@@ -19,7 +20,7 @@ module.exports = {};
 
 
 // endpoint for creating the session
-module.exports.createSession = function (body, res) {
+module.exports.createSession = function (context, body, res) {
   var publickey = body.publickey;
   var sessionID = generateRandomBase32(TOKEN_LENGTH);
   var password = generateRandomBase32(TOKEN_LENGTH);
@@ -50,7 +51,7 @@ module.exports.createSession = function (body, res) {
 
 
 // endpoint for getting the status of a session
-module.exports.getStatus = function (body, res) {
+module.exports.getStatus = function (context, body, res) {
   modules.SessionInfo.findOne({_id: body.session}, function (err, data) {
     if (err) {
       console.log(err);
@@ -65,7 +66,7 @@ module.exports.getStatus = function (body, res) {
 
 
 // endpoint for setting session status
-module.exports.setStatus = function (body, response, sessionInfoObj) {
+module.exports.setStatus = function (context, body, response, sessionInfoObj) {
   if (sessionInfoObj.status === 'STOP') {
     response.status(500).send('Session status is ' + sessionInfoObj.status);
     return;
@@ -86,7 +87,7 @@ module.exports.setStatus = function (body, response, sessionInfoObj) {
 
 
 // endpoint for returning dates of submissions
-module.exports.getSubmissionHistory = function (body, res) {
+module.exports.getSubmissionHistory = function (context, body, res) {
   modules.Aggregate.where({ session: body.session }).gt('date', body.last_fetch).find(function (err, data) {
     if (err) {
       console.log(err);
@@ -105,7 +106,7 @@ module.exports.getSubmissionHistory = function (body, res) {
 
 
 // endpoint for returning previously created client urls
-module.exports.getClientUrls = function (body, res) {
+module.exports.getClientUrls = function (context, body, res) {
   // Password verified!
   modules.UserKey.where({ session: body.session }).find(function (err, data) {
     if (err) {
@@ -126,7 +127,7 @@ module.exports.getClientUrls = function (body, res) {
 
 
 // endpoint for creating new client urls
-module.exports.createClientUrls = function (body, response) {
+module.exports.createClientUrls = function (context, body, response) {
   modules.UserKey.where({ session: body.session }).find(function (err, data) {
     if (err) {
       console.log(err);

@@ -12,7 +12,7 @@ module.exports = {};
 
 
 // endpoint for getting all of the masks for a specific session
-module.exports.getMasks = function (body, response, sessionInfoObj) {
+module.exports.getMasks = function (context, body, response, sessionInfoObj) {
   if (sessionInfoObj.status !== 'STOP') {
     response.status(500).send('Session status is ' + sessionInfoObj.status);
     return;
@@ -34,7 +34,7 @@ module.exports.getMasks = function (body, response, sessionInfoObj) {
 };
 
 // endpoint for getting the service share of the result of the aggregation
-module.exports.getAggregate = function (body, response, sessionInfoObj) {
+module.exports.getAggregate = function (context, body, response, sessionInfoObj) {
   if (sessionInfoObj.status !== 'STOP') {
     response.status(500).send('Session status is ' + sessionInfoObj.status);
     return;

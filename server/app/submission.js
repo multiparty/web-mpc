@@ -13,7 +13,7 @@ module.exports = {};
 
 
 // endpoint for fetching the public key for a specific session
-module.exports.getPublicKey = function (body, response) {
+module.exports.getPublicKey = function (context, body, response) {
   modules.SessionInfo.findOne({ session: body.session }, function (err, data) {
     if (err) {
       console.log(err);
@@ -31,7 +31,7 @@ module.exports.getPublicKey = function (body, response) {
 
 
 // endpoint for verifying user and session key and getting the session info.
-module.exports.getSessionInfo = function (body, response) {
+module.exports.getSessionInfo = function (context, body, response) {
   modules.SessionInfo.findOne({ session: body.session }, function (err, data) {
     if (err) {
       console.log(err);
@@ -66,7 +66,7 @@ function verifyStatus(sessionKey, expectedStatus, callback) {
 }
 
 // protocol for accepting new data
-module.exports.submitData = function (body, response) {
+module.exports.submitData = function (context, body, response) {
   verifyStatus(body.session, 'START', function (status, msg) {
     if (!status) {
       console.log(msg);

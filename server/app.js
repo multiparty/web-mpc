@@ -6,6 +6,12 @@
 const express = require('express');
 const app = express();
 
+// Allow maintaining a shared context between all API route handlers.
+app.__context = {}; // Will be filled later by index.js
+app.myPutContext = function (key, value) {
+  app.__context[key] = value;
+};
+
 const compression = require('compression');
 app.use(compression());
 
@@ -29,10 +35,10 @@ function authenticate(body, response, authentication, func) {
         return;
       }
 
-      func(body, response, msg);
+      func(app.__context, body, response, msg);
     });
   } else {
-    func(body, response);
+    func(app.__context, body, response);
   }
 }
 

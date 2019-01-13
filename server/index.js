@@ -25,3 +25,6 @@ var server = production(app);
 
 // JIFF
 jiff(server);
+
+// Store context
+app.myPutContext('jiff', jiff);
