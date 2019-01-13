@@ -3,13 +3,16 @@ const jiffServerBigNumber = require('../../jiff/lib/ext/jiff-server-bignumber.js
 const jiffServerRestAPI = require('../../jiff/lib/ext/jiff-server-restful.js');
 
 const options = { logs: true, sodium: false, hooks: {} };
+const computeOptions = {}; // Can include things like Zp and crypto hooks
 
+var mailbox_hooks = require('./mailbox.js');
+var authentication_hooks = require('./auth.js');
+options.hooks = Object.assign(options.hooks, mailbox_hooks, authentication_hooks);
+
+// TODO: do not forget to load configurations from DB on create.
+// In particular, load session keys and public keys, and use initializeSession below
+// to initialize the sessions.
 function JIFFWrapper(server) {
-  var mailbox_hooks = require('./mailbox.js');
-  var authentication_hooks = require('./auth.js');
-
-  options.hooks = Object.assign(options.hooks, mailbox_hooks, authentication_hooks);
-
   this.serverInstance = jiffServer.make_jiff(server, options);
   // this.serverInstance.apply_extension(jiffServerBigNumber, options);
   this.serverInstance.apply_extension(jiffServerRestAPI, options);
@@ -27,4 +30,17 @@ JIFFWrapper.prototype.initializeSession = function (session_key, public_key, max
 
   // Enable authentication hook
   this.serverInstance.beforeInitialization = oldHooks;
+  this.computeSession(session_key);
+};
+
+// Setting up a listener for the session, to start computing when analyst requests.
+JIFFWrapper.prototype.computeSession = function (session_key) {
+  const computationInstance = this.serverInstance.compute(session_key, computeOptions);
+  computationInstance.listen('compute', function (sender_id, message) {
+    if (sender_id !== 1) {
+      return;
+    }
+
+    console.log('Analyst requested to start opening computation', session_key, message);
+  });
 };
