@@ -24,7 +24,7 @@ const app = require('./app.js');
 var server = production(app);
 
 // JIFF
-jiff(server);
+var jiffWrapper = new jiff(server);
 
 // Store context
-app.myPutContext('jiff', jiff);
+app.myPutContext('jiff', jiffWrapper);

@@ -44,6 +44,12 @@ module.exports.createSession = function (context, body, res) {
       res.status(500).send('Error during session creation.');
     } else {
       console.log('Session generated for:', sessionID);
+
+      // Initialize a JIFF computation for this session
+      context.jiff.initializeSession(sessionID, publickey, MAX_SIZE);
+      console.log('JIFF Session initialized');
+
+      // Done
       res.json({ sessionID: sessionID, password: password });
     }
   });
@@ -79,7 +85,7 @@ module.exports.setStatus = function (context, body, response, sessionInfoObj) {
       console.log(err);
       response.status(500).send('Error during session status update.');
     } else {
-      console.log('Current Session Status:', body.status);
+      console.log('Session Status:', body.session, body.status);
       response.json({result: body.status});
     }
   });
@@ -135,22 +141,34 @@ module.exports.createClientUrls = function (context, body, response) {
       return;
     }
 
+    var count = 1 + data.length; // starts at 1, because the first party is the analyst
+    if (body.count + count > MAX_SIZE) {
+      response.status(500).send('Maximum size exceeded by query, only ' + (MAX_SIZE - count) + ' parties can be added.');
+      return;
+    }
+
     var userKeys = {}; // fast lookup
-    var count = 1; // starts at 1, because the first party is the analyst
+    var jiffIds = {}; // fast lookup
     for (var d of data) {
       userKeys[d.userkey] = true;
-      count++;
+      jiffIds[d.jiff_party_id] = true;
     }
 
     // Create count many unique (per session) user keys.
     var urls = [], dbObjs = [];
-    for (var i = 0; i < body.count;) {
+    for (var i = 0; i < Math.min(body.count, MAX_SIZE - count);) {
       var userkey = generateRandomBase32(TOKEN_LENGTH);
+      var jiff_party_id = context.serverInstance.helpers.random(MAX_SIZE - 1) + 2; // in [2, MAX_SIZE]
+      jiff_party_id = parseInt(jiff_party_id.toString(), 10); // in case of BigNumber objects
 
       // If user key already exists, repeat.
-      if (userKeys[userKeys]) {
+      if (userKeys[userkey] || jiffIds[jiff_party_id]) {
         continue;
       }
+
+      // Mark as used
+      userKeys[userkey] = true;
+      jiffIds[jiff_party_id] = true;
 
       // Generate URL and add dbObject
       i++;
@@ -159,11 +177,9 @@ module.exports.createClientUrls = function (context, body, response) {
         _id: body.session + userkey,
         session: body.session,
         userkey: userkey,
-        party_id: count+i+1
+        jiff_party_id: jiff_party_id
       }));
     }
-
-    console.log(urls);
 
     // Save the userKeys into the db.
     modules.UserKey.insertMany(dbObjs, function (err) {
@@ -171,7 +187,7 @@ module.exports.createClientUrls = function (context, body, response) {
         console.log(err);
         response.status(500).send('Error during storing keys.');
       } else {
-        console.log('URLs generated:', body.session);
+        console.log('URLs generated:', body.session, urls);
         response.json({ result: urls });
       }
     });

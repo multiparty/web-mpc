@@ -50,7 +50,7 @@ const UserKeyModule = mongoose.model('UserKey', new mongoose.Schema({
   _id: String, // concat of session + userkey.
   session: String,
   userkey: String,
-  party_id: Number
+  jiff_party_id: Number
 }));
 
 
