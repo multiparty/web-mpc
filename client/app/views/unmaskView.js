@@ -49,11 +49,8 @@ define(['jquery', 'controllers/unmaskController', 'controllers/tableController',
         contentType: 'application/json',
         data: JSON.stringify({session: sK, password: sP}),
         success: function (data) {
-<<<<<<< HEAD
-          getAnalyticsMasks(sK, sP, pK, data, callb);
-=======
+          // getAnalyticsMasks(sK, sP, pK, data, callb);
           unmaskController.aggregateAndUnmask(data, pK, sK, sP, callb);
->>>>>>> e7dcfc1c11826ab33fddc9f47e54aa4e978220d1
         },
         error: function (e) {
           error(e.responseText);
