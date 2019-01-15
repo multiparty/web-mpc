@@ -1,29 +1,28 @@
 /*eslint no-console: ["error", { allow: ["warn", "error"] }] */
 
-define(['jquery', 'controllers/unmaskController', 'controllers/clientController', 'controllers/tableController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify', 'table_template'],
-  function ($, unmaskController, clientController, tableController, DropSheet, Spinner, Ladda, ResizeSensor, alertify, alertify_defaults, table_template) {
+// define(['jquery', 'controllers/unmaskController', 'controllers/tableController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify', 'table_template'],
+//   function ($, unmaskController, tableController, DropSheet, Spinner, Ladda, ResizeSensor, alertify, alertify_defaults, table_template) {
+define(['jquery', 'controllers/unmaskController', 'controllers/tableController', 'helper/drop_sheet', 'alertify', 'table_template'],
+  function ($, unmaskController, tableController, DropSheet, alertify, table_template) {
+
 
     function error(msg) {
       alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', msg);
     }
 
 
-    function callb(e, d, questions, usability, session) {
-      var tables = {};
-      for (var name in d) {
-        if (name !== 'questions') {
-          // var table = tables_map[name];
-          var data_array = tableController.fillData(d[name]);
-          tables[name] = data_array;
-        }
+    function callb(e, d, questions, session) {
+      if (typeof(d) !== 'object') {
+        return;
       }
+      var tables = d;
 
-      tableController.saveUsability(usability, session);
+      // tableController.saveUsability(usability, session);
+      tableController.createTableElems(table_template.tables, '#tables-area');
       tableController.saveTables(tables, session);
-      tableController.saveQuestions(questions, session);
+
+      $('#tables-area').show();
       tableController.displayReadTable(tables);
-      // TODO: why is this even here?
-      $('#HandsontableCopyPaste').hide();
 
     }
 
@@ -50,7 +49,11 @@ define(['jquery', 'controllers/unmaskController', 'controllers/clientController'
         contentType: 'application/json',
         data: JSON.stringify({session: sK, password: sP}),
         success: function (data) {
+<<<<<<< HEAD
           getAnalyticsMasks(sK, sP, pK, data, callb);
+=======
+          unmaskController.aggregateAndUnmask(data, pK, sK, sP, callb);
+>>>>>>> e7dcfc1c11826ab33fddc9f47e54aa4e978220d1
         },
         error: function (e) {
           error(e.responseText);

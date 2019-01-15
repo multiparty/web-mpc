@@ -10,15 +10,10 @@
 define(['helper/mpc'], function (mpc) {
 
   // Takes callback(true|false, data).
-  function aggregate_and_unmask(mOut, analyticsMasks, privateKey, session, password, callback) {
+  function aggregateAndUnmask(mOut, privateKey, session, password, callback) {
 
     aMOut = JSON.parse(analyticsMasks.data);
     mOut = JSON.parse(mOut.data);
-    // Questions Public is the public answers to questions.
-    var questions_public = [];
-    for (var i = 0; i < mOut.length; i++) {
-      questions_public.push(mOut[i].questions_public);
-    }
 
     var skArrayBuffer;
     try {
@@ -43,9 +38,6 @@ define(['helper/mpc'], function (mpc) {
     // value fields  
 
     var decrypted = decryptValueShares(sk, mOut, true);
-    var decryptedLytics = decryptValueShares(sk, aMOut, true);
-
-    questions_public = decryptValueShares(sk, questions_public, false);
 
     // Aggregate decrypted values by key
     var analystResultShare = decrypted.then(function (analystShares) {
@@ -62,21 +54,17 @@ define(['helper/mpc'], function (mpc) {
     // Request service to aggregate its shares and send us the result
     var serviceResultShare = getServiceResultShare(session, password);
 
-    var webAggShares = getAnalyticsShares(session, password);
-
-    Promise.all([analystResultShare, serviceResultShare, questions_public, webAggShares, lyticsResultShare])
+    Promise.all([analystResultShare, serviceResultShare])
       .then(function (resultShares) {
         var analystResult = resultShares[0],
           serviceResult = resultShares[1],
           finalResult = mpc.recombineValues(serviceResult, analystResult);
 
-          var usabilityResults = mpc.recombineValues(resultShares[3], webCombinedShares);
-
-        if (!ensure_equal(finalResult.questions, mpc.aggregateShares(resultShares[2]))) {
-          console.error('Secret-shared question answers do not aggregate to the same values as publicly collected answers.');
-        }
+        // if (!ensure_equal(finalResult.questions, mpc.aggregateShares(resultShares[2]))) {
+        //   console.error('Secret-shared question answers do not aggregate to the same values as publicly collected answers.');
+        // }
         // generateQuestionsCSV(resultShares[2], session)
-        callback(true, finalResult, resultShares[2], usabilityResults, session);
+        callback(true, finalResult, [], session);
 
       })
       .catch(function (err) {
@@ -161,6 +149,8 @@ define(['helper/mpc'], function (mpc) {
   function _decryptWithKey(obj, importedKey) {
     // decrypt one level of obj, decrypt nested object recursively
     var resultTuples = [];
+
+
     for (var key in obj) {
       if (obj.hasOwnProperty(key)) {
         var value = obj[key];
@@ -176,10 +166,12 @@ define(['helper/mpc'], function (mpc) {
       }
     }
 
-    return Promise.all(resultTuples).then(function (tuples) {
-      // recombine individual key-value pairs into single object
-      return Object.assign(...tuples);
-    });
+    if (resultTuples !== undefined) {
+      return Promise.all(resultTuples).then(function (tuples) {
+        // recombine individual key-value pairs into single object
+        return Object.assign(...tuples);
+      });
+    }
   }
 
   /**
@@ -236,6 +228,6 @@ define(['helper/mpc'], function (mpc) {
   }
 
   return {
-    aggregate_and_unmask: aggregate_and_unmask
+    aggregateAndUnmask
   }
 });

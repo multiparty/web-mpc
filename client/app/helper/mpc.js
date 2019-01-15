@@ -15,14 +15,15 @@ define(['forge'], function (forge) {
 
   'use strict';
 
-  var MAX_VALUE = 4294967296; // 2^32
+  var MAX_VALUE = 1099511627776; // 2^40
 
   /**
    *
    * @param value
    */
   function _uint32(value) {
-    return value >>> 0;
+    //return value >>> 0;
+    return ((value % MAX_VALUE) + MAX_VALUE) % MAX_VALUE;
   }
 
   /**
@@ -31,6 +32,44 @@ define(['forge'], function (forge) {
    */
   function _inUint32Range(value) {
     return (0 <= value) && (value < MAX_VALUE);
+  }
+
+  function _random(max) {
+    // Use rejection sampling to get random value with normal distribution
+    // Generate random Uint8 values of 1 byte larger than the max parameter
+    // Reject if random is larger than quotient * max (remainder would cause biased distribution), then try again
+
+    // Values up to 2^53 should be supported, but log2(2^49) === log2(2^49+1), so we lack the precision to easily
+    // determine how many bytes are required
+    if (max > 562949953421312) {
+      throw new RangeError('Max value should be smaller than or equal to 2^49');
+    }
+
+    var crypto = window.crypto || window.msCrypto;
+    // Polyfill from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/log2
+    // TODO should we use Babel for this?
+    Math.log2 = Math.log2 || function (x) {
+      return Math.log(x) * Math.LOG2E;
+    };
+    var bitsNeeded = Math.ceil(Math.log2(max));
+    var bytesNeeded = Math.ceil(bitsNeeded / 8);
+    var randomBytes = new Uint8Array(bytesNeeded);
+    var maxValue = Math.pow(256, bytesNeeded);
+
+    // Keep trying until we find a random value within a normal distribution
+    while (true) {
+      crypto.getRandomValues(randomBytes);
+      var randomValue = 0;
+
+      for (var i = 0; i < bytesNeeded; i++) {
+        randomValue = randomValue * 256 + randomBytes[i];
+      }
+
+      // randomValue should be smaller than largest multiple of max within maxBytes
+      if (randomValue < maxValue - maxValue % max) {
+        return randomValue % max;
+      }
+    }
   }
 
   /**
@@ -43,17 +82,19 @@ define(['forge'], function (forge) {
       throw new Error('Input value outside valid range');
     }
     var uvalue = _uint32(value),
-      shares = new Uint32Array(n),
-      cryptoObj = window.crypto || window.msCrypto; // IE 11 fix
+      rvalues = [];
 
-    cryptoObj.getRandomValues(shares);
+    for (var i = 0; i < n; i++) {
+      rvalues.push(_random(MAX_VALUE))
+    }
 
-    shares[n - 1] = _uint32(0);
-    var sumRandomShares = shares.reduce(function (e1, e2) {
+    rvalues[n - 1] = _uint32(0);
+
+    var sumRandomShares = rvalues.reduce(function (e1, e2) {
       return _uint32(e1 + e2);
     });
-    shares[n - 1] = _uint32(uvalue - sumRandomShares);
-    return shares;
+    rvalues[n - 1] = _uint32(uvalue - sumRandomShares);
+    return rvalues;
   }
 
   /**

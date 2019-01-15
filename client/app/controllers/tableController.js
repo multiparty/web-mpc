@@ -50,11 +50,10 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver'], function ($, H
 
     currency: {
       type: 'numeric',
-      format: '$0,0.00',
+      format: '$0,0',
       language: 'en-US' // this is the default locale, set up for USD
     }
   };
-
 
   var table_widths = {};
 
@@ -107,15 +106,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver'], function ($, H
   var validator = function (value, callback) {
     var table = this.instance;
     var cell = table._sail_meta.cells[this.row][this.col];
-
-    // Makes initializing the table faster.
-    // Dont validate empty on intialization cells until they receive values.
-    if (cell.first_time === undefined) {
-      cell.first_time = true;
-      cell.status = 'ok';
-      callback(true);
-      return;
-    }
 
     if (value !== '' && value !== null && cell.max !== null && value > cell.max) {
       fire_all_error_handlers(table._sail_meta.name, value, cell.row_index, cell.col_index, 'max');
@@ -366,15 +356,15 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver'], function ($, H
    * @return {array} containing HOT tables (table_obj may be accesed using hot_table._sail_meta).
    */
 
-  function makeTables() {
+  function makeTables(tables) {
     var result = [];
-    for (var t = 0; t < table_template.tables.length; t++) {
-      var table_def = table_template.tables[t];
+    for (var t = 0; t < tables.length; t++) {
+      var table_def = tables[t];
       var table = makeTableObj(table_def);
-
       result[t] = makeHotTable(table);
       table_widths[result[t].rootElement.id] = get_width(result[t]);
     }
+
     return result;
   }
 
@@ -495,22 +485,18 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver'], function ($, H
     };
   }
 
-  /**
-   * Construct a Handsontable (HOT) object corresponding to the given table object.
-   * @param {object} table - the table object to create (constructed by make_table from json definition).
-   * @return {hot} - the handsontable object constructed by makeHotTable.
-   */
-  function makeHotTable(table) {
-    var element = document.querySelector('#' + table.element);
-
+  function createCols(table) {
     var hot_cols = new Array(table.colsCount);
     for (var i = 0; i < table.colsCount; i++) {
       hot_cols[i] = {type: 'text'}; //default thing that does not matter, will be overridden cell by cell
     }
+    return hot_cols;
+  }
 
+  function createCells(table) {
     var cells = [];
     // construct cell by cell properties
-    for (i = 0; i < table.rowsCount; i++) {
+    for (var i = 0; i < table.rowsCount; i++) {
       for (var j = 0; j < table.colsCount; j++) {
         var cell_def = table.cells[i][j];
         var type = cell_def.type;
@@ -540,21 +526,32 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver'], function ($, H
         cells.push(cell);
       }
     }
+    return cells;
+  }
 
-    // Work around not rendering the entire table
-    // Make enough space in data for all rows ahead of time
+  function createData(table) {
     var data = new Array(table.rowsCount);
     for (var r = 0; r < table.rowsCount; r++) {
       data[r] = [];
     }
+    return data;
+  }
 
-    // Todo: table.width is undefined
+  /**
+   * Construct a Handsontable (HOT) object corresponding to the given table object.
+   * @param {object} table - the table object to create (constructed by make_table from json definition).
+   * @return {hot} - the handsontable object constructed by makeHotTable.
+   */
+  function makeHotTable(table) {
+
+    var element = document.querySelector('#' + table.element);
+
     var hotSettings = {
       // Enable tooltips
       comments: true,
-      data: data,
+      data: createData(table),
       // Columns types
-      columns: hot_cols,
+      columns: createCols(table),
       // Sizes
       maxRows: table.rowsCount,
       maxCols: table.colsCount,
@@ -564,7 +561,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver'], function ($, H
       // Styling information
       width: table.width,
       // Per cell properties
-      cell: cells,
+      cell: createCells(table),
       // Workaround for handsontable undo issue for readOnly tables
       beforeChange: function (changes, source) {
         return !(this.readOnly);
@@ -583,12 +580,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver'], function ($, H
     // Create the Handsontable
     var handsOnTable = new Handsontable(element, hotSettings);
     handsOnTable._sail_meta = table;
-
-    // Put name in the title element (if it exists)
-    document.getElementById(table.element + '-name').innerHTML = table.name;
-
-    // TODO: why is clear needed?
-    // handsOnTable.clear();
 
     return handsOnTable;
   }
@@ -714,36 +705,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver'], function ($, H
     return data;
   }
 
-  /**
-   * Empty all cells.
-   * @param {hot} table_hot_obj - the handsontable object.
-   */
-  // function empty_table(table_hot_obj) {
-  //   table_hot_obj.clear();
-  // }
-
-
-  function getMetaData(key) {
-    for (var table_index in table_template.tables) {
-      if (table_template.tables[table_index].name === key) {
-        return table_template.tables[table_index];
-      }
-    }
-  }
-
-  // function parseColHeaders() {
-  //   var headers = [];
-  //   var race_arr = table_template.tables[0].cols[0];
-  //   headers.push([""].concat(race_arr));
-  //   var gender_arr = table_template.tables[0].cols[1];
-  //   headers[1] = [""];
-  //   for (var i = 0; i < gender_arr.length; i++) {
-  //     headers[1].push(gender_arr[i].label);
-  //   }
-
-  //   return headers;
-  // }
-
   function updateTableWidth(maxWidth) {
 
     $('#instructions').css('width', maxWidth);
@@ -773,29 +734,74 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver'], function ($, H
     $('header, #shadow').css('right', 0);
   }
 
+  function getTemplate(value, field) {
+    for (var t of table_template.tables) {
+      if (t[field] === value) {
+        return t;
+      }
+    }
+    return {};
+  }
+
+
   function displayReadTable(tables) {
 
-    $('#tables-area').show();
+    for (var name in tables) {
+      var template = getTemplate(name, 'name');
+      var table = tables[name];
 
-    for (var t in tables) {
-      var meta = getMetaData(t);
-      var container = document.querySelector('#' + meta.element);
+      var i = 0;
 
-      var headers = populateTableHeaders();
+      var data = [];
+
+      for (let row in table) {
+        data[i] = [];
+        for (let col in table[row]) {
+          data[i].push(table[row][col]);
+        }
+        i++;
+      }
 
       var settings = {
-        colHeaders: headers,
-        data: tables[t],
-        readOnly: true
+        readOnly: true,
+        rowHeaderWidth: template.hot_parameters.rowHeaderWidth,
+        height: template.hot_parameters.height,
+        rowHeaders: getHeaders(template.rows),
+        nestedHeaders: getNestedHeaders(template.cols),
+        data: data,
+        width: template.width
       }
-      var handsOn = new Handsontable(container, settings);
+
+      var handsOn = new Handsontable(document.getElementById(template.element), settings);
+
       handsOn.render();
-      $('#' + meta.element + '-name').text(t);
 
     }
-    updateTableWidth($('.wtHider').width() + 50);
-    $('.ht_clone_top').hide();
   }
+
+  // TODO: combien the two functions below based on BWWC
+  function getNestedHeaders(headers) {
+    var h = [];
+    var i = 0;
+    for (let row of headers) {
+      h[i] = [];
+      for (let col of row) {
+        h[i].push(col.label);
+      }
+      i++;
+    }
+    return h;
+  }
+
+  // TODO: will need to adjust for BWWC
+  function getHeaders(headers) {
+    var h = [];
+    for (let row of headers) {
+      h.push(row.label);
+    }
+    return h;
+  }
+
 
   /**
    * Remove all validators from the table, keeping only the built-in
@@ -829,14 +835,13 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver'], function ($, H
 
   function createMetaMap() {
     var meta_table = table_template.tables[0];
-
     var meta_map = {};
 
     for (var i = 0; i < meta_table.rows.length; i++) {
       var row_key = meta_table.rows[i].key
       meta_map[row_key] = {};
 
-      var cols = meta_table.cols[1];
+      var cols = meta_table.cols[0];
       for (var j = 0; j < cols.length; j++) {
         var col_key = cols[j].key;
         meta_map[row_key][col_key] = [i, j];
@@ -866,75 +871,142 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver'], function ($, H
     return table;
   }
 
-  // TODO: make this generic
-  function populateTableHeaders() {
-    var col_map = table_template.tables[0].cols;
-    var demo_row = [''];
+  function checkTotals(table, changes, sums, NaNs) {
 
-    for (var i = 0; i < col_map[1].length; i++) {
-      var race_index = Math.floor(i / 2);
-      var gender_label = col_map[1][i].label;
-      var race_label = col_map[0][race_index].label;
-      var label = race_label + ' ' + gender_label;
-      label = label.replace('<br> ', '');
-      demo_row.push(label);
+    for (var i = 0; i < changes.length; i++) {
+      var change = changes[i];
+      var old = change[2];
+      var val = change[3];
+
+      var c = change[1];
+      var index = c % 2; // Even columns are for females, odd are for males.
+
+      if (old === undefined) {
+        old = null;
+      }
+      if (val === undefined) {
+        val = null;
+      }
+
+      // Keep track of how many NaNs there are.
+      if (isNaN(old) && !isNaN(val)) {
+        NaNs[index]--;
+      }
+      if (!isNaN(old) && isNaN(val)) {
+        NaNs[index]++;
+      }
+
+      // If either values is a NaN, discard it when computing internal sum.
+      old = (old === '' || old === null || isNaN(old)) ? 0 : old;
+      val = (val === '' || val === null || isNaN(val)) ? 0 : val;
+      sums[index] += val - old;
     }
-    return demo_row;
+
+    // Display a NaN in the totals Column if you need too.
+    var totals = [sums[0], sums[1], sums[0] + sums[1]];
+    if (NaNs[0] + NaNs[1] > 0) { // If there is at least one NaN, change every thing to Excel's NaN equivalent.
+      totals = ['#VALUE!', '#VALUE!', '#VALUE!'];
+    }
+
+
+    changes = []; // [ [row, col, change], [row, col, change], ..]
+    for (i = 0; i < totals.length; i++) {
+      changes.push([0, i, totals[i]]);
+    }
+    table.setDataAtCell(changes); // This changes the data without changing cellProperties (e.g. keeps readOnly)
+    return {sums, NaNs}
   }
 
-  // TODO: should this be here or in the view?
   function saveTables(tables, session) {
 
     var tables_csv = [];
-    var row_map = table_template.tables[0].rows;
 
     for (var sheet in tables) {
       var sheet_csv = [];
+
       sheet_csv.push([sheet]);
-      sheet_csv.push(populateTableHeaders());
 
       for (var row in tables[sheet]) {
-        var row_arr = tables[sheet][row];
-        // add occupation labels
-        row_arr.unshift((row_map[row].label).replace('<br> ', ''));
-        row_arr = row_arr.join(',');
-        sheet_csv.push(row_arr);
+        sheet_csv.push([row, tables[sheet][row].value].join(','))
       }
-      tables_csv = tables_csv.reverse();
       tables_csv.push(sheet_csv.join('\n'));
-
     }
 
     tables_csv = tables_csv.join('\n\n\n');
-    // filesaver.saveAs(new Blob([tables_csv], {type: 'text/plain;charset=utf-8'}), 'Aggregate_Data_' + session + '.csv');
+    filesaver.saveAs(new Blob([tables_csv], {type: 'text/plain;charset=utf-8'}), 'Aggregate_Data_' + session + '.csv');
+
   }
 
-  function saveUsability(usability, session) {
-    console.log(usability);
-    if (Object.keys(usability).length === 0) {
-      return;
-    }
+  function getHeaderWidth(table) {
 
-    console.log('usability',usability);
+    var id = table.rootElement.id;
 
-    let mousePositions = usability.mouse_positions;
-
-    let results = [];
-
-    for (let row in mousePositions) {
-      results[parseInt(row)] = [];
-      for (let col in mousePositions[row]) {
-        results[parseInt(row)].push(mousePositions[row][col]);
+    for (const t of table_template.tables) {
+      if (id === t.element) {
+        return t.hot_parameters.rowHeaderWidth;
       }
     }
 
-    results = results.join('\n');
+    return 0;
+  }
 
-    // let results = mousePositions.join('\n');
-    // results = results.join()
-    filesaver.saveAs(new Blob([results], {type: 'text/plain;charset=utf-8'}), 'Usability_' + session + '.csv');
+  function getPadding(div) {
+    return parseInt($(div).css('padding-right').split('px')[0]) + parseInt($(div).css('padding-left').split('px')[0]);
+  }
 
+  function createTableElems(tables, tablesDiv) {
 
+    var tablesArea = $(tablesDiv);
+
+    for (var i = 0; i < tables.length; i++) {
+      var div = $('<div>').addClass('table');
+
+      // Header
+      $('<h4>').text(tables[i].name)
+        .appendTo(div);
+
+      // Table Div
+      $('<div>').attr('class', 'table-section')
+        .attr('id', tables[i].element)
+        .appendTo(div);
+
+      $(div).appendTo(tablesArea);
+    }
+  }
+
+  function updateWidth(tables) {
+
+    var maxWidth = $('#instructions').width;
+
+    for (var i = 0; i < tables.length; i++) {
+
+      var t = tables[i];
+
+      var w = getWidth(t) + getHeaderWidth(t);
+
+      t.updateSettings({
+        width: w,
+      });
+
+      if (w > maxWidth) {
+        maxWidth = w;
+      }
+    }
+
+    var padding = getPadding('#instructions')
+
+    if (maxWidth > 0) {
+      updateTableWidth(maxWidth + padding);
+    }
+  }
+
+  function getWidth(table) {
+    var colWidths = 0;
+    for (var i = 0; i < table.countRenderedCols(); i++) {
+      colWidths += parseFloat(table.getColWidth(i));
+    }
+
+    return colWidths;
   }
 
   function saveQuestions(questions, session) {
@@ -976,19 +1048,22 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver'], function ($, H
   }
 
   return {
-    makeTables: makeTables,
-    registerValidator: registerValidator,
-    registerErrorHandler: registerErrorHandler,
-    removeValidator: removeValidator,
-    removeValidators: removeValidators,
-    removeErrorHandler: removeErrorHandler,
-    constructDataTables: constructDataTables,
-    fillData: fillData,
-    saveTables: saveTables,
-    saveQuestions: saveQuestions,
-    displayReadTable: displayReadTable,
-    resetTableWidth: resetTableWidth,
-    updateTableWidth: updateTableWidth,
-    saveUsability: saveUsability
+    makeTables,
+    registerValidator,
+    registerErrorHandler,
+    removeValidator,
+    removeValidators,
+    removeErrorHandler,
+    constructDataTables,
+    fillData,
+    saveTables,
+    saveQuestions,
+    displayReadTable,
+    resetTableWidth,
+    updateTableWidth,
+    getWidth,
+    updateWidth,
+    checkTotals,
+    createTableElems
   }
 });

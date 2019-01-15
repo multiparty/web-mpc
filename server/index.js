@@ -19,7 +19,7 @@ const express = require('express');
 const app = express();
 const body_parser = require('body-parser');
 const mongoose = require('mongoose');
-const template = require('./template');
+const template = require('../client/app/data/pacesetters');
 const mpc = require('../client/app/helper/mpc');
 const crypto = require('crypto');
 const joi = require('joi');
@@ -32,14 +32,19 @@ app.use(compression());
 
 function templateToJoiSchema(template, joiFieldType) {
   var schema = {};
-  for (var key in template) {
-    if (template.hasOwnProperty(key)) {
-      if (template[key] === 0) {
-        schema[key] = joiFieldType;
-      }// safe to re-use since immutable
-      else // since format may have nested objects, recurse!
-      {
-        schema[key] = templateToJoiSchema(template[key], joiFieldType);
+  if (!template || !template.length) {
+    return joi.object().keys(schema);
+  }
+  for (var table of template) {
+    schema[table.name] = {};
+
+    for (var row of table.rows) {
+      schema[table.name][row.key] = {};
+
+      for (var cols of table.cols) {
+        for (var col of cols) {
+          schema[table.name][row.key][col.key] = joiFieldType;
+        }
       }
     }
   }
@@ -69,10 +74,11 @@ const analyticsMaskSchema = {
   time_ms: joi.string().required()
 }
 
-const maskSchema = templateToJoiSchema(template, joi.string().required());
-const dataSchema = templateToJoiSchema(template, joi.number().required());
-const encryptedPublicQuestionsSchema = templateToJoiSchema(template.questions, joi.string().required());
-const pairwiseHyperCubeScheme = templateToJoiSchema(genPairs(5), joi.string().required());
+const maskSchema = templateToJoiSchema(template.tables, joi.string().required());
+console.log(maskSchema)
+const dataSchema = templateToJoiSchema(template.tables, joi.number().required());
+const encryptedPublicQuestionsSchema = templateToJoiSchema(template['questions'], joi.string().required());
+const pairwiseHyperCubeScheme = templateToJoiSchema(genPairs(0), joi.string().required());
 
 // Override deprecated mpromise
 mongoose.Promise = Promise;
@@ -92,11 +98,11 @@ var lex = LEX.create({
   server: serverUrl,
   challenges: {
     'http-01': require('le-challenge-fs').create({
-      webrootPath: '~/letsencrypt/var/:hostname'
+      webrootPath: '/tmp/acme-challenges'
     })
   },
   store: require('le-store-certbot').create({
-    webrootPath: '~/letsencrypt/var/:hostname'
+    webrootPath: '/tmp/acme-challenges'
   }),
   approveDomains: approveDomains,
   debug: false
@@ -118,8 +124,8 @@ if (process.env.NODE_ENV === 'production') {
 
 
 function approveDomains(opts, certs, cb) {
-  if (!/\.100talent\.org$/.test(opts.domain) && opts.domain !== '100talent.org') {
-    console.error("bad domain '" + opts.domain + "', not a subdomain of 100talent.org");
+  if (!/\.pacesettersdata\.org$/.test(opts.domain) && opts.domain !== 'pacesettersdata.org') {
+    console.error("bad domain '" + opts.domain + "', not a subdomain of pacesettersdata.org");
     cb(null, null);
     return;
   }
@@ -128,7 +134,7 @@ function approveDomains(opts, certs, cb) {
     opts.domains = certs.altnames;
   }
   else {
-    opts.domains = ['100talent.org'];
+    opts.domains = ['www.pacesettersdata.org', 'pacesettersdata.org'];
     opts.email = 'fjansen@bu.edu';
     opts.agreeTos = true;
   }
@@ -173,7 +179,7 @@ var Aggregate = mongoose.model('Aggregate', {
 var Mask = mongoose.model('Mask', {
   _id: String, // concat of session + user.
   fields: Object,
-  questions_public: Object,
+  // questions_public: Object,
   session: String
 });
 var Cube = mongoose.model('Cubes', {
@@ -270,6 +276,10 @@ app.get('/unmask', function (req, res) {
   res.sendFile((path.join(__dirname + '/../client/unmask.html')));
 });
 
+app.get('/definitions', function (req, res) {
+  res.sendFile((path.join(__dirname + '/../client/definitions.html')));
+});
+
 // protocol for accepting new data
 app.post('/', function (req, res) {
   console.log('POST /');
@@ -277,7 +287,6 @@ app.post('/', function (req, res) {
   var body = req.body;
   console.log(body.data);
 
-  // TODO: make this make sense
   // TODO: set length restrictions on session and user
   var bodySchema = {
     mask: maskSchema.required(),
@@ -306,7 +315,7 @@ app.post('/', function (req, res) {
 
       var mask = body.mask,
         req_data = body.data,
-        questions_public = body.questions_public,
+        // questions_public = body.questions_public,
         pairwise_hypercubes = body.pairwise_hypercubes,
         session = body.session,
         user = body.user,
@@ -354,7 +363,7 @@ app.post('/', function (req, res) {
           var maskToSave = new Mask({
             _id: ID,
             fields: mask,
-            questions_public: questions_public,
+            // questions_public: questions_public,
             session: session
           });
 
@@ -800,8 +809,6 @@ app.post('/get_client_urls', function (req, res) {
 
 // endpoint for returning the emails that have submitted already
 app.post('/get_data', function (req, res) {
-  console.log('POST /get_data');
-  console.log(req.body);
 
   var schema = {
     session: joi.string().alphanum().required(),

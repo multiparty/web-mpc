@@ -1,9 +1,88 @@
 define(['jquery', 'controllers/clientController', 'controllers/tableController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify', 'table_template', 'bootstrap', 'controllers/confirmationCodes'],
   function ($, clientController, tableController, DropSheet, Spinner, Ladda, ResizeSensor, alertify, table_template, confirmationCodes) {
 
+    function createQuestionText(text) {
+      var p = document.createElement('p');
+      p.classList.add('question-text');
+      p.classList.add('help-block')
+      p.innerHTML = text;
+      return p;
+    }
+
+    function renderSurveyInputs(question, form) {
+
+      var input_type = question.input_type;
+
+      for (var i = 0; i < question.inputs.length; i++) {
+        var div = document.createElement('div');
+
+        var input = document.createElement('input');
+
+        $(input).attr('type', input_type)
+          .attr('value', i+1)
+          .attr('name', 'opt' + input_type)
+
+
+        var label = document.createElement('label');
+        $(label).text(question.inputs[i].label);
+
+        div.appendChild(input);
+        div.appendChild(label)
+
+        form.appendChild(div);
+      }
+    }
+
+    // Creates survey
+    function displaySurveyQuestions() {
+      if (!('survey' in table_template) || Object.keys(table_template.survey).length === 0) {
+        return;
+      }
+
+      $('#additional-questions').show();
+
+      const questions = table_template.survey.questions;
+
+      var questionsDiv = $('#questions');
+
+      for (var i = 0; i < questions.length; i++) {
+        var form = document.createElement('form');
+        form.append(createQuestionText(questions[i].question_text));
+        renderSurveyInputs(questions[i], form);
+        questionsDiv.append(form);
+      }
+    }
+
+    function createResizeSensors(tables) {
+      for (const t of tables) {
+        var div = $('#' + t.rootElement.id);
+        new ResizeSensor((div).find('.wtHider').first()[0], function () {
+          tableController.updateWidth(tables);
+        });
+      }
+    }
+
+
     function clientControllerView() {
 
       $(document).ready(function () {
+        // Hide by default
+        $('#additional-questions').hide();
+
+        tableController.createTableElems(table_template.tables, '#tables-area');
+        displaySurveyQuestions();
+
+        // Create the tabless
+        var tables = tableController.makeTables(table_template.tables);
+
+        createResizeSensors(tables);
+
+        var totals_table = null;
+
+        if (table_template.totals) {
+          tableController.createTableElems([table_template.totals], '#totals-table');
+          totals_table = tableController.makeTables([table_template.totals])[0];
+        }
 
         var $verify = $('#verify');
         var $session = $('#session');
@@ -46,87 +125,34 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
           $verify.prop('checked', false);
         });
 
-        // Create the tabless
-        var tables = tableController.makeTables();
         window.scrollTo(0, 0);
+
         var sums = [0, 0]; // Internal total of Non NaNs values.
         var NaNs = [0, 0]; // Counts how many NaNs exist for every cell participating in a total.
 
+
         // Custom afterChange hook that computes the totals
-        var afterChange = function (changes, source) {
-          if (changes === null) {
-            return;
-          }
-
-          for (var i = 0; i < changes.length; i++) {
-            var change = changes[i];
-            var old = change[2];
-            var val = change[3];
-
-            var c = change[1];
-            var index = c % 2; // Even columns are for females, odd are for males.
-
-            if (old === undefined) {
-              old = null;
-            }
-            if (val === undefined) {
-              val = null;
+        var afterChange = function (changes) {
+          if (table_template.totals) {
+            if (changes === null) {
+              return;
             }
 
-            // Keep track of how many NaNs there are.
-            if (isNaN(old) && !isNaN(val)) {
-              NaNs[index]--;
-            }
-            if (!isNaN(old) && isNaN(val)) {
-              NaNs[index]++;
-            }
-
-            // If either values is a NaN, discard it when computing internal sum.
-            old = (old === '' || old === null || isNaN(old)) ? 0 : old;
-            val = (val === '' || val === null || isNaN(val)) ? 0 : val;
-            sums[index] += val - old;
+            var running = tableController.checkTotals(totals_table, changes, sums, NaNs);
+            sums = running.sums;
+            NaNs = running.NaNs;
           }
-
-          // Display a NaN in the totals Column if you need too.
-          var totals = [sums[0], sums[1], sums[0] + sums[1]];
-          if (NaNs[0] + NaNs[1] > 0) { // If there is at least one NaN, change every thing to Excel's NaN equivalent.
-            totals = ['#VALUE!', '#VALUE!', '#VALUE!'];
-          }
-
-          // Note: took out declarations to fix eslint error
-          changes = []; // [ [row, col, change], [row, col, change], ..]
-          for (i = 0; i < totals.length; i++) {
-            changes.push([0, i, totals[i]]);
-          }
-          tables[4].setDataAtCell(changes); // This changes the data without changing cellProperties (e.g. keeps readOnly)
         };
-        // Alerts, page elements, etc. for drag-and-drop/choose file.
-        // var workbook_js = null;
 
         var _target = document.getElementById('drop-area');
         var _choose = document.getElementById('choose-file-button');
         var spinner;
         var _workstart = function () {
-
-          if ($('#tables-area').css('display') !== 'none') {
-            $('#tables-area').hide();
-            $('#expand-table-button').toggleClass('flip');
-            resizeCard(tables, false);
-          }
           spinner = new Spinner().spin(_target);
         };
         var _workend = function (status) {
+          $('#tables-area').show();
           spinner.stop();
-          if (status) {
-            $('#tables-area').slideToggle(function () {
-              $('#expand-table-button').toggleClass('flip');
-              if ($('#tables-area').css('display') === 'none') {
-                resizeCard(tables, false);
-              } else {
-                resizeCard(tables, true);
-              }
-            });
-          }
         };
 
         var _badfile = function () {
@@ -145,7 +171,6 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         var _failed = function (e) {
           alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', 'This format is not supported.', function () {
           });
-
           spinner.stop();
         };
 
@@ -193,33 +218,10 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
         $('#expand-table-button').click(function (e) {
           $('#tables-area').slideToggle(function () {
-            if ($('#tables-area').css('display') === 'none') {
-              resizeCard(tables, false);
-            } else {
-              resizeCard(tables, true);
-            }
+            tableController.updateWidth(tables);
           });
           $(e.target).toggleClass('flip');
         });
-
-        function resizeCard(tables, attach) {
-          if (attach) {
-            new ResizeSensor($('#number-employees-hot').find('.wtHider').first()[0], function () {
-              // clientController.updateWidth(tables);
-            });
-            new ResizeSensor($('#compensation-hot').find('.wtHider').first()[0], function () {
-              // clientController.updateWidth(tables);
-            });
-            new ResizeSensor($('#performance-pay-hot').find('.wtHider').first()[0], function () {
-              // clientController.updateWidth(tables);
-            });
-            new ResizeSensor($('#service-length-hot').find('.wtHider').first()[0], function () {
-              // clientController.updateWidth(tables);
-            });
-          }
-
-          clientController.updateWidth(tables, !attach);
-        }
 
         function addValidationErrors(msg) {
           $verify.prop('checked', false);
@@ -282,7 +284,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         noclose: true,
         reminder: 0,
         reminderClosed: 0,
-        text: '<strong>Your web browser {brow_name} is not supported.</strong> Please upgrade to a more modern browser to participate in the 100% Talent Data Submission.'
+        text: '<strong>Your web browser {brow_name} is not supported.</strong> Please upgrade to a more modern browser to participate in the Pacesetters Data Submission.'
       };
 
       function $buo_f() {
@@ -292,9 +294,17 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
       }
 
       try {
-        document.addEventListener('DOMContentLoaded', $buo_f, false)
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', $buo_f, false)
+        } else {
+          $buo_f();
+        }
       } catch (e) {
-        window.attachEvent('onload', $buo_f)
+        if (document.readyState !== 'complete') {
+          window.attachEvent('onload', $buo_f)
+        } else {
+          $buo_f();
+        }
       }
     }
 

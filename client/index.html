@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Data Submission Study</title>
+  <meta content="width=device-width,initial-scale=1" name="viewport">
+  <title>Pacesetters</title>
+  <link rel="icon" type="image" href="images/gbcc-small.png">
 
   <script data-main="app/index" src="app/vendor/require.js"></script>
 
@@ -28,12 +30,12 @@
 <body>
 <header>
   <div class="container">
-    <h1>Data Submission Test Case<br/>
-      <small>Usert Experience study</small>
+    <h1>Pacesetters<br/>
+      <small> Data Submission</small>
     </h1>
     <div id="logos">
-      <img src="images/bwwc.png" width="130" alt=""/>
-      <img src="images/bu.gif" alt=""/>
+      <img src="images/gbcc.png" alt="GBCC Logo"/>
+      <img src="images/bu.gif" alt="BU Logo"/>
     </div>
   </div>
 </header>
@@ -43,7 +45,9 @@
   <div class="row">
     <section id="session-area" class="card col-md-10 col-md-offset-1">
       <h2 class="text-center">Input your data</h2>
-      <p class="text-center">Please make sure your session key and participation code match the ones provided. Drag and drop your completed template file to encrypt and include your submission in
+      <p class="text-center">Please make sure your session key and participation code match the ones provided in the
+        email
+        sent to you by the Greater Boston Chamber of Commerce. Drag and drop your completed template file to encrypt and include your submission in
         the
         aggregate data.</p>
       <hr/>
@@ -98,32 +102,17 @@
     <section id="instructions" class="card col-md-10 col-md-offset-1">
       <h2 class="text-center">View your data</h2>
       <p class="text-center">Your data will appear here after you drag/drop or browse to find your completed Excel
-        template file above. Errors will appear in red.</p>
-      <span id="expand-table-button" class="arrow-down"></span>
+        template file above.</p>
+      <span id="expand-table-button" class="arrow-down flip"></span>
 
       <div id="tables-area">
         <hr/>
         <h3>Entered Data</h3>
-        <div>Any red cells indicate an error - click on the cell to see the error message.</div>
-        <div>
-          <h4 id="number-employees-hot-name"></h4>
-          <div id="number-employees-hot"></div>
-        </div>
-
-        <div>
-          <h4 id="compensation-hot-name"></h4>
-          <div id="compensation-hot"></div>
-        </div>
-
-        <div>
-          <h4 id="performance-pay-hot-name"></h4>
-          <div id="performance-pay-hot"></div>
-        </div>
-
-        <div>
-          <h4 id="service-length-hot-name"></h4>
-          <div id="service-length-hot"></div>
-        </div>
+        <p>Any red cells indicate an error - click on the cell to see the error message.</p>
+        <p>Yellow cells indicate the value might be outside of the expected range. Please double-check
+          to make sure the data is correct. You will still be able to submit your data.</p>
+        <p>For a list of definitions, please <a href="/definitions">click here</a>.</p>
+      
       </div>
     </section>
   </div>
@@ -131,148 +120,36 @@
   <div class="row">
     <section id="additional-questions" class="card col-md-10 col-md-offset-1">
       <h2 class="text-center">Answer additional questions</h2>
+
       <p class="text-center">
         We have included these questions to get instant feedback as to how this process went in order to improve the
         process in future years. Please know that the answers to these questions will be anonymous, and they will be
         considered separately from the encrypted and aggregated data above.
       </p>
       <hr/>
+
       <div id="questions">
-        <form class="error">
-          <p class="question-text help-block">Which department are you in?</p>
-          <div class="radio">
-            <label><input type="radio" name="optradio" value="1">Human Resources (e.g. HR Manager, HRIS Manager,
-              Compensation Manager, Talent &amp; Development)</label>
-          </div>
-          <div class="radio">
-            <label><input type="radio" name="optradio" value="2">Operations (e.g. Director of Operations)</label>
-          </div>
-          <div class="radio">
-            <label><input type="radio" name="optradio" value="3">Diversity (e.g. Chief Diversity Officer)</label>
-          </div>
-          <div class="radio">
-            <label><input type="radio" name="optradio" value="4">Upper Management (e.g. COO, CEO, Executive
-              Director)</label>
-          </div>
-          <div class="radio">
-            <label>
-              <input type="radio" name="optradio" value="5">Other</label>
-          </div>
-        </form>
-        <hr class="short"/>
-        <form>
-          <p class="question-text help-block">What kind of HRIS or organizational system does your company/organization
-            use?</p>
-          <div class="radio">
-            <label><input type="radio" name="optradio" value="1">Large-scale traditional HRIS/HRMS software (e.g. ADP,
-              Workday, PeopleSoft, etc.)</label>
-          </div>
-          <div class="radio">
-            <label><input type="radio" name="optradio" value="2">Microsoft Office or similar (e.g. Excel, Microsoft
-              Word,
-              Google Docs)</label>
-          </div>
-          <div class="radio">
-            <label>
-              <input type="radio" name="optradio" value="3">Other</label>
-          </div>
-        </form>
-        <hr class="short"/>
-        <form>
-          <p class="question-text help-block">How easy was it to understand what data was required given the template
-            and
-            instructions?</p>
-          <div class="radio">
-            <label><input type="radio" name="optradio" value="1">Extremely easy</label>
-          </div>
-          <div class="radio">
-            <label><input type="radio" name="optradio" value="2">Moderately easy</label>
-          </div>
-          <div class="radio">
-            <label><input type="radio" name="optradio" value="3">Slightly easy</label>
-          </div>
-          <div class="radio">
-            <label><input type="radio" name="optradio" value="4">Neither easy nor difficult</label>
-          </div>
-          <div class="radio">
-            <label><input type="radio" name="optradio" value="5">Slightly difficult</label>
-          </div>
-          <div class="radio">
-            <label><input type="radio" name="optradio" value="6">Moderately difficult</label>
-          </div>
-          <div class="radio">
-            <label><input type="radio" name="optradio" value="7">Extremely difficult</label>
-          </div>
-        </form>
-        <hr class="short"/>
-        <form>
-          <p class="question-text help-block">How easy was it to prepare the data for submission given your
-            organizational
-            system?</p>
-          <div class="radio">
-            <label><input type="radio" name="optradio" value="1">Extremely easy</label>
-          </div>
-          <div class="radio">
-            <label><input type="radio" name="optradio" value="2">Moderately easy</label>
-          </div>
-          <div class="radio">
-            <label><input type="radio" name="optradio" value="3">Slightly easy</label>
-          </div>
-          <div class="radio">
-            <label><input type="radio" name="optradio" value="4">Neither easy nor difficult</label>
-          </div>
-          <div class="radio">
-            <label><input type="radio" name="optradio" value="5">Slightly difficult</label>
-          </div>
-          <div class="radio">
-            <label><input type="radio" name="optradio" value="6">Moderately difficult</label>
-          </div>
-          <div class="radio">
-            <label><input type="radio" name="optradio" value="7">Extremely difficult</label>
-          </div>
-        </form>
-        <hr class="short"/>
-        <form>
-          <p class="question-text help-block">How long did it take to prepare the data for submission given your
-            organizational
-            system?</p>
-          <div class="radio">
-            <label><input type="radio" name="optradio" value="1">Less than 1 business day</label>
-          </div>
-          <div class="radio">
-            <label><input type="radio" name="optradio" value="2">1-3 business days</label>
-          </div>
-          <div class="radio">
-            <label><input type="radio" name="optradio" value="3">4-7 business days</label>
-          </div>
-          <div class="radio">
-            <label><input type="radio" name="optradio" value="4">7-10 business days</label>
-          </div>
-          <div class="radio">
-            <label><input type="radio" name="optradio" value="5">Greater than 10 business days</label>
-          </div>
-        </form>
       </div>
+
+    
     </section>
   </div>
+
 
   <div class="row">
     <section id="review-and-submit" class="card col-md-10 col-md-offset-1">
       <h2 class="text-center">Verify and submit your data</h2>
       <p class="text-center">
-        Please ensure that all data entered is accurate, and confirm that all employees are accounted for by reviewing
-        the
-        total number of employees below.
+        Please ensure that all data entered is accurate.
       </p>
       <hr/>
       <div class="row">
         <div class="col-md-6">
-          <h4 id="totals-hot-name"></h4>
-          <div id="totals-hot"></div>
+          <div id="totals-table"></div>
           <form>
             <div class="checkbox">
               <label>
-                <input type="checkbox" id="verify" name="verify">All data is verified and correct
+                <input type="checkbox" id="verify" name="verify">I verified all data is correct
               </label>
             </div>
           </form>
