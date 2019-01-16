@@ -1,4 +1,4 @@
-require.config({
+var require = {
   paths: {
     jquery: 'vendor/jquery',
     bootstrap: 'vendor/bootstrap.min',
@@ -14,8 +14,13 @@ require.config({
     DropSheet: 'helper/drop_sheet',
     mpc: 'helper/mpc',
     ResizeSensor: 'vendor/ResizeSensor',
-    table_template: 'data/pacesetters'
-
+    table_template: 'data/pacesetters',
+    io: '/socket.io.js',
+    BigNumber: '/bignumber.js/bignumber.min.js',
+    sodium: '/jiff/sodium.js',
+    jiff: '/jiff/jiff-client.js',
+    jiff_bignumber: '/jiff/ext/jiff-client-bignumber.js',
+    jiff_restAPI: '/jiff/ext/jiff-client-restAPI.js'
   },
   shim: {
     bootstrap: {
@@ -29,4 +34,4 @@ require.config({
       exports: 'Ladda'
     }
   }
-});
+};
