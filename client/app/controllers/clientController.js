@@ -1,6 +1,7 @@
 /* global alertify, $ */
 
-define(['jquery', 'controllers/tableController', 'controllers/usabilityController', 'helper/mpc', 'alertify', 'alertify_defaults'], function ($, tableController, usabilityController, mpc, alertify, _) {
+define(['jquery', 'controllers/tableController', 'controllers/usabilityController', 'helper/mpc', 'alertify', 'alertify_defaults'], 
+  function ($, tableController, usabilityController, mpc, alertify, _) {
 
   var client = (function () {
     var SESSION_KEY_ERROR = 'Invalid session number';
@@ -124,28 +125,30 @@ define(['jquery', 'controllers/tableController', 'controllers/usabilityControlle
       var $session = $('#session');
       if (!validateSessionInput($session, false)) {
         errors = errors.concat(SESSION_KEY_ERROR);
-        analytics.validation_errors[SESSION_KEY_ERROR]++;
+        usabilityController.updateValidationError(SESSION_KEY_ERROR);
       }
 
       var $participationCode = $('#participation-code');
       if (!validateSessionInput($participationCode, false)) {
         errors = errors.concat(PARTICIPATION_CODE_ERROR);
-        usabilityController.analytics.validation_errors[PARTICIPATION_CODE_ERROR]++;
+        usabilityController.updateValidationError(PARTICIPATION_CODE_ERROR);
       }
+
+      console.log('lytics',usabilityController.analytics)
 
       // Validate the remaining components after session and
       // and participation code are validated with the server.
       var validateRemainingComponents = function (result) {
         if (!result) {
           errors = errors.concat(SESSION_PARTICIPATION_CODE_SERVER_ERROR);
-          usabilityController.analytics.validation_errors[SESSION_PARTICIPATION_CODE_SERVER_ERROR]++;
+          usabilityController.updateValidationError(SESSION_PARTICIPATION_CODE_SERVER_ERROR);
         }
 
         // Verify confirmation check box was checked
         var verifyChecked = $('#verify').is(':checked');
         if (!verifyChecked) {
           errors = errors.concat(UNCHECKED_ERR);
-          usabilityController.analytics.validation_errors[UNCHECKED_ERR]++;
+          usabilityController.updateValidationError(UNCHECKED_ERR);
         }
 
         // Verify additional questions

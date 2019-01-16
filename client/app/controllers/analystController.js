@@ -230,8 +230,6 @@ define(['filesaver'], function (filesaver) {
           // errmsg = err.responseText;
         }
 
-        //document.getElementById(status).className = 'alert alert-error';
-        //document.getElementById(status).innerHTML = errmsg;
         setTimeout(function () {
           generateTable(tableBody, sessionID, password, status, date, counter + 1)
         }, 10000);

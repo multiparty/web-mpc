@@ -4,18 +4,7 @@ define([], function () {
   var MOUSE_PRECISION_HEIGHT = 200;
 
   var analytics = {
-    validation_errors: {
-      SESSION_KEY_ERROR: 0,
-      PARTICIPATION_CODE_ERROR: 0,
-      SESSION_PARTICIPATION_CODE_SERVER_ERROR: 0,
-      UNCHECKED_ERR: 0,
-      ADD_QUESTIONS_ERR: 0,
-      GENERIC_TABLE_ERR: 0,
-      SERVER_ERR: 0,
-      GENERIC_SUBMISSION_ERR: 0,
-      NAN_EMPTY_CELLS: 0,
-      SEMANTIC_CELLS: 0,
-    },
+    validation_errors: {},
     mouse_positions: [],
     mouse_clicks: [],
     time_ms: 0,
@@ -59,6 +48,17 @@ define([], function () {
 
     height = document.body.scrollHeight;
     return [event.pageX / width, event.pageY / height];
+  }
+
+  function updateValidationError(error) {
+    console.log(analytics);
+
+    if (!(error in analytics.validation_errors)) {
+      analytics.validation_errors[error] = 1;
+      return;
+    } 
+
+    analytics.validation_errors[error]++;
   }
 
   function handleMouseClick(event) {
@@ -110,5 +110,6 @@ define([], function () {
     focus: focus,
     blur: blur,
     beforeunload: beforeunload,
+    updateValidationError: updateValidationError
   };
 });

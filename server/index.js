@@ -71,6 +71,7 @@ const analyticsSchema = {
 const analyticsMaskSchema = {
   validation_errors: joi.object().required(),
   mouse_positions: joi.object().required(),
+  mouse_clicks: joi.object().required(),
   time_ms: joi.string().required()
 }
 
@@ -300,6 +301,7 @@ app.post('/', function (req, res) {
   };
 
   joi.validate(body, bodySchema, function (err, body) {
+    console.log('body',body);
     if (err) {
       console.log(err);
       res.status(500).send('Missing or invalid fields.');
@@ -1207,5 +1209,4 @@ if (process.env.NODE_ENV === 'production') {
     console.log("Listening for ACME tls-sni-01 challenges and serve app on", this.address());
   });
 }
-
 /*eof*/
