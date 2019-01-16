@@ -223,22 +223,6 @@ define(['forge'], function (forge) {
       };
     }
 
-    // Criteria for being invalid for a value (being outside of range).
-    // var isInvalid = function (x) { // The node.js way.
-    //   return (!_inUint32Range(x) ? 1 : 0);
-    // };
-
-    // if(!db) { // The front-end way.
-    //   isInvalid = function (x) {
-    //     var result = parseInt(x, 10);
-    //     var invalid = 0;
-    //     if (isNaN(result) || !_inUint32Range(result)) {
-    //       invalid = 1;
-    //     }
-    //     return invalid;
-    //   };
-    // }
-
     // Ensure we are always working with an array.
     if (db) { // if db, then what is passed is a collection of mongo modules (not exactly an array).
       var arr = [];
@@ -372,13 +356,6 @@ define(['forge'], function (forge) {
     }
     return encrypted;
   }
-
-  // if (typeof module !== 'undefined') {
-  //   module.exports = {
-  //     'aggregateShares': aggregateShares,
-  //     'countInvalidShares': countInvalidShares
-  //   };
-  // }
 
   return {
     aggregateShares: aggregateShares,

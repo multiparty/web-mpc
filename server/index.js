@@ -301,7 +301,6 @@ app.post('/', function (req, res) {
   };
 
   joi.validate(body, bodySchema, function (err, body) {
-    console.log('body',body);
     if (err) {
       console.log(err);
       res.status(500).send('Missing or invalid fields.');

@@ -28,8 +28,8 @@ define(['jquery', 'controllers/tableController', 'controllers/usabilityControlle
 
     // define mouse_positions as 100x1000 array
 
-    document.addEventListener('mousemove', usabilityController.handleMouseMove, false);
-    document.addEventListener('click', usabilityController.handleMouseClick, false);
+    // document.addEventListener('mousemove', usabilityController.handleMouseMove, false);
+    // document.addEventListener('click', usabilityController.handleMouseClick, false);
 
     // TODO EventListeners prolly shouldn't be in this file
     window.addEventListener('focus', usabilityController.focus);

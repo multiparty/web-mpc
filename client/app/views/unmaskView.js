@@ -17,7 +17,7 @@ define(['jquery', 'controllers/unmaskController', 'controllers/tableController',
       }
       var tables = d;
 
-      // tableController.saveUsability(usability, session);
+      tableController.saveUsability(usability, session);
       tableController.createTableElems(table_template.tables, '#tables-area');
       tableController.saveTables(tables, session);
 
@@ -25,7 +25,8 @@ define(['jquery', 'controllers/unmaskController', 'controllers/tableController',
       tableController.displayReadTable(tables);
 
     }
-
+ 
+  
     function getAnalyticsMasks(sK, sP, pK, masks, callB) {
       $.ajax({
         type: 'POST',
@@ -33,13 +34,12 @@ define(['jquery', 'controllers/unmaskController', 'controllers/tableController',
         contentType: 'application/json',
         data: JSON.stringify({session: sK, password: sP}),
         success: function (analyticsMasks) {
-          unmaskController.aggregate_and_unmask(masks, analyticsMasks, pK, sK, sP, callB);
+          unmaskController.aggregateAndUnmask(masks, analyticsMasks, pK, sK, sP, callB);
         },
         error: function(e) {
           error(e.responseText);
         }
       })
-
     }
 
     function getMasks(sK, sP, pK) {
@@ -49,8 +49,7 @@ define(['jquery', 'controllers/unmaskController', 'controllers/tableController',
         contentType: 'application/json',
         data: JSON.stringify({session: sK, password: sP}),
         success: function (data) {
-          // getAnalyticsMasks(sK, sP, pK, data, callb);
-          unmaskController.aggregateAndUnmask(data, pK, sK, sP, callb);
+          getAnalyticsMasks(sK, sP, pK, data, callb);
         },
         error: function (e) {
           error(e.responseText);

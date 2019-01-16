@@ -71,6 +71,8 @@ define([], function () {
     //each array stores # of hits at this area
     analytics.mouse_clicks[x][y]++;
   }
+
+
   function handleMouseMove(event) {
     // y coord should potentially be mult. by 100
     // to account for difference in x, y page size
