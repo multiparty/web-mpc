@@ -12,10 +12,10 @@ options.hooks = Object.assign(options.hooks, mailbox_hooks, authentication_hooks
 // TODO: do not forget to load configurations from DB on create.
 // In particular, load session keys and public keys, and use initializeSession below
 // to initialize the sessions.
-function JIFFWrapper(server) {
+function JIFFWrapper(server, app) {
   this.serverInstance = jiffServer.make_jiff(server, options);
   // this.serverInstance.apply_extension(jiffServerBigNumber, options);
-  this.serverInstance.apply_extension(jiffServerRestAPI, options);
+  this.serverInstance.apply_extension(jiffServerRestAPI, { app: app });
 }
 module.exports = JIFFWrapper;
 
