@@ -21,6 +21,7 @@ function userAuth(computation_id, msg, params) {
       } else {
         // Give party a consistent id (will remain the same when reconnecting / resubmitting)
         params.party_id = data.jiff_party_id;
+        console.log(params.party_id);
         resolve(params);
       }
     });

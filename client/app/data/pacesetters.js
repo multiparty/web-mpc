@@ -44,9 +44,6 @@ define([], function () {
             "min": 0,
             "max_warning": 100,
             "empty": false,
-            "validators": [
-              "discrepancies"
-            ]
           }
         ],
         "excel": [
@@ -62,7 +59,7 @@ define([], function () {
             "range": {
               "row": "*",
               "col": "*"
-            
+
             },
             "tooltip": {
               "errorTitle": "Invalid Data Entry",
@@ -112,9 +109,6 @@ define([], function () {
             "min": 0,
             "max_warning": 100,
             "empty": false,
-            "validators": [
-              "discrepancies"
-            ]
           }
         ],
         "excel": [
@@ -130,7 +124,7 @@ define([], function () {
             "range": {
               "row": "*",
               "col": "*"
-            
+
             },
             "tooltip": {
               "errorTitle": "Invalid Data Entry",
@@ -180,9 +174,6 @@ define([], function () {
             "min": 0,
             "max_warning": 100,
             "empty": false,
-            "validators": [
-              "discrepancies"
-            ]
           }
         ],
         "excel": [
@@ -198,7 +189,7 @@ define([], function () {
             "range": {
               "row": "*",
               "col": "*"
-            
+
             },
             "tooltip": {
               "errorTitle": "Invalid Data Entry",
@@ -208,7 +199,7 @@ define([], function () {
             }
           }
         ]
-      } 
+      }
     ]
   }
 });
