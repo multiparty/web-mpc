@@ -471,7 +471,8 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       rows[i] = table_def.rows[i].label;
     }
 
-    var cols = table_def.cols;
+    var cols = table_def.cols.slice();
+    cols[cols_levels - 1] = cols[cols_levels - 1].slice();
     for (i = 0; i < cols_len; i++) {
       cols[cols_levels - 1][i] = table_def.cols[cols_levels - 1][i].label;
     }

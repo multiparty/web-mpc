@@ -1,7 +1,6 @@
 /* global alertify, $ */
-
 define(['jquery', 'controllers/tableController', 'controllers/jiffController', 'alertify', 'alertify_defaults', 'table_template'],
-  function ($, tableController, jiffController, alertify, table_template) {
+  function ($, tableController, jiffController, alertify, _, table_template) {
     var client = (function () {
       /**
        * Displays the given submission as the last submission in
@@ -276,9 +275,9 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
         jiffController.client.submit(data_submission, table_template);
 
         // When done
-        var success = true;
+        var status = true;
         var err;
-        if (success) {
+        if (status) {
           success(SUCCESS_MESSAGE);
         } else {
           if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
