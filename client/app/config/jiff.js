@@ -1,6 +1,10 @@
 if (require === undefined) {
   var require = {};
+}
+if (require.paths == null) {
   require.paths = {};
+}
+if (require.shim == null) {
   require.shim = {};
 }
 

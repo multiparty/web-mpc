@@ -5,16 +5,13 @@
 const express = require('express');
 const path = require('path');
 
+const config = require('./config/config.js');
+
 module.exports = function (app) {
   // serve static files in designated folders
-  app.use(express.static(__dirname + '/../client'));
-  app.use('/jiff', express.static(__dirname + '/../jiff/lib'));
-  app.use('/jiff/ext', express.static(__dirname + '/../jiff/ext'));
-  app.use('/bignumber.js', express.static(__dirname + '/../jiff/node_modules/bignumber.js'));
-  app.use('/socket.io.js', express.static(__dirname + '/../jiff/node_modules/socket.io-client/dist/socket.io.js'));
-
   app.get('/', function (req, res) {
-    res.sendFile((path.join(__dirname + '/../client/index.html')));
+    // /client/index.html
+    res.render('index.html', config.client);
   });
 
   app.get('/session', function (req, res) {
@@ -40,4 +37,9 @@ module.exports = function (app) {
   app.get('/definitions', function (req, res) {
     res.sendFile((path.join(__dirname + '/../client/definitions.html')));
   });
+
+  app.use(express.static(__dirname + '/../client'));
+  app.use('/jiff', express.static(__dirname + '/../jiff/lib'));
+  app.use('/jiff/ext', express.static(__dirname + '/../jiff/ext'));
+  app.use('/bignumber.js', express.static(__dirname + '/../jiff/node_modules/bignumber.js'));
 };

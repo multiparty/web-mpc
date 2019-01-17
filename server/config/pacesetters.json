@@ -10,5 +10,12 @@
     ],
     "email": "fjansen@bu.edu",
     "agreeTos": true
+  },
+
+  "client": {
+    "table_template": "data/pacesetters",
+    "title": "Pacesetters",
+    "subtitle": "Data Submission",
+    "logo": "images/gbcc.png"
   }
 }

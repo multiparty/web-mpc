@@ -1,6 +1,10 @@
 if (require === undefined) {
   var require = {};
+}
+if (require.paths == null) {
   require.paths = {};
+}
+if (require.shim == null) {
   require.shim = {};
 }
 
@@ -18,8 +22,7 @@ require.paths = Object.assign(require.paths, {
   alertify_defaults: 'helper/alertify_defaults',
   DropSheet: 'helper/drop_sheet',
   mpc: 'helper/mpc',
-  ResizeSensor: 'vendor/ResizeSensor',
-  table_template: 'data/pacesetters',
+  ResizeSensor: 'vendor/ResizeSensor'
 });
 
 require.shim = Object.assign(require.shim, {

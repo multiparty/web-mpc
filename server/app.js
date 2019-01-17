@@ -19,6 +19,13 @@ app.use(compression());
 const body_parser = require('body-parser');
 app.use(body_parser.json({ limit: '50mb' }));
 
+// view engine
+var nunjucks = require( 'nunjucks' ) ;
+nunjucks.configure(__dirname + '/../client/', {
+  autoescape: true,
+  express: app
+});
+
 // Server static files
 require('./statics.js')(app);
 

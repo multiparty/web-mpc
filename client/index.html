@@ -3,8 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width,initial-scale=1" name="viewport">
-  <title>Pacesetters</title>
+  <title>{{ title }}</title>
   <link rel="icon" type="image" href="images/gbcc-small.png">
+
+  <script type="text/javascript">
+    var require = {
+      paths: {
+        table_template: '{{ table_template }}'
+      }
+    }
+  </script>
 
   <script type="text/javascript" src="app/config/common.js"></script>
   <script type="text/javascript" src="app/config/jiff.js"></script>
@@ -32,11 +40,11 @@
 <body>
 <header>
   <div class="container">
-    <h1>Pacesetters<br/>
-      <small> Data Submission</small>
+    <h1>{{ title }}<br/>
+      <small> {{ subtitle }}</small>
     </h1>
     <div id="logos">
-      <img src="images/gbcc.png" alt="GBCC Logo"/>
+      <img src="{{ logo }}" alt="GBCC Logo"/>
       <img src="images/bu.gif" alt="BU Logo"/>
     </div>
   </div>
