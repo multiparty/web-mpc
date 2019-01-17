@@ -24,18 +24,15 @@ function verifyStatus(sessionKey, expectedStatus) {
 // Do not allow client parties to connect to session with status != 'START'
 async function prePoll(jiff, operation, computation_id, party_id, msg) {
   // return message or throw string error
-  if (operation !== 'poll') {
+  if (operation !== 'poll' || party_id === 's1') {
     return msg;
   }
 
-  if (party_id !== 's1' && party_id !== 1) {
-    try {
-      await verifyStatus(computation_id, 'START');
-      return msg;
-    } catch (err) {
-      throw err;
-    }
-  }
+  // Analyst connect when they want to compute the results, the status must be STOP
+  // Clients connect to submit, the status must be START
+  await verifyStatus(computation_id, party_id === 1 ? 'STOP' : 'START'); // if failed, this will throw an error
+
+  return msg;
 }
 
 function postPoll(jiff, operation, computation_id, party_id, msg) {
