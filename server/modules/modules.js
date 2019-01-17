@@ -61,4 +61,3 @@ module.exports = {
   SessionInfo: SessionInfoModule,
   UserKey: UserKeyModule
 };
-

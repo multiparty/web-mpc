@@ -36,9 +36,7 @@ module.exports = [
   { url: '/get_history', route: managementRoutes.getSubmissionHistory, validation: validation.getSubmissionHistory, authentication: auth.password },
 
   // Data submission routes
-  { url: '/publickey', route: submissionRoutes.getPublicKey, validation: validation.getPublicKey },
   { url: '/sessioninfo', route: submissionRoutes.getSessionInfo, validation: validation.getSessionInfo, authentication: auth.userKey },
-  { url: '/', route: submissionRoutes.submitData, validation: validation.submitData, authentication: auth.userKey },
 
   // Final aggregation routes
   { url: '/get_masks', route: aggregateRoutes.getMasks, validation: validation.getMasks, authentication: auth.password },

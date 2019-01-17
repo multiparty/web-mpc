@@ -42,9 +42,11 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
       };
       // TODO: create new view for alerts
       function error(msg) {
+        appendSubmissionHistory(new Date(), false);
         alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', msg);
       }
       function success(msg) {
+        appendSubmissionHistory(new Date(), true);
         alertify.alert('<img src="/images/accept.png" alt="Success">Success!', msg);
       }
 
@@ -288,15 +290,8 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
             error(GENERIC_SUBMISSION_ERR);
           }
 
-          appendSubmissionHistory(new Date(), success);
           la.stop();
         });
-
-        /*
-        var shares = mpc.secretShareValues(data_submission);
-        var data = shares['data'];
-        var mask = shares['mask'];
-        */
       }
 
       /**

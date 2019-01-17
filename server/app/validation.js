@@ -4,41 +4,6 @@
 
 const joi = require('joi');
 
-// Read deployment configuration
-var deployment = process.env.WEBMPC_DEPLOYMENT;
-if (deployment === null || deployment === undefined) {
-  deployment = 'pacesetters';
-}
-
-// import config
-const config = require('../config/'+deployment+'.json');
-const template = require('../' + config['template']);
-
-// Helper function: transforms the JSON template to a joi schema, where the structure of the template
-// becomes the structure of the joi schema, and each field is assigned the given joiFieldType.
-function templateToJoiSchema(template, joiFieldType) {
-  const schema = {};
-  if (!template || !template.length) {
-    return joi.object().keys(schema);
-  }
-  for (var table of template) {
-    schema[table.name] = {};
-
-    for (var row of table.rows) {
-      schema[table.name][row.key] = {};
-
-      for (var cols of table.cols) {
-        for (var col of cols) {
-          schema[table.name][row.key][col.key] = joiFieldType;
-        }
-      }
-      schema[table.name][row.key] = joi.object().keys(schema[table.name][row.key]);
-    }
-    schema[table.name] = joi.object().keys(schema[table.name]);
-  }
-  return joi.object().keys(schema).required();
-}
-
 // Use helpers to generate base joi schemas: these are building blocks for the schemas of requests.
 // TODO: set length restrictions on sessionKey and userKey
 const schemaTemplates = {
@@ -54,9 +19,6 @@ schemaTemplates.keyPasswordTemplate = {
 
 // Concrete Request schemas!
 module.exports = {
-  getPublicKey: {
-    session: schemaTemplates.sessionKeySchema
-  },
   getStatus: {
     session: schemaTemplates.sessionKeySchema
   },
@@ -86,15 +48,7 @@ module.exports = {
 
   setStatus: Object.assign({
     status: joi.only('START', 'STOP', 'PAUSE').required()
-  }, schemaTemplates.keyPasswordTemplate),
-
-  submitData: {
-    mask: templateToJoiSchema(template['tables'], joi.string().required()),
-    data: templateToJoiSchema(template['tables'], joi.number().required()),
-    questions_public: templateToJoiSchema(template['questions'], joi.string().required()),
-    session: schemaTemplates.sessionKeySchema,
-    user: schemaTemplates.userKeySchema
-  }
+  }, schemaTemplates.keyPasswordTemplate)
 };
 
 // Export JOI schemas

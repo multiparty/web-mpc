@@ -3,7 +3,6 @@ var Promise = require('bluebird');
 
 module.exports = {
   put_in_mailbox: function (jiff, label, msg, computation_id, to_id) {
-    // to_id: either 1 or s1
     // computation_id: same as session key
     // msg JSON string
     // label string: share / open / etc ..

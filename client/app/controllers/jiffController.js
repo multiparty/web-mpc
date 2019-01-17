@@ -1,6 +1,6 @@
 define(['BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI'], function (BigNumber, jiff, jiff_bignumber, jiff_restAPI) {
   // initialize jiff instance
-  var initialize = function (session, connectImmediately, params) {
+  var initialize = function (session, connectImmediately, options, initializationParams) {
     jiff.dependencies({ io: jiff_restAPI.io });
     var baseOptions = {
       autoConnect: false,
@@ -8,12 +8,13 @@ define(['BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI'], function (BigNum
       hooks: {
         beforeOperation: [ function (jiff, op, msg) {
           if (op === 'initialization') {
-            msg = Object.assign(msg, params, { party_count: 1000000 });
+            msg = Object.assign(msg, initializationParams, { party_count: 1000000 });
           }
           return msg;
         }]
       }
     };
+    baseOptions = Object.assign(baseOptions, options);
 
     var bigNumberOptions = {
       Zp: new BigNumber(2).pow(65).minus(49) // Fits unsigned longs
@@ -83,6 +84,7 @@ define(['BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI'], function (BigNum
     var ordering = consistentOrdering(table_template);
     var values = [];
 
+    // List values according to consistent ordering
     for (var i = 0; i < ordering.tables.length; i++) {
       var t = ordering.tables[i];
       values.push(dataSubmission[t.table][t.row][t.col]);
@@ -92,14 +94,16 @@ define(['BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI'], function (BigNum
       values.push(dataSubmission['questions'][q.question][q.option]);
     }
 
-    var jiff = initialize(sessionkey, true, { userkey: userkey });
-    jiff.wait_for(['s1'], function () {
-      var old_rest_receive = jiff.restReceive;
-      jiff.restReceive = function (error, body) {
-        old_rest_receive(error, body);
-        callback(error, body);
-      };
+    // Handle jiff errors returned from server
+    var onError = function (errorString) {
+      callback(null, JSON.stringify({ status: false, error: errorString }));
+    };
 
+    // Initialize and submit
+    var jiff = initialize(sessionkey, true, { onError: onError }, { userkey: userkey });
+    jiff.wait_for(['s1'], function () { // TODO put 1 back after testing
+      // After initialization
+      jiff.restReceive = callback;
       for (var i = 0; i < values.length; i++) {
         jiff.share(values[i], null, [1, 's1'], [jiff.id]);
       }

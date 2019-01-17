@@ -7,7 +7,8 @@ const computeOptions = { sodium: false }; // Can include things like Zp and cryp
 
 var mailbox_hooks = require('./mailbox.js');
 var authentication_hooks = require('./auth.js');
-options.hooks = Object.assign(options.hooks, mailbox_hooks, authentication_hooks);
+var submission_hooks = require('./submission.js');
+options.hooks = Object.assign(options.hooks, mailbox_hooks, authentication_hooks, submission_hooks);
 
 // TODO: do not forget to load configurations from DB on create.
 // In particular, load session keys and public keys, and use initializeSession below
@@ -16,6 +17,12 @@ function JIFFWrapper(server, app) {
   this.serverInstance = jiffServer.make_jiff(server, options);
   // this.serverInstance.apply_extension(jiffServerBigNumber, options);
   this.serverInstance.apply_extension(jiffServerRestAPI, { app: app });
+
+  // Track jiff_party_ids of submitters
+  // This is stored in volatile memory but must be persistent
+  // TODO: read/compute these from DB on create + initialize_session.
+  this.tracker = {};
+  this.computed = {};
 }
 module.exports = JIFFWrapper;
 
@@ -33,14 +40,41 @@ JIFFWrapper.prototype.initializeSession = async function (session_key, public_ke
   this.computeSession(session_key);
 };
 
+// Keeps track of submitters IDs
+JIFFWrapper.prototype.trackParty = function (jiff_party_id) {
+  this.tracker[jiff_party_id] = true;
+};
+JIFFWrapper.prototype.getTrackerParties = function () {
+  var tracked = [];
+  for (var key in this.tracker) {
+    if (this.tracker.hasOwnProperty((key)) && this.tracker[key] === true) {
+      tracked.push(key);
+    }
+  }
+
+  tracked.sort();
+  return tracked;
+};
+
+// Keeps track of computations that has been computed: no need to recompute these,
+// can just replay messages from database.
+JIFFWrapper.prototype.trackComputed = function (session_key) {
+  this.computed[session_key] = true;
+};
+JIFFWrapper.prototype.hasBeenComputed = function (session_key) {
+  return this.computed[session_key] === true;
+};
+
 // Setting up a listener for the session, to start computing when analyst requests.
 JIFFWrapper.prototype.computeSession = function (session_key) {
+  const self = this;
   const computationInstance = this.serverInstance.compute(session_key, computeOptions);
   computationInstance.listen('compute', function (sender_id, message) {
-    if (sender_id !== 1) {
+    if (sender_id !== 1 || self.hasBeenComputed(session_key)) {
       return;
     }
 
     console.log('Analyst requested to start opening computation', session_key, message);
+    self.trackComputed(session_key);
   });
 };

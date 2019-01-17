@@ -5,7 +5,7 @@
 
 // Mongo Modules
 const modules = require('../modules/modules.js');
-const mpc = require('../../client/app/helper/mpc');
+const mpc = {};
 
 // Export route handlers
 module.exports = {};
