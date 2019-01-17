@@ -33,7 +33,7 @@ module.exports = [
   { url: '/change_status', route: managementRoutes.setStatus, validation: validation.setStatus, authentication: auth.password },
   { url: '/generate_client_urls', route: managementRoutes.createClientUrls, validation: validation.createClientUrls, authentication: auth.password },
   { url: '/get_client_urls', route: managementRoutes.getClientUrls, validation: validation.getClientUrls, authentication: auth.password },
-  { url: '/get_data', route: managementRoutes.getSubmissionHistory, validation: validation.getSubmissionHistory, authentication: auth.password },
+  { url: '/get_history', route: managementRoutes.getSubmissionHistory, validation: validation.getSubmissionHistory, authentication: auth.password },
 
   // Data submission routes
   { url: '/publickey', route: submissionRoutes.getPublicKey, validation: validation.getPublicKey },

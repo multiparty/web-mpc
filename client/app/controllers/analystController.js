@@ -198,7 +198,7 @@ define(['filesaver'], function (filesaver) {
     var date = Date.now();
     $.ajax({
       type: 'POST',
-      url: '/get_data',
+      url: '/get_history',
       contentType: 'application/json',
       data: JSON.stringify({session: sessionID, password: password, last_fetch: timestamp}),
       dataType: 'json',

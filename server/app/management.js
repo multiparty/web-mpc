@@ -94,7 +94,7 @@ module.exports.setStatus = function (context, body, response, sessionInfoObj) {
 
 // endpoint for returning dates of submissions
 module.exports.getSubmissionHistory = function (context, body, res) {
-  modules.Aggregate.where({ session: body.session }).gt('date', body.last_fetch).find(function (err, data) {
+  modules.History.where({ session: body.session }).gt('date', body.last_fetch).find(function (err, data) {
     if (err) {
       console.log(err);
       res.status(500).send('Failed to fetch contributors.');
@@ -158,7 +158,7 @@ module.exports.createClientUrls = function (context, body, response) {
     var urls = [], dbObjs = [];
     for (var i = 0; i < Math.min(body.count, MAX_SIZE - count);) {
       var userkey = generateRandomBase32(TOKEN_LENGTH);
-      var jiff_party_id = context.serverInstance.helpers.random(MAX_SIZE - 1) + 2; // in [2, MAX_SIZE]
+      var jiff_party_id = context.jiff.serverInstance.helpers.random(MAX_SIZE - 1) + 2; // in [2, MAX_SIZE]
       jiff_party_id = parseInt(jiff_party_id.toString(), 10); // in case of BigNumber objects
 
       // If user key already exists, repeat.
