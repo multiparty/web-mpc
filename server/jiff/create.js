@@ -3,7 +3,7 @@ const jiffServerBigNumber = require('../../jiff/lib/ext/jiff-server-bignumber.js
 const jiffServerRestAPI = require('../../jiff/lib/ext/jiff-server-restful.js');
 
 const options = { logs: true, sodium: false, hooks: {} };
-const computeOptions = {}; // Can include things like Zp and crypto hooks
+const computeOptions = { sodium: false }; // Can include things like Zp and crypto hooks
 
 var mailbox_hooks = require('./mailbox.js');
 var authentication_hooks = require('./auth.js');
@@ -20,16 +20,16 @@ function JIFFWrapper(server, app) {
 module.exports = JIFFWrapper;
 
 // Initializing a JIFF computation when a session is created.
-JIFFWrapper.prototype.initializeSession = function (session_key, public_key, max_party_count) {
+JIFFWrapper.prototype.initializeSession = async function (session_key, public_key, max_party_count) {
   // Disable authentication hook
-  var oldHooks = this.serverInstance.beforeInitialization;
-  this.serverInstance.beforeInitialization = [];
+  var oldHooks = this.serverInstance.hooks.beforeInitialization;
+  this.serverInstance.hooks.beforeInitialization = [];
 
   // Initialize
-  this.serverInstance.initialize_party(session_key, 1, max_party_count, { public_key: public_key });
+  await this.serverInstance.initialize_party(session_key, 1, max_party_count, { public_key: public_key, party_id: 1, party_count: max_party_count });
 
   // Enable authentication hook
-  this.serverInstance.beforeInitialization = oldHooks;
+  this.serverInstance.hooks.beforeInitialization = oldHooks;
   this.computeSession(session_key);
 };
 

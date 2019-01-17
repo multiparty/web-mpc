@@ -1,11 +1,19 @@
 define(['BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI'], function (BigNumber, jiff, jiff_bignumber, jiff_restAPI) {
   // initialize jiff instance
-  var initialize = function (connectImmediately) {
+  var initialize = function (session, connectImmediately, params) {
     jiff.dependencies({ io: jiff_restAPI.io });
     var baseOptions = {
       autoConnect: false,
-      sodium: false
-    }
+      sodium: false,
+      hooks: {
+        beforeOperation: [ function (jiff, op, msg) {
+          if (op === 'initialization') {
+            msg = Object.assign(msg, params, { party_count: 1000000 });
+          }
+          return msg;
+        }]
+      }
+    };
 
     var bigNumberOptions = {
       Zp: new BigNumber(2).pow(65).minus(49) // Fits unsigned longs
@@ -17,7 +25,7 @@ define(['BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI'], function (BigNum
       maxBatchSize: 1000
     };
 
-    var instance = jiff.make_jiff('127.0.0.1:8080', 'hello', baseOptions);
+    var instance = jiff.make_jiff('http://localhost:8080', session, baseOptions);
     // instance.apply_extension(jiff_bignumber, bigNumberOptions);
     instance.apply_extension(jiff_restAPI, restOptions);
     instance.connect(connectImmediately);
@@ -71,7 +79,7 @@ define(['BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI'], function (BigNum
   }
 
   // Client side stuff
-  var clientSubmit = function (dataSubmission, table_template) {
+  var clientSubmit = function (sessionkey, userkey, dataSubmission, table_template, callback) {
     var ordering = consistentOrdering(table_template);
     var values = [];
 
@@ -80,11 +88,23 @@ define(['BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI'], function (BigNum
       values.push(dataSubmission[t.table][t.row][t.col]);
     }
     for (var j = 0; j < ordering.questions.length; j++) {
-      var q = ordering.questions[i];
+      var q = ordering.questions[j];
       values.push(dataSubmission['questions'][q.question][q.option]);
     }
 
-    console.log(values);
+    var jiff = initialize(sessionkey, true, { userkey: userkey });
+    jiff.wait_for(['s1'], function () {
+      var old_rest_receive = jiff.restReceive;
+      jiff.restReceive = function (error, body) {
+        old_rest_receive(error, body);
+        callback(error, body);
+      };
+
+      for (var i = 0; i < values.length; i++) {
+        jiff.share(values[i], null, [1, 's1'], [jiff.id]);
+      }
+      jiff.restFlush();
+    });
   };
 
   // Analyst side stuff

@@ -272,26 +272,25 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
         }
 
         // Secret share / mask the data.
-        jiffController.client.submit(data_submission, table_template);
-
-        // When done
-        var status = true;
-        var err;
-        if (status) {
-          success(SUCCESS_MESSAGE);
-        } else {
-          if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
-            error(err.responseText);
-          } else if (err && (err.status === 0 || err.status === 500)) {
+        jiffController.client.submit(session, participationCode, data_submission, table_template, function (err, response) {
+          console.log(response, err);
+          if (response != null) {
+            response = JSON.parse(response);
+            if (response.success) {
+              success(SUCCESS_MESSAGE);
+            } else {
+              error(response.error);
+            }
+          } else if (err === 0 || err === 500) {
             // check for status 0 or status 500 (Server not reachable.)
             error(SERVER_ERR);
           } else {
             error(GENERIC_SUBMISSION_ERR);
           }
-        }
 
-        appendSubmissionHistory(new Date(), success);
-        la.stop();
+          appendSubmissionHistory(new Date(), success);
+          la.stop();
+        });
 
         /*
         var shares = mpc.secretShareValues(data_submission);
