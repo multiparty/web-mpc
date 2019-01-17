@@ -1,13 +1,8 @@
 'use strict';
 
-let deployment = process.env.WEBMPC_DEPLOYMENT;
-if (deployment === null || deployment === undefined) {
-  deployment = 'pacesetters';
-}
-
 const http = require('http');
 const https = require('https');
-const config = require('./config/'+deployment+'.json');
+const config = require('./config/config.js');
 
 function approveDomains(opts, certs, cb) {
   let regex = new RegExp(config['approveDomainsPattern']);
