@@ -2,14 +2,11 @@
 
 // define(['jquery', 'controllers/unmaskController', 'controllers/tableController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify', 'table_template'],
 //   function ($, unmaskController, tableController, DropSheet, Spinner, Ladda, ResizeSensor, alertify, alertify_defaults, table_template) {
-define(['jquery', 'controllers/unmaskController', 'controllers/tableController', 'helper/drop_sheet', 'alertify', 'table_template'],
-  function ($, unmaskController, tableController, DropSheet, alertify, table_template) {
-
-
+define(['jquery', 'controllers/jiffController', 'controllers/tableController', 'helper/drop_sheet', 'alertify', 'table_template'],
+  function ($, jiffController, tableController, DropSheet, alertify, table_template) {
     function error(msg) {
       alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', msg);
     }
-
 
     function callb(e, d, questions, session) {
       if (typeof(d) !== 'object') {
@@ -23,22 +20,6 @@ define(['jquery', 'controllers/unmaskController', 'controllers/tableController',
       $('#tables-area').show();
       tableController.displayReadTable(tables);
 
-    }
-
-
-    function getMasks(sK, sP, pK) {
-      $.ajax({
-        type: 'POST',
-        url: '/get_masks',
-        contentType: 'application/json',
-        data: JSON.stringify({session: sK, password: sP}),
-        success: function (data) {
-          unmaskController.aggregateAndUnmask(data, pK, sK, sP, callb);
-        },
-        error: function (e) {
-          error(e.responseText);
-        }
-      });
     }
 
     function handle_file(event) {
@@ -62,7 +43,16 @@ define(['jquery', 'controllers/unmaskController', 'controllers/tableController',
 
           privateKey = privateKey.split('\n')[1];
 
-          getMasks(sessionKey, sessionPass, privateKey);
+          jiffController.analyst.computeAndFormat(sessionKey, sessionPass, privateKey, error, function(result) {
+            var questions = result['questions'];
+            result['questions'] = null;
+
+            tableController.createTableElems(table_template.tables, '#tables-area');
+            tableController.saveTables(result, sessionKey);
+
+            $('#tables-area').show();
+            tableController.displayReadTable(result);
+          });
         });
       }
     }
@@ -86,7 +76,6 @@ define(['jquery', 'controllers/unmaskController', 'controllers/tableController',
     }
 
     function unmaskView() {
-
       $(document).ready(function () {
         $('#tables-area').hide();
         expandTable();
@@ -105,5 +94,5 @@ define(['jquery', 'controllers/unmaskController', 'controllers/tableController',
     }
 
     return unmaskView;
-
-  });
+  }
+);

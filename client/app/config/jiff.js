@@ -10,14 +10,22 @@ if (require.shim == null) {
 
 require.paths = Object.assign(require.paths, {
   BigNumber: '/../bignumber.js/bignumber.min',
+  io: '/../socket.io',
   jiff: '/../jiff/jiff-client',
   jiff_bignumber: '/../jiff/ext/jiff-client-bignumber',
   jiff_restAPI: '/../jiff/ext/jiff-client-restful'
 });
 
 require.shim = Object.assign(require.shim, {
+  io: {
+    exports: 'io'
+  },
   jiff: {
-    exports: 'jiff'
+    deps: [ 'io' ],
+    exports: 'jiff',
+    init: function (io) {
+      this.jiff.dependencies({ io: io });
+    }
   },
   jiff_bignumber: {
     deps: [ 'BigNumber' ],

@@ -46,7 +46,7 @@ module.exports.createSession = function (context, body, res) {
       console.log('Session generated for:', sessionID);
 
       // Initialize a JIFF computation for this session
-      context.jiff.initializeSession(sessionID, publickey, MAX_SIZE);
+      context.jiff.initializeSession(sessionID, publickey, password, MAX_SIZE);
       console.log('JIFF Session initialized');
 
       // Done

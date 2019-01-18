@@ -2,13 +2,24 @@ const jiffServer = require('../../jiff/lib/jiff-server.js');
 const jiffServerBigNumber = require('../../jiff/lib/ext/jiff-server-bignumber.js');
 const jiffServerRestAPI = require('../../jiff/lib/ext/jiff-server-restful.js');
 
+const config = require('../config/config.js');
+const mpc = require('../../client/app/helper/mpc.js');
+
 const options = { logs: true, sodium: false, hooks: {} };
-const computeOptions = { sodium: false }; // Can include things like Zp and crypto hooks
+const computeOptions = {
+  sodium: false,
+  hooks: {
+    createSecretShare: [function (jiff, share, helpers) {
+      share.refresh = function () { return share; };
+      return share;
+    }]
+  }
+};
 
 var mailbox_hooks = require('./mailbox.js');
 var authentication_hooks = require('./auth.js');
-var submission_hooks = require('./submission.js');
-options.hooks = Object.assign(options.hooks, mailbox_hooks, authentication_hooks, submission_hooks);
+var status_hooks = require('./status.js');
+options.hooks = Object.assign(options.hooks, mailbox_hooks, authentication_hooks, status_hooks);
 
 // TODO: do not forget to load configurations from DB on create.
 // In particular, load session keys and public keys, and use initializeSession below
@@ -17,37 +28,44 @@ function JIFFWrapper(server, app) {
   this.serverInstance = jiffServer.make_jiff(server, options);
   // this.serverInstance.apply_extension(jiffServerBigNumber, options);
   this.serverInstance.apply_extension(jiffServerRestAPI, { app: app });
+  this.serverInstance._wrapper = this;
 
   // Track jiff_party_ids of submitters
   // This is stored in volatile memory but must be persistent
   // TODO: read/compute these from DB on create + initialize_session.
-  this.tracker = {};
+  this.tracker = {'0a9qc6zkmv344kzx0a434mhbvc': { 3222: true, 4817: true } };
   this.computed = {};
+
+  this.initializeSession('0a9qc6zkmv344kzx0a434mhbvc', '', '096c1w58tbg34wrx06cnmdd6fw', 100000);
+  this.tracker = {'0a9qc6zkmv344kzx0a434mhbvc': { 3222: true, 4817: true } };
 }
 module.exports = JIFFWrapper;
 
 // Initializing a JIFF computation when a session is created.
-JIFFWrapper.prototype.initializeSession = async function (session_key, public_key, max_party_count) {
-  // Disable authentication hook
-  var oldHooks = this.serverInstance.hooks.beforeInitialization;
-  this.serverInstance.hooks.beforeInitialization = [];
+JIFFWrapper.prototype.initializeSession = async function (session_key, public_key, password, max_party_count) {
+  this.tracker[session_key] = {};
+  this.computed[session_key] = false;
 
   // Initialize
-  await this.serverInstance.initialize_party(session_key, 1, max_party_count, { public_key: public_key, party_id: 1, party_count: max_party_count });
+  await this.serverInstance.initialize_party(session_key, 1, max_party_count, { public_key: public_key, party_id: 1, party_count: max_party_count, password: password });
+  this.serverInstance.key_map['0a9qc6zkmv344kzx0a434mhbvc'] = { 3222: '', 4817: '' };
 
   // Enable authentication hook
-  this.serverInstance.hooks.beforeInitialization = oldHooks;
   this.computeSession(session_key);
 };
 
 // Keeps track of submitters IDs
-JIFFWrapper.prototype.trackParty = function (jiff_party_id) {
-  this.tracker[jiff_party_id] = true;
+JIFFWrapper.prototype.trackParty = function (session_key, jiff_party_id, status) {
+  if (jiff_party_id === 's1' || jiff_party_id === 1) {
+    return;
+  }
+
+  this.tracker[session_key][jiff_party_id] = status;
 };
-JIFFWrapper.prototype.getTrackerParties = function () {
+JIFFWrapper.prototype.getTrackerParties = function (session_key) {
   var tracked = [];
-  for (var key in this.tracker) {
-    if (this.tracker.hasOwnProperty((key)) && this.tracker[key] === true) {
+  for (var key in this.tracker[session_key]) {
+    if (this.tracker[session_key].hasOwnProperty((key)) && this.tracker[session_key][key] === true) {
       tracked.push(key);
     }
   }
@@ -74,7 +92,15 @@ JIFFWrapper.prototype.computeSession = function (session_key) {
       return;
     }
 
-    console.log('Analyst requested to start opening computation', session_key, message);
     self.trackComputed(session_key);
+
+    console.log('Analyst requested to start opening computation', session_key, message);
+    computationInstance.connect();
+    var submitters = self.getTrackerParties(session_key);
+
+    computationInstance.emit('compute', [ 1 ], JSON.stringify(submitters), false);
+    var table_template = require('../../client/app/' + config.client.table_template + '.js');
+    var ordering = mpc.consistentOrdering(table_template);
+    mpc.compute(computationInstance, submitters, ordering);
   });
 };

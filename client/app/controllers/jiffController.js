@@ -1,24 +1,33 @@
-define(['BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI'], function (BigNumber, jiff, jiff_bignumber, jiff_restAPI) {
+define(['mpc', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'table_template'], function (mpc, BigNumber, jiff, jiff_bignumber, jiff_restAPI, table_template) {
   // initialize jiff instance
   var initialize = function (session, connectImmediately, options, initializationParams) {
-    jiff.dependencies({ io: jiff_restAPI.io });
+    if (connectImmediately) {
+      jiff.dependencies({ io: jiff_restAPI.io });
+    }
+
     var baseOptions = {
       autoConnect: false,
       sodium: false,
       hooks: {
         beforeOperation: [ function (jiff, op, msg) {
           if (op === 'initialization') {
-            msg = Object.assign(msg, initializationParams, { party_count: 1000000 });
+            msg = Object.assign(msg, initializationParams);
           }
           return msg;
+        }],
+        createSecretShare: [function (jiff, share, helpers) {
+          share.refresh = function () { return share; };
+          return share;
         }]
       }
     };
     baseOptions = Object.assign(baseOptions, options);
 
+    /*
     var bigNumberOptions = {
       Zp: new BigNumber(2).pow(65).minus(49) // Fits unsigned longs
     };
+    */
 
     var restOptions = {
       flushInterval: 0,
@@ -28,60 +37,18 @@ define(['BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI'], function (BigNum
 
     var instance = jiff.make_jiff('http://localhost:8080', session, baseOptions);
     // instance.apply_extension(jiff_bignumber, bigNumberOptions);
-    instance.apply_extension(jiff_restAPI, restOptions);
+    if (connectImmediately) {
+      instance.apply_extension(jiff_restAPI, restOptions);
+    }
+
     instance.connect(connectImmediately);
     return instance;
   };
 
-  // Order: consistent order on values as defined in the template.
-  // The order will be the same on client, server, and analyst side.
-  // Order:
-  // 1. first tables data, then questions (if exist)
-  // 2. tables come in the order they are defined in the template in.
-  // 3. table is traversed by rows, then columns, in the order they are defined in the template in.
-  // 4. questions come in the order they are defined in.
-  // 5. for each question, the options come in the order they are defined in.
-  // The returned object is formatted as follows:
-  // {
-  //   tables: [ { table: <first table name>, row: <first row key>, col: <first col key> }, ... ]
-  //   questions: [ { question: <first question text>, option: <first option value> }, ... ]
-  // }
-  function consistentOrdering(table_template) {
-    var tables = [];
-    var questions = [];
-    // order tables
-    for (var i = 0; i < table_template.tables.length; i++) {
-      var table_def = table_template.tables[i];
-      if (table_def.submit === false) {
-        continue;
-      }
-
-      var rows = table_def.rows;
-      var cols = table_def.cols[table_def.cols.length - 1];
-      for (var r = 0; r < rows.length; r++) {
-        for (var c = 0; c < cols.length; c++) {
-          var row = rows[r].key;
-          var col = cols[c].key;
-          tables.push({ table: table_def.name, row: row, col: col });
-        }
-      }
-    }
-    // order questions
-    if (table_template.survey != null) {
-      for (var q = 0; q < table_template.survey.questions.length; q++) {
-        var question = table_template.survey.questions[q];
-        for (var o = 0; o < question.inputs.length; o++) {
-          var option = question.inputs[o].value;
-          questions.push({ question: question.question_text, option: option });
-        }
-      }
-    }
-    return { questions: questions, tables: tables };
-  }
-
   // Client side stuff
-  var clientSubmit = function (sessionkey, userkey, dataSubmission, table_template, callback) {
-    var ordering = consistentOrdering(table_template);
+  var clientSubmit = function (sessionkey, userkey, dataSubmission, callback) {
+    console.log(dataSubmission);
+    var ordering = mpc.consistentOrdering(table_template);
     var values = [];
 
     // List values according to consistent ordering
@@ -101,7 +68,7 @@ define(['BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI'], function (BigNum
 
     // Initialize and submit
     var jiff = initialize(sessionkey, true, { onError: onError }, { userkey: userkey });
-    jiff.wait_for(['s1'], function () { // TODO put 1 back after testing
+    jiff.wait_for([1, 's1'], function () { // TODO put 1 back after testing
       // After initialization
       jiff.restReceive = callback;
       for (var i = 0; i < values.length; i++) {
@@ -112,11 +79,39 @@ define(['BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI'], function (BigNum
   };
 
   // Analyst side stuff
+  var computeAndFormat = function (sessionkey, password, secretkey, error, callback) {
+    var jiff = initialize(sessionkey, false, { onError: error, secret_key: secretkey, party_id: 1 }, { password: password });
+    jiff.wait_for([1, 's1'], function () {
+      jiff.emit('compute', ['s1'], '', false);
+
+      var inCompute = false;
+      jiff.listen('compute', function (party_id, msg) {
+        if (party_id !== 's1' || inCompute) {
+          return;
+        }
+
+        inCompute = true;
+        var ordering = mpc.consistentOrdering(table_template);
+        var submitters = JSON.parse(msg);
+
+        var promise = mpc.compute(jiff, submitters, ordering);
+        promise = mpc.format(promise, submitters, ordering);
+        promise.then(function (result) {
+          callback(result);
+        }).catch(function (err) {
+          error(err);
+        });
+      });
+    });
+  };
 
   // Exports
   return {
     client: {
       submit: clientSubmit
+    },
+    analyst: {
+      computeAndFormat: computeAndFormat
     }
   }
 });

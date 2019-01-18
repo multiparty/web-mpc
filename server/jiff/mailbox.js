@@ -25,12 +25,14 @@ module.exports = {
       });
 
       var promise = modules.Mailbox.update(
-        { _id: id },
+        {_id: id},
         obj.toObject(),
-        { upsert: true }
+        {upsert: true}
       );
 
+      jiff._wrapper.trackParty(computation_id, tmp['party_id'], true);
       promise.then(resolve).catch(function () {
+        jiff._wrapper.trackParty(computation_id, tmp['party_id'], false);
         reject('Unable to save aggregate, please try again.');
       });
     });
@@ -41,7 +43,6 @@ module.exports = {
     return new Promise(function (resolve, reject) {
       modules.Mailbox.where({ to_id: to_id, session: computation_id }).find(function (err, data) {
         if (err) {
-          console.log(err);
           reject('Error getting masks.');
           return;
         }

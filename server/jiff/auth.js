@@ -21,7 +21,6 @@ function userAuth(computation_id, msg, params) {
       } else {
         // Give party a consistent id (will remain the same when reconnecting / resubmitting)
         params.party_id = data.jiff_party_id;
-        console.log(params.party_id);
         resolve(params);
       }
     });
@@ -31,6 +30,11 @@ function userAuth(computation_id, msg, params) {
 module.exports = {
   beforeInitialization: [
     function (jiff, computation_id, msg, params) {
+      // Internal: no authentication
+      if (params.party_id === 's1') {
+        return msg;
+      }
+
       // Authenticate as analyst
       if (params.party_id === 1) {
         return analystAuth(computation_id, msg, params);
