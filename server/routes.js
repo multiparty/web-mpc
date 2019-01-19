@@ -21,19 +21,22 @@ const validation = require('./app/validation.js');
 const auth = require('./app/auth.js');
 
 // Route functionality
-const managementRoutes = require('./app/management.js');
-const submissionRoutes = require('./app/submission.js');
+const sessionRoutes = require('./app/session.js');
+const sessionStatusRoutes = require('./app/sessionStatus.js');
+const clientURLsRoutes = require('./app/clientUrls.js');
 
 // Route map
 module.exports = [
-  // Management routes
-  { url: '/create_session', route: managementRoutes.createSession, validation: validation.createSession },
-  { url: '/fetch_status', route: managementRoutes.getStatus, validation: validation.getStatus },
-  { url: '/change_status', route: managementRoutes.setStatus, validation: validation.setStatus, authentication: auth.password },
-  { url: '/generate_client_urls', route: managementRoutes.createClientUrls, validation: validation.createClientUrls, authentication: auth.password },
-  { url: '/get_client_urls', route: managementRoutes.getClientUrls, validation: validation.getClientUrls, authentication: auth.password },
-  { url: '/get_history', route: managementRoutes.getSubmissionHistory, validation: validation.getSubmissionHistory, authentication: auth.password },
+  // Session creation and query routes
+  { url: '/create_session', route: sessionRoutes.createSession, validation: validation.createSession },
+  { url: '/sessioninfo', route: sessionRoutes.getSessionInfo, validation: validation.getSessionInfo, authentication: auth.userKey },
 
-  // Data submission routes
-  { url: '/sessioninfo', route: submissionRoutes.getSessionInfo, validation: validation.getSessionInfo, authentication: auth.userKey },
+  // Session status and history routes
+  { url: '/fetch_status', route: sessionStatusRoutes.getStatus, validation: validation.getStatus },
+  { url: '/change_status', route: sessionStatusRoutes.setStatus, validation: validation.setStatus, authentication: auth.password },
+  { url: '/get_history', route: sessionStatusRoutes.getSubmissionHistory, validation: validation.getSubmissionHistory, authentication: auth.password },
+
+  // Routes to generate and query (client urls / user keys / participation code)
+  { url: '/generate_client_urls', route: clientURLsRoutes.createClientUrls, validation: validation.createClientUrls, authentication: auth.password },
+  { url: '/get_client_urls', route: clientURLsRoutes.getClientUrls, validation: validation.getClientUrls, authentication: auth.password }
 ];

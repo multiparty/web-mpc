@@ -1,3 +1,4 @@
+// Dependencies
 const jiffServer = require('../../jiff/lib/jiff-server.js');
 const jiffServerBigNumber = require('../../jiff/lib/ext/jiff-server-bignumber.js');
 const jiffServerRestAPI = require('../../jiff/lib/ext/jiff-server-restful.js');
@@ -5,6 +6,12 @@ const jiffServerRestAPI = require('../../jiff/lib/ext/jiff-server-restful.js');
 const config = require('../config/config.js');
 const mpc = require('../../client/app/helper/mpc.js');
 
+const mailbox_hooks = require('./mailbox.js');
+const authentication_hooks = require('./auth.js');
+
+const MAX_SIZE = config.MAX_SIZE;
+
+// Options and Hooks
 const options = { logs: true, sodium: false, hooks: {} };
 const computeOptions = {
   sodium: false,
@@ -17,12 +24,8 @@ const computeOptions = {
     }]
   }
 };
-
-var mailbox_hooks = require('./mailbox.js');
-var authentication_hooks = require('./auth.js');
 options.hooks = Object.assign(options.hooks, mailbox_hooks, authentication_hooks);
 
-// TODO: do not forget to load configurations from DB on create.
 // In particular, load session keys and public keys, and use initializeSession below
 // to initialize the sessions.
 function JIFFWrapper(server, app) {
@@ -33,11 +36,14 @@ function JIFFWrapper(server, app) {
 
   // Track jiff_party_ids of submitters
   // This is stored in volatile memory but must be persistent
-  // TODO: read/compute these from DB on create + initialize_session.
   this.tracker = {};
   this.computed = {};
+
+  // Load some volatile state from DB that may have been lost on shutdown/startup.
+  this.loadSessions();
 }
 module.exports = JIFFWrapper;
+
 
 // Load previously created sessions from DB into memory
 JIFFWrapper.prototype.loadSessions = async function () {
@@ -48,13 +54,15 @@ JIFFWrapper.prototype.loadSessions = async function () {
 
 };
 
+
 // Initializing a JIFF computation when a session is created.
-JIFFWrapper.prototype.initializeSession = async function (session_key, public_key, password, max_party_count) {
+JIFFWrapper.prototype.initializeSession = async function (session_key, public_key, password) {
   this.tracker[session_key] = {};
   this.computed[session_key] = false;
 
   // Initialize
-  await this.serverInstance.initialize_party(session_key, 1, max_party_count, { public_key: public_key, party_id: 1, party_count: max_party_count, password: password });
+  var msg = { public_key: public_key, party_id: 1, party_count: MAX_SIZE, password: password };
+  await this.serverInstance.initialize_party(session_key, 1, MAX_SIZE, msg);
   this.serverInstance.key_map['0a9qc6zkmv344kzx0a434mhbvc'] = { 3222: '', 4817: '' };
 
   // Enable authentication hook

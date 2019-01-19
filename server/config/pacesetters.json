@@ -1,5 +1,6 @@
 {
   "template": "../client/app/data/pacesetters",
+  "MAX_SIZE": 10000,
 
   "webRootPath": "/tmp/acme-challenges",
   "approveDomainsPattern": "^([A-Za-z0-9]+.)?pacesetters.org$",
