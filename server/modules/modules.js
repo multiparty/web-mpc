@@ -22,10 +22,11 @@ mongoose.Promise = Promise;
 // Mongoose Model definitions
 const HistoryModule = mongoose.model('History', new mongoose.Schema({
   // Keeps track of submission history
-  _id: String, // concat of session + userkey.
+  _id: String, // concat of session + jiff_party_id.
   session: String,
-  userkey: String,
-  date: Number
+  jiff_party_id: Number,
+  date: Number,
+  success: Boolean
 }));
 const MailboxModule = mongoose.model('Mailbox', new mongoose.Schema({
   // Store messages/shares

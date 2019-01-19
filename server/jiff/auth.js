@@ -58,6 +58,25 @@ module.exports = {
       // Analyst connect when they want to compute the results, the status must be STOP
       // Clients connect to submit, the status must be START
       await verifyStatus(computation_id, party_id === 1 ? 'STOP' : 'START'); // if failed, this will throw an error
+
+      if (party_id !== 1) {
+        // For submitters, track them as non-submitters on submission start (in case of failures)
+        // and when submission is successful, track them as submitters.
+        await jiff._wrapper.untrackParty(computation_id, msg['initialization']['userkey']);
+      }
+      return msg;
+    }
+  ],
+  afterOperation: [
+    // This is not really about authentication, but tracking submitters.
+    async function (jiff, operation, computation_id, party_id, msg) {
+      // return message or throw string error
+      if (operation !== 'poll' || party_id === 's1' || party_id === '1') {
+        // Not a submitter / submission
+        return msg;
+      }
+
+      await jiff._wrapper.trackParty(computation_id, party_id);
       return msg;
     }
   ],

@@ -34,26 +34,12 @@ function JIFFWrapper(server, app) {
   this.serverInstance.apply_extension(jiffServerRestAPI, { app: app });
   this.serverInstance._wrapper = this;
 
-  // Track jiff_party_ids of submitters
-  // This is stored in volatile memory but must be persistent
-  this.tracker = {};
-  this.computed = {};
-
   // Load some volatile state from DB that may have been lost on shutdown/startup.
-  this.loadSessions();
+  this.loadVolatile();
 }
-module.exports = JIFFWrapper;
 
-
-// Load previously created sessions from DB into memory
-JIFFWrapper.prototype.loadSessions = async function () {
-  // We have three pieces of volatile information that we need to load
-  // 1. jiff session information (compute using initializeSession)
-  // 2. tracker to keep track of submitters and associated public keys in serverInstance.key_map
-  // 3. computed to keep track of which session have been computed.
-
-};
-
+// Add volatile state management
+require('./volatile')(JIFFWrapper);
 
 // Initializing a JIFF computation when a session is created.
 JIFFWrapper.prototype.initializeSession = async function (session_key, public_key, password) {
@@ -67,35 +53,6 @@ JIFFWrapper.prototype.initializeSession = async function (session_key, public_ke
 
   // Enable authentication hook
   this.computeSession(session_key);
-};
-
-// Keeps track of submitters IDs
-JIFFWrapper.prototype.trackParty = function (session_key, jiff_party_id, status) {
-  if (jiff_party_id === 's1' || jiff_party_id === 1) {
-    return;
-  }
-
-  this.tracker[session_key][jiff_party_id] = status;
-};
-JIFFWrapper.prototype.getTrackerParties = function (session_key) {
-  var tracked = [];
-  for (var key in this.tracker[session_key]) {
-    if (this.tracker[session_key].hasOwnProperty((key)) && this.tracker[session_key][key] === true) {
-      tracked.push(key);
-    }
-  }
-
-  tracked.sort();
-  return tracked;
-};
-
-// Keeps track of computations that has been computed: no need to recompute these,
-// can just replay messages from database.
-JIFFWrapper.prototype.trackComputed = function (session_key) {
-  this.computed[session_key] = true;
-};
-JIFFWrapper.prototype.hasBeenComputed = function (session_key) {
-  return this.computed[session_key] === true;
 };
 
 // Setting up a listener for the session, to start computing when analyst requests.
@@ -119,3 +76,5 @@ JIFFWrapper.prototype.computeSession = function (session_key) {
     mpc.compute(computationInstance, submitters, ordering);
   });
 };
+
+module.exports = JIFFWrapper;

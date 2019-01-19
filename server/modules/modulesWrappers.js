@@ -23,6 +23,25 @@ var queryHistory = function (session_key, last_fetch) {
 };
 
 // add to history of a given session
+var insertHistory = function (session_key, jiff_party_id, success) {
+  var history = new modules.History({
+    _id: session_key + jiff_party_id,
+    session: session_key,
+    jiff_party_id: jiff_party_id,
+    date: Date.now(),
+    success: success
+  });
+
+  return new Promise(function (resolve, reject) {
+    history.save(function (err) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+};
 
 /**
  * SESSION INFO MODULE
@@ -185,9 +204,6 @@ var queryMailbox = function (session_key, to_jiff_party_id, from_jiff_party_id) 
   });
 };
 
-// get entire mailbox for session key grouped by user id
-
-
 /**
  * CONVENTION:
  * 1. query yields a list (potentially empty).
@@ -197,7 +213,8 @@ var queryMailbox = function (session_key, to_jiff_party_id, from_jiff_party_id) 
  */
 module.exports = {
   History: {
-    query: queryHistory
+    query: queryHistory,
+    insert: insertHistory
   },
   SessionInfo: {
     get: getSessionInfo,

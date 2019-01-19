@@ -13,11 +13,7 @@ module.exports = {
     }
 
     var promise = modulesWrappers.Mailbox.upsert(computation_id, tmp['party_id'], to_id, tmp['op_id'], label, msg);
-    return promise.then(function () {
-      jiff._wrapper.trackParty(computation_id, tmp['party_id'], true);
-      return true;
-    }).catch(function (err) {
-      jiff._wrapper.trackParty(computation_id, tmp['party_id'], false);
+    return promise.catch(function (err) {
       console.log('Error in putting in mailbox', err);
       throw new Error('Unable to save aggregate, please try again.');
     });
