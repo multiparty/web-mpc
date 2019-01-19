@@ -13,8 +13,8 @@ module.exports = {};
 // endpoint for creating the session
 module.exports.createSession = function (context, body, res) {
   var publickey = body.publickey;
-  var sessionID = helpers.generateRandomBase32(TOKEN_LENGTH);
-  var password = helpers.generateRandomBase32(TOKEN_LENGTH);
+  var sessionID = helpers.generateRandomBase32();
+  var password = helpers.generateRandomBase32();
 
   var title = body.title.split('<').join('&lt;').split('>').join('&gt;');
   var description = body.description.split('<').join('&lt;').split('>').join('&gt;');
