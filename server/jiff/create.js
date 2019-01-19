@@ -35,7 +35,7 @@ function JIFFWrapper(server, app) {
   this.serverInstance._wrapper = this;
 
   // Load some volatile state from DB that may have been lost on shutdown/startup.
-  this.loadVolatile();
+  this.ready = this.loadVolatile();
 }
 
 // Add volatile state management
@@ -49,7 +49,6 @@ JIFFWrapper.prototype.initializeSession = async function (session_key, public_ke
   // Initialize
   var msg = { public_key: public_key, party_id: 1, party_count: MAX_SIZE, password: password };
   await this.serverInstance.initialize_party(session_key, 1, MAX_SIZE, msg);
-  this.serverInstance.key_map['0a9qc6zkmv344kzx0a434mhbvc'] = { 3222: '', 4817: '' };
 
   // Enable authentication hook
   this.computeSession(session_key);

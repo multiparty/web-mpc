@@ -12,6 +12,7 @@ var queryHistory = function (session_key, last_fetch) {
       query = query.gt('date', last_fetch);
     }
 
+    query = query.sort({ date: 'asc'});
     query.find(function (err, data) {
       if (err) {
         reject(err);
@@ -83,6 +84,17 @@ var updateSessionInfo = function (sessionInfo) {
 };
 
 // get all sessions
+var allSessionInfo = function () {
+  return new Promise(function (resolve, reject) {
+    modules.SessionInfo.find({}, function (err, data) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(data);
+      }
+    });
+  });
+};
 
 // find session by session key and password
 var getSessionInfo = function (session, password) {
@@ -219,7 +231,8 @@ module.exports = {
   SessionInfo: {
     get: getSessionInfo,
     insert: insertSessionInfo,
-    update: updateSessionInfo
+    update: updateSessionInfo,
+    all: allSessionInfo
   },
   UserKey: {
     get: getUserKey,

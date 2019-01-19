@@ -8,6 +8,8 @@ const modulesWrappers = require('../modules/modulesWrappers.js');
 module.exports = function (JIFFWrapper) {
   // Load previously created sessions from DB into memory
   JIFFWrapper.prototype.loadVolatile = async function () {
+    var self = this;
+
     // Track jiff_party_ids of submitters, and which sessions have been computed / unmasked.
     // This is stored in volatile memory but must be persistent
     this.tracker = {};
@@ -17,7 +19,38 @@ module.exports = function (JIFFWrapper) {
     // 1. jiff session information (compute using initializeSession)
     // 2. tracker to keep track of submitters and associated public keys in serverInstance.key_map
     // 3. computed to keep track of which session have been computed.
+    var promise = modulesWrappers.SessionInfo.all();
+    return promise.then(async function (sessions) {
+      for (var session of sessions) {
+        var session_key = session.session;
+        var public_key = session.pub_key;
+        var password = session.password;
 
+        // Load 1: session information
+        await self.initializeSession(session_key, public_key, password);
+
+        // Load 2: submission tracking
+        var history = await modulesWrappers.History.query(session_key);
+        for (var submission of history) {
+          var party_id = submission.jiff_party_id;
+          var status = submission.status;
+
+          self.tracker[session_key][party_id] = status;
+          if (status) {
+            self.serverInstance.key_map[session_key][party_id] = '';
+          } else {
+            delete self.serverInstance.key_map[session_key][party_id];
+          }
+        }
+
+        // Compute 3: computed session tracking
+        var mailbox = await modulesWrappers.Mailbox.query(session_key, 1, 's1');
+        self.computed[session_key] = (mailbox.length > 0);
+      }
+
+      // loaded successfully
+      return true;
+    });
   };
 
   // Keeps track of submitters IDs

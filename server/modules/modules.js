@@ -54,7 +54,6 @@ const UserKeyModule = mongoose.model('UserKey', new mongoose.Schema({
   jiff_party_id: Number
 }));
 
-
 // Export modules
 module.exports = {
   History: HistoryModule,

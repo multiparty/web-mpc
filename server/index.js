@@ -21,10 +21,18 @@ const jiff = require('./jiff/create.js');
 const app = require('./app.js');
 
 // Create either an http for staging or https server for production
-var server = production(app);
+var server = production.create(app);
 
 // JIFF
 var jiffWrapper = new jiff(server, app);
 
 // Store context
 app.myPutContext('jiff', jiffWrapper);
+
+jiffWrapper.ready.then(function () {
+  console.log('JIFF state loaded!');
+  production.listen(server);
+}).catch(function (err) {
+  console.log('Error loading JIFF state');
+  console.log(err);
+});
