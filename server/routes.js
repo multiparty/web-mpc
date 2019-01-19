@@ -18,7 +18,7 @@
 
 // JOI validation schemas
 const validation = require('./app/validation.js');
-const auth = require('./modules/auth.js');
+const auth = require('./app/auth.js');
 
 // Route functionality
 const managementRoutes = require('./app/management.js');

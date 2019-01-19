@@ -9,8 +9,10 @@ const options = { logs: true, sodium: false, hooks: {} };
 const computeOptions = {
   sodium: false,
   hooks: {
-    createSecretShare: [function (jiff, share, helpers) {
-      share.refresh = function () { return share; };
+    createSecretShare: [function (jiff, share) {
+      share.refresh = function () {
+        return share;
+      };
       return share;
     }]
   }
@@ -18,8 +20,7 @@ const computeOptions = {
 
 var mailbox_hooks = require('./mailbox.js');
 var authentication_hooks = require('./auth.js');
-var status_hooks = require('./status.js');
-options.hooks = Object.assign(options.hooks, mailbox_hooks, authentication_hooks, status_hooks);
+options.hooks = Object.assign(options.hooks, mailbox_hooks, authentication_hooks);
 
 // TODO: do not forget to load configurations from DB on create.
 // In particular, load session keys and public keys, and use initializeSession below
@@ -40,6 +41,10 @@ module.exports = JIFFWrapper;
 
 // Load previously created sessions from DB into memory
 JIFFWrapper.prototype.loadSessions = async function () {
+  // We have three pieces of volatile information that we need to load
+  // 1. jiff session information (compute using initializeSession)
+  // 2. tracker to keep track of submitters and associated public keys in serverInstance.key_map
+  // 3. computed to keep track of which session have been computed.
 
 };
 

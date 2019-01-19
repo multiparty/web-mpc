@@ -1,7 +1,7 @@
 /**
  * Authentication functions. Assigned to route in ../routes.js
  */
-const modulesWrapper = require('./modulesWrappers.js');
+const modulesWrapper = require('../modules/modulesWrappers.js');
 
 // Session Key + Password Authentication
 module.exports.password = function (body, callback) {

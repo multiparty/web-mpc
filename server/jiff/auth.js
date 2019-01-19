@@ -1,6 +1,8 @@
-var Promise = require('bluebird');
-var auth = require('../modules/auth.js');
+const Promise = require('bluebird');
+const auth = require('../app/auth.js');
+const modulesWrappers = require('../modules/modulesWrappers.js');
 
+// Wrappers around ../app/auth.js
 function analystAuth(computation_id, msg, params) {
   return new Promise(function (resolve, reject) {
     auth.password({ session: computation_id, password: msg['password'] }, function (success, data) {
@@ -27,7 +29,38 @@ function userAuth(computation_id, msg, params) {
   });
 }
 
+// Helper that verifies the session status
+function verifyStatus(sessionKey, expectedStatus) {
+  var promise = modulesWrappers.SessionInfo.get(sessionKey);
+
+  return promise.catch(function (err) {
+    console.log('Error verifying status', err);
+    throw new Error('Error while verifying session status');
+  }).then(function (data) {
+    const actualStatus = data ? data.status : 'PAUSE';
+    if (expectedStatus === actualStatus) {
+      return true;
+    } else {
+      console.log('bad session');
+      throw new Error('Session status is ' + actualStatus);
+    }
+  });
+}
+
 module.exports = {
+  beforeOperation: [
+    async function (jiff, operation, computation_id, party_id, msg) {
+      // return message or throw string error
+      if (operation !== 'poll' || party_id === 's1') {
+        return msg;
+      }
+
+      // Analyst connect when they want to compute the results, the status must be STOP
+      // Clients connect to submit, the status must be START
+      await verifyStatus(computation_id, party_id === 1 ? 'STOP' : 'START'); // if failed, this will throw an error
+      return msg;
+    }
+  ],
   beforeInitialization: [
     function (jiff, computation_id, msg, params) {
       // Internal: no authentication
