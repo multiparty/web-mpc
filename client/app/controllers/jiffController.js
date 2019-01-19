@@ -1,18 +1,12 @@
 define(['mpc', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'table_template'], function (mpc, BigNumber, jiff, jiff_bignumber, jiff_restAPI, table_template) {
-  // initialize jiff instance
-  var initialize = function (session, flushInterval, connectImmediately, options, initializationParams) {
-    jiff.dependencies({ io: jiff_restAPI.io });
+  jiff.dependencies({ io: jiff_restAPI.io });
 
+  // initialize jiff instance
+  var initialize = function (session, role, options) {
     var baseOptions = {
       autoConnect: false,
       sodium: false,
       hooks: {
-        beforeOperation: [ function (jiff, op, msg) {
-          if (op === 'initialization') {
-            msg = Object.assign(msg, initializationParams);
-          }
-          return msg;
-        }],
         createSecretShare: [function (jiff, share) {
           share.refresh = function () {
             return share;
@@ -30,7 +24,7 @@ define(['mpc', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'table_tem
     */
 
     var restOptions = {
-      flushInterval: flushInterval,
+      flushInterval: role === 'analyst' ? 1000 : 0,
       pollInterval: 0,
       maxBatchSize: 1000
     };
@@ -39,7 +33,7 @@ define(['mpc', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'table_tem
     // instance.apply_extension(jiff_bignumber, bigNumberOptions);
     instance.apply_extension(jiff_restAPI, restOptions);
 
-    instance.connect(connectImmediately);
+    instance.connect();
     return instance;
   };
 
@@ -60,12 +54,17 @@ define(['mpc', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'table_tem
     }
 
     // Handle jiff errors returned from server
-    var onError = function (errorString) {
-      callback(null, JSON.stringify({ status: false, error: errorString }));
+    var options = {
+      onError: function (errorString) {
+        callback(null, JSON.stringify({ status: false, error: errorString }));
+      },
+      initialization: {
+        userkey: userkey
+      }
     };
 
     // Initialize and submit
-    var jiff = initialize(sessionkey, 0, true, { onError: onError }, { userkey: userkey });
+    var jiff = initialize(sessionkey, 'client', options);
     jiff.wait_for([1, 's1'], function () {
       // After initialization
       jiff.restReceive = callback;
@@ -78,7 +77,16 @@ define(['mpc', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'table_tem
 
   // Analyst side stuff
   var computeAndFormat = function (sessionkey, password, secretkey, error, callback) {
-    var jiff = initialize(sessionkey, 1000, false, { onError: error, secret_key: secretkey, party_id: 1 }, { password: password });
+    var options = {
+      onError: error,
+      secret_key: secretkey,
+      party_id: 1,
+      initialization: {
+        password: password
+      }
+    };
+
+    var jiff = initialize(sessionkey, 'analyst', options);
     jiff.wait_for([1, 's1'], function () {
       jiff.emit('compute', ['s1'], '', false);
 

@@ -34,6 +34,14 @@ function JIFFWrapper(server, app) {
   this.serverInstance.apply_extension(jiffServerRestAPI, { app: app });
   this.serverInstance._wrapper = this;
 
+  // Unsupported/insecure operations
+  this.serverInstance.request_number_share = function () {
+    throw new Error('Generating numbers using the server is not supported!');
+  };
+  this.serverInstance.request_triplet_share = function () {
+    throw new Error('Generating beaver triplets using the server is not supported!');
+  };
+
   // Load some volatile state from DB that may have been lost on shutdown/startup.
   this.ready = this.loadVolatile();
 }
