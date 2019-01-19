@@ -5,25 +5,24 @@
 
 const Promise = require('bluebird');
 
-// Mongo Modules
-const modules = require('../modules/modules.js');
+// Mongo Modules Operation Wrappers
+const modulesWrappers = require('../modules/modulesWrappers.js');
 
 // Export route handlers
 module.exports = {};
 
 // endpoint for verifying user and session key and getting the session info.
 module.exports.getSessionInfo = function (context, body, response) {
-  modules.SessionInfo.findOne({ session: body.session }, function (err, data) {
-    if (err) {
-      console.log(err);
-      response.status(500).send('Error while fetching data.');
-      return;
-    }
+  var promise = modulesWrappers.SessionInfo.get(body.session);
 
+  promise.then(function (data) {
     if (data) {
       response.send({ title: data.title, description: data.description });
     } else {
       response.status(500).send('Invalid session key.');
     }
+  }).catch(function (err) {
+    console.log('Error getting session info', err);
+    response.status(500).send('Error while fetching data.');
   });
 };

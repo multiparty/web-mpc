@@ -96,7 +96,7 @@ define([], function () {
         var row = ordering.tables[i].row;
         var col = ordering.tables[i].col;
 
-        results[i] = Math.floor(results[i] / submitters.length);
+        results[i] = results[i] / submitters.length;
         if (finalObject[table] == null) {
           finalObject[table] = {};
         }

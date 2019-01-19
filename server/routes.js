@@ -23,7 +23,6 @@ const auth = require('./modules/auth.js');
 // Route functionality
 const managementRoutes = require('./app/management.js');
 const submissionRoutes = require('./app/submission.js');
-const aggregateRoutes = require('./app/aggregate.js');
 
 // Route map
 module.exports = [
@@ -37,8 +36,4 @@ module.exports = [
 
   // Data submission routes
   { url: '/sessioninfo', route: submissionRoutes.getSessionInfo, validation: validation.getSessionInfo, authentication: auth.userKey },
-
-  // Final aggregation routes
-  { url: '/get_masks', route: aggregateRoutes.getMasks, validation: validation.getMasks, authentication: auth.password },
-  { url: '/get_aggregate', route: aggregateRoutes.getAggregate, validation: validation.getAggregate, authentication: auth.password },
 ];

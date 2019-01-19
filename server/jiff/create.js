@@ -33,13 +33,15 @@ function JIFFWrapper(server, app) {
   // Track jiff_party_ids of submitters
   // This is stored in volatile memory but must be persistent
   // TODO: read/compute these from DB on create + initialize_session.
-  this.tracker = {'0a9qc6zkmv344kzx0a434mhbvc': { 3222: true, 4817: true } };
+  this.tracker = {};
   this.computed = {};
-
-  this.initializeSession('0a9qc6zkmv344kzx0a434mhbvc', '', '096c1w58tbg34wrx06cnmdd6fw', 100000);
-  this.tracker = {'0a9qc6zkmv344kzx0a434mhbvc': { 3222: true, 4817: true } };
 }
 module.exports = JIFFWrapper;
+
+// Load previously created sessions from DB into memory
+JIFFWrapper.prototype.loadSessions = async function () {
+
+};
 
 // Initializing a JIFF computation when a session is created.
 JIFFWrapper.prototype.initializeSession = async function (session_key, public_key, password, max_party_count) {

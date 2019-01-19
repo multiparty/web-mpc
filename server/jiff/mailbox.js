@@ -1,4 +1,4 @@
-const modules = require('../modules/modules.js');
+const modulesWrappers = require('../modules/modulesWrappers.js');
 var Promise = require('bluebird');
 
 module.exports = {
@@ -6,58 +6,36 @@ module.exports = {
     // computation_id: same as session key
     // msg JSON string
     // label string: share / open / etc ..
-    return new Promise(function (resolve, reject) {
-      var tmp = JSON.parse(msg);
-      if (label === 'public_keys') {
-        tmp['party_id'] = 's1';
-        tmp['op_id'] = 'public_keys';
-      }
+    var tmp = JSON.parse(msg);
+    if (label === 'public_keys') {
+      tmp['party_id'] = 's1';
+      tmp['op_id'] = 'public_keys';
+    }
 
-      var id = computation_id + ':' + tmp['party_id'] + ':' + to_id + ':' + tmp['op_id'];
-      var obj = new modules.Mailbox({
-        _id: id,
-        session: computation_id,
-        from_id: tmp['party_id'],
-        to_id: to_id,
-        op_id: tmp['op_id'],
-        label: label,
-        message: msg
-      });
-
-      var promise = modules.Mailbox.update(
-        {_id: id},
-        obj.toObject(),
-        {upsert: true}
-      );
-
+    var promise = modulesWrappers.Mailbox.upsert(computation_id, tmp['party_id'], to_id, tmp['op_id'], label, msg);
+    return promise.then(function () {
       jiff._wrapper.trackParty(computation_id, tmp['party_id'], true);
-      promise.then(resolve).catch(function () {
-        jiff._wrapper.trackParty(computation_id, tmp['party_id'], false);
-        reject('Unable to save aggregate, please try again.');
-      });
+      return true;
+    }).catch(function (err) {
+      jiff._wrapper.trackParty(computation_id, tmp['party_id'], false);
+      console.log('Error in putting in mailbox', err);
+      throw new Error('Unable to save aggregate, please try again.');
     });
   },
 
   get_mailbox : function (jiff, computation_id, to_id) {
     // party_id: either 1 or s1
-    return new Promise(function (resolve, reject) {
-      modules.Mailbox.where({ to_id: to_id, session: computation_id }).find(function (err, data) {
-        if (err) {
-          reject('Error getting masks.');
-          return;
-        }
+    var promise = modulesWrappers.Mailbox.query(computation_id, to_id);
 
-        if (!data || data.length === 0) {
-          resolve([]);
-          // TODO: move this to the mpc computation code: reject('No submissions yet. Please come back later.');
-        } else {
-          var result = [];
-          for (var d of data) {
-            result.push({ msg: d.message, label: d.label });
-          }
-          resolve(result);
-        }
-      });
+    return promise.then(function (data) {
+      var result = [];
+      for (var d of data) {
+        result.push({ msg: d.message, label: d.label });
+      }
+      return result;
+    }).catch(function (err) {
+      console.log('Error in getting mailbox', err);
+      throw new Error('Error getting masks');
     });
   },
 

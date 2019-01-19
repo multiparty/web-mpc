@@ -35,8 +35,6 @@ module.exports = {
   },
 
   getClientUrls: Object.assign({}, schemaTemplates.keyPasswordTemplate),
-  getMasks: Object.assign({}, schemaTemplates.keyPasswordTemplate),
-  getAggregate: Object.assign({}, schemaTemplates.keyPasswordTemplate),
 
   createClientUrls: Object.assign({
     count: joi.number().integer().min(0).max(10000).required()

@@ -1,22 +1,20 @@
-const modules = require('../modules/modules.js');
-var Promise = require('bluebird');
+const modulesWrappers = require('../modules/modulesWrappers.js');
 
 // Helper that verifies the session status
 function verifyStatus(sessionKey, expectedStatus) {
-  return new Promise(function (resolve, reject) {
-    modules.SessionInfo.findOne({_id: sessionKey}, function (err, data) {
-      if (err) {
-        reject('Error while verifying participation code.');
-        return;
-      }
+  var promise = modulesWrappers.SessionInfo.get(sessionKey);
 
-      const actualStatus = data ? data.status : 'PAUSE';
-      if (expectedStatus === actualStatus) {
-        resolve(true);
-      } else {
-        reject('Session status is ' + actualStatus);
-      }
-    });
+  return promise.catch(function (err) {
+    console.log('Error verifying status', err);
+    throw new Error('Error while verifying session status');
+  }).then(function (data) {
+    const actualStatus = data ? data.status : 'PAUSE';
+    if (expectedStatus === actualStatus) {
+      return true;
+    } else {
+      console.log('bad session');
+      throw new Error('Session status is ' + actualStatus);
+    }
   });
 }
 

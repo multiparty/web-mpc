@@ -1,5 +1,5 @@
 /**
- * Database modules.
+ * Database modules
  */
 
 'use strict';
