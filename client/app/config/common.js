@@ -22,6 +22,7 @@ require.paths = Object.assign(require.paths, {
   alertify_defaults: 'helper/alertify_defaults',
   DropSheet: 'helper/drop_sheet',
   mpc: 'helper/mpc',
+  pki: 'helper/pki',
   ResizeSensor: 'vendor/ResizeSensor'
 });
 

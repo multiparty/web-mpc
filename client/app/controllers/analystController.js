@@ -6,7 +6,7 @@
  */
 /* global saveAs, Uint8Array */
 
-define(['filesaver'], function (filesaver) {
+define(['filesaver', 'pki'], function (filesaver, pki) {
 
   'use strict';
 
@@ -96,94 +96,48 @@ define(['filesaver'], function (filesaver) {
     var title = document.getElementById(titleID).value;
     var description = document.getElementById(descriptionID).value;
 
-    var keyP, privateKey, publicKey;
+    return pki.generateKeyPair().then(function (result) {
+      var privateKey = result.privateKey;
+      var publicKey = result.publicKey;
 
-    return window.crypto.subtle.generateKey(
-      {
-        name: 'RSA-OAEP',
-        modulusLength: 2048,
-        publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
-        hash: {name: 'SHA-256'}
-      },
-      true,
-      ['encrypt', 'decrypt']
-    )
-      .then(function (keyPair) {
-        keyP = keyPair;
-        return window.crypto.subtle.exportKey('pkcs8', keyPair.privateKey);
+      var priBlob = new Blob([privateKey], {type: 'text/plain;charset=utf-8'});
+
+      // TODO: shouldn't mix promises with callbacks like that
+      return $.ajax({
+        type: 'POST',
+        url: '/create_session',
+        contentType: 'application/json',
+        data: JSON.stringify({publickey: publicKey, title: title, description: description})
       })
-      .then(function (pkcs8) {
-        privateKey = toPem(arrayBufferToBase64String(pkcs8), true);
-        return window.crypto.subtle.exportKey('spki', keyP.publicKey);
+      .then(function (resp) {
+        var rndSess = resp.sessionID;
+        var password = resp.password;
+        document.getElementById(privID).innerHTML = privateKey;
+        document.getElementById(pubID).innerHTML = publicKey;
+        document.getElementById(sessionID).innerHTML = rndSess;
+        document.getElementById(passwordID).innerHTML = password;
+        // TODO clean up how this workflow
+        document.getElementById(linkID).innerHTML = 'tracking page';
+        document.getElementById(linkID).href = '/track?session=' + rndSess;
+
+        filesaver.saveAs(priBlob, 'Session_' + rndSess + '_private_key.pem');
+
+        var text = 'Session Key:\n' + rndSess + '\nPassword:\n' + password;
+        filesaver.saveAs(new Blob([text], {type: 'text/plain;charset=utf-8'}), 'Session_' + rndSess + '_password.txt');
       })
-      .then(function (spki) {
-        publicKey = toPem(arrayBufferToBase64String(spki), false);
-
-        var priBlob = new Blob([privateKey], {type: 'text/plain;charset=utf-8'});
-
-        // TODO: shouldn't mix promises with callbacks like that
-        return $.ajax({
-          type: 'POST',
-          url: '/create_session',
-          contentType: 'application/json',
-          data: JSON.stringify({publickey: publicKey, title: title, description: description})
-        })
-          .then(function (resp) {
-            var rndSess = resp.sessionID;
-            var password = resp.password;
-            document.getElementById(privID).innerHTML = privateKey;
-            document.getElementById(pubID).innerHTML = publicKey;
-            document.getElementById(sessionID).innerHTML = rndSess;
-            document.getElementById(passwordID).innerHTML = password;
-            // TODO clean up how this workflow
-            document.getElementById(linkID).innerHTML = 'tracking page';
-            document.getElementById(linkID).href = '/track?session=' + rndSess;
-
-            filesaver.saveAs(priBlob, 'Session_' + rndSess + '_private_key.pem');
-
-            var text = 'Session Key:\n' + rndSess + '\nPassword:\n' + password;
-            filesaver.saveAs(new Blob([text], {type: 'text/plain;charset=utf-8'}), 'Session_' + rndSess + '_password.txt');
-          })
-          .catch(function () {
-            var errmsg = 'ERROR!!!: failed to load public key to server, please try again';
-            document.getElementById(sessionID).innerHTML = errmsg;
-            document.getElementById(privID).innerHTML = errmsg;
-            document.getElementById(pubID).innerHTML = errmsg;
-            document.getElementById(passwordID).innerHTML = errmsg;
-          });
-      })
-      .catch(function (err) {
+      .catch(function () {
         var errmsg = 'ERROR!!!: failed to load public key to server, please try again';
         document.getElementById(sessionID).innerHTML = errmsg;
         document.getElementById(privID).innerHTML = errmsg;
         document.getElementById(pubID).innerHTML = errmsg;
+        document.getElementById(passwordID).innerHTML = errmsg;
       });
-
-    function arrayBufferToString(arrayBuffer) {
-      var byteArray = new Uint8Array(arrayBuffer);
-      var byteString = '';
-      for (var i = 0; i < byteArray.byteLength; i++) {
-        byteString += String.fromCharCode(byteArray[i]);
-      }
-      return byteString;
-    }
-
-    function arrayBufferToBase64String(arrayBuffer) {
-      return btoa(arrayBufferToString(arrayBuffer));
-    }
-
-    function toPem(key, privateKey) {
-      if (privateKey) {
-        return '-----BEGIN RSA PRIVATE KEY-----\n' +
-          key + '\n' +
-          '-----END RSA PRIVATE KEY-----';
-      } else {
-        return '-----BEGIN RSA PUBLIC KEY-----\n' +
-          key + '\n' +
-          '-----END RSA PUBLIC KEY-----';
-      }
-
-    }
+    }).catch(function (err) {
+      var errmsg = 'ERROR!!!: failed to load public key to server, please try again';
+      document.getElementById(sessionID).innerHTML = errmsg;
+      document.getElementById(privID).innerHTML = errmsg;
+      document.getElementById(pubID).innerHTML = errmsg;
+    });
   }
 
   var global_submission_counter = 0;

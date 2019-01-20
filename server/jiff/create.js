@@ -11,6 +11,19 @@ const authentication_hooks = require('./auth.js');
 
 const MAX_SIZE = config.MAX_SIZE;
 
+// Crypto hooks
+const cryptoHooks =  {
+  generateKeyPair: function () {
+    return { public_key: 's1', secret_key: 's1' };
+  },
+  parseKey: function (jiff, key) {
+    return key;
+  },
+  dumpKey: function (jiff, key) {
+    return key;
+  }
+};
+
 // Options and Hooks
 const options = { logs: true, sodium: false, hooks: {} };
 const computeOptions = {
@@ -25,7 +38,7 @@ const computeOptions = {
     }]
   }
 };
-options.hooks = Object.assign(options.hooks, mailbox_hooks, authentication_hooks);
+options.hooks = Object.assign(options.hooks, mailbox_hooks, authentication_hooks, cryptoHooks);
 
 // In particular, load session keys and public keys, and use initializeSession below
 // to initialize the sessions.
@@ -63,6 +76,8 @@ JIFFWrapper.prototype.initializeSession = async function (session_key, public_ke
 JIFFWrapper.prototype.computeSession = function (session_key) {
   console.log('Perform server side computation', session_key);
 
+  var copy = Object.assign({}, computeOptions);
+  copy.hooks = Object.assign({}, computeOptions.hooks, cryptoHooks);
   const computationInstance = this.serverInstance.compute(session_key, computeOptions);
   computationInstance.connect();
 

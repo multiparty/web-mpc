@@ -1,7 +1,5 @@
 /*eslint no-console: ["error", { allow: ["warn", "error"] }] */
 
-// define(['jquery', 'controllers/unmaskController', 'controllers/tableController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify', 'table_template'],
-//   function ($, unmaskController, tableController, DropSheet, Spinner, Ladda, ResizeSensor, alertify, alertify_defaults, table_template) {
 define(['jquery', 'controllers/jiffController', 'controllers/tableController', 'helper/drop_sheet', 'alertify', 'table_template'],
   function ($, jiffController, tableController, DropSheet, alertify, table_template) {
     function error(msg) {
@@ -26,8 +24,6 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
           var sessionKey = $('#session').val();
           var sessionPass = $('#session-password').val();
           var privateKey = e.target.result;
-
-          privateKey = privateKey.split('\n')[1];
 
           jiffController.analyst.computeAndFormat(sessionKey, sessionPass, privateKey, error, function (result) {
             var questions = result['questions'];
