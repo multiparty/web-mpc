@@ -15,6 +15,7 @@ const MAX_SIZE = config.MAX_SIZE;
 const options = { logs: true, sodium: false, hooks: {} };
 const computeOptions = {
   sodium: false,
+  Zp: '36893488147419103183',
   hooks: {
     createSecretShare: [function (jiff, share) {
       share.refresh = function () {
@@ -30,7 +31,7 @@ options.hooks = Object.assign(options.hooks, mailbox_hooks, authentication_hooks
 // to initialize the sessions.
 function JIFFWrapper(server, app) {
   this.serverInstance = jiffServer.make_jiff(server, options);
-  // this.serverInstance.apply_extension(jiffServerBigNumber, options);
+  this.serverInstance.apply_extension(jiffServerBigNumber);
   this.serverInstance.apply_extension(jiffServerRestAPI, { app: app });
   this.serverInstance._wrapper = this;
 

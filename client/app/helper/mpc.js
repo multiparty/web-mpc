@@ -97,7 +97,8 @@ define([], function () {
         var row = ordering.tables[i].row;
         var col = ordering.tables[i].col;
 
-        results[i] = results[i] / submitters.length;
+        results[i] = results[i].div(submitters.length);
+        results[i] = results[i].toFixed(2); // returns a string, with 2 digits after decimal
         if (finalObject[table] == null) {
           finalObject[table] = {};
         }
@@ -117,7 +118,7 @@ define([], function () {
         if (finalObject['questions'][question] == null) {
           finalObject['questions'][question] = {};
         }
-        finalObject['questions'][question][label] = results[i+j];
+        finalObject['questions'][question][label] = results[i+j].toString();
       }
 
       return finalObject;

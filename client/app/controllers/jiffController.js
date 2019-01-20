@@ -16,24 +16,18 @@ define(['mpc', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'table_tem
       }
     };
     baseOptions = Object.assign(baseOptions, options);
-
-    /*
-    var bigNumberOptions = {
-      Zp: new BigNumber(2).pow(65).minus(49) // Fits unsigned longs
-    };
-    */
+    var bigNumberOptions = { Zp: '36893488147419103183' }; // 2^65-49
 
     var restOptions = {
-      flushInterval: role === 'analyst' ? 1000 : 0,
+      flushInterval: role === 'analyst' ? 2000 : 0,
       pollInterval: 0,
       maxBatchSize: 1000
     };
 
     var instance = jiff.make_jiff('http://localhost:8080', session, baseOptions);
-    // instance.apply_extension(jiff_bignumber, bigNumberOptions);
+    instance.apply_extension(jiff_bignumber, bigNumberOptions);
     instance.apply_extension(jiff_restAPI, restOptions);
 
-    instance.connect();
     return instance;
   };
 
@@ -65,9 +59,13 @@ define(['mpc', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'table_tem
 
     // Initialize and submit
     var jiff = initialize(sessionkey, 'client', options);
+    jiff.connect(true);
     jiff.wait_for([1, 's1'], function () {
       // After initialization
-      jiff.restReceive = callback;
+      jiff.restReceive = function () {
+        jiff.disconnect(false, false);
+        callback.apply(null, arguments);
+      }
       for (var i = 0; i < values.length; i++) {
         jiff.share(values[i], null, [1, 's1'], [jiff.id]);
       }
@@ -87,29 +85,30 @@ define(['mpc', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'table_tem
     };
 
     var jiff = initialize(sessionkey, 'analyst', options);
-    jiff.wait_for([1, 's1'], function () {
-      jiff.emit('compute', ['s1'], '', false);
+    jiff.connect(false);
+    jiff.emit('compute', ['s1'], '', false);
 
-      var inCompute = false;
-      jiff.listen('compute', function (party_id, msg) {
-        if (party_id !== 's1' || inCompute) {
-          return;
-        }
+    var inCompute = false;
+    jiff.listen('compute', function (party_id, msg) {
+      if (party_id !== 's1' || inCompute) {
+        return;
+      }
 
-        inCompute = true;
-        var ordering = mpc.consistentOrdering(table_template);
-        var submitters = JSON.parse(msg);
+      inCompute = true;
+      var ordering = mpc.consistentOrdering(table_template);
+      var submitters = JSON.parse(msg);
 
-        var promise = mpc.compute(jiff, submitters, ordering);
-        promise = mpc.format(promise, submitters, ordering);
-        promise.then(function (result) {
-          jiff.disconnect(false, false);
-          callback(result);
-        }).catch(function (err) {
-          error(err);
-        });
+      var promise = mpc.compute(jiff, submitters, ordering);
+      promise = mpc.format(promise, submitters, ordering);
+      promise.then(function (result) {
+        jiff.disconnect(false, false);
+        callback(result);
+      }).catch(function (err) {
+        error(err);
       });
     });
+
+    jiff.restFlush();
   };
 
   // Exports

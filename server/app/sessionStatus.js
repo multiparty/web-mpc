@@ -50,7 +50,7 @@ module.exports.getSubmissionHistory = function (context, body, res) {
   promise.then(function (data) {
     var to_send = [];
     for (var d of data) {
-      if (d.status) {
+      if (d.success === true) {
         to_send.push(d.date);
       }
     }

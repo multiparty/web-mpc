@@ -75,7 +75,10 @@ module.exports = {
         return msg;
       }
 
-      await jiff._wrapper.trackParty(computation_id, party_id, true);
+      // Do not add initializations to history, only submissions.
+      if (msg['initialization'] == null) {
+        await jiff._wrapper.trackParty(computation_id, party_id, true);
+      }
       return msg;
     }
   ],

@@ -54,8 +54,9 @@ module.exports.createClientUrls = function (context, body, response) {
     var urls = [], dbObjs = [];
     for (var i = 0; i < Math.min(body.count, MAX_SIZE - count);) {
       var userkey = helpers.generateRandomBase32();
-      var jiff_party_id = context.jiff.serverInstance.helpers.random(MAX_SIZE - 1) + 2; // in [2, MAX_SIZE]
-      jiff_party_id = parseInt(jiff_party_id.toString(), 10); // in case of BigNumber objects
+
+      var jiff_party_id = context.jiff.serverInstance.helpers.random(MAX_SIZE - 1);
+      jiff_party_id = parseInt(jiff_party_id.toString(), 10) + 2; // in case of BigNumber objects
 
       // If user key already exists, repeat.
       if (userKeys[userkey] || jiffIds[jiff_party_id]) {

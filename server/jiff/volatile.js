@@ -44,7 +44,7 @@ module.exports = function (JIFFWrapper) {
         }
 
         // Compute 3: computed session tracking
-        var mailbox = await modulesWrappers.Mailbox.query(session_key, 1, 's1');
+        var mailbox = await modulesWrappers.Mailbox.query(session_key, 1, 's1', 'open');
         self.computed[session_key] = (mailbox.length > 0);
       }
 
