@@ -36,6 +36,9 @@ module.exports.setStatus = function (context, body, response, sessionInfoObj) {
   var promise = modulesWrappers.SessionInfo.update(sessionInfoObj);
   promise.then(function () {
     console.log('Session Status:', body.session, body.status);
+    if (body.status === 'STOP') {
+      context.jiff.computeSession(body.session);
+    }
     response.json({result: body.status});
   }).catch(function (err) {
     console.log('Error setting session status', err);

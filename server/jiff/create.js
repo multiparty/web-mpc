@@ -53,36 +53,27 @@ require('./volatile')(JIFFWrapper);
 // Initializing a JIFF computation when a session is created.
 JIFFWrapper.prototype.initializeSession = async function (session_key, public_key, password) {
   this.tracker[session_key] = {};
-  this.computed[session_key] = false;
 
   // Initialize
   var msg = { public_key: public_key, party_id: 1, party_count: MAX_SIZE, password: password };
   await this.serverInstance.initialize_party(session_key, 1, MAX_SIZE, msg);
-
-  // Enable authentication hook
-  this.computeSession(session_key);
 };
 
 // Setting up a listener for the session, to start computing when analyst requests.
 JIFFWrapper.prototype.computeSession = function (session_key) {
-  const self = this;
+  console.log('Perform server side computation', session_key);
+
   const computationInstance = this.serverInstance.compute(session_key, computeOptions);
-  computationInstance.listen('compute', function (sender_id) {
-    if (sender_id !== 1 || self.hasBeenComputed(session_key)) {
-      return;
-    }
+  computationInstance.connect();
 
-    self.trackComputed(session_key);
+  // Send submitters ids to analyst
+  var submitters = this.getTrackerParties(session_key);
+  computationInstance.emit('compute', [ 1 ], JSON.stringify(submitters), false);
 
-    console.log('Analyst requested to start opening computation', session_key);
-    computationInstance.connect();
-    var submitters = self.getTrackerParties(session_key);
-
-    computationInstance.emit('compute', [ 1 ], JSON.stringify(submitters), false);
-    var table_template = require('../../client/app/' + config.client.table_template + '.js');
-    var ordering = mpc.consistentOrdering(table_template);
-    mpc.compute(computationInstance, submitters, ordering);
-  });
+  // Perform server-side MPC
+  var table_template = require('../../client/app/' + config.client.table_template + '.js');
+  var ordering = mpc.consistentOrdering(table_template);
+  mpc.compute(computationInstance, submitters, ordering);
 };
 
 module.exports = JIFFWrapper;

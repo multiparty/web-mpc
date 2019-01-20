@@ -191,17 +191,8 @@ var upsertMailbox = function (session_key, from_jiff_party_id, to_jiff_party_id,
 };
 
 // get entire mailbox for session key and user id
-var queryMailbox = function (session_key, to_jiff_party_id, from_jiff_party_id, label) {
-  var obj = { session: session_key };
-  if (to_jiff_party_id != null) {
-    obj['to_id'] = to_jiff_party_id.toString();
-  }
-  if (from_jiff_party_id != null) {
-    obj['from_id'] = from_jiff_party_id.toString();
-  }
-  if (label != null) {
-    obj['label'] = label;
-  }
+var queryMailbox = function (session_key, to_jiff_party_id) {
+  var obj = { session: session_key, to_id: to_jiff_party_id };
 
   return new Promise(function (resolve, reject) {
     modules.Mailbox.where(obj).find(function (err, data) {

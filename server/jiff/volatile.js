@@ -13,12 +13,10 @@ module.exports = function (JIFFWrapper) {
     // Track jiff_party_ids of submitters, and which sessions have been computed / unmasked.
     // This is stored in volatile memory but must be persistent
     this.tracker = {};
-    this.computed = {};
 
-    // We have three pieces of volatile information that we need to load
+    // We have two pieces of volatile information that we need to load
     // 1. jiff session information (compute using initializeSession)
     // 2. tracker to keep track of submitters and associated public keys in serverInstance.key_map
-    // 3. computed to keep track of which session have been computed.
     var promise = modulesWrappers.SessionInfo.all();
     return promise.then(async function (sessions) {
       for (var session of sessions) {
@@ -42,10 +40,6 @@ module.exports = function (JIFFWrapper) {
             delete self.serverInstance.key_map[session_key][party_id];
           }
         }
-
-        // Compute 3: computed session tracking
-        var mailbox = await modulesWrappers.Mailbox.query(session_key, 1, 's1', 'open');
-        self.computed[session_key] = (mailbox.length > 0);
       }
 
       // loaded successfully
@@ -77,14 +71,5 @@ module.exports = function (JIFFWrapper) {
 
     tracked.sort();
     return tracked;
-  };
-
-  // Keeps track of computations that has been computed: no need to recompute these,
-// can just replay messages from database.
-  JIFFWrapper.prototype.trackComputed = function (session_key) {
-    this.computed[session_key] = true;
-  };
-  JIFFWrapper.prototype.hasBeenComputed = function (session_key) {
-    return this.computed[session_key] === true;
   };
 };

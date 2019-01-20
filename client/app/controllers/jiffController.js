@@ -19,7 +19,7 @@ define(['mpc', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'table_tem
     var bigNumberOptions = { Zp: '36893488147419103183' }; // 2^65-49
 
     var restOptions = {
-      flushInterval: role === 'analyst' ? 2000 : 0,
+      flushInterval: 0,
       pollInterval: 0,
       maxBatchSize: 1000
     };
@@ -28,6 +28,7 @@ define(['mpc', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'table_tem
     instance.apply_extension(jiff_bignumber, bigNumberOptions);
     instance.apply_extension(jiff_restAPI, restOptions);
 
+    instance.connect(true);
     return instance;
   };
 
@@ -59,7 +60,6 @@ define(['mpc', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'table_tem
 
     // Initialize and submit
     var jiff = initialize(sessionkey, 'client', options);
-    jiff.connect(true);
     jiff.wait_for([1, 's1'], function () {
       // After initialization
       jiff.restReceive = function () {
@@ -84,20 +84,19 @@ define(['mpc', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'table_tem
       }
     };
 
+    // Initialize
     var jiff = initialize(sessionkey, 'analyst', options);
-    jiff.connect(false);
-    jiff.emit('compute', ['s1'], '', false);
-
-    var inCompute = false;
+    // Listen to the submitter ids from server
     jiff.listen('compute', function (party_id, msg) {
-      if (party_id !== 's1' || inCompute) {
+      if (party_id !== 's1') {
         return;
       }
 
-      inCompute = true;
+      // Meta-info
       var ordering = mpc.consistentOrdering(table_template);
       var submitters = JSON.parse(msg);
 
+      // Compute and Format
       var promise = mpc.compute(jiff, submitters, ordering);
       promise = mpc.format(promise, submitters, ordering);
       promise.then(function (result) {
@@ -107,8 +106,6 @@ define(['mpc', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'table_tem
         error(err);
       });
     });
-
-    jiff.restFlush();
   };
 
   // Exports
