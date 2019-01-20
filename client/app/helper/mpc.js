@@ -42,7 +42,8 @@ define([], function () {
         var question = table_template.survey.questions[q];
         for (var o = 0; o < question.inputs.length; o++) {
           var option = question.inputs[o].value;
-          questions.push({ question: question.question_text, option: option });
+          var label = question.inputs[o].label;
+          questions.push({ question: question.question_text, option: option, label: label });
         }
       }
     }
@@ -104,6 +105,19 @@ define([], function () {
           finalObject[table][row] = {};
         }
         finalObject[table][row][col] = results[i];
+      }
+
+      for (var j = 0; j < ordering.questions.length; j++) {
+        var question = ordering.questions[j].question;
+        var label = ordering.questions[j].label;
+
+        if (finalObject['questions'] == null) {
+          finalObject['questions'] = {};
+        }
+        if (finalObject['questions'][question] == null) {
+          finalObject['questions'][question] = {};
+        }
+        finalObject['questions'][question][label] = results[i+j];
       }
 
       return finalObject;

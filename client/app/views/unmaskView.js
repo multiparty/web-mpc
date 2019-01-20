@@ -8,20 +8,6 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
       alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', msg);
     }
 
-    function callb(e, d, questions, session) {
-      if (typeof(d) !== 'object') {
-        return;
-      }
-      var tables = d;
-
-      tableController.createTableElems(table_template.tables, '#tables-area');
-      tableController.saveTables(tables, session);
-
-      $('#tables-area').show();
-      tableController.displayReadTable(tables);
-
-    }
-
     function handle_file(event) {
       var f;
 
@@ -43,12 +29,15 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
 
           privateKey = privateKey.split('\n')[1];
 
-          jiffController.analyst.computeAndFormat(sessionKey, sessionPass, privateKey, error, function(result) {
+          jiffController.analyst.computeAndFormat(sessionKey, sessionPass, privateKey, error, function (result) {
             var questions = result['questions'];
-            result['questions'] = null;
+            delete result['questions'];
 
             tableController.createTableElems(table_template.tables, '#tables-area');
             tableController.saveTables(result, sessionKey);
+            if (questions != null) {
+              tableController.saveQuestions(questions, sessionKey);
+            }
 
             $('#tables-area').show();
             tableController.displayReadTable(result);
