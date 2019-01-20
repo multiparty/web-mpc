@@ -66,14 +66,14 @@ JIFFWrapper.prototype.initializeSession = async function (session_key, public_ke
 JIFFWrapper.prototype.computeSession = function (session_key) {
   const self = this;
   const computationInstance = this.serverInstance.compute(session_key, computeOptions);
-  computationInstance.listen('compute', function (sender_id, message) {
+  computationInstance.listen('compute', function (sender_id) {
     if (sender_id !== 1 || self.hasBeenComputed(session_key)) {
       return;
     }
 
     self.trackComputed(session_key);
 
-    console.log('Analyst requested to start opening computation', session_key, message);
+    console.log('Analyst requested to start opening computation', session_key);
     computationInstance.connect();
     var submitters = self.getTrackerParties(session_key);
 

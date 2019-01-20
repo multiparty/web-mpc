@@ -26,7 +26,6 @@ var queryHistory = function (session_key, last_fetch) {
 // add to history of a given session
 var insertHistory = function (session_key, jiff_party_id, success) {
   var history = new modules.History({
-    _id: session_key + jiff_party_id,
     session: session_key,
     jiff_party_id: jiff_party_id,
     date: Date.now(),
@@ -174,8 +173,8 @@ var upsertMailbox = function (session_key, from_jiff_party_id, to_jiff_party_id,
     var obj = new modules.Mailbox({
       _id: id,
       session: session_key,
-      from_id: from_jiff_party_id,
-      to_id: to_jiff_party_id,
+      from_id: from_jiff_party_id.toString(),
+      to_id: to_jiff_party_id.toString(),
       op_id: op_id,
       label: label,
       message: msg
@@ -192,13 +191,16 @@ var upsertMailbox = function (session_key, from_jiff_party_id, to_jiff_party_id,
 };
 
 // get entire mailbox for session key and user id
-var queryMailbox = function (session_key, to_jiff_party_id, from_jiff_party_id) {
-  var obj = { session_key: session_key };
+var queryMailbox = function (session_key, to_jiff_party_id, from_jiff_party_id, label) {
+  var obj = { session: session_key };
   if (to_jiff_party_id != null) {
-    obj['to_id'] = to_jiff_party_id;
+    obj['to_id'] = to_jiff_party_id.toString();
   }
   if (from_jiff_party_id != null) {
-    obj['from_id'] = from_jiff_party_id;
+    obj['from_id'] = from_jiff_party_id.toString();
+  }
+  if (label != null) {
+    obj['label'] = label;
   }
 
   return new Promise(function (resolve, reject) {
@@ -206,11 +208,7 @@ var queryMailbox = function (session_key, to_jiff_party_id, from_jiff_party_id) 
       if (err) {
         reject(err);
       } else {
-        if (!data || data.length === 0) {
-          resolve([]);
-        } else {
-          resolve(data);
-        }
+        resolve(data);
       }
     });
   });

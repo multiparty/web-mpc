@@ -33,10 +33,10 @@ module.exports = function (JIFFWrapper) {
         var history = await modulesWrappers.History.query(session_key);
         for (var submission of history) {
           var party_id = submission.jiff_party_id;
-          var status = submission.status;
+          var success = submission.success;
 
-          self.tracker[session_key][party_id] = status;
-          if (status) {
+          self.tracker[session_key][party_id] = success;
+          if (success) {
             self.serverInstance.key_map[session_key][party_id] = '';
           } else {
             delete self.serverInstance.key_map[session_key][party_id];
@@ -54,28 +54,16 @@ module.exports = function (JIFFWrapper) {
   };
 
   // Keeps track of submitters IDs
-  JIFFWrapper.prototype.trackParty = function (session_key, jiff_party_id) {
+  JIFFWrapper.prototype.trackParty = function (session_key, jiff_party_id, status) {
+    var self = this;
     if (jiff_party_id === 's1' || jiff_party_id === 1) {
       return;
     }
 
-    this.tracker[session_key][jiff_party_id] = true;
-    var promise = modulesWrappers.History.insert(session_key, jiff_party_id, true);
+    self.tracker[session_key][jiff_party_id] = status;
+    var promise = modulesWrappers.History.insert(session_key, jiff_party_id, status);
     return promise.catch(function (err) {
       console.log('Failed to track party', err);
-      throw new Error('Error writing submission to database');
-    });
-  };
-  JIFFWrapper.prototype.untrackParty = function (session_key, user_key) {
-    var promise = modulesWrappers.UserKey.get(session_key, user_key);
-
-    return promise.then(function (data) {
-      var jiff_party_id = data.jiff_party_id;
-
-      this.tracker[session_key][jiff_party_id] = false;
-      return modulesWrappers.History.insert(session_key, jiff_party_id, false);
-    }).catch(function (err) {
-      console.log('Failed to un track party', err);
       throw new Error('Error writing submission to database');
     });
   };

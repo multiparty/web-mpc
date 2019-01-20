@@ -22,7 +22,6 @@ mongoose.Promise = Promise;
 // Mongoose Model definitions
 const HistoryModule = mongoose.model('History', new mongoose.Schema({
   // Keeps track of submission history
-  _id: String, // concat of session + jiff_party_id.
   session: String,
   jiff_party_id: Number,
   date: Number,
