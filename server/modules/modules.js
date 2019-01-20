@@ -14,8 +14,7 @@ mongoose.Promise = Promise;
   try {
     await mongoose.connect('mongodb://localhost/aggregate', { useMongoClient: true });
   } catch (err) {
-    console.log('Could not connect to MongoDB server.\n');
-    console.log(err);
+    console.log('Could not connect to MongoDB server', err);
   }
 }());
 

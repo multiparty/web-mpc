@@ -275,7 +275,6 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
 
         // Secret share / mask the data.
         jiffController.client.submit(session, participationCode, data_submission, function (err, response) {
-          console.log(response, err);
           if (err == null || err === 200) {
             response = JSON.parse(response);
             if (response.success) {

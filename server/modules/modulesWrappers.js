@@ -134,7 +134,6 @@ var queryUserKey = function (session_key) {
   return new Promise(function (resolve, reject) {
     var query = modules.UserKey.where({ session: session_key});
     query.find(function (err, data) {
-      console.log('got here');
       if (err) {
         reject(err);
       } else {

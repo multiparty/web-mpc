@@ -33,6 +33,5 @@ jiffWrapper.ready.then(function () {
   console.log('JIFF state loaded!');
   production.listen(server);
 }).catch(function (err) {
-  console.log('Error loading JIFF state');
-  console.log(err);
+  console.log('Error loading JIFF state', err);
 });
