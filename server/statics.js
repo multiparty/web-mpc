@@ -43,5 +43,4 @@ module.exports = function (app) {
   app.use('/jiff', express.static(__dirname + '/../jiff/lib'));
   app.use('/jiff/ext', express.static(__dirname + '/../jiff/ext'));
   app.use('/bignumber.js', express.static(__dirname + '/../jiff/node_modules/bignumber.js'));
-  app.use('/socket.io.js', express.static(__dirname + '/../jiff/node_modules/socket.io-client/dist/socket.io.js'));
 };
