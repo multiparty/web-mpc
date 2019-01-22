@@ -134,7 +134,7 @@ define(['jquery', 'controllers/tableController', 'controllers/usabilityControlle
         usabilityController.updateValidationError(PARTICIPATION_CODE_ERROR);
       }
 
-      console.log('lytics',usabilityController.analytics)
+      // console.log('lytics',usabilityController.analytics)
 
       // Validate the remaining components after session and
       // and participation code are validated with the server.

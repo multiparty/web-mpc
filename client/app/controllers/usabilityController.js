@@ -8,6 +8,7 @@ define([], function () {
     mouse_positions: [],
     mouse_clicks: [],
     time_ms: 0,
+    browser: {}
   };
   for (var i = 0; i < MOUSE_PRECISION_WIDTH; i++) {
     analytics.mouse_positions.push([]);
@@ -97,6 +98,24 @@ define([], function () {
     elapsedTime += spentTime;
   };
 
+  function saveBrowser() {
+    var ua=navigator.userAgent,tem,M=ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || []; 
+    if(/trident/i.test(M[1])){
+        tem=/\brv[ :]+(\d+)/g.exec(ua) || []; 
+        analytics.browser = {name:'IE',version:(tem[1]||'')};
+        }   
+    if(M[1]==='Chrome'){
+        tem=ua.match(/\bOPR|Edge\/(\d+)/)
+        if(tem!=null)   {analytics.browser = {name:'Opera', version:tem[1]};}
+        }   
+    M=M[2]? [M[1], M[2]]: [navigator.appName, navigator.appVersion, '-?'];
+    if((tem=ua.match(/version\/(\d+)/i))!=null) {M.splice(1,1,tem[1]);}
+    analytics.browser = {
+      name: M[0],
+      version: M[1]
+    };
+ }
+
   const beforeunload = function () {
     const endDate = new Date();
     const spentTime = endDate.getTime() - startDate.getTime();
@@ -112,6 +131,7 @@ define([], function () {
     focus: focus,
     blur: blur,
     beforeunload: beforeunload,
-    updateValidationError: updateValidationError
+    updateValidationError: updateValidationError,
+    saveBrowser: saveBrowser
   };
 });

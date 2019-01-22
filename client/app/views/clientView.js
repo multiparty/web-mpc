@@ -1,5 +1,5 @@
-define(['jquery', 'controllers/clientController', 'controllers/tableController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify', 'table_template', 'bootstrap'],
-  function ($, clientController, tableController, DropSheet, Spinner, Ladda, ResizeSensor, alertify, table_template) {
+define(['jquery', 'controllers/clientController', 'controllers/usabilityController', 'controllers/tableController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify', 'table_template', 'bootstrap'],
+  function ($, clientController, usabilityController, tableController, DropSheet, Spinner, Ladda, ResizeSensor, alertify, table_template) {
 
     function createQuestionText(text) {
       var p = document.createElement('p');
@@ -71,6 +71,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
         tableController.createTableElems(table_template.tables, '#tables-area');
         displaySurveyQuestions();
+        usabilityController.saveBrowser();
 
         // Create the tabless
         var tables = tableController.makeTables(table_template.tables);
@@ -118,7 +119,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         if (String($participationCode.val()).trim() !== '') {
           $participationCode.blur();
         }
-
+        
         // Remove error from radio buttons once you click on them
         $('form input[type=radio]').on('change', function (e) {
           $(e.target.form).removeClass('has-error');
