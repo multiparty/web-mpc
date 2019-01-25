@@ -82,7 +82,8 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
         var participationCode = $('#participation-code').val().trim().toLowerCase();
 
         if (session === '' || participationCode === '') {
-          callback(false);
+          callback && callback(false);
+          return;
         }
 
         $.ajax({
