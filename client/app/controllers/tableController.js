@@ -471,7 +471,8 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       rows[i] = table_def.rows[i].label;
     }
 
-    var cols = table_def.cols;
+    var cols = table_def.cols.slice();
+    cols[cols_levels - 1] = cols[cols_levels - 1].slice();
     for (i = 0; i < cols_len; i++) {
       cols[cols_levels - 1][i] = table_def.cols[cols_levels - 1][i].label;
     }
@@ -1010,37 +1011,25 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   }
 
   function saveQuestions(questions, session) {
-    if (questions.length === 0) {
+    if (questions == null) {
       return;
     }
 
-    var headers = [];
-    for (var key in questions[0]) {
-      if (questions[0].hasOwnProperty(key)) {
-        headers.push(key);
+    var results = [];
+    for (var key in questions) {
+      if (!questions.hasOwnProperty(key) || questions[key] == null) {
+        continue;
       }
-    }
 
-    var results = [headers.join(',')];
-    for (var i = 0; i < questions.length; i++) {
-      var one_submission = [];
-      for (var j = 0; j < headers.length; j++) {
-        var q = headers[j];
-        var answers = questions[i][q];
-
-        var answer = '';
-        for (var option in answers) {
-          if (answers.hasOwnProperty(option)) {
-            if (parseInt(answers[option]) === 1) {
-              answer = option;
-              break;
-            }
-          }
+      var question = questions[key];
+      for (var option in question) {
+        if (!question.hasOwnProperty(option) || question[option] == null) {
+          continue;
         }
 
-        one_submission.push(answer);
+        results.push(key + ',' + option + ',' + question[option]);
       }
-      results.push(one_submission.join(','));
+      results.push('\n');
     }
 
     results = results.join('\n');
