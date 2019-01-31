@@ -5,7 +5,16 @@
   <title>Trusted Party Data Unmasker</title>
   <link rel="icon" type="image" href="images/gbcc-small.png">
 
+  <script type="text/javascript">
+    var require = {
+      paths: {
+        table_template: '{{ table_template }}'
+      }
+    }
+  </script>
 
+  <script type="text/javascript" src="app/config/common.js"></script>
+  <script type="text/javascript" src="app/config/jiff.js"></script>
   <script data-main="app/unmask" src="app/vendor/require.js"></script>
 
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
@@ -54,7 +63,7 @@
           <form>
             <div class="form-group">
               <label class="control-label" for="session">Session Key</label>
-              <input type="text" id="session" class="form-control" placeholder="Session Key" value=""
+              <input type="text" id="session" class="form-control" placeholder="Session Key"
                      pattern="^[a-zA-Z0-9]{26}$" autocomplete="off" required/>
               <span id="session-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
                     aria-hidden="true"></span>
@@ -67,7 +76,7 @@
             </div>
             <div class="form-group">
               <label class="control-label" for="session-password">Session Password</label>
-              <input type="text" id="session-password" class="form-control" value="" placeholder="Session Password"
+              <input type="text" id="session-password" class="form-control" placeholder="Session Password"
                      pattern="^[a-zA-Z0-9]{26}$"
                      autocomplete="off" required>
               <span id="session-password-success"
@@ -105,14 +114,14 @@
 
       <div id="tables-area">
         <hr/>
-        <h3 id="number-of-mbes-name" class="head_element"></h3>
+        <!-- <h3 id="number-of-mbes-name" class="head_element"></h3>
         <div id="number-of-mbes" class="table-section"></div>
 
         <h3 id="addressable-spend-name" class="head_element"></h3>
         <div id="addressable-spend" class="table-section"></div>
 
         <h3 id="amount-spent-with-mbes-name" class="head_element"></h3>
-        <div id="amount-spent-with-mbes" class="table-section"></div>
+        <div id="amount-spent-with-mbes" class="table-section"></div> -->
       </div>
 
     </section>

@@ -3,12 +3,26 @@
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width,initial-scale=1" name="viewport">
-  <title>Pacesetters</title>
+  <title>{{ title }}</title>
   <link rel="icon" type="image" href="images/gbcc-small.png">
 
-  <script data-main="app/index" src="app/vendor/require.js"></script>
+  <script type="text/javascript">
+    var require = {
+      paths: {
+        table_template: '{{ table_template }}'
+      }
+    }
+  </script>
 
+  <script type="text/javascript" src="app/config/common.js"></script>
+  <script type="text/javascript" src="app/config/jiff.js"></script>
+
+  <script data-main="app/index" src="app/vendor/require.js"></script>
   <script type="text/javascript" src="app/helper/array.reduce-polyfill.min.js"></script>
+
+  <script src="/jiff/jiff-client.js"></script>
+  <script src="/jiff/ext/jiff-client-bignumber.js"></script>
+  <script src="/jiff/ext/jiff-client-restful.js"></script>
 
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
         integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -30,11 +44,11 @@
 <body>
 <header>
   <div class="container">
-    <h1>Pacesetters<br/>
-      <small> Data Submission</small>
+    <h1>{{ title }}<br/>
+      <small> {{ subtitle }}</small>
     </h1>
     <div id="logos">
-      <img src="images/gbcc.png" alt="GBCC Logo"/>
+      <img src="{{ logo }}" alt="GBCC Logo"/>
       <img src="images/bu.gif" alt="BU Logo"/>
     </div>
   </div>
@@ -112,17 +126,29 @@
         <p>Yellow cells indicate the value might be outside of the expected range. Please double-check
           to make sure the data is correct. You will still be able to submit your data.</p>
         <p>For a list of definitions, please <a href="/definitions">click here</a>.</p>
-        <div>
-          <h4 id="pacesetter-measure-hot-name"></h4>
-          <div class="table-section" id="pacesetter-measure-hot"></div>
-          <h4 id="pacesetter-measure-hot-2-name"></h4>
-          <div class="table-section" id="pacesetter-measure-hot-2"></div>
-          <h4 id="pacesetter-measure-hot-3-name"></h4>
-          <div class="table-section" id="pacesetter-measure-hot-3"></div>
-        </div>
+
       </div>
     </section>
   </div>
+
+  <div class="row">
+    <section id="additional-questions" class="card col-md-10 col-md-offset-1">
+      <h2 class="text-center">Answer additional questions</h2>
+
+      <p class="text-center">
+        We have included these questions to get instant feedback as to how this process went in order to improve the
+        process in future years. Please know that the answers to these questions will be anonymous, and they will be
+        considered separately from the encrypted and aggregated data above.
+      </p>
+      <hr/>
+
+      <div id="questions">
+      </div>
+
+
+    </section>
+  </div>
+
 
   <div class="row">
     <section id="review-and-submit" class="card col-md-10 col-md-offset-1">
@@ -133,8 +159,7 @@
       <hr/>
       <div class="row">
         <div class="col-md-6">
-          <h4 id="totals-hot-name"></h4>
-          <div id="totals-hot"></div>
+          <div id="totals-table"></div>
           <form>
             <div class="checkbox">
               <label>

@@ -55,19 +55,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     }
   };
 
-  const headerMap = {
-    'NumContractedLocal': 'Number of Local MBEs Contracted',
-    'NumContractedState': 'Number of State MBEs Contracted',
-    'NumContractedNational': 'Number of National MBEs Contracted',
-    'TotalAmtLocal': 'Total Dollar Amount Spent Procuring All Goods and Services at the Local Level',
-    'TotalAmtState': 'Total Dollar Amount Spent Procuring All Goods and Services at the State Level',
-    'TotalAmtNational': 'Total Dollar Amount Spent Procuring All Goods and Services in the United States',
-    'DollarAmtLocal': 'Dollar Amount Spent with Local MBEs',
-    'DollarAmtState': 'Dollar Amount Spent with State MBEs',
-    'DollarAmtNational': 'Dollar Amount Spent with National MBEs',
-  };
-
-
   var table_widths = {};
 
   // Change this to add additional custom handling of errors when validating.
@@ -369,16 +356,15 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
    * @return {array} containing HOT tables (table_obj may be accesed using hot_table._sail_meta).
    */
 
-  function makeTables() {
+  function makeTables(tables) {
     var result = [];
-    for (var t = 0; t < table_template.tables.length; t++) {
-      var table_def = table_template.tables[t];
+    for (var t = 0; t < tables.length; t++) {
+      var table_def = tables[t];
       var table = makeTableObj(table_def);
-
-
       result[t] = makeHotTable(table);
       table_widths[result[t].rootElement.id] = get_width(result[t]);
     }
+
     return result;
   }
 
@@ -485,7 +471,8 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       rows[i] = table_def.rows[i].label;
     }
 
-    var cols = table_def.cols;
+    var cols = table_def.cols.slice();
+    cols[cols_levels - 1] = cols[cols_levels - 1].slice();
     for (i = 0; i < cols_len; i++) {
       cols[cols_levels - 1][i] = table_def.cols[cols_levels - 1][i].label;
     }
@@ -499,24 +486,18 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     };
   }
 
-  /**
-   * Construct a Handsontable (HOT) object corresponding to the given table object.
-   * @param {object} table - the table object to create (constructed by make_table from json definition).
-   * @return {hot} - the handsontable object constructed by makeHotTable.
-   */
-  function makeHotTable(table) {
-
-    var element = document.querySelector('#' + table.element);
-
-
+  function createCols(table) {
     var hot_cols = new Array(table.colsCount);
     for (var i = 0; i < table.colsCount; i++) {
       hot_cols[i] = {type: 'text'}; //default thing that does not matter, will be overridden cell by cell
     }
+    return hot_cols;
+  }
 
+  function createCells(table) {
     var cells = [];
     // construct cell by cell properties
-    for (i = 0; i < table.rowsCount; i++) {
+    for (var i = 0; i < table.rowsCount; i++) {
       for (var j = 0; j < table.colsCount; j++) {
         var cell_def = table.cells[i][j];
         var type = cell_def.type;
@@ -546,21 +527,32 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
         cells.push(cell);
       }
     }
+    return cells;
+  }
 
-    // Work around not rendering the entire table
-    // Make enough space in data for all rows ahead of time
+  function createData(table) {
     var data = new Array(table.rowsCount);
     for (var r = 0; r < table.rowsCount; r++) {
       data[r] = [];
     }
+    return data;
+  }
 
-    // Todo: table.width is undefined
+  /**
+   * Construct a Handsontable (HOT) object corresponding to the given table object.
+   * @param {object} table - the table object to create (constructed by make_table from json definition).
+   * @return {hot} - the handsontable object constructed by makeHotTable.
+   */
+  function makeHotTable(table) {
+
+    var element = document.querySelector('#' + table.element);
+
     var hotSettings = {
       // Enable tooltips
       comments: true,
-      data: data,
+      data: createData(table),
       // Columns types
-      columns: hot_cols,
+      columns: createCols(table),
       // Sizes
       maxRows: table.rowsCount,
       maxCols: table.colsCount,
@@ -570,7 +562,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       // Styling information
       width: table.width,
       // Per cell properties
-      cell: cells,
+      cell: createCells(table),
       // Workaround for handsontable undo issue for readOnly tables
       beforeChange: function (changes, source) {
         return !(this.readOnly);
@@ -589,9 +581,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     // Create the Handsontable
     var handsOnTable = new Handsontable(element, hotSettings);
     handsOnTable._sail_meta = table;
-
-    // Put name in the title element (if it exists)
-    document.getElementById(table.element + '-name').innerHTML = table.name;
 
     return handsOnTable;
   }
@@ -717,36 +706,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     return data;
   }
 
-  /**
-   * Empty all cells.
-   * @param {hot} table_hot_obj - the handsontable object.
-   */
-  // function empty_table(table_hot_obj) {
-  //   table_hot_obj.clear();
-  // }
-
-
-  function getMetaData(key) {
-    for (var table_index in table_template.tables) {
-      if (table_template.tables[table_index].name === key) {
-        return table_template.tables[table_index];
-      }
-    }
-  }
-
-  // function parseColHeaders() {
-  //   var headers = [];
-  //   var race_arr = table_template.tables[0].cols[0];
-  //   headers.push([""].concat(race_arr));
-  //   var gender_arr = table_template.tables[0].cols[1];
-  //   headers[1] = [""];
-  //   for (var i = 0; i < gender_arr.length; i++) {
-  //     headers[1].push(gender_arr[i].label);
-  //   }
-
-  //   return headers;
-  // }
-
   function updateTableWidth(maxWidth) {
 
     $('#instructions').css('width', maxWidth);
@@ -776,69 +735,74 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     $('header, #shadow').css('right', 0);
   }
 
-  function formatPacesettersData(table) {
-
-    var data = [];
-    data[0] = [];
-    data[1] = [];
-
-    for (var t in table) {
-      data[0].push([table[t].value]);
-      data[1].push(headerMap[t]);
+  function getTemplate(value, field) {
+    for (var t of table_template.tables) {
+      if (t[field] === value) {
+        return t;
+      }
     }
-
-    return data;
+    return {};
   }
+
 
   function displayReadTable(tables) {
 
-    $('#tables-area').show();
+    for (var name in tables) {
+      var template = getTemplate(name, 'name');
+      var table = tables[name];
 
-    for (var t in tables) {
-      var cl = t.toLowerCase().replace(/ /gi, '-');
-      var container = document.getElementById(cl);
+      var i = 0;
 
-      var formattedTable = formatPacesettersData(tables[t]);
+      var data = [];
+
+      for (let row in table) {
+        data[i] = [];
+        for (let col in table[row]) {
+          data[i].push(table[row][col]);
+        }
+        i++;
+      }
 
       var settings = {
-        colHeaders: ['Value for FY17'],
-        rowHeaders: formattedTable[1],
-        data: formattedTable[0],
         readOnly: true,
-        colWidths: [190],
-        height: 230,
-        rowHeaderWidth: 480,
-        stretchH: 'last'
-      };
+        rowHeaderWidth: template.hot_parameters.rowHeaderWidth,
+        height: template.hot_parameters.height,
+        rowHeaders: getHeaders(template.rows),
+        nestedHeaders: getNestedHeaders(template.cols),
+        data: data,
+        width: template.width
+      }
 
-      var handsOn = new Handsontable(container, settings);
+      var handsOn = new Handsontable(document.getElementById(template.element), settings);
 
       handsOn.render();
 
-      $('#' + cl + '-name').text(t);
-
-      // updateTableWidth($('.wtHider').width() + 150);
-      //$('.ht_clone_top').hide();
-
     }
-
-
-    // var container = document.getElementById('pacesetter-measure-hot');
-
-    // var data = formatPacesettersData(tables);
-
-    // var settings = {
-    //   colHeaders: ["Measure", "Value"],
-    //   data: data,
-    //   readOnly: true
-    // }
-    // var handsOn = new Handsontable(container, settings);
-    // handsOn.render();
-    // $('#pacesetter-measure-hot-name').text(title);
-
-    // updateTableWidth($('.wtHider').width() + 50);
-    // $('.ht_clone_top').hide();
   }
+
+  // TODO: combien the two functions below based on BWWC
+  function getNestedHeaders(headers) {
+    var h = [];
+    var i = 0;
+    for (let row of headers) {
+      h[i] = [];
+      for (let col of row) {
+        h[i].push(col.label);
+      }
+      i++;
+    }
+    return h;
+  }
+
+  // TODO: will need to adjust for BWWC
+  function getHeaders(headers) {
+    var h = [];
+    for (let row of headers) {
+      h.push(row.label);
+    }
+    return h;
+  }
+
 
   /**
    * Remove all validators from the table, keeping only the built-in
@@ -908,23 +872,52 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     return table;
   }
 
-  // TODO: make this generic
-  function populateTableHeaders() {
-    var col_map = table_template.tables[0].cols;
-    var demo_row = [''];
+  function checkTotals(table, changes, sums, NaNs) {
 
-    for (var i = 0; i < col_map[1].length; i++) {
-      var race_index = Math.floor(i / 2);
-      var gender_label = col_map[1][i].label;
-      var race_label = col_map[0][race_index].label;
-      var label = race_label + ' ' + gender_label;
-      label = label.replace('<br> ', '');
-      demo_row.push(label);
+    for (var i = 0; i < changes.length; i++) {
+      var change = changes[i];
+      var old = change[2];
+      var val = change[3];
+
+      var c = change[1];
+      var index = c % 2; // Even columns are for females, odd are for males.
+
+      if (old === undefined) {
+        old = null;
+      }
+      if (val === undefined) {
+        val = null;
+      }
+
+      // Keep track of how many NaNs there are.
+      if (isNaN(old) && !isNaN(val)) {
+        NaNs[index]--;
+      }
+      if (!isNaN(old) && isNaN(val)) {
+        NaNs[index]++;
+      }
+
+      // If either values is a NaN, discard it when computing internal sum.
+      old = (old === '' || old === null || isNaN(old)) ? 0 : old;
+      val = (val === '' || val === null || isNaN(val)) ? 0 : val;
+      sums[index] += val - old;
     }
-    return demo_row;
+
+    // Display a NaN in the totals Column if you need too.
+    var totals = [sums[0], sums[1], sums[0] + sums[1]];
+    if (NaNs[0] + NaNs[1] > 0) { // If there is at least one NaN, change every thing to Excel's NaN equivalent.
+      totals = ['#VALUE!', '#VALUE!', '#VALUE!'];
+    }
+
+
+    changes = []; // [ [row, col, change], [row, col, change], ..]
+    for (i = 0; i < totals.length; i++) {
+      changes.push([0, i, totals[i]]);
+    }
+    table.setDataAtCell(changes); // This changes the data without changing cellProperties (e.g. keeps readOnly)
+    return {sums, NaNs}
   }
 
-  // TODO: should this be here or in the view?
   function saveTables(tables, session) {
 
     var tables_csv = [];
@@ -945,38 +938,98 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
   }
 
+  function getHeaderWidth(table) {
+
+    var id = table.rootElement.id;
+
+    for (const t of table_template.tables) {
+      if (id === t.element) {
+        return t.hot_parameters.rowHeaderWidth;
+      }
+    }
+
+    return 0;
+  }
+
+  function getPadding(div) {
+    return parseInt($(div).css('padding-right').split('px')[0]) + parseInt($(div).css('padding-left').split('px')[0]);
+  }
+
+  function createTableElems(tables, tablesDiv) {
+
+    var tablesArea = $(tablesDiv);
+
+    for (var i = 0; i < tables.length; i++) {
+      var div = $('<div>').addClass('table');
+
+      // Header
+      $('<h4>').text(tables[i].name)
+        .appendTo(div);
+
+      // Table Div
+      $('<div>').attr('class', 'table-section')
+        .attr('id', tables[i].element)
+        .appendTo(div);
+
+      $(div).appendTo(tablesArea);
+    }
+  }
+
+  function updateWidth(tables) {
+
+    var maxWidth = $('#instructions').width;
+
+    for (var i = 0; i < tables.length; i++) {
+
+      var t = tables[i];
+
+      var w = getWidth(t) + getHeaderWidth(t);
+
+      t.updateSettings({
+        width: w,
+      });
+
+      if (w > maxWidth) {
+        maxWidth = w;
+      }
+    }
+
+    var padding = getPadding('#instructions')
+
+    if (maxWidth > 0) {
+      updateTableWidth(maxWidth + padding);
+    }
+  }
+
+  function getWidth(table) {
+    var colWidths = 0;
+    for (var i = 0; i < table.countRenderedCols(); i++) {
+      colWidths += parseFloat(table.getColWidth(i));
+    }
+
+    return colWidths;
+  }
+
   function saveQuestions(questions, session) {
-    if (questions.length === 0) {
+    if (questions == null) {
       return;
     }
 
-    var headers = [];
-    for (var key in questions[0]) {
-      if (questions[0].hasOwnProperty(key)) {
-        headers.push(key);
+    var results = [];
+    for (var key in questions) {
+      if (!questions.hasOwnProperty(key) || questions[key] == null) {
+        continue;
       }
-    }
 
-    var results = [headers.join(',')];
-    for (var i = 0; i < questions.length; i++) {
-      var one_submission = [];
-      for (var j = 0; j < headers.length; j++) {
-        var q = headers[j];
-        var answers = questions[i][q];
-
-        var answer = '';
-        for (var option in answers) {
-          if (answers.hasOwnProperty(option)) {
-            if (parseInt(answers[option]) === 1) {
-              answer = option;
-              break;
-            }
-          }
+      var question = questions[key];
+      for (var option in question) {
+        if (!question.hasOwnProperty(option) || question[option] == null) {
+          continue;
         }
 
-        one_submission.push(answer);
+        results.push(key + ',' + option + ',' + question[option]);
       }
-      results.push(one_submission.join(','));
+      results.push('\n');
     }
 
     results = results.join('\n');
@@ -984,18 +1037,22 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   }
 
   return {
-    makeTables: makeTables,
-    registerValidator: registerValidator,
-    registerErrorHandler: registerErrorHandler,
-    removeValidator: removeValidator,
-    removeValidators: removeValidators,
-    removeErrorHandler: removeErrorHandler,
-    constructDataTables: constructDataTables,
-    fillData: fillData,
-    saveTables: saveTables,
-    saveQuestions: saveQuestions,
-    displayReadTable: displayReadTable,
-    resetTableWidth: resetTableWidth,
-    updateTableWidth: updateTableWidth
+    makeTables,
+    registerValidator,
+    registerErrorHandler,
+    removeValidator,
+    removeValidators,
+    removeErrorHandler,
+    constructDataTables,
+    fillData,
+    saveTables,
+    saveQuestions,
+    displayReadTable,
+    resetTableWidth,
+    updateTableWidth,
+    getWidth,
+    updateWidth,
+    checkTotals,
+    createTableElems
   }
 });

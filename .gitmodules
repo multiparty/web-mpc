@@ -1,0 +1,3 @@
+[submodule "jiff"]
+	path = jiff
+	url = git@github.com:multiparty/jiff.git
