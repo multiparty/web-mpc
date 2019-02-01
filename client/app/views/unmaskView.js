@@ -1,60 +1,9 @@
 /*eslint no-console: ["error", { allow: ["warn", "error"] }] */
 
-// define(['jquery', 'controllers/unmaskController', 'controllers/tableController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify', 'table_template'],
-//   function ($, unmaskController, tableController, DropSheet, Spinner, Ladda, ResizeSensor, alertify, alertify_defaults, table_template) {
-define(['jquery', 'controllers/unmaskController', 'controllers/tableController', 'helper/drop_sheet', 'alertify', 'table_template'],
-  function ($, unmaskController, tableController, DropSheet, alertify, table_template) {
-
-
+define(['jquery', 'controllers/jiffController', 'controllers/tableController', 'helper/drop_sheet', 'alertify', 'table_template'],
+  function ($, jiffController, tableController, DropSheet, alertify, table_template) {
     function error(msg) {
       alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', msg);
-    }
-
-
-    function callb(e, d, questions, session) {
-      if (typeof(d) !== 'object') {
-        return;
-      }
-      var tables = d;
-
-      tableController.saveUsability(usability, session);
-      tableController.createTableElems(table_template.tables, '#tables-area');
-      tableController.saveTables(tables, session);
-
-      $('#tables-area').show();
-      tableController.displayReadTable(tables);
-
-    }
- 
-  
-    function getAnalyticsMasks(sK, sP, pK, masks, callB) {
-      $.ajax({
-        type: 'POST',
-        url: '/get_analytics_masks',
-        contentType: 'application/json',
-        data: JSON.stringify({session: sK, password: sP}),
-        success: function (analyticsMasks) {
-          unmaskController.aggregateAndUnmask(masks, analyticsMasks, pK, sK, sP, callB);
-        },
-        error: function(e) {
-          error(e.responseText);
-        }
-      })
-    }
-
-    function getMasks(sK, sP, pK) {
-      $.ajax({
-        type: 'POST',
-        url: '/get_masks',
-        contentType: 'application/json',
-        data: JSON.stringify({session: sK, password: sP}),
-        success: function (data) {
-          getAnalyticsMasks(sK, sP, pK, data, callb);
-        },
-        error: function (e) {
-          error(e.responseText);
-        }
-      });
     }
 
     function handle_file(event) {
@@ -76,9 +25,19 @@ define(['jquery', 'controllers/unmaskController', 'controllers/tableController',
           var sessionPass = $('#session-password').val();
           var privateKey = e.target.result;
 
-          privateKey = privateKey.split('\n')[1];
+          jiffController.analyst.computeAndFormat(sessionKey, sessionPass, privateKey, error, function (result) {
+            var questions = result['questions'];
+            delete result['questions'];
 
-          getMasks(sessionKey, sessionPass, privateKey);
+            tableController.createTableElems(table_template.tables, '#tables-area');
+            tableController.saveTables(result, sessionKey);
+            if (questions != null) {
+              tableController.saveQuestions(questions, sessionKey);
+            }
+
+            $('#tables-area').show();
+            tableController.displayReadTable(result);
+          });
         });
       }
     }
@@ -102,7 +61,6 @@ define(['jquery', 'controllers/unmaskController', 'controllers/tableController',
     }
 
     function unmaskView() {
-
       $(document).ready(function () {
         $('#tables-area').hide();
         expandTable();
@@ -121,5 +79,5 @@ define(['jquery', 'controllers/unmaskController', 'controllers/tableController',
     }
 
     return unmaskView;
-
-  });
+  }
+);
