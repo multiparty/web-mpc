@@ -1,6 +1,6 @@
 /* global alertify, $ */
-define(['jquery', 'controllers/tableController', 'controllers/jiffController', 'alertify', 'alertify_defaults', 'table_template'],
-  function ($, tableController, jiffController, alertify, _, table_template) {
+define(['jquery', 'controllers/tableController', 'controllers/jiffController', 'controllers/usabilityController', 'alertify', 'alertify_defaults', 'table_template'],
+  function ($, tableController, jiffController, usabilityController, alertify, _, table_template) {
     var client = (function () {
       /**
        * Displays the given submission as the last submission in
@@ -265,6 +265,14 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           text = text.replace(/\s+/g, ' '); // Replace many white spaces with just one space.
           data_submission['questions'][text] = question_data;
           questions_public[text] = Object.assign({}, question_data);
+          console.log('hello??')
+          console.log(usabilityController);
+          
+          usability_data = usabilityController.analytics;
+
+          console.log('analytics',usabilityController.analytics);
+
+          console.log('ata', usability_data);
         }
 
         // Handle table data, tables are represented as 2D associative arrays

@@ -1,5 +1,5 @@
-define(['jquery', 'controllers/clientController', 'controllers/tableController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify', 'table_template', 'bootstrap'],
-  function ($, clientController, tableController, DropSheet, Spinner, Ladda, ResizeSensor, alertify, table_template) {
+define(['jquery', 'controllers/clientController', 'controllers/tableController', 'controllers/usabilityController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify', 'table_template', 'bootstrap'],
+  function ($, clientController, tableController, usabilityController, DropSheet, Spinner, Ladda, ResizeSensor, alertify, table_template) {
 
     function createQuestionText(text) {
       var p = document.createElement('p');
@@ -76,6 +76,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         var tables = tableController.makeTables(table_template.tables);
 
         createResizeSensors(tables);
+        usabilityController.saveBrowser();
 
         var totals_table = null;
 
