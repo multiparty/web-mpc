@@ -119,7 +119,7 @@ define([], function () {
 //   };
 
   return {
-    // analytics: analytics,
+    analytics: analytics,
     // handleMouseClick: handleMouseClick,
     // handleMouseMove: handleMouseMove,
     // focus: focus,

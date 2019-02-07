@@ -265,14 +265,9 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           text = text.replace(/\s+/g, ' '); // Replace many white spaces with just one space.
           data_submission['questions'][text] = question_data;
           questions_public[text] = Object.assign({}, question_data);
-          console.log('hello??')
-          console.log(usabilityController);
-          
-          usability_data = usabilityController.analytics;
-
+      
           console.log('analytics',usabilityController.analytics);
 
-          console.log('ata', usability_data);
         }
 
         // Handle table data, tables are represented as 2D associative arrays
@@ -281,6 +276,10 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
         for (var i = 0; i < tables_data.length; i++) {
           data_submission[tables_data[i].name] = tables_data[i].data;
         }
+
+        data_submission['usability'] = usabilityController.analytics;
+
+        console.log('submission', data_submission);
 
         // Secret share / mask the data.
         jiffController.client.submit(session, participationCode, data_submission, function (err, response) {

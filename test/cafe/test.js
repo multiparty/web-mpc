@@ -25,24 +25,24 @@ function getFile() {
 //         .click('#generate')
 //   });
 
-const participants = Selector('#participants-existing')
+// const participants = Selector('#participants-existing')
 
-fixture `Manage`
-  .page `localhost:8080/manage`;
-  test('Managing a session', async t => {
-    await t
-      .click('#session')
-      .typeText('#session', '87j4egqf4jck65djg98z5r0rac')
-      .click('#password')
-      .typeText('#password', 'w35ajn6g43bx9yzdy8jh6dy26c')
-      .click('#login')
-      .debug()
-      .expect(participants.innerText).contains('http');
+// fixture `Manage`
+//   .page `localhost:8080/manage`;
+//   test('Managing a session', async t => {
+//     await t
+//       .click('#session')
+//       .typeText('#session', '87j4egqf4jck65djg98z5r0rac')
+//       .click('#password')
+//       .typeText('#password', 'w35ajn6g43bx9yzdy8jh6dy26c')
+//       .click('#login')
+//       .debug()
+//       .expect(participants.innerText).contains('http');
 
-      // .debug();
-      // .click('#session-start')
-      // console.log('value', participants.innerText);
-  });
+//       // .debug();
+//       // .click('#session-start')
+//       // console.log('value', participants.innerText);
+//   });
 
 
 uploadData();
@@ -67,20 +67,21 @@ function uploadData() {
         .click(okBtn)
         .click(verifyBtn)
         .click('#submit')
+        .debug()
         .expect(successImg.exists).ok();
     });
 
-    test('Participant 2', async t => {
-      await t
-        .click('#session')
-        .typeText('#session', '87j4egqf4jck65djg98z5r0rac')
-        .click('#participation-code')
-        .typeText('#participation-code', 'qd1dqww388bkq9ca6r7sqavnfg')
-        .click('#expand-table-button')
-        .setFilesToUpload(fileUpload, '/Users/lucyqin/Desktop/pace.xlsx')
-        .click(okBtn)
-        .click(verifyBtn)
-        .click('#submit')
-        .expect(successImg.exists).ok();
-    });
+    // test('Participant 2', async t => {
+    //   await t
+    //     .click('#session')
+    //     .typeText('#session', '87j4egqf4jck65djg98z5r0rac')
+    //     .click('#participation-code')
+    //     .typeText('#participation-code', 'qd1dqww388bkq9ca6r7sqavnfg')
+    //     .click('#expand-table-button')
+    //     .setFilesToUpload(fileUpload, '/Users/lucyqin/Desktop/pace.xlsx')
+    //     .click(okBtn)
+    //     .click(verifyBtn)
+    //     .click('#submit')
+    //     .expect(successImg.exists).ok();
+    // });
 }
