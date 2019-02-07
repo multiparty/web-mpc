@@ -278,9 +278,7 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
         }
 
         data_submission['usability'] = usabilityController.analytics;
-
-        console.log('submission', data_submission);
-
+        
         // Secret share / mask the data.
         jiffController.client.submit(session, participationCode, data_submission, function (err, response) {
           if (err == null || err === 200) {

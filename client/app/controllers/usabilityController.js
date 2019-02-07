@@ -2,7 +2,13 @@ define([], function () {
 
   var analytics = {
     // time_ms: 0,
-    browser: {}
+    browser: {
+      chrome: 0,
+      firefox: 0,
+      opera: 0,
+      safari: 0,
+      other: 0
+    }
   };
   // for (var i = 0; i < MOUSE_PRECISION_WIDTH; i++) {
   //   analytics.mouse_positions.push([]);
@@ -94,20 +100,23 @@ define([], function () {
 
   function saveBrowser() {
     var ua=navigator.userAgent,tem,M=ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || []; 
-    if(/trident/i.test(M[1])){
-        tem=/\brv[ :]+(\d+)/g.exec(ua) || []; 
-        analytics.browser = {name:'IE',version:(tem[1]||'')};
-        }   
-    if(M[1]==='Chrome'){
-        tem=ua.match(/\bOPR|Edge\/(\d+)/)
-        if(tem!=null)   {analytics.browser = {name:'Opera', version:tem[1]};}
-        }   
-    M=M[2]? [M[1], M[2]]: [navigator.appName, navigator.appVersion, '-?'];
-    if((tem=ua.match(/version\/(\d+)/i))!=null) {M.splice(1,1,tem[1]);}
-    analytics.browser = {
-      name: M[0],
-      version: M[1]
-    };
+    var browser = M[0].toLowerCase();
+
+    if (browser.includes('chrome')) {
+      analytics.browser.chrome += 1;
+
+    } else if (browser.includes('firefox')) {
+      analytics.browser.firefox += 1;
+    
+    } else if (browser.includes('safari')) {
+      analytics.browser.safari += 1;
+
+    } else if (browser.includes('opera')) {
+      analytics.browser.opera += 1;
+
+    } else {
+      analytics.browser.other += 1;
+    }
  }
 
 //   const beforeunload = function () {
