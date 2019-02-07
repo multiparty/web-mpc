@@ -28,7 +28,7 @@ const cryptoHooks =  {
 const options = { logs: true, sodium: false, hooks: {} };
 const computeOptions = {
   sodium: false,
-  Zp: '36893488147419103183',
+  Zp: '618970019642690137449562111',  // 2^89-1
   hooks: {
     createSecretShare: [function (jiff, share) {
       share.refresh = function () {
