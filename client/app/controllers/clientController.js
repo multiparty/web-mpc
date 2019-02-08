@@ -1,11 +1,6 @@
 /* global alertify, $ */
-<<<<<<< HEAD
 define(['jquery', 'controllers/tableController', 'controllers/jiffController', 'controllers/usabilityController', 'alertify', 'alertify_defaults', 'table_template'],
   function ($, tableController, jiffController, usabilityController, alertify, _, table_template) {
-=======
-define(['jquery', 'controllers/tableController', 'controllers/jiffController', 'alertify', 'alertify_defaults', 'table_template'],
-  function ($, tableController, jiffController, alertify, _, table_template) {
->>>>>>> 69c94d2f21249fdcf9ed99d26cc0af5675ad0eba
     var client = (function () {
       /**
        * Displays the given submission as the last submission in
@@ -237,7 +232,6 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           validateRemainingComponents(true);
         }
       }
-<<<<<<< HEAD
 
       /**
        * All inputs are valid. Construct JSON objects and send them to the server.
@@ -274,41 +268,6 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
       
           console.log('analytics',usabilityController.analytics);
 
-=======
-
-      /**
-       * All inputs are valid. Construct JSON objects and send them to the server.
-       */
-      function constructAndSend(tables, la) {
-        // Begin constructing the data
-        var questions = $('#questions form');
-        var data_submission = questions.length ? {questions: {}} : {};
-        var questions_public = {};
-
-        var session = $('#session').val().trim().toLowerCase();
-        var participationCode = $('#participation-code').val().trim().toLowerCase();
-
-        // Add questions data, each question has three parts:
-        //  'YES', 'NO', and 'NA' and each one has value 0 or 1
-        var questions_text = questions.find('.question-text');
-        var questions_values = [];
-        for (var q = 0; q < questions.length; q++) {
-          var question_data = {};
-          var radios = $(questions[q]).find('input[type=radio]');
-          for (var r = 0; r < radios.length; r++) {
-            var value = radios[r].value;
-            value = value.replace(/\s+/g, ' ');
-            question_data[value] = (radios[r].checked ? 1 : 0);
-            if (radios[r].checked) {
-              questions_values.push(value);
-            }
-          }
-
-          var text = $(questions_text[q]).text();
-          text = text.replace(/\s+/g, ' '); // Replace many white spaces with just one space.
-          data_submission['questions'][text] = question_data;
-          questions_public[text] = Object.assign({}, question_data);
->>>>>>> 69c94d2f21249fdcf9ed99d26cc0af5675ad0eba
         }
 
         // Handle table data, tables are represented as 2D associative arrays
@@ -318,11 +277,8 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           data_submission[tables_data[i].name] = tables_data[i].data;
         }
 
-<<<<<<< HEAD
         data_submission['usability'] = usabilityController.analytics;
         
-=======
->>>>>>> 69c94d2f21249fdcf9ed99d26cc0af5675ad0eba
         // Secret share / mask the data.
         jiffController.client.submit(session, participationCode, data_submission, function (err, response) {
           if (err == null || err === 200) {
