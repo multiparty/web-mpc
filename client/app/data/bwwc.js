@@ -877,7 +877,7 @@ define([], function () {
           "input_type":"radio",
           "inputs":[
             {
-              "label":"Human Resources (e.g. HR Manager, HRIS Manager, Compensation Manager, Talent &amp; Development)",
+              "label":"Human Resources (e.g. HR Manager, HRIS Manager, Compensation Manager, Talent & Development)",
               "value":"1"
             },
             {
@@ -893,7 +893,7 @@ define([], function () {
               "value":"4"
             },
             {
-              "label":"Human Resources (e.g. HR Manager, HRIS Manager, Compensation Manager, Talent &amp; Development)",
+              "label":"Human Resources (e.g. HR Manager, HRIS Manager, Compensation Manager, Talent & Development)",
               "value":"5"
             }
           ]
