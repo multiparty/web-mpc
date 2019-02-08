@@ -10,24 +10,23 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
     }
 
     function renderSurveyInputs(question, form) {
-
       var input_type = question.input_type;
 
       for (var i = 0; i < question.inputs.length; i++) {
         var div = document.createElement('div');
+        $(div).attr('class', input_type);
 
         var input = document.createElement('input');
 
         $(input).attr('type', input_type)
           .attr('value', i+1)
-          .attr('name', 'opt' + input_type)
+          .attr('name', 'opt' + input_type);
 
 
         var label = document.createElement('label');
         $(label).text(question.inputs[i].label);
-
         div.appendChild(input);
-        div.appendChild(label)
+        div.appendChild(label);
 
         form.appendChild(div);
       }
