@@ -37,9 +37,9 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
               tableController.saveQuestions(questions, sessionKey);
             }
 
-            // if (usability != null) {
-            //   tableController.saveUsability(usability, sessionKey);
-            // }
+            if (usability != null) {
+              tableController.saveUsability(usability, sessionKey);
+            }
 
             $('#tables-area').show();
             tableController.displayReadTable(result);

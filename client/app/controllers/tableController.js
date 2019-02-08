@@ -1010,6 +1010,11 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     return colWidths;
   }
 
+  function saveUsability(usability, session) {
+    var json = JSON.stringify(usability);
+    filesaver.saveAs(new Blob([json], {type: 'application/json'}), 'Usability_' + session + '.json');
+  }
+
   function saveQuestions(questions, session) {
     if (questions == null) {
       return;
@@ -1047,6 +1052,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     fillData,
     saveTables,
     saveQuestions,
+    saveUsability,
     displayReadTable,
     resetTableWidth,
     updateTableWidth,
