@@ -25,6 +25,7 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
           var sessionPass = $('#session-password').val();
           var privateKey = e.target.result;
 
+<<<<<<< HEAD
           jiffController.analyst.computeAndFormat(sessionKey, sessionPass, privateKey, error, function (result) {     
             console.log('result', result);
             var questions = result['questions'];
@@ -34,6 +35,12 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
             delete result['questions'];
 
             // console.log(usability);
+=======
+          jiffController.analyst.computeAndFormat(sessionKey, sessionPass, privateKey, error, function (result) {
+            var questions = result['questions'];
+            delete result['questions'];
+
+>>>>>>> 69c94d2f21249fdcf9ed99d26cc0af5675ad0eba
             tableController.createTableElems(table_template.tables, '#tables-area');
             tableController.saveTables(result, sessionKey);
             if (questions != null) {

@@ -1,6 +1,7 @@
 {
   "extends": "eslint:recommended",
   "rules": {
+    "no-console": "off",
     "indent": [2, 2, { "SwitchCase": 1 }],
     "keyword-spacing": [2, { "before": true, "after": true }],
     "object-shorthand": [2, "consistent"],
@@ -32,7 +33,7 @@
   },
 
   "parserOptions":{
-    "ecmaVersion": 6,
+    "ecmaVersion": 2017,
     "ecmaFeatures": {
       "experimentalObjectRestSpread": true
     }
