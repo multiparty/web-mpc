@@ -16,18 +16,16 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         var div = document.createElement('div');
         $(div).attr('class', input_type);
 
-        var input = document.createElement('input');
+        var label = document.createElement('label');
+        div.appendChild(label);
 
+        var input = document.createElement('input');
         $(input).attr('type', input_type)
           .attr('value', i+1)
           .attr('name', 'opt' + input_type);
 
-
-        var label = document.createElement('label');
-        $(label).text(question.inputs[i].label);
-        div.appendChild(input);
-        div.appendChild(label);
-
+        label.appendChild(input);
+        $(label).append(question.inputs[i].label);
         form.appendChild(div);
       }
     }
