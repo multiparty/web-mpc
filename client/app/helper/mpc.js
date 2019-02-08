@@ -3,6 +3,12 @@ if (typeof define !== 'function') {
 }
 
 define([], function () {
+  // TOOD: move this to data table
+  const usabilityDef = {
+    browser: ['brave', 'chrome', 'edge', 'firefox', 'opera', 'other', 'safari'],
+    time_spent: []
+  }
+
   // Order: consistent order on values as defined in the template.
   // The order will be the same on client, server, and analyst side.
   // Order:
@@ -16,12 +22,13 @@ define([], function () {
   //   tables: [ { table: <first table name>, row: <first row key>, col: <first col key> }, ... ]
   //   questions: [ { question: <first question text>, option: <first option value> }, ... ]
   // }
-  var consistentOrdering = function (table_template) {
+  var consistentOrdering = function (tableTemplate) {
     var tables = [];
     var questions = [];
+    var usability = [];
     // order tables
-    for (var i = 0; i < table_template.tables.length; i++) {
-      var table_def = table_template.tables[i];
+    for (var i = 0; i < tableTemplate.tables.length; i++) {
+      var table_def = tableTemplate.tables[i];
       if (table_def.submit === false) {
         continue;
       }
@@ -37,9 +44,9 @@ define([], function () {
       }
     }
     // order questions
-    if (table_template.survey != null) {
-      for (var q = 0; q < table_template.survey.questions.length; q++) {
-        var question = table_template.survey.questions[q];
+    if (tableTemplate.survey != null) {
+      for (var q = 0; q < tableTemplate.survey.questions.length; q++) {
+        var question = tableTemplate.survey.questions[q];
         for (var o = 0; o < question.inputs.length; o++) {
           var option = question.inputs[o].value;
           var label = question.inputs[o].label;
@@ -47,7 +54,17 @@ define([], function () {
         }
       }
     }
-    return { tables: tables, questions: questions };
+
+    for (let key in usabilityDef) {
+      if (usabilityDef[key].length > 0) {
+        for (let f of usabilityDef[key]) {
+          usability.push({metric: key, field: f});
+        }
+      } else {
+        usability.push({metric: key, field: null});
+      }
+    }
+    return { tables: tables, questions: questions, usability: usability };
   };
 
   var compute = function (jiff_instance, submitters, ordering) {
@@ -55,7 +72,7 @@ define([], function () {
     // sum all received shares for that entry, and reveal the sum
     // for that element to the analyst in order.
     var shares = [];
-    for (var k = 0; k < ordering.tables.length + ordering.questions.length; k++) {
+    for (var k = 0; k < ordering.tables.length + ordering.questions.length + ordering.usability.length; k++) {
       var subid = submitters[0];
       var entry_sum = jiff_instance.share(null, null, [1, 's1'], [subid]);
       entry_sum = entry_sum[subid];
@@ -91,6 +108,8 @@ define([], function () {
   //   }
   var format = function (resultsPromise, submitters, ordering) {
     return resultsPromise.then(function (results) {
+
+      console.log('results prom', results);
       var finalObject = {}; // results array will be transformed to an object of the correct form
       for (var i = 0; i < ordering.tables.length; i++) {
         var table = ordering.tables[i].table;

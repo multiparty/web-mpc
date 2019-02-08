@@ -1,15 +1,38 @@
 define([], function () {
 
   var analytics = {
-    // time_ms: 0,
+    time_spent: 1000,
     browser: {
+      brave: 0,
       chrome: 0,
+      edge: 0,
       firefox: 0,
       opera: 0,
-      safari: 0,
-      other: 0
+      other: 0,
+      safari: 0
     }
   };
+
+  function detectBrave() {
+    // initial assertions
+    if (!window.google_onload_fired &&
+         navigator.userAgent &&
+        !navigator.userAgent.includes('Chrome'))
+      return false;
+  
+    // set up test
+    var test = document.createElement('iframe');
+    test.style.display = 'none';
+    document.body.appendChild(test);
+  
+    // empty frames only have this attribute set in Brave Shield
+    var is_brave = (test.contentWindow.google_onload_fired === true);
+  
+    // teardown test
+    test.parentNode.removeChild(test);
+  
+    return is_brave;
+  }
   // for (var i = 0; i < MOUSE_PRECISION_WIDTH; i++) {
   //   analytics.mouse_positions.push([]);
   //   analytics.mouse_clicks.push([]);
@@ -99,24 +122,22 @@ define([], function () {
 //   };
 
   function saveBrowser() {
-    var ua=navigator.userAgent,tem,M=ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || []; 
+    // check Edge
+    var ua=navigator.userAgent,tem,M=ua.match(/(opera|chrome|safari|edge|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || []; 
     var browser = M[0].toLowerCase();
 
-    if (browser.includes('chrome')) {
-      analytics.browser.chrome += 1;
-
-    } else if (browser.includes('firefox')) {
-      analytics.browser.firefox += 1;
-    
-    } else if (browser.includes('safari')) {
-      analytics.browser.safari += 1;
-
-    } else if (browser.includes('opera')) {
-      analytics.browser.opera += 1;
-
-    } else {
-      analytics.browser.other += 1;
+    if (detectBrave) {
+      analytics.browser.brave += 1;
+      return;
     }
+
+    for (let key in analytics.browser) {
+      if (browser.includes(key)) {
+        analytics.browser[key] += 1;
+        return;
+      }
+    }
+    analytics.browser.other += 1;
  }
 
 //   const beforeunload = function () {

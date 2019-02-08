@@ -99,6 +99,17 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
       values.push(dataSubmission['questions'][q.question][q.option]);
     }
 
+    for (var k = 0; k < ordering.usability.length; k++) {
+      const m = ordering.usability[k].metric;
+      const f = ordering.usability[k].field;
+      if (f !== null) {
+        values.push(dataSubmission.usability[m][f]);
+      } else {
+        values.push(dataSubmission.usability[m]);
+      }
+    }
+    console.log('ordering', ordering, 'values', values, 'datasub', dataSubmission);
+
     // Handle jiff errors returned from server
     var options = {
       onError: function (errorString) {
@@ -149,6 +160,7 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
 
       // Compute and Format
       var promise = mpc.compute(jiff, submitters, ordering);
+      console.log('promises!', promise, ordering);
       promise = mpc.format(promise, submitters, ordering);
       promise.then(function (result) {
         jiff.disconnect(false, false);
