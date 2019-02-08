@@ -25,27 +25,21 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
           var sessionPass = $('#session-password').val();
           var privateKey = e.target.result;
 
-<<<<<<< HEAD
           jiffController.analyst.computeAndFormat(sessionKey, sessionPass, privateKey, error, function (result) {     
-            console.log('result', result);
             var questions = result['questions'];
-            // var usability = result['usability'];
-            // console.log('result',result);
-            // delete result['usability'];
+            var usability = result['usability'];
+            delete result['usability'];
             delete result['questions'];
 
-            // console.log(usability);
-=======
-          jiffController.analyst.computeAndFormat(sessionKey, sessionPass, privateKey, error, function (result) {
-            var questions = result['questions'];
-            delete result['questions'];
-
->>>>>>> 69c94d2f21249fdcf9ed99d26cc0af5675ad0eba
             tableController.createTableElems(table_template.tables, '#tables-area');
             tableController.saveTables(result, sessionKey);
             if (questions != null) {
               tableController.saveQuestions(questions, sessionKey);
             }
+
+            // if (usability != null) {
+            //   tableController.saveUsability(usability, sessionKey);
+            // }
 
             $('#tables-area').show();
             tableController.displayReadTable(result);
@@ -76,6 +70,9 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
       $(document).ready(function () {
         $('#tables-area').hide();
         expandTable();
+
+        document.getElementById('session').value = "6j0ddnxd8mnfjzw2vdf8mygfjm";
+        document.getElementById('session-password').value = "apm9rm9dc871ssnp89rh6b14q0";
 
         var _target = document.getElementById('drop-area');
         var _choose = document.getElementById('choose-file-button');

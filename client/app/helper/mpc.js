@@ -109,7 +109,6 @@ define([], function () {
   var format = function (resultsPromise, submitters, ordering) {
     return resultsPromise.then(function (results) {
 
-      console.log('results prom', results);
       var finalObject = {}; // results array will be transformed to an object of the correct form
       for (var i = 0; i < ordering.tables.length; i++) {
         var table = ordering.tables[i].table;
@@ -138,6 +137,25 @@ define([], function () {
           finalObject['questions'][question] = {};
         }
         finalObject['questions'][question][label] = results[i+j].toString();
+      }
+
+      // TODO: make this generic
+      finalObject['usability'] = {
+        'time_spent': 0,
+        'browser': {}
+      };
+
+      for (let k = 0; k < ordering.usability.length; k++) {
+        const m = ordering.usability[k].metric;
+        const f = ordering.usability[k].field;
+      
+        const value = results[i+j+k].c[0].toString();
+
+        if (f === null) {
+          finalObject.usability[m] = value;
+        } else {
+          finalObject.usability[m][f] = value;          
+        }
       }
 
       return finalObject;

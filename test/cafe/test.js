@@ -57,10 +57,10 @@ function unmaskData() {
     test('Unmasking data', async t => {
       await t
       .click('#session')
-      .typeText('#session', '3jpar7nzcmzz4q2zmb30sk0p4m')
+      .typeText('#session', '6j0ddnxd8mnfjzw2vdf8mygfjm')
       .click('#session-password')
-      .typeText('#session-password', 'jetk5zdmmedamsrtafr330fz2g')
-      .setFilesToUpload(fileUpload, '/Users/lucyqin/Downloads/Session_3jpar7nzcmzz4q2zmb30sk0p4m_private_key.pem')
+      .typeText('#session-password', 'apm9rm9dc871ssnp89rh6b14q0')
+      .setFilesToUpload(fileUpload, '/Users/lucyqin/Downloads/Session_6j0ddnxd8mnfjzw2vdf8mygfjm_private_key.pem')
       .debug();
     });
 }
@@ -77,9 +77,9 @@ function uploadData() {
     test('Participant 1', async t => {
       await t
         .click('#session')
-        .typeText('#session', '3jpar7nzcmzz4q2zmb30sk0p4m')
+        .typeText('#session', '6j0ddnxd8mnfjzw2vdf8mygfjm')
         .click('#participation-code')
-        .typeText('#participation-code', 'fkyjmmjjygfm20fpacmgnhgxfm')
+        .typeText('#participation-code', 'apm9rm9dc871ssnp89rh6b14q0')
         .click('#expand-table-button')
         .setFilesToUpload(fileUpload, '/Users/lucyqin/Desktop/pace.xlsx')
         .click(okBtn)
@@ -92,9 +92,9 @@ function uploadData() {
     test('Participant 2', async t => {
       await t
         .click('#session')
-        .typeText('#session', '3jpar7nzcmzz4q2zmb30sk0p4m')
+        .typeText('#session', 'zd8c9t6ctpdxq2gn8zvegvjhgc')
         .click('#participation-code')
-        .typeText('#participation-code', 'e12kvhf4w2j01wmg3knhva7zqg')
+        .typeText('#participation-code', 'dh8fn1adva4552bxdg2fagjmpc')
         .click('#expand-table-button')
         .setFilesToUpload(fileUpload, '/Users/lucyqin/Desktop/pace.xlsx')
         .click(okBtn)
