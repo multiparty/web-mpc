@@ -71,9 +71,6 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
         $('#tables-area').hide();
         expandTable();
 
-        document.getElementById('session').value = "6j0ddnxd8mnfjzw2vdf8mygfjm";
-        document.getElementById('session-password').value = "apm9rm9dc871ssnp89rh6b14q0";
-
         var _target = document.getElementById('drop-area');
         var _choose = document.getElementById('choose-file-button');
 

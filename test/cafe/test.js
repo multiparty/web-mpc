@@ -1,52 +1,79 @@
-import { Selector } from 'testcafe';
+import { Selector, ClientFunction } from 'testcafe';
+const fs = require('fs');
 
+let sessionKey = null;
+let sessionPassword = null;
 
+// function getFile() {
 
-function getFile() {
-
-  var txt = '';
-  var xmlhttp = new XMLHttpRequest();
-  xmlhttp.onreadystatechange = function(){
-    if(xmlhttp.status == 200 && xmlhttp.readyState == 4){
-      txt = xmlhttp.responseText;
-    }
-  };
-  xmlhttp.open("GET","abc.txt",true);
-  xmlhttp.send();
+//   var txt = '';
+//   var xmlhttp = new XMLHttpRequest();
+//   xmlhttp.onreadystatechange = function(){
+//     if(xmlhttp.status == 200 && xmlhttp.readyState == 4){
+//       txt = xmlhttp.responseText;
+//     }
+//   };
+//   xmlhttp.open("GET","abc.txt",true);
+//   xmlhttp.send();
   
+// }
+
+function createSession() {
+  fixture `Creating a session`
+  .page `localhost:8080/create`;
+  test('Creating a session', async t => {
+    await t
+        .typeText('#session-title', 'testing!')
+        .typeText('#session-description', 'a test description')
+        .click('#generate')
+        .wait(1000);
+       
+  });
+}
+  // const participants = Selector('#participants-existing')
+
+function saveSessionInfo() {
+  var files = fs.readdirSync('/Users/lucyqin/Downloads/');
+
+  for (var f of files) {
+    console.log(f)
+    if (f.includes('.txt')) {
+      fs.readFile("/Users/lucyqin/Downloads/" + f, "utf8", function(err, data) {
+        sessionKey = data.slice(12, 39);
+        sessionPassword = data.slice(50, 76)
+        console.log(sessionKey, sessionPassword)
+        return;
+      });
+    }
+  }
 }
 
-// fixture `Creating a session`
-//   .page `localhost:8080/create`;
-//   test('Creating a session', async t => {
-//     await t
-//         .typeText('#session-title', 'testing!')
-//         .typeText('#session-description', 'a test description')
-//         .click('#generate')
-//   });
+function startSession() { 
+  fixture `Manage`
+    .page `localhost:8080/manage`;
+    test('Managing a session', async t => {
+      await t
+        .wait(1000)
+        .click('#session')
+        .typeText('#session', sessionKey)
+        .click('#password')
+        .typeText('#password', sessionPassword)
+        .click('#login')
+        // .click('#session-start')
+        .debug();
+        // .click('#participants-count')
+        // .debug()
+        // .typeText('#participants-count', '2')
+        // .debug()
+        // .expect(participants.innerText).contains('http')
+        // .debug();
+    });
+}
 
-// const participants = Selector('#participants-existing')
+// function getSessionInfo() {
 
-// fixture `Manage`
-//   .page `localhost:8080/manage`;
-//   test('Managing a session', async t => {
-//     await t
-//       .click('#session')
-//       .typeText('#session', '87j4egqf4jck65djg98z5r0rac')
-//       .click('#password')
-//       .typeText('#password', 'w35ajn6g43bx9yzdy8jh6dy26c')
-//       .click('#login')
-//       .debug()
-//       .expect(participants.innerText).contains('http');
+// }
 
-//       // .debug();
-//       // .click('#session-start')
-//       // console.log('value', participants.innerText);
-//   });
-
-
-unmaskData();
-// uploadData();
 
 function unmaskData() {
 
@@ -57,10 +84,10 @@ function unmaskData() {
     test('Unmasking data', async t => {
       await t
       .click('#session')
-      .typeText('#session', '6j0ddnxd8mnfjzw2vdf8mygfjm')
+      .typeText('#session', sessionKey)
       .click('#session-password')
-      .typeText('#session-password', 'apm9rm9dc871ssnp89rh6b14q0')
-      .setFilesToUpload(fileUpload, '/Users/lucyqin/Downloads/Session_6j0ddnxd8mnfjzw2vdf8mygfjm_private_key.pem')
+      .typeText('#session-password', sessionPassword)
+      // .setFilesToUpload(fileUpload, '/Users/lucyqin/Downloads/Session_' + sessionKey + '_private_key')
       .debug();
     });
 }
@@ -77,9 +104,9 @@ function uploadData() {
     test('Participant 1', async t => {
       await t
         .click('#session')
-        .typeText('#session', '6j0ddnxd8mnfjzw2vdf8mygfjm')
+        .typeText('#session', sessionKey)
         .click('#participation-code')
-        .typeText('#participation-code', 'apm9rm9dc871ssnp89rh6b14q0')
+        .typeText('#participation-code', 's7qv4whvv0c2nkj4ewfw06mhsg')
         .click('#expand-table-button')
         .setFilesToUpload(fileUpload, '/Users/lucyqin/Desktop/pace.xlsx')
         .click(okBtn)
@@ -92,9 +119,9 @@ function uploadData() {
     test('Participant 2', async t => {
       await t
         .click('#session')
-        .typeText('#session', 'zd8c9t6ctpdxq2gn8zvegvjhgc')
+        .typeText('#session', sessionKey)
         .click('#participation-code')
-        .typeText('#participation-code', 'dh8fn1adva4552bxdg2fagjmpc')
+        .typeText('#participation-code', 'fbr4nbdcy1svgy8btk7atygqhr')
         .click('#expand-table-button')
         .setFilesToUpload(fileUpload, '/Users/lucyqin/Desktop/pace.xlsx')
         .click(okBtn)
@@ -102,4 +129,54 @@ function uploadData() {
         .click('#submit')
         .expect(successImg.exists).ok();
     });
+
+    test('Participant 1', async t => {
+      await t
+        .click('#session')
+        .typeText('#session', sessionKey)
+        .click('#participation-code')
+        .typeText('#participation-code', 'ta357nprptg61zsa5vcbe8jy4r')
+        .click('#expand-table-button')
+        .setFilesToUpload(fileUpload, '/Users/lucyqin/Desktop/pace.xlsx')
+        .click(okBtn)
+        .click(verifyBtn)
+        .click('#submit')
+        .debug()
+        .expect(successImg.exists).ok();
+    });
+
 }
+
+
+function endSession() {
+  fixture `Manage`
+  .page `localhost:8080/manage`;
+  test('Managing a session', async t => {
+    await t
+      .wait(1000)
+      .click('#session')
+      .typeText('#session', sessionKey)
+      .click('#password')
+      .typeText('#password', sessionPassword)
+      .click('#login')
+      .click('#session-stop')
+      .click('#session-close-confirm')
+      .debug();
+      // .click('#participants-count')
+      // .debug()
+      // .typeText('#participants-count', '2')
+      // .debug()
+      // .expect(participants.innerText).contains('http')
+      // .debug();
+  });
+
+}
+
+// createSession();
+saveSessionInfo();
+// startSession();
+// uploadData();
+// endSession();
+unmaskData();
+
+

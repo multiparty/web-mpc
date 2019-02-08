@@ -141,6 +141,7 @@ define([], function () {
 
       // TODO: make this generic
       finalObject['usability'] = {
+        'data_prefilled': 0,
         'time_spent': 0,
         'browser': {}
       };
@@ -157,6 +158,8 @@ define([], function () {
           finalObject.usability[m][f] = value;          
         }
       }
+
+      console.log('final',finalObject)
 
       return finalObject;
     });

@@ -284,6 +284,9 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           if (err == null || err === 200) {
             response = JSON.parse(response);
             if (response.success) {
+              if (document.getElementById('choose-file').files.length > 0) {
+                usabilityController.dataPrefilled();
+              }
               success(SUCCESS_MESSAGE);
             } else {
               error(response.error);

@@ -1,6 +1,7 @@
 define([], function () {
 
   var analytics = {
+    data_prefilled: 0, // false
     time_spent: 1000,
     browser: {
       brave: 0,
@@ -140,6 +141,10 @@ define([], function () {
     analytics.browser.other += 1;
  }
 
+ function dataPrefilled() {
+   analytics.data_prefilled += 1;
+ }
+
 //   const beforeunload = function () {
 //     const endDate = new Date();
 //     const spentTime = endDate.getTime() - startDate.getTime();
@@ -150,6 +155,7 @@ define([], function () {
 
   return {
     analytics: analytics,
+    dataPrefilled: dataPrefilled,
     // handleMouseClick: handleMouseClick,
     // handleMouseMove: handleMouseMove,
     // focus: focus,
