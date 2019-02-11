@@ -26,7 +26,7 @@ function createSession() {
         .typeText('#session-title', 'testing!')
         .typeText('#session-description', 'a test description')
         .click('#generate')
-        .wait(1000);
+        .wait(10000);
        
   });
 }
@@ -87,7 +87,7 @@ function unmaskData() {
       .typeText('#session', sessionKey)
       .click('#session-password')
       .typeText('#session-password', sessionPassword)
-      // .setFilesToUpload(fileUpload, '/Users/lucyqin/Downloads/Session_' + sessionKey + '_private_key')
+      .setFilesToUpload(fileUpload, '/Users/lucyqin/Downloads/Session_' + sessionKey + '_private_key')
       .debug();
     });
 }
@@ -106,7 +106,7 @@ function uploadData() {
         .click('#session')
         .typeText('#session', sessionKey)
         .click('#participation-code')
-        .typeText('#participation-code', 's7qv4whvv0c2nkj4ewfw06mhsg')
+        .typeText('#participation-code', 'hhjkev9vvnm95g18pj92j09d2c')
         .click('#expand-table-button')
         .setFilesToUpload(fileUpload, '/Users/lucyqin/Desktop/pace.xlsx')
         .click(okBtn)
@@ -121,7 +121,7 @@ function uploadData() {
         .click('#session')
         .typeText('#session', sessionKey)
         .click('#participation-code')
-        .typeText('#participation-code', 'fbr4nbdcy1svgy8btk7atygqhr')
+        .typeText('#participation-code', 'qvmta3fnp3defj50qn6bq2e6hr')
         .click('#expand-table-button')
         .setFilesToUpload(fileUpload, '/Users/lucyqin/Desktop/pace.xlsx')
         .click(okBtn)
@@ -130,12 +130,12 @@ function uploadData() {
         .expect(successImg.exists).ok();
     });
 
-    test('Participant 1', async t => {
+    test('Participant 3', async t => {
       await t
         .click('#session')
         .typeText('#session', sessionKey)
         .click('#participation-code')
-        .typeText('#participation-code', 'ta357nprptg61zsa5vcbe8jy4r')
+        .typeText('#participation-code', 'epsp93c6grr04jzh4djb4e8q8c')
         .click('#expand-table-button')
         .setFilesToUpload(fileUpload, '/Users/lucyqin/Desktop/pace.xlsx')
         .click(okBtn)
@@ -173,10 +173,8 @@ function endSession() {
 }
 
 // createSession();
-saveSessionInfo();
+// saveSessionInfo();
 // startSession();
 // uploadData();
 // endSession();
-unmaskData();
-
-
+// unmaskData();

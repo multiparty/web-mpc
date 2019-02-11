@@ -5,6 +5,7 @@ if (typeof define !== 'function') {
 define([], function () {
   // TOOD: move this to data table
   const usabilityDef = {
+    data_prefilled: [],
     browser: ['brave', 'chrome', 'edge', 'firefox', 'opera', 'other', 'safari'],
     time_spent: []
   }

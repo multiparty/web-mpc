@@ -277,6 +277,10 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           data_submission[tables_data[i].name] = tables_data[i].data;
         }
 
+        if (document.getElementById('choose-file').files.length > 0) {
+          usabilityController.dataPrefilled();
+        }
+
         data_submission['usability'] = usabilityController.analytics;
         
         // Secret share / mask the data.
@@ -284,9 +288,6 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           if (err == null || err === 200) {
             response = JSON.parse(response);
             if (response.success) {
-              if (document.getElementById('choose-file').files.length > 0) {
-                usabilityController.dataPrefilled();
-              }
               success(SUCCESS_MESSAGE);
             } else {
               error(response.error);
