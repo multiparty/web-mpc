@@ -217,7 +217,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
           $('#tables-area').slideToggle(function () {
             if (!$("#tables-area").is(":hidden")){
               tableController.updateWidth(tables);
-            };
+            }
           });
           $(e.target).toggleClass('flip');
         });

@@ -708,32 +708,23 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
   function updateTableWidth(maxWidth) {
 
-    // $('#instructions').css('width', '1153px');
-    // $('#instructions').css('max-width', '1153px');
-    // $('#instructions').css('background-color', '#f45942');
+    //$('#instructions').css('width', '1153px');
+    $('#instructions').css('max-width', '1153px');
 
-    var instructionsID = document.getElementById('instructions');
-    instructionsID.style.width = '1153px';
-    instructionsID.style.maxWidth = '1153px';
-    instructionsID.style.marginLeft = '8.5px';
-    instructionsID.style.backgroundColor = '#f45942'
-    console.log("this is being called")
-    console.log(instructionsID);
+    var documentWidth = $(window).width();
+    var containerWidth = parseFloat($('.container').first().width());
+    var offset = (containerWidth - maxWidth) / 2;
 
-    // var documentWidth = $(window).width();
-    // var containerWidth = parseFloat($('.container').first().width());
-    // var offset = (containerWidth - maxWidth) / 2;
-    //
-    // if (offset < (containerWidth - documentWidth) / 2) {
-    //   offset = (containerWidth - documentWidth) / 2;
-    // }
-    //
-    // if (maxWidth > documentWidth) {
-    //   $('header, #shadow').css('right', documentWidth - maxWidth);
-    // }
-    //
-    // // Bootstrap row has margin-left: -15px, add this back to offset to keep card centered
-    // $('#instructions').css('margin-left', offset + 15);
+    if (offset < (containerWidth - documentWidth) / 2) {
+      offset = (containerWidth - documentWidth) / 2;
+    }
+
+    if (maxWidth > documentWidth) {
+      $('header, #shadow').css('right', documentWidth - maxWidth);
+    }
+
+    // Bootstrap row has margin-left: -15px, add this back to offset to keep card centered
+    $('#instructions').css('margin-left', offset + 15);
   }
 
   function resetTableWidth() {
@@ -986,18 +977,21 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   }
 
   function updateWidth(tables) {
+    console.log("updating");
 
-    var maxWidth = $('#instructions').width;
-
+    var maxWidth = $('#instructions').width();
     for (var i = 0; i < tables.length; i++) {
 
       var t = tables[i];
 
       var w = getWidth(t) + getHeaderWidth(t);
+      console.log(w);
 
       t.updateSettings({
-        width: w,
+        width: w
       });
+
+      console.log(w);
 
       if (w > maxWidth) {
         maxWidth = w;
