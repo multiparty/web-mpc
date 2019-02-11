@@ -150,13 +150,12 @@ define([], function () {
       for (let k = 0; k < ordering.usability.length; k++) {
         const m = ordering.usability[k].metric;
         const f = ordering.usability[k].field;
-      
         const value = results[i+j+k].c[0].toString();
 
         if (f === null) {
           finalObject.usability[m] = value;
         } else {
-          finalObject.usability[m][f] = value;          
+          finalObject.usability[m][f] = value;
         }
       }
 
