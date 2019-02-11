@@ -706,25 +706,32 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     return data;
   }
 
-  function updateTableWidth(maxWidth) {
-
-    //$('#instructions').css('width', '1153px');
-    $('#instructions').css('max-width', '1153px');
+  function updateTableWidth(tableWidth) {
 
     var documentWidth = $(window).width();
     var containerWidth = parseFloat($('.container').first().width());
-    var offset = (containerWidth - maxWidth) / 2;
+    var padding = getPadding('#instructions');
 
-    if (offset < (containerWidth - documentWidth) / 2) {
-      offset = (containerWidth - documentWidth) / 2;
+
+    // Only need to resize if the table doesn't fit inside the container.
+    if (tableWidth+padding > containerWidth){
+
+      // case 1: table is wider than container and document
+      if (tableWidth+padding > documentWidth){
+
+        // make instructions div as wide as possible without running over page
+        $('#instructions').css('width', documentWidth - padding);
+        $('#instructions').css('margin-left', -padding/2)         // set left margin so everything is centered
+        // ToDo: I can't get the table itself to update width without clicking on it???
+
+      }
+      // case 2: table is wider than container but less than the document width
+      else{
+        $('#instructions').css('width', tableWidth + padding);    // make instructions div wide enough to fit table
+        $('#instructions').css('margin-left', -padding/2)         // set left margin so everything is centered
+        // ToDo: I can't get the table itself to update width without clicking on it???
+      }
     }
-
-    if (maxWidth > documentWidth) {
-      $('header, #shadow').css('right', documentWidth - maxWidth);
-    }
-
-    // Bootstrap row has margin-left: -15px, add this back to offset to keep card centered
-    $('#instructions').css('margin-left', offset + 15);
   }
 
   function resetTableWidth() {
@@ -977,32 +984,21 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   }
 
   function updateWidth(tables) {
-    console.log("updating");
 
-    var maxWidth = $('#instructions').width();
+    var maxTableWidth = 0;
     for (var i = 0; i < tables.length; i++) {
 
       var t = tables[i];
 
       var w = getWidth(t) + getHeaderWidth(t);
-      console.log(w);
 
-      t.updateSettings({
-        width: w
-      });
-
-      console.log(w);
-
-      if (w > maxWidth) {
-        maxWidth = w;
+      if (w > maxTableWidth) {
+        maxTableWidth = w;
       }
     }
 
-    var padding = getPadding('#instructions')
+    updateTableWidth(maxTableWidth);
 
-    if (maxWidth > 0) {
-      updateTableWidth(maxWidth + padding);
-    }
   }
 
   function getWidth(table) {

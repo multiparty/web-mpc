@@ -218,6 +218,9 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
             if (!$("#tables-area").is(":hidden")){
               tableController.updateWidth(tables);
             }
+            else {
+              tableController.resetTableWidth();
+            };
           });
           $(e.target).toggleClass('flip');
         });
