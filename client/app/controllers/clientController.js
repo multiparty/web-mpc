@@ -104,6 +104,7 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           callback && callback(true);
         }).catch(function (err) {
           var errorMsg = SERVER_ERR;
+          usabilityController.addValidationError("SERVER_ERR");
           if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
             errorMsg = err.responseText;
           }
@@ -127,11 +128,13 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
         var $session = $('#session');
         if (!validateSessionInput($session, false)) {
           errors.push(SESSION_KEY_ERROR);
+          usabilityController.addValidationError("SESSION_KEY_ERROR");
         }
 
         var $participationCode = $('#participation-code');
         if (!validateSessionInput($participationCode, false)) {
           errors.push(PARTICIPATION_CODE_ERROR);
+          usabilityController.addValidationError("PARTICIPATION_CODE_ERROR");
         }
 
         // Validate the remaining components after session and
@@ -139,12 +142,14 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
         var validateRemainingComponents = function (result) {
           if (!result) {
             errors.push(SESSION_PARTICIPATION_CODE_SERVER_ERROR);
+            usabilityController.addValidationError("SESSION_PARTICIPATION_CODE_SERVER_ERROR");
           }
 
           // Verify confirmation check box was checked
           var verifyChecked = $('#verify').is(':checked');
           if (!verifyChecked) {
             errors.push(UNCHECKED_ERR);
+            usabilityController.addValidationError("UNCHECKED_ERR");
           }
 
           // Verify additional questions
@@ -194,6 +199,7 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
             }
             if (errors.indexOf(errorMsg) === -1) {
               errors.push(errorMsg);
+              usabilityController.addValidationError("CELL_ERROR");
             }
           };
           tableController.registerErrorHandler(errorHandler);
@@ -295,8 +301,10 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           } else if (err === 0 || err === 500) {
             // check for status 0 or status 500 (Server not reachable.)
             error(SERVER_ERR);
+            usabilityController.addValidationError("SERVER_ERR");
           } else {
             error(GENERIC_SUBMISSION_ERR);
+            usabilityController.addValidationError("GENERIC_SUBMISSION_ERR");
           }
 
           la.stop();

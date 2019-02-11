@@ -1,18 +1,22 @@
-define([], function () {
+define(['table_template', 'mpc'], function (table_template, mpc) {
 
-  var analytics = {
-    data_prefilled: 0, // false
-    time_spent: 1000,
-    browser: {
-      brave: 0,
-      chrome: 0,
-      edge: 0,
-      firefox: 0,
-      opera: 0,
-      other: 0,
-      safari: 0
+  var analytics = {};
+
+  function initialize() {
+    for (var metric of table_template.usability) {
+      if (typeof(metric) === 'string') {
+        analytics[metric] = 0;
+      } else if (typeof(metric) === 'object') {
+        var key = Object.keys(metric)[0];
+        var fields = metric[key];
+        analytics[key] = {};
+
+        for (var f of fields) {
+          analytics[key][f] = 0;
+        }
+      } 
     }
-  };
+  }
 
   function detectBrave() {
     // initial assertions
@@ -141,8 +145,13 @@ define([], function () {
     analytics.browser.other += 1;
  }
 
+ function addValidationError(err) {
+  console.log('err', err)
+  analytics.validation_errors[err] += 1;
+ }
+
  function dataPrefilled() {
-   analytics.data_prefilled += 1;
+  analytics.data_prefilled += 1;
  }
 
 //   const beforeunload = function () {
@@ -154,8 +163,10 @@ define([], function () {
 //   };
 
   return {
+    addValidationError: addValidationError,
     analytics: analytics,
     dataPrefilled: dataPrefilled,
+    initialize: initialize,
     // handleMouseClick: handleMouseClick,
     // handleMouseMove: handleMouseMove,
     // focus: focus,

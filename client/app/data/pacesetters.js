@@ -200,6 +200,26 @@ define([], function () {
           }
         ]
       }
+    ],
+    'usability': [
+      'data_prefilled', // false
+      'time_spent',
+      {'browser': ['brave', 'chrome', 'edge', 'firefox', 'opera', 'other', 'safari']
+      },
+      {'validation_errors': [
+        'SESSION_KEY_ERROR', 
+        'PARTICIPATION_CODE_ERROR', 
+        'SESSION_PARTICIPATION_CODE_SERVER_ERROR', 
+        'UNCHECKED_ERR', 
+        'ADD_QUESTIONS_ERR', 
+        'GENERIC_TABLE_ERR', 
+        'SERVER_ERR', 
+        'GENERIC_SUBMISSION_ERR',
+        'NAN_EMPTY_CELLS', 
+        'SEMANTIC_CELLS',
+        'CELL_ERROR'
+        ]
+      }
     ]
   }
 });

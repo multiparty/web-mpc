@@ -2,13 +2,15 @@ if (typeof define !== 'function') {
   var define = require('amdefine')(module);
 }
 
-define([], function () {
+define(['table_template'], function (table_template) {
   // TOOD: move this to data table
-  const usabilityDef = {
-    data_prefilled: [],
-    browser: ['brave', 'chrome', 'edge', 'firefox', 'opera', 'other', 'safari'],
-    time_spent: []
-  }
+
+  // const usabilityDef = {
+  //   data_prefilled: [],
+  //   browser: ['brave', 'chrome', 'edge', 'firefox', 'opera', 'other', 'safari'],
+  //   time_spent: [],
+
+  // }
 
   // Order: consistent order on values as defined in the template.
   // The order will be the same on client, server, and analyst side.
@@ -23,13 +25,13 @@ define([], function () {
   //   tables: [ { table: <first table name>, row: <first row key>, col: <first col key> }, ... ]
   //   questions: [ { question: <first question text>, option: <first option value> }, ... ]
   // }
-  var consistentOrdering = function (tableTemplate) {
+  var consistentOrdering = function () {
     var tables = [];
     var questions = [];
     var usability = [];
     // order tables
-    for (var i = 0; i < tableTemplate.tables.length; i++) {
-      var table_def = tableTemplate.tables[i];
+    for (var i = 0; i < table_template.tables.length; i++) {
+      var table_def = table_template.tables[i];
       if (table_def.submit === false) {
         continue;
       }
@@ -45,9 +47,9 @@ define([], function () {
       }
     }
     // order questions
-    if (tableTemplate.survey != null) {
-      for (var q = 0; q < tableTemplate.survey.questions.length; q++) {
-        var question = tableTemplate.survey.questions[q];
+    if (table_template.survey != null) {
+      for (var q = 0; q < table_template.survey.questions.length; q++) {
+        var question = table_template.survey.questions[q];
         for (var o = 0; o < question.inputs.length; o++) {
           var option = question.inputs[o].value;
           var label = question.inputs[o].label;
@@ -56,16 +58,19 @@ define([], function () {
       }
     }
 
-    for (let key in usabilityDef) {
-      if (usabilityDef[key].length > 0) {
-        for (let f of usabilityDef[key]) {
+    for (let metric of table_template.usability) {
+      if (typeof(metric) === 'string') {
+        usability.push({metric: metric, field: null});
+      } else if (typeof(metric) === 'object') {
+        const key = Object.keys(metric)[0];
+        const fields = metric[key];
+
+        for (let f of fields) {
           usability.push({metric: key, field: f});
         }
-      } else {
-        usability.push({metric: key, field: null});
       }
     }
-    return { tables: tables, questions: questions, usability: usability };
+    return { tables, questions, usability };
   };
 
   var compute = function (jiff_instance, submitters, ordering) {
