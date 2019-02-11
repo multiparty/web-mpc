@@ -72,7 +72,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         // Create the tabless
         var tables = tableController.makeTables(table_template.tables);
 
-        createResizeSensors(tables);
+        //createResizeSensors(tables); THIS FUNCTION BREAKS THINGS I THINK! -IRA
 
         var totals_table = null;
 
@@ -215,7 +215,9 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
         $('#expand-table-button').click(function (e) {
           $('#tables-area').slideToggle(function () {
-            tableController.updateWidth(tables);
+            if (!$("#tables-area").is(":hidden")){
+              tableController.updateWidth(tables);
+            };
           });
           $(e.target).toggleClass('flip');
         });
