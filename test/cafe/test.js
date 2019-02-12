@@ -85,7 +85,7 @@ function unmaskData() {
       .typeText('#session', sessionKey)
       .click('#session-password')
       .typeText('#session-password', sessionPassword)
-      .setFilesToUpload(fileUpload, '/Users/lucyqin/Downloads/Session_' + sessionKey + '_private_key')
+      .setFilesToUpload(fileUpload, '/Users/lucyqin/Downloads/Session_' + sessionKey + '_private_key.pem')
       .debug();
     });
 }
@@ -106,7 +106,7 @@ function uploadData() {
         .click('#participation-code')
         .selectText('#session')
         .pressKey('backspace')
-        .typeText('#participation-code', '0a4zk3fa0dz6jkrerswqf6tnyc')
+        .typeText('#participation-code', '8kz8gz6b459d59azdv06zv9m58')
         .click('#session')
         .typeText('#session', sessionKey)
         .click('#expand-table-button')
@@ -114,7 +114,7 @@ function uploadData() {
         .click(okBtn)
         .click(verifyBtn)
         .click('#submit')
-        // .debug()
+        .debug()
         .expect(successImg.exists).ok();
     });
 
@@ -123,7 +123,7 @@ function uploadData() {
         .click('#session')
         .typeText('#session', sessionKey)
         .click('#participation-code')
-        .typeText('#participation-code', '9g703x9n72jjmkx6csgcn2zrg8')
+        .typeText('#participation-code', 'pe72s5vmpd202hh721zv2byce0')
         .click('#expand-table-button')
         .setFilesToUpload(fileUpload, '/Users/lucyqin/Desktop/pace.xlsx')
         .click(okBtn)
@@ -138,7 +138,7 @@ function uploadData() {
         .click('#session')
         .typeText('#session', sessionKey)
         .click('#participation-code')
-        .typeText('#participation-code', 'x9rxvwp1t6vm7bw4fpm1b9w8f8')
+        .typeText('#participation-code', '08ybt0ccrab3tqxr8tn3wanr6m')
         .click('#expand-table-button')
         .setFilesToUpload(fileUpload, '/Users/lucyqin/Desktop/pace.xlsx')
         .click(okBtn)

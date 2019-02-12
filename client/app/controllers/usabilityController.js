@@ -81,11 +81,11 @@ define(['table_template', 'mpc'], function (table_template, mpc) {
  }
 
   function addValidationError(err) {
-  analytics.validation_errors[err] += 1;
+    analytics.validation_errors[err] += 1;
   }
 
   function dataPrefilled() {
-  analytics.data_prefilled += 1;
+    analytics.data_prefilled += 1;
   }
 
   return {
