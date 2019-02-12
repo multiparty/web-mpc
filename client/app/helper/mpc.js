@@ -2,7 +2,7 @@ if (typeof define !== 'function') {
   var define = require('amdefine')(module);
 }
 
-define(['table_template'], function (table_template) {
+define([], function () {
   // TOOD: move this to data table
 
   // const usabilityDef = {
@@ -25,7 +25,7 @@ define(['table_template'], function (table_template) {
   //   tables: [ { table: <first table name>, row: <first row key>, col: <first col key> }, ... ]
   //   questions: [ { question: <first question text>, option: <first option value> }, ... ]
   // }
-  var consistentOrdering = function () {
+  var consistentOrdering = function (table_template) {
     var tables = [];
     var questions = [];
     var usability = [];
@@ -145,14 +145,10 @@ define(['table_template'], function (table_template) {
         finalObject['questions'][question][label] = results[i+j].toString();
       }
 
-      // TODO: make this generic
-      finalObject['usability'] = {
-        'data_prefilled': 0,
-        'time_spent': 0,
-        'browser': {}
-      };
+      finalObject['usability'] = {};
 
       for (let k = 0; k < ordering.usability.length; k++) {
+
         const m = ordering.usability[k].metric;
         const f = ordering.usability[k].field;
         const value = results[i+j+k].c[0].toString();
@@ -160,12 +156,13 @@ define(['table_template'], function (table_template) {
         if (f === null) {
           finalObject.usability[m] = value;
         } else {
+          if (!(m in finalObject.usability)) {
+            finalObject.usability[m] = {};
+          }
           finalObject.usability[m][f] = value;
+        
         }
       }
-
-      console.log('final',finalObject)
-
       return finalObject;
     });
   };

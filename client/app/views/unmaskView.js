@@ -2,6 +2,12 @@
 
 define(['jquery', 'controllers/jiffController', 'controllers/tableController', 'helper/drop_sheet', 'alertify', 'table_template'],
   function ($, jiffController, tableController, DropSheet, alertify, table_template) {
+    
+    
+    document.getElementById('session').value = 'jtptfd1dtvathebzd1xnjzggtm';
+    document.getElementById('session-password').value = 'd5dvsa71hg12zxnyrc3n4chmwm';
+  
+
     function error(msg) {
       alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', msg);
     }

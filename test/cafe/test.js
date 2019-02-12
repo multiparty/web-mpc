@@ -27,10 +27,8 @@ function createSession() {
         .typeText('#session-description', 'a test description')
         .click('#generate')
         .wait(10000);
-       
   });
 }
-  // const participants = Selector('#participants-existing')
 
 function saveSessionInfo() {
   var files = fs.readdirSync('/Users/lucyqin/Downloads/');
@@ -106,8 +104,11 @@ function uploadData() {
         .click('#session')
         .typeText('#session', 'dtt4yqce20jgm411xtefn77hew')
         .click('#participation-code')
-        .typeText('#participation-code', 'rh1k0xsnx7w7r7mdeq22qp6hxr')
-        .click('#session', sessionKey)
+        .selectText('#session')
+        .pressKey('backspace')
+        .typeText('#participation-code', '0a4zk3fa0dz6jkrerswqf6tnyc')
+        .click('#session')
+        .typeText('#session', sessionKey)
         .click('#expand-table-button')
         .setFilesToUpload(fileUpload, '/Users/lucyqin/Desktop/pace.xlsx')
         .click(okBtn)
@@ -117,36 +118,35 @@ function uploadData() {
         .expect(successImg.exists).ok();
     });
 
-    // test('Participant 2', async t => {
-    //   await t
-    //     .click('#session')
-    //     .typeText('#session', sessionKey)
-    //     .click('#participation-code')
-    //     .typeText('#participation-code', 'rh1k0xsnx7w7r7mdeq22qp6hxr')
-    //     .click('#expand-table-button')
-    //     .setFilesToUpload(fileUpload, '/Users/lucyqin/Desktop/pace.xlsx')
-    //     .click(okBtn)
-    //     .click(verifyBtn)
-    //     .click('#submit')
-    //     .debug()
-    //     .expect(successImg.exists).ok();
-    // });
+    test('Participant 2', async t => {
+      await t
+        .click('#session')
+        .typeText('#session', sessionKey)
+        .click('#participation-code')
+        .typeText('#participation-code', '9g703x9n72jjmkx6csgcn2zrg8')
+        .click('#expand-table-button')
+        .setFilesToUpload(fileUpload, '/Users/lucyqin/Desktop/pace.xlsx')
+        .click(okBtn)
+        .click(verifyBtn)
+        .click('#submit')
+        .debug()
+        .expect(successImg.exists).ok();
+    });
 
-    // test('Participant 3', async t => {
-    //   await t
-    //     .click('#session')
-    //     .typeText('#session', sessionKey)
-    //     .click('#participation-code')
-    //     .typeText('#participation-code', '4rsfyf9d5wjvywc4rf8gqz6m68')
-    //     .click('#expand-table-button')
-    //     .setFilesToUpload(fileUpload, '/Users/lucyqin/Desktop/pace.xlsx')
-    //     .click(okBtn)
-    //     .click(verifyBtn)
-    //     .click('#submit')
-    //     .debug()
-    //     .expect(successImg.exists).ok();
-    // });
-
+    test('Participant 3', async t => {
+      await t
+        .click('#session')
+        .typeText('#session', sessionKey)
+        .click('#participation-code')
+        .typeText('#participation-code', 'x9rxvwp1t6vm7bw4fpm1b9w8f8')
+        .click('#expand-table-button')
+        .setFilesToUpload(fileUpload, '/Users/lucyqin/Desktop/pace.xlsx')
+        .click(okBtn)
+        .click(verifyBtn)
+        .click('#submit')
+        .debug()
+        .expect(successImg.exists).ok();
+    });
 }
 
 
@@ -177,6 +177,6 @@ function endSession() {
 // createSession();
 saveSessionInfo();
 // startSession();
-uploadData();
+// uploadData();
 // endSession();
-// unmaskData();
+unmaskData();
