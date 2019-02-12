@@ -718,6 +718,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
       // case 1: table is wider than container and document
       if (tableWidth+padding > documentWidth){
+        console.log("case 1");
 
         // make instructions div as wide as possible without running over page
         $('#instructions').css('width', documentWidth - padding);
@@ -727,8 +728,10 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       }
       // case 2: table is wider than container but less than the document width
       else{
+        console.log("case 2");
+        console.log("table width", tableWidth);
         $('#instructions').css('width', tableWidth + padding);    // make instructions div wide enough to fit table
-        $('#instructions').css('margin-left', -padding/2)         // set left margin so everything is centered
+        $('#instructions').css('margin-left', -padding)         // set left margin so everything is centered
         // ToDo: I can't get the table itself to update width without clicking on it???
       }
     }
