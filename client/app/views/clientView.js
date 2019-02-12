@@ -69,10 +69,10 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         tableController.createTableElems(table_template.tables, '#tables-area');
         displaySurveyQuestions();
 
-        // Create the tabless
+        // Create the tables
         var tables = tableController.makeTables(table_template.tables);
 
-        //createResizeSensors(tables); THIS FUNCTION BREAKS THINGS I THINK! -IRA
+        //createResizeSensors(tables);
 
         var totals_table = null;
 
