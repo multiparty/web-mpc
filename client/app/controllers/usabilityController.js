@@ -97,10 +97,10 @@ define(['table_template'], function (table_template) {
   }
 
   return {
-    addValidationError: addValidationError,
-    analytics: analytics,
-    dataPrefilled: dataPrefilled,
-    initialize: initialize,
-    saveBrowser: saveBrowser
+    addValidationError,
+    analytics,
+    dataPrefilled,
+    initialize,
+    saveBrowser
   };
 });
