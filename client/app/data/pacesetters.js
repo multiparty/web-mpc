@@ -203,7 +203,7 @@ define([], function () {
     ],
     'usability': [
       'data_prefilled', // false
-      'time_spent',
+      {'time_spent': ['page', 'session_area']},
       {'browser': ['brave', 'chrome', 'edge', 'firefox', 'opera', 'other', 'safari']
       },
       {'validation_errors': [

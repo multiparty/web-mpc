@@ -51,7 +51,6 @@ function startSession() {
     .page `localhost:8080/manage`;
     test('Managing a session', async t => {
       await t
-        .wait(1000)
         .click('#session')
         .typeText('#session', sessionKey)
         .click('#password')
@@ -176,7 +175,7 @@ function endSession() {
 
 // createSession();
 saveSessionInfo();
-// startSession();
+startSession();
 // uploadData();
 // endSession();
-unmaskData();
+// unmaskData();

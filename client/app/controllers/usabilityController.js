@@ -1,7 +1,11 @@
-define(['table_template', 'mpc'], function (table_template, mpc) {
+define(['table_template'], function (table_template) {
 
   let analytics = {};
-  let startDate = new Date();
+
+  let timers = {
+    page: {start: new Date(), elapsed: null},
+    session_area: {start: null, elapsed: null}
+  }
 
   function initialize() {
     for (var metric of table_template.usability) {
@@ -18,9 +22,16 @@ define(['table_template', 'mpc'], function (table_template, mpc) {
       } 
     }
 
-    window.addEventListener('focus', startTimer);
+    $('#session-area').on("mouseenter", function() {
+      startTimer('session_area');
+    });
+
+    $('#session-area').on("mouseleave", function() {
+      endTimer('session_area');
+    })
+
     window.addEventListener('blur', endTimer);
-    window.addEventListener('beforeunload', logTime);
+    window.addEventListener('beforeunload', endTimer);
 
   }
 
@@ -45,20 +56,17 @@ define(['table_template', 'mpc'], function (table_template, mpc) {
     return is_brave;
   }
 
-  function startTimer() {
-    startDate = new Date();
+  function startTimer(key) {
+    timers[key].start = new Date();
   };
 
-  function endTimer() {
+  function endTimer(key) {
+    if (typeof(key) !== 'string') {
+      key = 'page';
+    }
     const endDate = new Date();
-    const spentTime = endDate.getTime() - startDate.getTime();
-    analytics.time_spent += spentTime;
-  };
-
-  function logTime() {
-    const endDate = new Date();
-    const spentTime = endDate.getTime() - startDate.getTime();
-    analytics.time_spent += spentTime;
+    const spentTime = endDate.getTime() - timers[key].start.getTime();
+    analytics.time_spent[key] += spentTime;
   };
 
   function saveBrowser() {
