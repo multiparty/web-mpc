@@ -202,16 +202,16 @@ define([], function () {
       }
     ],
     'usability': [
-      'data_prefilled', // false
-      {'time_spent': ['page', 'session_area']},
-      {'browser': ['brave', 'chrome', 'edge', 'firefox', 'opera', 'other', 'safari']
+      'data_prefilled', 
+      {'time_spent': ['page', 'session_area', 'tables-area', 'review-and-submit', 'amount-spent', 'addressable-spend', 'number-MBEs']},
+      {'browser': ['brave', 'chrome', 'edge', 'msie', 'firefox', 'opera', 'other', 'safari']
       },
       {'validation_errors': [
         'SESSION_KEY_ERROR', 
+        'SESSION_INFO_ERROR',
         'PARTICIPATION_CODE_ERROR', 
         'SESSION_PARTICIPATION_CODE_SERVER_ERROR', 
         'UNCHECKED_ERR', 
-        'ADD_QUESTIONS_ERR', 
         'GENERIC_TABLE_ERR', 
         'SERVER_ERR', 
         'GENERIC_SUBMISSION_ERR',
@@ -219,7 +219,8 @@ define([], function () {
         'SEMANTIC_CELLS',
         'CELL_ERROR'
         ]
-      }
+      },
+      // 'num_resubmissions'
     ]
   }
 });

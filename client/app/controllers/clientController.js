@@ -94,7 +94,7 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           dataType: 'text'
         }).then(function (response) {
           JSON.parse(response); // verify response is json (error responses are string messages)
-
+          
           var $parent = $('#session, #participation-code').parent();
           $parent.removeClass('has-error').addClass('has-success has-feedback');
           $parent.find('.success-icon').removeClass('hidden').addClass('show');
@@ -104,7 +104,7 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           callback && callback(true);
         }).catch(function (err) {
           var errorMsg = SERVER_ERR;
-          usabilityController.addValidationError("SERVER_ERR");
+          usabilityController.addValidationError("SESSION_INFO_ERROR");
           if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
             errorMsg = err.responseText;
           }
@@ -270,10 +270,7 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           var text = $(questions_text[q]).text();
           text = text.replace(/\s+/g, ' '); // Replace many white spaces with just one space.
           data_submission['questions'][text] = question_data;
-          questions_public[text] = Object.assign({}, question_data);
-      
-          console.log('analytics',usabilityController.analytics);
-
+          questions_public[text] = Object.assign({}, question_data);      
         }
 
         // Handle table data, tables are represented as 2D associative arrays

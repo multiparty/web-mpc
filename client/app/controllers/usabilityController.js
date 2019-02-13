@@ -3,8 +3,8 @@ define(['table_template'], function (table_template) {
   let analytics = {};
 
   let timers = {
-    page: {start: new Date(), elapsed: null},
-    session_area: {start: null, elapsed: null}
+    page: new Date(),
+    session_area: null
   }
 
   function initialize() {
@@ -22,13 +22,22 @@ define(['table_template'], function (table_template) {
       } 
     }
 
-    $('#session-area').on("mouseenter", function() {
-      startTimer('session_area');
-    });
+    for (let k of Object.keys(analytics.time_spent)) {
 
-    $('#session-area').on("mouseleave", function() {
-      endTimer('session_area');
-    })
+      if (k === 'page') {
+        timers[k] = new Date();
+      } else {
+        timers[k] = null;
+      }
+
+      $('#session-area').on("mouseenter", function() {
+        startTimer(k);
+      });
+  
+      $('#session-area').on("mouseleave", function() {
+        endTimer(k);
+      });
+    }
 
     window.addEventListener('blur', endTimer);
     window.addEventListener('beforeunload', endTimer);
@@ -57,7 +66,7 @@ define(['table_template'], function (table_template) {
   }
 
   function startTimer(key) {
-    timers[key].start = new Date();
+    timers[key] = new Date();
   };
 
   function endTimer(key) {
@@ -65,7 +74,7 @@ define(['table_template'], function (table_template) {
       key = 'page';
     }
     const endDate = new Date();
-    const spentTime = endDate.getTime() - timers[key].start.getTime();
+    const spentTime = endDate.getTime() - timers[key].getTime();
     analytics.time_spent[key] += spentTime;
   };
 

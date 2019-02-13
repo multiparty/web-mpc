@@ -3,15 +3,6 @@ if (typeof define !== 'function') {
 }
 
 define([], function () {
-  // TOOD: move this to data table
-
-  // const usabilityDef = {
-  //   data_prefilled: [],
-  //   browser: ['brave', 'chrome', 'edge', 'firefox', 'opera', 'other', 'safari'],
-  //   time_spent: [],
-
-  // }
-
   // Order: consistent order on values as defined in the template.
   // The order will be the same on client, server, and analyst side.
   // Order:
@@ -97,7 +88,6 @@ define([], function () {
         shares.push(promise);
       }
     }
-
     return Promise.all(shares);
   };
 
