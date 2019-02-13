@@ -222,8 +222,7 @@ define([], function () {
         'SEMANTIC_CELLS',
         'CELL_ERROR'
         ]
-      },
-      // 'num_resubmissions'
+      }
     ]
   }
 });

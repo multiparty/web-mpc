@@ -38,7 +38,7 @@ define([], function () {
       }
     }
     // order questions
-    if (table_template.survey != null) {
+    if (table_template.survey !== null) {
       for (var q = 0; q < table_template.survey.questions.length; q++) {
         var question = table_template.survey.questions[q];
         for (var o = 0; o < question.inputs.length; o++) {

@@ -153,7 +153,7 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           }
 
           // Verify additional questions
-          if (table_template.survey != null) {
+          if (table_template.survey !== null) {
             var questionsValid = true;
             var questions = $('#questions form');
             for (var q = 0; q < questions.length; q++) {
@@ -270,7 +270,7 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           var text = $(questions_text[q]).text();
           text = text.replace(/\s+/g, ' '); // Replace many white spaces with just one space.
           data_submission['questions'][text] = question_data;
-          questions_public[text] = Object.assign({}, question_data);      
+          questions_public[text] = Object.assign({}, question_data);
         }
 
         // Handle table data, tables are represented as 2D associative arrays

@@ -40,11 +40,11 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
             // download averages and deviations
             tableController.saveTables(averages, sessionKey, 'Averages');
             tableController.saveTables(deviations, sessionKey, 'Standard_Deviations');
-            if (questions != null) {
+            if (questions !== null) {
               tableController.saveQuestions(questions, sessionKey);
             }
 
-            if (usability != null) {
+            if (usability !== null) {
               tableController.saveUsability(usability, sessionKey);
             }
 
