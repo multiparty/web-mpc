@@ -3,6 +3,9 @@
 define(['jquery', 'controllers/jiffController', 'controllers/tableController', 'helper/drop_sheet', 'alertify', 'table_template'],
   function ($, jiffController, tableController, DropSheet, alertify, table_template) {
 
+    document.getElementById('session').value = 'gv5bsr26k3vghtkpr6rs6nd3n4';
+    document.getElementById('session-password').value = '2rnategc605cmxqwt2wvmcpkec';
+
     function error(msg) {
       alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', msg);
     }

@@ -23,6 +23,20 @@ var queryHistory = function (session_key, last_fetch) {
   });
 };
 
+var resubmissionAvg = function (session_key) {
+  return new Promise(function (resolve, reject) {
+    var query = modules.History.where({session: session_key});
+
+    query.find(function (err, data) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(data);
+      }
+    });
+  });
+};
+
 // add to history of a given session
 var insertHistory = function (session_key, jiff_party_id, success) {
   var history = new modules.History({
@@ -214,6 +228,7 @@ var queryMailbox = function (session_key, to_jiff_party_id) {
 module.exports = {
   History: {
     query: queryHistory,
+    resubmission: resubmissionAvg,
     insert: insertHistory
   },
   SessionInfo: {

@@ -2,6 +2,7 @@
 const jiffServer = require('../../jiff/lib/jiff-server.js');
 const jiffServerBigNumber = require('../../jiff/lib/ext/jiff-server-bignumber.js');
 const jiffServerRestAPI = require('../../jiff/lib/ext/jiff-server-restful.js');
+const moduleWrappers = require('../modules/modulesWrappers.js');
 
 const config = require('../config/config.js');
 const mpc = require('../../client/app/helper/mpc.js');
@@ -83,7 +84,8 @@ JIFFWrapper.prototype.computeSession = function (session_key) {
 
   // Send submitters ids to analyst
   var submitters = this.getTrackerParties(session_key);
-  computationInstance.emit('compute', [ 1 ], JSON.stringify(submitters), false);
+  var resubmission_avg = moduleWrappers.History.resubmission(session_key);
+  computationInstance.emit('compute', [ 1 ], JSON.stringify({submitters, resubmission_avg}), false);
 
   // Perform server-side MPC
   var table_template = require('../../client/app/' + config.client.table_template + '.js');

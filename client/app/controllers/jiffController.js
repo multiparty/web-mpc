@@ -159,18 +159,22 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
 
       // Meta-info
       var ordering = mpc.consistentOrdering(table_template);
-      var submitters = JSON.parse(msg);
+      msg = JSON.parse(msg);
+      var submitters = msg.submitters;
+      var resubmission_avg = msg.resubmission_avg; 
 
       // Compute and Format
       var promise = mpc.compute(jiff, submitters, ordering);
       promise = mpc.format(promise, submitters, ordering);
       promise.then(function (result) {
         jiff.disconnect(false, false);
+        // TODO: add resunmission average to callback
         callback(result);
       }).catch(function (err) {
         error(err);
       });
     });
+
   };
 
   // Exports
