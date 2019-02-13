@@ -19,6 +19,7 @@ define([], function () {
   var consistentOrdering = function (table_template) {
     var tables = [];
     var questions = [];
+    var usability = [];
     // order tables
     for (var i = 0; i < table_template.tables.length; i++) {
       var table_def = table_template.tables[i];
@@ -47,7 +48,20 @@ define([], function () {
         }
       }
     }
-    return { tables: tables, questions: questions };
+
+    for (let metric of table_template.usability) {
+      if (typeof(metric) === 'string') {
+        usability.push({metric: metric, field: null});
+      } else if (typeof(metric) === 'object') {
+        const key = Object.keys(metric)[0];
+        const fields = metric[key];
+
+        for (let f of fields) {
+          usability.push({metric: key, field: f});
+        }
+      }
+    }
+    return { tables, questions, usability };
   };
 
   var compute = function (jiff_instance, submitters, ordering) {
@@ -55,7 +69,7 @@ define([], function () {
     // sum all received shares for that entry, and reveal the sum
     // for that element to the analyst in order.
     var shares = [];
-    for (var k = 0; k < ordering.tables.length + ordering.questions.length; k++) {
+    for (var k = 0; k < ordering.tables.length + ordering.questions.length + ordering.usability.length; k++) {
       var subid = submitters[0];
 
       var entry_sum = jiff_instance.share(null, null, [1, 's1'], [subid]);
@@ -98,7 +112,6 @@ define([], function () {
 
       shares.push(promise);
     }
-
     return Promise.all(shares);
   };
 
@@ -115,9 +128,12 @@ define([], function () {
   //   }
   var format = function (resultsPromise, submitters, ordering) {
     return resultsPromise.then(function (results) {
+
       var averages = {}; // results array will be transformed to an object of the correct form
       var questions = {};
       var deviations = {};
+      var usability = {};
+
       for (var i = 0; i < ordering.tables.length; i++) {
         var table = ordering.tables[i].table;
         var row = ordering.tables[i].row;
@@ -156,13 +172,29 @@ define([], function () {
         questions[question][label] = results[i+j].toString();
       }
 
-      return { averages: averages, questions: questions, deviations: deviations };
+      for (let k = 0; k < ordering.usability.length; k++) {
+
+        const m = ordering.usability[k].metric;
+        const f = ordering.usability[k].field;
+        const value = results[i+j+k].c[0].toString();
+
+        if (f === null) {
+          usability[m] = value;
+        } else {
+          if (!(m in usability)) {
+            usability[m] = {};
+          }
+          usability[m][f] = value;
+        
+        }
+      }
+      return { averages, questions, deviations, usability };
     });
   };
 
   return {
-    consistentOrdering: consistentOrdering,
-    compute: compute,
-    format: format
+    consistentOrdering,
+    compute,
+    format
   }
 });

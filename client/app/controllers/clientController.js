@@ -1,6 +1,6 @@
 /* global alertify, $ */
-define(['jquery', 'controllers/tableController', 'controllers/jiffController', 'alertify', 'alertify_defaults', 'table_template'],
-  function ($, tableController, jiffController, alertify, _, table_template) {
+define(['jquery', 'controllers/tableController', 'controllers/jiffController', 'controllers/usabilityController', 'alertify', 'alertify_defaults', 'table_template'],
+  function ($, tableController, jiffController, usabilityController, alertify, _, table_template) {
     var client = (function () {
       /**
        * Displays the given submission as the last submission in
@@ -94,7 +94,7 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           dataType: 'text'
         }).then(function (response) {
           JSON.parse(response); // verify response is json (error responses are string messages)
-
+          
           var $parent = $('#session, #participation-code').parent();
           $parent.removeClass('has-error').addClass('has-success has-feedback');
           $parent.find('.success-icon').removeClass('hidden').addClass('show');
@@ -104,6 +104,7 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           callback && callback(true);
         }).catch(function (err) {
           var errorMsg = SERVER_ERR;
+          usabilityController.addValidationError("SESSION_INFO_ERROR");
           if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
             errorMsg = err.responseText;
           }
@@ -127,11 +128,13 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
         var $session = $('#session');
         if (!validateSessionInput($session, false)) {
           errors.push(SESSION_KEY_ERROR);
+          usabilityController.addValidationError("SESSION_KEY_ERROR");
         }
 
         var $participationCode = $('#participation-code');
         if (!validateSessionInput($participationCode, false)) {
           errors.push(PARTICIPATION_CODE_ERROR);
+          usabilityController.addValidationError("PARTICIPATION_CODE_ERROR");
         }
 
         // Validate the remaining components after session and
@@ -139,12 +142,14 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
         var validateRemainingComponents = function (result) {
           if (!result) {
             errors.push(SESSION_PARTICIPATION_CODE_SERVER_ERROR);
+            usabilityController.addValidationError("SESSION_PARTICIPATION_CODE_SERVER_ERROR");
           }
 
           // Verify confirmation check box was checked
           var verifyChecked = $('#verify').is(':checked');
           if (!verifyChecked) {
             errors.push(UNCHECKED_ERR);
+            usabilityController.addValidationError("UNCHECKED_ERR");
           }
 
           // Verify additional questions
@@ -194,6 +199,7 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
             }
             if (errors.indexOf(errorMsg) === -1) {
               errors.push(errorMsg);
+              usabilityController.addValidationError("CELL_ERROR");
             }
           };
           tableController.registerErrorHandler(errorHandler);
@@ -264,7 +270,7 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           var text = $(questions_text[q]).text();
           text = text.replace(/\s+/g, ' '); // Replace many white spaces with just one space.
           data_submission['questions'][text] = question_data;
-          questions_public[text] = Object.assign({}, question_data);
+          questions_public[text] = Object.assign({}, question_data);      
         }
 
         // Handle table data, tables are represented as 2D associative arrays
@@ -274,6 +280,12 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           data_submission[tables_data[i].name] = tables_data[i].data;
         }
 
+        if (document.getElementById('choose-file').files.length > 0) {
+          usabilityController.dataPrefilled();
+        }
+
+        data_submission['usability'] = usabilityController.analytics;
+        
         // Secret share / mask the data.
         jiffController.client.submit(session, participationCode, data_submission, function (err, response) {
           if (err == null || err === 200) {
@@ -286,8 +298,10 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           } else if (err === 0 || err === 500) {
             // check for status 0 or status 500 (Server not reachable.)
             error(SERVER_ERR);
+            usabilityController.addValidationError("SERVER_ERR");
           } else {
             error(GENERIC_SUBMISSION_ERR);
+            usabilityController.addValidationError("GENERIC_SUBMISSION_ERR");
           }
 
           la.stop();

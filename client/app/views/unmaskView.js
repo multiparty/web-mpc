@@ -2,6 +2,7 @@
 
 define(['jquery', 'controllers/jiffController', 'controllers/tableController', 'helper/drop_sheet', 'alertify', 'table_template'],
   function ($, jiffController, tableController, DropSheet, alertify, table_template) {
+
     function error(msg) {
       alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', msg);
     }
@@ -25,8 +26,11 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
           var sessionPass = $('#session-password').val();
           var privateKey = e.target.result;
 
-          jiffController.analyst.computeAndFormat(sessionKey, sessionPass, privateKey, error, function (result) {
-            var questions = result.questions;
+          jiffController.analyst.computeAndFormat(sessionKey, sessionPass, privateKey, error, function (result) {     
+            var questions = result['questions'];
+            var usability = result['usability'];
+            delete result['usability'];
+            delete result['questions'];
 
             // for tables only
             var averages = result.averages;
@@ -38,6 +42,10 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
             tableController.saveTables(deviations, sessionKey, 'Standard_Deviations');
             if (questions != null) {
               tableController.saveQuestions(questions, sessionKey);
+            }
+
+            if (usability != null) {
+              tableController.saveUsability(usability, sessionKey);
             }
 
             // Only display averages in the table

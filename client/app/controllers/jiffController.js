@@ -99,6 +99,16 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
       values.push(dataSubmission['questions'][q.question][q.option]);
     }
 
+    for (var k = 0; k < ordering.usability.length; k++) {
+      const m = ordering.usability[k].metric;
+      const f = ordering.usability[k].field;
+      if (f !== null) {
+        values.push(dataSubmission.usability[m][f]);
+      } else {
+        values.push(dataSubmission.usability[m]);
+      }
+    }
+  
     // Handle jiff errors returned from server
     var options = {
       onError: function (errorString) {
@@ -169,7 +179,7 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
       submit: clientSubmit
     },
     analyst: {
-      computeAndFormat: computeAndFormat
+      computeAndFormat
     }
   }
 });
