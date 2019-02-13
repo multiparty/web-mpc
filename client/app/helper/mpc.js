@@ -38,7 +38,7 @@ define([], function () {
       }
     }
     // order questions
-    if (table_template.survey !== null) {
+    if (table_template.survey !== undefined) {
       for (var q = 0; q < table_template.survey.questions.length; q++) {
         var question = table_template.survey.questions[q];
         for (var o = 0; o < question.inputs.length; o++) {
@@ -49,18 +49,21 @@ define([], function () {
       }
     }
 
-    for (let metric of table_template.usability) {
-      if (typeof(metric) === 'string') {
-        usability.push({metric: metric, field: null});
-      } else if (typeof(metric) === 'object') {
-        const key = Object.keys(metric)[0];
-        const fields = metric[key];
-
-        for (let f of fields) {
-          usability.push({metric: key, field: f});
+    if (table_template.usability !== undefined) {
+      for (let metric of table_template.usability) {
+        if (typeof(metric) === 'string') {
+          usability.push({metric: metric, field: null});
+        } else if (typeof(metric) === 'object') {
+          const key = Object.keys(metric)[0];
+          const fields = metric[key];
+  
+          for (let f of fields) {
+            usability.push({metric: key, field: f});
+          }
         }
       }
     }
+
     return { tables, questions, usability };
   };
 
