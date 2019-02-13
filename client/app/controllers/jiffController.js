@@ -76,7 +76,7 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
       maxBatchSize: 1000
     };
 
-    var instance = jiff.make_jiff('http://localhost:8080', session, baseOptions);
+    var instance = jiff.make_jiff(window.location.protocol + '//' + window.location.hostname, session, baseOptions);
     instance.apply_extension(jiff_bignumber, bigNumberOptions);
     instance.apply_extension(jiff_restAPI, restOptions);
 
@@ -92,7 +92,7 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
     // List values according to consistent ordering
     for (var i = 0; i < ordering.tables.length; i++) {
       var t = ordering.tables[i];
-      values.push(dataSubmission[t.table][t.row][t.col]);
+      values.push(Math.round(dataSubmission[t.table][t.row][t.col]));
     }
     for (var j = 0; j < ordering.questions.length; j++) {
       var q = ordering.questions[j];
