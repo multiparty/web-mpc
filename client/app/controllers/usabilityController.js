@@ -1,11 +1,7 @@
 define(['table_template'], function (table_template) {
 
   let analytics = {};
-
-  let timers = {
-    page: new Date(),
-    session_area: null
-  }
+  let timers = {};
 
   function initialize() {
     for (var metric of table_template.usability) {
@@ -38,10 +34,8 @@ define(['table_template'], function (table_template) {
         endTimer(k);
       });
     }
-
     window.addEventListener('blur', endTimer);
     window.addEventListener('beforeunload', endTimer);
-
   }
 
   function detectBrave() {

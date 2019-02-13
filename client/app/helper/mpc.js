@@ -71,22 +71,46 @@ define([], function () {
     var shares = [];
     for (var k = 0; k < ordering.tables.length + ordering.questions.length + ordering.usability.length; k++) {
       var subid = submitters[0];
+
       var entry_sum = jiff_instance.share(null, null, [1, 's1'], [subid]);
       entry_sum = entry_sum[subid];
+
+      // Standard deviation is only computed under MPC for tables
+      var entry_squares_sum;
+      if (k < ordering.tables.length) {
+        entry_squares_sum = jiff_instance.share(null, null, [1, 's1'], [subid]);
+        entry_squares_sum = entry_squares_sum[subid];
+      }
 
       for (var p = 1; p < submitters.length; p++) {
         subid = submitters[p];
 
         var single_share = jiff_instance.share(null, null, [1, 's1'], [subid]);
         single_share = single_share[subid];
-
         entry_sum = entry_sum.sadd(single_share);
+
+        if (k < ordering.tables.length) {
+          var single_square = jiff_instance.share(null, null, [1, 's1'], [subid]);
+          single_square = single_square[subid];
+          entry_squares_sum = entry_squares_sum.sadd(single_square);
+        }
       }
 
       var promise = jiff_instance.open(entry_sum, [1]);
-      if (jiff_instance.id === 1) {
-        shares.push(promise);
+
+      // For entries in the table, we return a promise to an object
+      //    { sum: <sum of inputs>, squaresSum: <sum of squared inputs> }
+      // For questions, we return a promise to a single sum/number corresponding to an option
+      if (k < ordering.tables.length) {
+        var promise2 = jiff_instance.open(entry_squares_sum, [1]);
+        if (jiff_instance.id === 1) {
+          promise = Promise.all([promise, promise2]).then(function (results) {
+            return { sum: results[0], squaresSum: results[1]};
+          });
+        }
       }
+
+      shares.push(promise);
     }
     return Promise.all(shares);
   };
@@ -105,37 +129,48 @@ define([], function () {
   var format = function (resultsPromise, submitters, ordering) {
     return resultsPromise.then(function (results) {
 
-      var finalObject = {}; // results array will be transformed to an object of the correct form
+      var averages = {}; // results array will be transformed to an object of the correct form
+      var questions = {};
+      var deviations = {};
+      var usability = {};
+
       for (var i = 0; i < ordering.tables.length; i++) {
         var table = ordering.tables[i].table;
         var row = ordering.tables[i].row;
         var col = ordering.tables[i].col;
 
-        results[i] = results[i].div(submitters.length);
-        results[i] = results[i].toFixed(2); // returns a string, with 2 digits after decimal
-        if (finalObject[table] == null) {
-          finalObject[table] = {};
+        // Compute mean/average
+        var mean = results[i].sum;
+        mean = mean.div(submitters.length);
+
+        // Compute standard deviation
+        var deviation = results[i].squaresSum;
+        deviation = deviation.div(submitters.length);
+        deviation = deviation.minus(mean.pow(2));
+        deviation = deviation.sqrt();
+
+        if (averages[table] == null) {
+          averages[table] = {};
+          deviations[table] = {};
         }
-        if (finalObject[table][row] == null) {
-          finalObject[table][row] = {};
+        if (averages[table][row] == null) {
+          averages[table][row] = {};
+          deviations[table][row] = {};
         }
-        finalObject[table][row][col] = results[i];
+        averages[table][row][col] = mean.toFixed(2); // returns a string, with 2 digits after decimal
+        deviations[table][row][col] = deviation.toFixed(2);
       }
 
+      // format questions as questions[<question>][<option>] = count of parties that choose this option
       for (var j = 0; j < ordering.questions.length; j++) {
         var question = ordering.questions[j].question;
         var label = ordering.questions[j].label;
 
-        if (finalObject['questions'] == null) {
-          finalObject['questions'] = {};
+        if (questions[question] == null) {
+          questions[question] = {};
         }
-        if (finalObject['questions'][question] == null) {
-          finalObject['questions'][question] = {};
-        }
-        finalObject['questions'][question][label] = results[i+j].toString();
+        questions[question][label] = results[i+j].toString();
       }
-
-      finalObject['usability'] = {};
 
       for (let k = 0; k < ordering.usability.length; k++) {
 
@@ -144,22 +179,22 @@ define([], function () {
         const value = results[i+j+k].c[0].toString();
 
         if (f === null) {
-          finalObject.usability[m] = value;
+          usability[m] = value;
         } else {
-          if (!(m in finalObject.usability)) {
-            finalObject.usability[m] = {};
+          if (!(m in usability)) {
+            usability[m] = {};
           }
-          finalObject.usability[m][f] = value;
+          usability[m][f] = value;
         
         }
       }
-      return finalObject;
+      return { averages, questions, deviations, usability };
     });
   };
 
   return {
-    consistentOrdering: consistentOrdering,
-    compute: compute,
-    format: format
+    consistentOrdering,
+    compute,
+    format
   }
 });

@@ -32,8 +32,14 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
             delete result['usability'];
             delete result['questions'];
 
-            tableController.createTableElems(table_template.tables, '#tables-area');
-            tableController.saveTables(result, sessionKey);
+            // for tables only
+            var averages = result.averages;
+            var deviations = result.deviations;
+
+
+            // download averages and deviations
+            tableController.saveTables(averages, sessionKey, 'Averages');
+            tableController.saveTables(deviations, sessionKey, 'Standard_Deviations');
             if (questions != null) {
               tableController.saveQuestions(questions, sessionKey);
             }
@@ -42,8 +48,10 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
               tableController.saveUsability(usability, sessionKey);
             }
 
+            // Only display averages in the table
+            tableController.createTableElems(table_template.tables, '#tables-area');
+            tableController.displayReadTable(averages);
             $('#tables-area').show();
-            tableController.displayReadTable(result);
           });
         });
       }

@@ -918,7 +918,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     return {sums, NaNs}
   }
 
-  function saveTables(tables, session) {
+  function saveTables(tables, session, title) {
 
     var tables_csv = [];
 
@@ -934,8 +934,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     }
 
     tables_csv = tables_csv.join('\n\n\n');
-    filesaver.saveAs(new Blob([tables_csv], {type: 'text/plain;charset=utf-8'}), 'Aggregate_Data_' + session + '.csv');
-
+    filesaver.saveAs(new Blob([tables_csv], {type: 'text/plain;charset=utf-8'}), 'Aggregate_' + title + '_' + session + '.csv');
   }
 
   function getHeaderWidth(table) {
