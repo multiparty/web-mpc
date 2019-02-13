@@ -10,25 +10,22 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
     }
 
     function renderSurveyInputs(question, form) {
-
       var input_type = question.input_type;
 
       for (var i = 0; i < question.inputs.length; i++) {
         var div = document.createElement('div');
-
-        var input = document.createElement('input');
-
-        $(input).attr('type', input_type)
-          .attr('value', i+1)
-          .attr('name', 'opt' + input_type)
-
+        $(div).attr('class', input_type);
 
         var label = document.createElement('label');
-        $(label).text(question.inputs[i].label);
+        div.appendChild(label);
 
-        div.appendChild(input);
-        div.appendChild(label)
+        var input = document.createElement('input');
+        $(input).attr('type', input_type)
+          .attr('value', i+1)
+          .attr('name', 'opt' + input_type);
 
+        label.appendChild(input);
+        $(label).append(question.inputs[i].label);
         form.appendChild(div);
       }
     }
@@ -75,7 +72,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         // Create the tabless
         var tables = tableController.makeTables(table_template.tables);
 
-        createResizeSensors(tables);
+        //createResizeSensors(tables); THIS FUNCTION BREAKS THINGS I THINK! -IRA
 
         var totals_table = null;
 
@@ -218,7 +215,9 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
         $('#expand-table-button').click(function (e) {
           $('#tables-area').slideToggle(function () {
-            tableController.updateWidth(tables);
+            if (!$("#tables-area").is(":hidden")){
+              tableController.updateWidth(tables);
+            }
           });
           $(e.target).toggleClass('flip');
         });
