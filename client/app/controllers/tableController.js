@@ -708,8 +708,9 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
   function updateTableWidth(maxWidth) {
 
-    $('#instructions').css('width', maxWidth);
-    $('#instructions').css('max-width', maxWidth);
+    //$('#instructions').css('width', '1153px');
+    $('#instructions').css('max-width', '1153px');
+
     var documentWidth = $(window).width();
     var containerWidth = parseFloat($('.container').first().width());
     var offset = (containerWidth - maxWidth) / 2;
@@ -975,18 +976,21 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   }
 
   function updateWidth(tables) {
+    console.log("updating");
 
-    var maxWidth = $('#instructions').width;
-
+    var maxWidth = $('#instructions').width();
     for (var i = 0; i < tables.length; i++) {
 
       var t = tables[i];
 
       var w = getWidth(t) + getHeaderWidth(t);
+      console.log(w);
 
       t.updateSettings({
-        width: w,
+        width: w
       });
+
+      console.log(w);
 
       if (w > maxWidth) {
         maxWidth = w;

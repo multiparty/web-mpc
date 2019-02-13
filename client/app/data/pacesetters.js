@@ -9,8 +9,9 @@ define([], function () {
         "name": "Amount Spent with MBEs",
         "element": "amount-spent",
         "hot_parameters": {
-          "rowHeaderWidth": 300,
-          "height": 325
+          "rowHeaderWidth": 500,
+          "height": 325,
+          "colWidths": 380
         },
         "rows": [
           {
@@ -74,8 +75,9 @@ define([], function () {
         "name": "Addressable Spend",
         "element": "addressable-spend",
         "hot_parameters": {
-          "rowHeaderWidth": 300,
-          "height": 325
+          "rowHeaderWidth": 500,
+          "height": 325,
+          "colWidths": 380
         },
         "rows": [
           {
@@ -139,8 +141,9 @@ define([], function () {
         "name": "Number of MBEs",
         "element": "number-MBEs",
         "hot_parameters": {
-          "rowHeaderWidth": 300,
-          "height": 325
+          "rowHeaderWidth": 500,
+          "height": 325,
+          "colWidths": 380
         },
         "rows": [
           {
