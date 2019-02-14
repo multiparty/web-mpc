@@ -976,7 +976,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   }
 
   function updateWidth(tables) {
-    console.log("updating");
 
     var maxWidth = $('#instructions').width();
     for (var i = 0; i < tables.length; i++) {
@@ -984,13 +983,11 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       var t = tables[i];
 
       var w = getWidth(t) + getHeaderWidth(t);
-      console.log(w);
 
       t.updateSettings({
         width: w
       });
 
-      console.log(w);
 
       if (w > maxWidth) {
         maxWidth = w;
@@ -1011,6 +1008,11 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     }
 
     return colWidths;
+  }
+
+  function saveUsability(usability, session) {
+    var json = JSON.stringify(usability);
+    filesaver.saveAs(new Blob([json], {type: 'application/json'}), 'Usability_' + session + '.json');
   }
 
   function saveQuestions(questions, session) {
@@ -1040,22 +1042,23 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   }
 
   return {
-    makeTables,
-    registerValidator,
-    registerErrorHandler,
-    removeValidator,
-    removeValidators,
-    removeErrorHandler,
-    constructDataTables,
-    fillData,
-    saveTables,
-    saveQuestions,
-    displayReadTable,
-    resetTableWidth,
-    updateTableWidth,
-    getWidth,
-    updateWidth,
-    checkTotals,
-    createTableElems
+    makeTables: makeTables,
+    registerValidator: registerValidator,
+    registerErrorHandler: registerErrorHandler,
+    removeValidator: removeValidator,
+    removeValidators: removeValidators,
+    removeErrorHandler: removeErrorHandler,
+    constructDataTables: constructDataTables,
+    fillData: fillData,
+    saveTables: saveTables,
+    saveQuestions: saveQuestions,
+    saveUsability: saveUsability,
+    displayReadTable: displayReadTable,
+    resetTableWidth: resetTableWidth,
+    updateTableWidth: updateTableWidth,
+    getWidth: getWidth,
+    updateWidth: updateWidth,
+    checkTotals: checkTotals,
+    createTableElems: createTableElems
   }
 });
