@@ -64,7 +64,7 @@ define([], function () {
       }
     }
 
-    return { tables, questions, usability };
+    return { tables: tables, questions: questions, usability:usability };
   };
 
   var compute = function (jiff_instance, submitters, ordering) {
