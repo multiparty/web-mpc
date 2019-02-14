@@ -80,10 +80,10 @@ define(['forge'], function (forge) {
   };
 
   return {
-    parsePublicKey,
-    parsePrivateKey,
-    encrypt,
-    decrypt,
-    generateKeyPair
+    parsePublicKey: parsePublicKey,
+    parsePrivateKey: parsePrivateKey,
+    encrypt: encrypt,
+    decrypt: decrypt,
+    generateKeyPair: generateKeyPair
   };
 });

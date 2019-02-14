@@ -191,7 +191,7 @@ define([], function () {
         
         }
       }
-      return { averages, questions, deviations, usability };
+      return { averages: averages, questions: questions, deviations: deviations, usability: usability };
     });
   };
 

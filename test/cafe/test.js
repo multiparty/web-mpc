@@ -2,9 +2,9 @@ import { Selector } from 'testcafe';
 const fs = require('fs');
 
 // FILL THESE IN
-const numberOfParticipants = 2;
-const download_folder = '/home/bab/Downloads/';
-const data_file = '/home/bab/Documents/pace.xlsx';
+const numberOfParticipants = 5;
+const download_folder = '/Users/lucyqin/Downloads/';
+const data_file = '/Users/lucyqin/Desktop/pace.xlsx';
 
 
 // IGNORE

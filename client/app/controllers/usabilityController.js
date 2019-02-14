@@ -51,6 +51,10 @@ define(['table_template'], function (table_template) {
   };
 
   function endTimer(key) {
+    if (timers[key] == null) {
+      return;
+    }
+
     if (typeof(key) !== 'string') {
       key = 'page';
     } 
@@ -78,7 +82,7 @@ define(['table_template'], function (table_template) {
   }
 
   function dataPrefilled() {
-    analytics.data_prefilled += 1;
+    analytics.data_prefilled = 1;
   }
 
   return {
