@@ -108,7 +108,7 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
         values.push(dataSubmission.usability[m]);
       }
     }
-  
+
     // Handle jiff errors returned from server
     var options = {
       onError: function (errorString) {
