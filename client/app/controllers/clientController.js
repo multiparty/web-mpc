@@ -365,9 +365,9 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
       }
 
       return {
-        validate,
-        constructAndSend,
-        validateSessionInput,
+        validate: validate,
+        constructAndSend: constructAndSend,
+        validateSessionInput: validateSessionInput,
       };
     })();
 

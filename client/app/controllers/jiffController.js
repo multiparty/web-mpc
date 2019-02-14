@@ -179,7 +179,7 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
       submit: clientSubmit
     },
     analyst: {
-      computeAndFormat
+      computeAndFormat: computeAndFormat
     }
   }
 });

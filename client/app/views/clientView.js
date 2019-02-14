@@ -264,6 +264,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         });
 
         $('#submit').click(function () {
+          usabilityController.stopAllTimers();
           var la = Ladda.create(document.getElementById('submit'));
           la.start();
 

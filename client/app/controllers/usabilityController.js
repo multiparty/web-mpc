@@ -19,18 +19,18 @@ define(['table_template'], function (table_template) {
     }
 
     for (let k of Object.keys(analytics.time_spent)) {
-
+   
       if (k === 'page') {
         timers[k] = new Date();
       } else {
         timers[k] = null;
       }
 
-      $('#session-area').on("mouseenter", function() {
+      $('#' + k).on("mouseenter", function() {
         startTimer(k);
       });
   
-      $('#session-area').on("mouseleave", function() {
+      $('#' + k).on("mouseleave", function() {
         endTimer(k);
       });
     }
@@ -38,25 +38,12 @@ define(['table_template'], function (table_template) {
     window.addEventListener('beforeunload', endTimer);
   }
 
-  function detectBrave() {
-    // initial assertions
-    if (!window.google_onload_fired &&
-         navigator.userAgent &&
-        !navigator.userAgent.includes('Chrome'))
-      return false;
-  
-    // set up test
-    var test = document.createElement('iframe');
-    test.style.display = 'none';
-    document.body.appendChild(test);
-  
-    // empty frames only have this attribute set in Brave Shield
-    var is_brave = (test.contentWindow.google_onload_fired === true);
-  
-    // teardown test
-    test.parentNode.removeChild(test);
-  
-    return is_brave;
+  function stopAllTimers() {
+    for (let key in timers) {
+      if (timers[key] != null) {
+        endTimer(key);
+      }
+    }
   }
 
   function startTimer(key) {
@@ -66,7 +53,7 @@ define(['table_template'], function (table_template) {
   function endTimer(key) {
     if (typeof(key) !== 'string') {
       key = 'page';
-    }
+    } 
     const endDate = new Date();
     const spentTime = endDate.getTime() - timers[key].getTime();
     analytics.time_spent[key] += spentTime;
@@ -76,11 +63,6 @@ define(['table_template'], function (table_template) {
     // check Edge
     var ua=navigator.userAgent,tem,M=ua.match(/(opera|chrome|safari|edge|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || []; 
     var browser = M[0].toLowerCase();
-
-    if (detectBrave) {
-      analytics.browser.brave += 1;
-      return;
-    }
 
     for (let key in analytics.browser) {
       if (browser.includes(key)) {
@@ -100,10 +82,11 @@ define(['table_template'], function (table_template) {
   }
 
   return {
-    addValidationError,
-    analytics,
-    dataPrefilled,
-    initialize,
-    saveBrowser
+    addValidationError: addValidationError,
+    analytics: analytics,
+    dataPrefilled: dataPrefilled,
+    initialize: initialize,
+    saveBrowser: saveBrowser,
+    stopAllTimers: stopAllTimers
   };
 });

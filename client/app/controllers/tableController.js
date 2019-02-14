@@ -1042,23 +1042,23 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   }
 
   return {
-    makeTables,
-    registerValidator,
-    registerErrorHandler,
-    removeValidator,
-    removeValidators,
-    removeErrorHandler,
-    constructDataTables,
-    fillData,
-    saveTables,
-    saveQuestions,
-    saveUsability,
-    displayReadTable,
-    resetTableWidth,
-    updateTableWidth,
-    getWidth,
-    updateWidth,
-    checkTotals,
-    createTableElems
+    makeTables: makeTables,
+    registerValidator: registerValidator,
+    registerErrorHandler: registerErrorHandler,
+    removeValidator: removeValidator,
+    removeValidators: removeValidators,
+    removeErrorHandler: removeErrorHandler,
+    constructDataTables: constructDataTables,
+    fillData: fillData,
+    saveTables: saveTables,
+    saveQuestions: saveQuestions,
+    saveUsability: saveUsability,
+    displayReadTable: displayReadTable,
+    resetTableWidth: resetTableWidth,
+    updateTableWidth: updateTableWidth,
+    getWidth: getWidth,
+    updateWidth: updateWidth,
+    checkTotals: checkTotals,
+    createTableElems: createTableElems
   }
 });

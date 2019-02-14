@@ -180,7 +180,6 @@ define([], function () {
         const m = ordering.usability[k].metric;
         const f = ordering.usability[k].field;
         const value = results[i+j+k].toString();
-        console.log('value', value);
 
         if (f === null) {
           usability[m] = value;
@@ -197,8 +196,8 @@ define([], function () {
   };
 
   return {
-    consistentOrdering,
-    compute,
-    format
+    consistentOrdering: consistentOrdering,
+    compute: compute,
+    format: format
   }
 });
