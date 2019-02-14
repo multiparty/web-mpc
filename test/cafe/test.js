@@ -1,7 +1,14 @@
 import { Selector } from 'testcafe';
 const fs = require('fs');
 
-let sessionKey = 'h40w1x2sr6h4jdh60wfba76ynr';
+// FILL THESE IN
+const numberOfParticipants = 2;
+const download_folder = '/home/bab/Downloads/';
+const data_file = '/home/bab/Documents/pace.xlsx';
+
+
+// IGNORE
+let sessionKey = null;
 let sessionPassword = null;
 let participant_codes = [];
 
@@ -13,86 +20,112 @@ function createSession() {
         .typeText('#session-title', 'testing!')
         .typeText('#session-description', 'a test description')
         .click('#generate')
-        .wait(5000);
+        .wait(2000);
+        
+    sessionKey = (await Selector('#sessionID').innerText).trim();
+    sessionPassword = (await Selector('#passwordID').innerText).trim();
+    console.log(sessionKey, sessionPassword);
   });
 }
 
-function saveSessionInfo() {
-  var files = fs.readdirSync('/Users/lucyqin/Downloads/');
-
-  for (var f of files) {
-    if (f.includes('.txt')) {
-      fs.readFile("/Users/lucyqin/Downloads/" + f, "utf8", function(err, data) {
-        sessionKey = data.slice(12, 39);
-        sessionPassword = data.slice(50, 76)
-        console.log(sessionKey, sessionPassword)
-        return;
-      });
-    }
-  }
-}
-
 function startSession() { 
-  fixture `Manage`
+  fixture `Start`
     .page `localhost:8080/manage`;
-    test('Managing a session', async t => {
+    test('Starting a session', async t => {
       await t
         .click('#session')
         .typeText('#session', sessionKey)
         .click('#password')
         .typeText('#password', sessionPassword)
         .click('#login')
-        // .click('#session-start')
-        .debug();
-        // .click('#participants-count')
-        // .debug()
-        // .typeText('#participants-count', '2')
-        // .debug()
-        // .expect(participants.innerText).contains('http')
-        // .debug();
+        .wait(2000)
+        .click('#session-start');
     });
 }
 
 let participants = null;
 
 function getParticipationCodes() { 
-  fixture `Manage`
+  fixture `Participation Codes`
     .page `localhost:8080/manage`;
-    test('Managing a session', async t => {
+    test('Generating Participation codes', async t => {
       await t
         .click('#session')
         .typeText('#session', sessionKey)
         .click('#password')
         .typeText('#password', sessionPassword)
         .click('#login')
-        // .click('#session-start')
-        .debug();
-      participants = Selector('#participants-existing').innerText;
+        .wait(3000)
+        .typeText('#participants-count', numberOfParticipants.toString())
+        .click('#participants-submit')
+        .wait(2000);
 
+      participants = await Selector('#participants-new').innerText;
+      participants = participants.trim().split('\n');
+      for (var i = 0; i < participants.length; i++) {
+        participants[i] = participants[i].trim();
+        if (participants[i] !== '') {
+          var index = participants[i].indexOf('participationCode') + 'participationCode'.length + 1;
+          participant_codes.push(participants[i].substring(index));
+        }
+      }
 
-     t.expect(await participants).to.have.string('code');
+      await t.expect(participant_codes.length).eql(numberOfParticipants);
+      console.log(participant_codes);
+    });
+}
 
-     
-        // .click('#participants-count')
-        // .debug()
-        // .typeText('#participants-count', '2')
-        // .debug()
-        // .expect(participants.innerText).contains('http')
-        // .debug();
+function massUpload() {
+  const fileUpload = Selector('#choose-file');
+  const okBtn = Selector('button').withText('OK');
+  const verifyBtn = Selector('label').withText('I verified all data is correct');
+  const successImg = Selector('img').withAttribute('src', '/images/accept.png');
+
+  fixture `Mass submission`
+    .page `localhost:8080/`;
+
+    test('Mass Participants Upload', async t => {
+      for (var i = 0; i < participant_codes.length; i++)
+        await t
+          .wait(1000)
+          .selectText('#session')
+          .pressKey('delete')
+          .click('#session')
+          .typeText('#session', sessionKey)
+          .selectText('#participation-code')
+          .pressKey('delete')
+          .click('#participation-code')
+          .typeText('#participation-code', participant_codes[i])
+          .setFilesToUpload(fileUpload, data_file)
+          .click(okBtn)
+          .click(verifyBtn)
+          .click('#submit')
+          .wait(2500)
+          .click('.ajs-ok');
+    });
+}
+
+function endSession() {
+  fixture `Stop`
+    .page `localhost:8080/manage`;
+    test('Stopping a session', async t => {
+      await t
+        .wait(100)
+        .click('#session')
+        .typeText('#session', sessionKey)
+        .click('#password')
+        .typeText('#password', sessionPassword)
+        .click('#login')
+        .click('#session-stop')
+        .click('#session-close-confirm')
     });
 }
 
 
-// function getSessionInfo() {
-
-// }
-
-
 function unmaskData() {
-
   const fileUpload = Selector('#choose-file');
 
-  fixture `Unmasking Data`
+  fixture `Unmasking`
     .page `localhost:8080/unmask`;
     test('Unmasking data', async t => {
       await t
@@ -100,173 +133,17 @@ function unmaskData() {
       .typeText('#session', sessionKey)
       .click('#session-password')
       .typeText('#session-password', sessionPassword)
-      .setFilesToUpload(fileUpload, '/Users/lucyqin/Downloads/Session_' + sessionKey + '_private_key.pem')
+      //.setFilesToUpload(fileUpload, download_folder+'Session_' + sessionKey + '_private_key.pem')
       .debug();
     });
 }
 
-function uploadData() {
-
-  const fileUpload = Selector('#choose-file');
-  const okBtn = Selector('button').withText('OK');
-  const verifyBtn = Selector('label').withText('I verified all data is correct');
-  const successImg = Selector('img').withAttribute('src', '/images/accept.png');
-
-
-  fixture `Submitting data`
-    .page `localhost:8080/`;
-
-
-    test('Participant 1', async t => {
-      await t
-        .wait(5000)
-        // .click('#session')
-        // .typeText('#session', 'dtt4yqce20jgm411xtefn77hew')
-        .click('#participation-code')
-        .selectText('#session')
-        .pressKey('backspace')
-        .typeText('#participation-code', 'fnrf9q61gwkdc75sbrs1js9xg0')
-        .click('#session')
-        .debug()
-        .typeText('#session', sessionKey)
-        .setFilesToUpload(fileUpload, '/Users/lucyqin/Desktop/pace.xlsx')
-        .click(okBtn)
-        .click(verifyBtn)
-        .click('#submit')
-        .debug()
-        .expect(successImg.exists).ok();
-    });
-
-    test('Participant 2', async t => {
-      await t
-        .wait(5000)
-        .click('#session')
-        .typeText('#session', sessionKey)
-        .click('#participation-code')
-        .typeText('#participation-code', 'fm40e5edy40aje6zbtg8pdz198')
-        .click('#expand-table-button')
-        .setFilesToUpload(fileUpload, '/Users/lucyqin/Desktop/pace.xlsx')
-        .click(okBtn)
-        .click(verifyBtn)
-        .click('#submit')
-        .expect(successImg.exists).ok();
-    });
-
-    test('Participant 3', async t => {
-      await t
-        .wait(5000)
-        .click('#session')
-        .typeText('#session', sessionKey)
-        .click('#participation-code')
-        .typeText('#participation-code', 'jy9cgq64qws81605dkn26cxp5r')
-        .click('#expand-table-button')
-        .setFilesToUpload(fileUpload, '/Users/lucyqin/Desktop/pace.xlsx')
-        .click(okBtn)
-        .click(verifyBtn)
-        .click('#submit')
-        .expect(successImg.exists).ok();
-    });
-}
-
-function endSession() {
-  fixture `Manage`
-  .page `localhost:8080/manage`;
-  test('Managing a session', async t => {
-    await t
-      .wait(100)
-      .click('#session')
-      .typeText('#session', sessionKey)
-      .click('#password')
-      .typeText('#password', sessionPassword)
-      .click('#login')
-      .click('#session-stop')
-      .click('#session-close-confirm')
-  });
-}
-
-function massUpload() {
-  fs.readFile("/Users/lucyqin/Downloads/participant_codes.txt", "utf8", function(err, data) {
-    participant_codes = data.split('\n');
-  });
-
-
-  const fileUpload = Selector('#choose-file');
-  const okBtn = Selector('button').withText('OK');
-  const verifyBtn = Selector('label').withText('I verified all data is correct');
-  const successImg = Selector('img').withAttribute('src', '/images/accept.png');
- 
-
-
-    // for (let code of participant_codes) {
-    fixture `Mass submission`
-      .page `localhost:8080/`;
-
-      for (var i = 0; i < 5; i++) {
-        test('Participant ' + i, async t => {
-          await t
-            .wait(5000)
-            .click('#session')
-            .typeText('#session', sessionKey)
-            .click('#participation-code')
-            .typeText('#participation-code', participant_codes[i])
-            .setFilesToUpload(fileUpload, '/Users/lucyqin/Desktop/pace.xlsx')
-            .click(okBtn)
-            .click(verifyBtn)
-            .click('#submit')
-            .debug()
-            .expect(successImg.exists).ok();
-        });
-      }
-
-
-
-
-
-  // fixture `Submitting data`
-  //   .page `localhost:8080/`;
-
-
-
-  //   for (let code of participant_codes) {
-  //     console.log('code', code);
-  //     test('Participant', async t => {
-  //       await t
-  //         .click('#session')
-  //     });
-
-  //   }
-  //   // test('Participant 1', async t => {
-    //   await t
-    //     .wait(5000)
-    //     // .click('#session')
-    //     // .typeText('#session', 'dtt4yqce20jgm411xtefn77hew')
-    //     .click('#participation-code')
-    //     .selectText('#session')
-    //     .pressKey('backspace')
-    //     .typeText('#participation-code', 'fnrf9q61gwkdc75sbrs1js9xg0')
-    //     .click('#session')
-    //     .debug()
-    //     .typeText('#session', sessionKey)
-    //     .setFilesToUpload(fileUpload, '/Users/lucyqin/Desktop/pace.xlsx')
-    //     .click(okBtn)
-    //     .click(verifyBtn)
-    //     .click('#submit')
-    //     .debug()
-    //     .expect(successImg.exists).ok();
-    // });
-
-}
-
-// saveSessionInfo();
-// createSession();
-
-// startSession();
-
-// getParticipationCodes();
+createSession();
+startSession();
+getParticipationCodes();
 massUpload();
-// uploadData();
-// endSession();
-// unmaskData();
+endSession();
+//unmaskData();
 
 
 
