@@ -108,7 +108,7 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
         values.push(dataSubmission.usability[m]);
       }
     }
-  
+
     // Handle jiff errors returned from server
     var options = {
       onError: function (errorString) {
@@ -160,15 +160,15 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
       // Meta-info
       var ordering = mpc.consistentOrdering(table_template);
       msg = JSON.parse(msg);
-      var submitters = msg.submitters;
-      var resubmission_avg = msg.resubmission_avg; 
+      var submitters = msg['submitters'];
+      var resubmission_avg = msg['resubmission_avg'];
 
       // Compute and Format
       var promise = mpc.compute(jiff, submitters, ordering);
       promise = mpc.format(promise, submitters, ordering);
       promise.then(function (result) {
         jiff.disconnect(false, false);
-        // TODO: add resunmission average to callback
+        result['usability']['resubmission_avg'] = resubmission_avg;
         callback(result);
       }).catch(function (err) {
         error(err);

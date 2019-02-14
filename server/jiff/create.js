@@ -74,7 +74,7 @@ JIFFWrapper.prototype.initializeSession = async function (session_key, public_ke
 };
 
 // Setting up a listener for the session, to start computing when analyst requests.
-JIFFWrapper.prototype.computeSession = function (session_key) {
+JIFFWrapper.prototype.computeSession = async function (session_key) {
   console.log('Perform server side computation', session_key);
 
   var copy = Object.assign({}, computeOptions);
@@ -83,14 +83,15 @@ JIFFWrapper.prototype.computeSession = function (session_key) {
   computationInstance.connect();
 
   // Send submitters ids to analyst
-  var submitters = this.getTrackerParties(session_key);
-  var resubmission_avg = moduleWrappers.History.resubmission(session_key);
-  computationInstance.emit('compute', [ 1 ], JSON.stringify({submitters, resubmission_avg}), false);
+  var response = {};
+  response['submitters'] = this.getTrackerParties(session_key);
+  response['resubmission_avg'] = await moduleWrappers.History.resubmission(session_key);
+  computationInstance.emit('compute', [ 1 ], JSON.stringify(response), false);
 
   // Perform server-side MPC
   var table_template = require('../../client/app/' + config.client.table_template + '.js');
   var ordering = mpc.consistentOrdering(table_template);
-  mpc.compute(computationInstance, submitters, ordering);
+  mpc.compute(computationInstance, response['submitters'], ordering);
 };
 
 module.exports = JIFFWrapper;

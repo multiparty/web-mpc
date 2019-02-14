@@ -31,7 +31,20 @@ var resubmissionAvg = function (session_key) {
       if (err) {
         reject(err);
       } else {
-        resolve(data);
+        var idSeen = {};
+        var totalIDs = 0, count = 0;
+
+        for (var d of data) {
+          count++;
+          var id = d.jiff_party_id;
+          if (idSeen[id] !== true) {
+            idSeen[id] = true;
+            totalIDs++;
+          }
+        }
+
+        var avg = count / totalIDs;
+        resolve(avg.toString());
       }
     });
   });

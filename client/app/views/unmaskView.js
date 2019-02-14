@@ -29,7 +29,7 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
           var sessionPass = $('#session-password').val();
           var privateKey = e.target.result;
 
-          jiffController.analyst.computeAndFormat(sessionKey, sessionPass, privateKey, error, function (result) {     
+          jiffController.analyst.computeAndFormat(sessionKey, sessionPass, privateKey, error, function (result) {
             var questions = result['questions'];
             var usability = result['usability'];
             delete result['usability'];
@@ -38,7 +38,6 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
             // for tables only
             var averages = result.averages;
             var deviations = result.deviations;
-
 
             // download averages and deviations
             tableController.saveTables(averages, sessionKey, 'Averages');
