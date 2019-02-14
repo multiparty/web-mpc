@@ -179,7 +179,8 @@ define([], function () {
 
         const m = ordering.usability[k].metric;
         const f = ordering.usability[k].field;
-        const value = results[i+j+k].c[0].toString();
+        const value = results[i+j+k].toString();
+        console.log('value', value);
 
         if (f === null) {
           usability[m] = value;
