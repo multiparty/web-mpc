@@ -42,154 +42,38 @@
 
 </head>
 <body>
-<header>
-  <div class="container">
-    <h1>{{ title }}<br/>
-      <small> {{ subtitle }}</small>
-    </h1>
-    <div id="logos">
-      <img src="{{ logo }}" alt="GBCC Logo"/>
-      <img src="images/bu.gif" alt="BU Logo"/>
+  <div id="body_wrap">
+    <div class="page-header">
+      <table width="100%">
+        <tr>
+          <td>
+            <h1>{{ title }}<br/>
+            <small> {{ subtitle }}</small>
+            </h1>
+          </td>
+          <td align="right">
+            <img src="{{ logo }}" alt="GBCC Logo"/>
+            <img src="images/bu.gif" alt="BU Logo"/>
+          </td>
+        </tr>
+      </table>
     </div>
-  </div>
-</header>
-<div id="shadow" class="ss-style-multitriangles"></div>
-<main id="content" class="container">
 
-  <div class="row">
-    <section id="session-area" class="card col-md-10 col-md-offset-1">
-      <h2 class="text-center">Input your data</h2>
-      <p class="text-center">Please make sure your session key and participation code match the ones provided in the
-        email
-        sent to you by the Greater Boston Chamber of Commerce. Drag and drop your completed template file to encrypt and include your submission in
-        the
-        aggregate data.</p>
-      <hr/>
-      <div class="row">
-        <div class="col-md-6">
-          <form>
-            <div class="form-group">
-              <label class="control-label" for="session">Session key</label>
-              <input type="text" id="session" class="form-control" placeholder="Session key" pattern="^[a-zA-Z0-9]{26}$"
-                     autocomplete="off" required/>
-              <span id="session-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
-                    aria-hidden="true"></span>
-              <span id="session-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
-                    aria-hidden="true"></span>
-              <span id="session-fail-help"
-                    class="fail-help help-block hidden">Please input the 26-character session key.</span>
-              <span id="session-fail-custom-help"
-                    class="fail-custom help-block hidden"></span>
-            </div>
-            <div class="form-group">
-              <label class="control-label" for="participation-code">Participation code</label>
-              <input type="text" id="participation-code" class="form-control" placeholder="Participation code"
-                     pattern="^[a-zA-Z0-9]{26}$"
-                     autocomplete="off" required>
-              <span id="participation-code-success"
-                    class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
-                    aria-hidden="true"></span>
-              <span id="participation-code-fail"
-                    class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
-                    aria-hidden="true"></span>
-              <span id="participation-code-fail-help"
-                    class="fail-help help-block hidden">Please input the 26-character participation code.</span>
-              <span id="participation-code-fail-custom-help"
-                    class="fail-custom help-block hidden"></span>
-            </div>
-          </form>
-        </div>
-        <div class="col-md-6">
-          <div id="drop-area">
-            Drag and drop your completed template file here
-            <br/>
-            <p>&mdash;or&mdash;</p><br/>
-            <button id="choose-file-button" class="btn btn-primary">Choose file</button>
-          </div>
-          <input type="file" id="choose-file" accept=".xlsx,.xls">
-        </div>
+    <h3> Enter Session Key</h3>
+    <input type="text" id="session">
+    <h3>Enter Participation Code</h3>
+    <input type="text" id="participation-code">
+    <div id="tables-area"></div>
+    <form>
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" id="verify" name="verify"> All numbers are verified and correct
+        </label>
       </div>
-    </section>
+    </form>
+    <button type="submit" id="submit" class="btn btn-primary ladda-button btn-lg btn-block" disabled>Submit
+    </button>
+    <br/>
   </div>
-
-  <div class="row">
-    <section id="instructions" class="card col-md-10 col-md-offset-1">
-      <h2 class="text-center">View your data</h2>
-      <p class="text-center">Your data will appear here after you drag/drop or browse to find your completed Excel
-        template file above.</p>
-      <span id="expand-table-button" class="arrow-down"></span>
-
-      <div id="tables-area">
-        <hr/>
-        <h3>Entered Data</h3>
-        <p>Any red cells indicate an error - click on the cell to see the error message.</p>
-        <p>Yellow cells indicate the value might be outside of the expected range. Please double-check
-          to make sure the data is correct. You will still be able to submit your data.</p>
-        <p>For a list of definitions, please <a href="/definitions">click here</a>.</p>
-
-      </div>
-    </section>
-  </div>
-
-  <div class="row">
-    <section id="additional-questions" class="card col-md-10 col-md-offset-1">
-      <h2 class="text-center">Answer additional questions</h2>
-
-      <p class="text-center">
-        We have included these questions to get instant feedback as to how this process went in order to improve the
-        process in future years. Please know that the answers to these questions will be anonymous, and they will be
-        considered separately from the encrypted and aggregated data above.
-      </p>
-      <hr/>
-
-      <div id="questions">
-      </div>
-
-
-    </section>
-  </div>
-
-
-  <div class="row">
-    <section id="review-and-submit" class="card col-md-10 col-md-offset-1">
-      <h2 class="text-center">Verify and submit your data</h2>
-      <p class="text-center">
-        Please ensure that all data entered is accurate.
-      </p>
-      <hr/>
-      <div class="row">
-        <div class="col-md-6">
-          <div id="totals-table"></div>
-          <form>
-            <div class="checkbox">
-              <label>
-                <input type="checkbox" id="verify" name="verify">I verified all data is correct
-              </label>
-            </div>
-          </form>
-        </div>
-        <div class="col-md-6">
-          <div id="errors">
-            <h4>Errors</h4>
-            <ul id="validation-errors" class="has-error">
-              <li>No Errors!</li>
-            </ul>
-          </div>
-          <h4>Submission history</h4>
-          <ul id="submission-history">
-            <li>You have not submitted yet</li>
-          </ul>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-12">
-          <button type="submit" id="submit" class="btn btn-primary ladda-button btn-lg btn-block" disabled>Submit
-          </button>
-        </div>
-      </div>
-    </section>
-  </div>
-  <br/>
-</main>
 </body>
 </html>
