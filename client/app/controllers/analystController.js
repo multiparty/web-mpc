@@ -157,10 +157,11 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
       data: JSON.stringify({session: sessionID, password: password, last_fetch: timestamp}),
       dataType: 'json',
       success: function (data) {
-        var res = data.result;
+        var res = data.history;
         //document.getElementById(status).innerHTML = 'LOADING...';
         //document.getElementById(status).className = 'alert alert-success';
 
+        document.getElementById('totalNumSubTh').innerHTML = 'Total number of submissions: ' + data.count;
         for (var i = 0; i < res.length; i++) {
           var submissionHTML = '<tr>\
                   <td>' + (i + 1 + global_submission_counter) + '</td>\
