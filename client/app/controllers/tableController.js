@@ -201,9 +201,14 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
     var cell = instance._sail_meta.cells[row][col];
 
+    //Hacky and terrible way to do make the read-only cells a different color since something is wrong with below.
+    if (cell.col_key === "sum" && cell.row_key === "sum"){
+      TD.style.background = '#888889';
+    }
+
     // Readonly
-    if (cell.read_only !== null) {
-      cellProperties.readOnly = cell.read_only;
+    if (cell.readOnly !== undefined) {
+      cellProperties.readOnly = cell.readOnly;
     }
 
     // Tooltip
@@ -500,6 +505,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     for (var i = 0; i < table.rowsCount; i++) {
       for (var j = 0; j < table.colsCount; j++) {
         var cell_def = table.cells[i][j];
+        //console.log(cell_def);
         var type = cell_def.type;
         var empty = true;
         var read_only = false;
@@ -510,20 +516,27 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
         }
         if (cell_def.read_only) {
           read_only = cell_def.read_only;
+          //console.log(read_only);
         }
         if (cell_def.placeholder) {
           placeholder = cell_def.placeholder.toString();
+        }
+
+        if (cell_def.row_key == 'sum' && cell_def.col_key == 'sum') {
+          read_only = true;
         }
 
         var cell = {
           row: i, col: j, type: type,
           allowEmpty: empty, readOnly: read_only, placeholder: placeholder,
           validator: validator, renderer: renderer
+
         };
         if (types_map[cell_def.type]) {
           Object.assign(cell, types_map[cell_def.type]);
         }
-
+        // console.log(cell_def);
+        // console.log(cell);
         cells.push(cell);
       }
     }
@@ -976,7 +989,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   }
 
   function updateWidth(tables) {
-    console.log("updating");
 
     var maxWidth = $('#instructions').width();
     for (var i = 0; i < tables.length; i++) {
@@ -984,13 +996,10 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       var t = tables[i];
 
       var w = getWidth(t) + getHeaderWidth(t);
-      console.log(w);
 
       t.updateSettings({
         width: w
       });
-
-      console.log(w);
 
       if (w > maxWidth) {
         maxWidth = w;

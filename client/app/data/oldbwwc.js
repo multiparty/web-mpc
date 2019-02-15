@@ -17,6 +17,7 @@ define([], function () {
             "label":"Executive"
           },
           {
+            "key":"Mid",
             "label":"Mid Level"
           },
           {
@@ -52,12 +53,15 @@ define([], function () {
             "label":"Service Workers"
           },
           {
+            "key": "sum",
             "label":"Sum Annual Compensation"
           },
           {
+            "key": "sum",
             "label":"Sum Annual Cash Performance"
           },
           {
+            "key": "sum",
             "label":"Sum Length of Service"
           }
         ],
@@ -88,12 +92,15 @@ define([], function () {
               "label":"Other"
             },
             {
+              "key": "sum",
               "label":"Sum Annual <br> Compensation"
             },
             {
+              "key": "sum",
               "label":"Sum Annual Cash <br> Performance Pay"
             },
             {
+              "key": "sum",
               "label":"Sum Length of <br> Service"
             },
           ]
@@ -127,7 +134,7 @@ define([], function () {
             "label":"Executive"
           },
           {
-            //"key":"F/M",
+            "key": "Mid",
             "label":"Mid Level"
           },
           {
@@ -163,12 +170,15 @@ define([], function () {
             "label":"Service Workers"
           },
           {
+            "key": "sum",
             "label":"Sum Annual Compensation"
           },
           {
+            "key": "sum",
             "label":"Sum Annual Cash Performance"
           },
           {
+            "key": "sum",
             "label":"Sum Length of Service"
           }
         ],
@@ -199,12 +209,15 @@ define([], function () {
               "label":"Other"
             },
             {
+              "key": "sum",
               "label":"Sum Annual <br> Compensation"
             },
             {
+              "key": "sum",
               "label":"Sum Annual Cash <br> Performance Pay"
             },
             {
+              "key": "sum",
               "label":"Sum Length of <br> Service"
             },
           ]
