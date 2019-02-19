@@ -977,7 +977,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   }
 
   function updateWidth(tables) {
-    console.log("updating");
 
     var maxWidth = $('#instructions').width();
     for (var i = 0; i < tables.length; i++) {
@@ -985,13 +984,10 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       var t = tables[i];
 
       var w = getWidth(t) + getHeaderWidth(t);
-      console.log(w);
 
       t.updateSettings({
         width: w
       });
-
-      console.log(w);
 
       if (w > maxWidth) {
         maxWidth = w;
