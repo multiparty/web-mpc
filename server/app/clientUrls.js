@@ -13,6 +13,33 @@ const MAX_SIZE = config.MAX_SIZE;
 // Export route handlers
 module.exports = {};
 
+// end point for setting the number of cohorts in a session
+module.exports.setCohortNumber = function (context, body, response, sessionInfoObj) {
+  // Password verified already by authentication!
+  if (sessionInfoObj.status === 'STOP') {
+    response.status(500).send('Session status is ' + sessionInfoObj.status);
+    return;
+  }
+
+  if (sessionInfoObj.cohorts > body.cohorts) {
+    response.status(500).send('Session cohorts cannot be decreased');
+    return;
+  }
+
+  // no need to verify status, joi already did it
+  sessionInfoObj.cohorts = body.cohorts;
+
+  // Update sessionInfo in database
+  var promise = modulesWrappers.SessionInfo.update(sessionInfoObj);
+  promise.then(function () {
+    console.log('Updated cohorts:', body.session, body.cohorts);
+    response.json({cohorts: body.cohorts});
+  }).catch(function (err) {
+    console.log('Error setting cohorts count', err);
+    response.status(500).send('Error during session cohorts update.');
+  });
+};
+
 // endpoint for returning previously created client urls
 module.exports.getClientUrls = function (context, body, res) {
   // Password verified already by authentication!

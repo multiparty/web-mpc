@@ -37,6 +37,7 @@ module.exports = [
   { url: '/get_history', route: sessionStatusRoutes.getSubmissionHistory, validation: validation.getSubmissionHistory, authentication: auth.password },
 
   // Routes to generate and query (client urls / user keys / participation code)
+  { url: '/set_cohorts', route: clientURLsRoutes.setCohortNumber, validation: validation.setCohortNumber, authentication: auth.password },
   { url: '/generate_client_urls', route: clientURLsRoutes.createClientUrls, validation: validation.createClientUrls, authentication: auth.password },
   { url: '/get_client_urls', route: clientURLsRoutes.getClientUrls, validation: validation.getClientUrls, authentication: auth.password }
 ];

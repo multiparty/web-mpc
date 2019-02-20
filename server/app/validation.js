@@ -34,6 +34,10 @@ module.exports = {
     description: joi.string().required()
   },
 
+  setCohortNumber: Object.assign({
+    cohorts: joi.number().integer().min(1).max(10000).required()
+  }, schemaTemplates.keyPasswordTemplate),
+
   getClientUrls: Object.assign({}, schemaTemplates.keyPasswordTemplate),
 
   createClientUrls: Object.assign({
