@@ -1,5 +1,4 @@
 const modulesWrappers = require('../modules/modulesWrappers.js');
-var Promise = require('bluebird');
 
 module.exports = {
   put_in_mailbox: function (jiff, label, msg, computation_id, to_id) {
