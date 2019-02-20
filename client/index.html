@@ -44,16 +44,29 @@
 <body>
 <header>
   <div class="container">
-    <h1>{{ title }}<br/>
-      <small> {{ subtitle }}</small>
-    </h1>
-    <div id="logos">
-      <img src="{{ logo }}" alt="GBCC Logo"/>
-      <img src="images/bu.gif" alt="BU Logo"/>
+    <div class="row-eq-height">
+    <!--<div class = "row">-->
+      <div class="col-md-6">
+        <h1>{{ title }}<br/>
+        <small> {{ subtitle }}</small>
+        </h1>
+      </div>
+      <div class="col-md-3 center-img">
+        <!--<div id="logos">-->
+        <img src="{{ logo }}" alt="GBCC Logo"/>
+        <!--</div>-->
+      </div>
+      <div class="col-md-3 center-img">
+        <!--<div id="logos">-->
+        <img src="images/bu.gif" alt="BU Logo"/>
+        <!--</div>-->
+      </div>
     </div>
   </div>
 </header>
+
 <div id="shadow" class="ss-style-multitriangles"></div>
+
 <main id="content" class="container">
 
   <div class="row">

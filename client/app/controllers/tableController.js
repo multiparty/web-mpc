@@ -710,10 +710,15 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
     var $instructions = $('#instructions');
     var $container = $('.container');
+    var $card = $('.card.col-md-10.col-md-offset-1');
 
     var documentWidth = $(window).width();
     var containerWidth = parseFloat($container.first().width());
     var containerPadding = parseFloat($container.css('margin-left'));
+
+    var cardPadding = parseFloat($card.css('padding-left'));
+    var cardMargin = parseFloat($card.css('margin-left'));
+    var cardWidth = parseFloat($card.width()) + cardPadding*2;
 
     var offset;
     if (maxWidth > documentWidth) {
@@ -727,6 +732,11 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       offset = containerPadding - (documentWidth - maxWidth) / 2;
       $instructions.css('width', maxWidth);
       $instructions.css('margin-left', -offset);
+    }
+
+    else{
+      $instructions.css('width', cardWidth);
+      $instructions.css('margin-left', cardMargin);
     }
   }
 
@@ -980,11 +990,11 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   }
 
   function updateWidth(tables) {
+    if (!$("#tables-area").is(":hidden")) {
+      // Determine how wide the tables are
+      var maxTableWidth = 0;                             // Maximum table width
 
-    // Determine how wide the tables are
-    var maxTableWidth = 0;                             // Maximum table width
-
-    for (var i = 0; i < tables.length; i++) {          // Find maximum table width
+      for (var i = 0; i < tables.length; i++) {          // Find maximum table width
 
         var t = tables[i];
 
@@ -995,19 +1005,23 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
         }
       }
 
-    // Update width of instruction div based on maximum table width
-    var padding = getPadding('#instructions');
-    if (maxTableWidth > 0) {
-      updateInstructionWidth(maxTableWidth + padding);
-    }
+      // Update width of instruction div based on maximum table width
+      var padding = getPadding('#instructions');
+      if (maxTableWidth > 0) {
+        updateInstructionWidth(maxTableWidth + padding);
+      }
 
-    // Update visible width of tables based on resized instruction div
-    var instructionWidth = $('#instructions').width();
-    for (var i = 0; i < tables.length; i++) {
-      var t = tables[i];
-      t.updateSettings({
-        width: instructionWidth
-      });
+      // Update visible width of tables based on resized instruction div
+      var instructionWidth = $('#instructions').width();
+      for (var i = 0; i < tables.length; i++) {
+        var t = tables[i];
+        t.updateSettings({
+          width: instructionWidth
+        });
+      }
+    }
+    else{
+      updateInstructionWidth(0);
     }
   }
 

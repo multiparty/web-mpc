@@ -32,6 +32,17 @@ textarea.handsontableInput {
   text-align: right;
 }
 
+.row-eq-height {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display:         flex;
+}
+
+.center-img{
+  padding-top: 3%;
+}
+
 body {
   margin: 0;
   font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
@@ -89,7 +100,7 @@ header,
   top: 0;
   left: 0;
   right: 0;
-  height: 170px;
+  /*height: 170px;*/
   background: #fff;
   z-index: 2;
 }
