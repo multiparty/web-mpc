@@ -40,24 +40,26 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
     $('#cohort-generate').on('click', function (e) {
       e.preventDefault();
 
-      // TODO: need to get this from SERVER
-      // var sessionStatus = $('#session-status').val();
-      // if (sessionStatus === 'STARTED' || sessionStatus === 'STOPPED') {
-      //   return;
-      // }
+      analystController.checkStatus(session, password)
+        .then(function(res) {
 
+          // TODO: NEED AN ERROR MESSAGE HERE that session has been started / stopped
+          if (res === analystController.START || res === analystController.STOP) {
+            return;
+          }
 
-      var n = parseInt($('#cohort-number').val());
-      if (n <= 0) {
-        return;
-      }
+          var n = parseInt($('#cohort-number').val());
+          if (n <= 0) {
+            return;
+          }
+    
+          for (var i = num_cohorts; i < num_cohorts+n; i++) {
+            addCohort(i);
+          }
+    
+          num_cohorts = num_cohorts + n;    
 
-      for (var i = num_cohorts; i < num_cohorts+n; i++) {
-        addCohort(i);
-      }
-
-      num_cohorts = num_cohorts + n;
-
+        });
     });
 
     // Manage session
