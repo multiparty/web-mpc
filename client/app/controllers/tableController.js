@@ -708,23 +708,32 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
   function updateTableWidth(maxWidth) {
 
-    //$('#instructions').css('width', '1153px');
-    $('#instructions').css('max-width', '1153px');
-
     var documentWidth = $(window).width();
     var containerWidth = parseFloat($('.container').first().width());
-    var offset = (containerWidth - maxWidth) / 2;
 
-    if (offset < (containerWidth - documentWidth) / 2) {
-      offset = (containerWidth - documentWidth) / 2;
-    }
-
+    // should change these if statements to less repeated code
     if (maxWidth > documentWidth) {
-      $('header, #shadow').css('right', documentWidth - maxWidth);
+      console.log("maxWidth > documentWidth");
+      var instructionsWidth = 0.9 * documentWidth;
+      var containerPadding = parseFloat($('.container').css('margin-left'));
+      var offset = containerPadding - (documentWidth - instructionsWidth) / 2;
+
+      // also need to force table to scroll...
+
+      $('#instructions').css('width', instructionsWidth);
+      $('#instructions').css('margin-left', -offset);
+      $('#number-employees-hot').css('width', instructionsWidth);
+      $('#number-employees-hot').css('max-width', instructionsWidth);
     }
 
-    // Bootstrap row has margin-left: -15px, add this back to offset to keep card centered
-    $('#instructions').css('margin-left', offset + 15);
+    else if (maxWidth > containerWidth) {
+      console.log("maxWidth > containerWidth");
+      var containerPadding = parseFloat($('.container').css('margin-left'));
+      var offset = containerPadding - (documentWidth - maxWidth) / 2;
+
+      $('#instructions').css('margin-left', -offset);
+      $('#instructions').css('width', maxWidth);
+    }
   }
 
   function resetTableWidth() {
@@ -978,28 +987,60 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
   function updateWidth(tables) {
 
-    var maxWidth = $('#instructions').width();
-    for (var i = 0; i < tables.length; i++) {
+    // var maxWidth = $('#instructions').width();
+    // for (var i = 0; i < tables.length; i++) {
+    //
+    //   var t = tables[i];
+    //
+    //   var w = getWidth(t) + getHeaderWidth(t);
+    //
+    //   t.updateSettings({    // NOTE: This is making the width always match the table width even if it is bigger than instruction!
+    //     width: w
+    //   });
+    //
+    //   if (w > maxWidth) {
+    //     maxWidth = w;
+    //   }
+    // }
+    //
+    // var padding = getPadding('#instructions');
+    //
+    // if (maxWidth > 0) {
+    //   updateTableWidth(maxWidth + padding);
+    // }
 
-      var t = tables[i];
+    // FIRST: update instruction width based on maximum table width
+    // SECOND: update tables to be only as wide as the instructions
 
-      var w = getWidth(t) + getHeaderWidth(t);
+    var maxTableWidth = 0;                             // Maximum table width
 
-      t.updateSettings({
-        width: w
-      });
+    for (var i = 0; i < tables.length; i++) {          // Find maximum table width
 
-      if (w > maxWidth) {
-        maxWidth = w;
+        var t = tables[i];
+
+        var w = getWidth(t) + getHeaderWidth(t);
+
+        if (w > maxTableWidth) {
+          maxTableWidth = w;
+        }
       }
+
+    // Update width of instruction div based on maximum table width
+    var padding = getPadding('#instructions');
+    if (maxTableWidth > 0) {
+      updateTableWidth(maxTableWidth + padding);
     }
 
-    var padding = getPadding('#instructions')
-
-    if (maxWidth > 0) {
-      updateTableWidth(maxWidth + padding);
+    // Update visible width of tables based on resized instruction div
+    var instructionWidth = $('#instructions').width();
+    for (var i = 0; i < tables.length; i++) {
+      var t = tables[i];
+      t.updateSettings({
+        width: instructionWidth
+      });
     }
-  }
+
+    }
 
   function getWidth(table) {
     var colWidths = 0;
