@@ -61,7 +61,13 @@ module.exports.getClientUrls = function (context, body, res) {
 
 
 // endpoint for creating new client urls
-module.exports.createClientUrls = function (context, body, response) {
+module.exports.createClientUrls = function (context, body, response, sessionInfoObj) {
+  // Check that the cohort number is ok
+  if (body.cohort > sessionInfoObj.cohorts) {
+    response.status(500).send('Selected Cohort does not exist!');
+    return;
+  }
+
   var promise = modulesWrappers.UserKey.query(body.session);
   promise.then(function (data) {
     var count = 1 + data.length; // starts at 1, because the first party is the analyst
@@ -100,7 +106,8 @@ module.exports.createClientUrls = function (context, body, response) {
       dbObjs.push({
         session: body.session,
         userkey: userkey,
-        jiff_party_id: jiff_party_id
+        jiff_party_id: jiff_party_id,
+        cohort: body.cohort
       });
     }
 
@@ -108,7 +115,7 @@ module.exports.createClientUrls = function (context, body, response) {
     var promise = modulesWrappers.UserKey.insertMany(dbObjs);
     promise.then(function () {
       console.log('URLs generated:', body.session, urls);
-      response.json({ result: urls });
+      response.json({ result: urls, cohort: body.cohort });
     }).catch(function (err) {
       console.log('Error in inserting client urls', err);
       response.status(500).send('Error during storing keys.');

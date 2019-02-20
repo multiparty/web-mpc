@@ -41,7 +41,8 @@ module.exports = {
   getClientUrls: Object.assign({}, schemaTemplates.keyPasswordTemplate),
 
   createClientUrls: Object.assign({
-    count: joi.number().integer().min(0).max(10000).required()
+    count: joi.number().integer().min(0).max(10000).required(),
+    cohort: joi.number().interger().min(1).max(10000).required()
   }, schemaTemplates.keyPasswordTemplate),
 
   getSubmissionHistory: Object.assign({

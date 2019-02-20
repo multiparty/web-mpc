@@ -25,7 +25,7 @@ module.exports.getStatus = function (context, body, res) {
 
 // endpoint for setting session status
 module.exports.setStatus = function (context, body, response, sessionInfoObj) {
-  if (sessionInfoObj.status === 'STOP') {
+  if (sessionInfoObj.status !== 'PAUSE') {
     response.status(500).send('Session status is ' + sessionInfoObj.status);
     return;
   }
