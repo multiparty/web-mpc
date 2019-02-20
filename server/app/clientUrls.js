@@ -46,9 +46,12 @@ module.exports.getClientUrls = function (context, body, res) {
   var promise = modulesWrappers.UserKey.query(body.session);
 
   promise.then(function (data) {
-    var urls = [];
+    var urls = {};
     for (var d of data) {
-      urls.push('?session=' + body.session + '&participationCode=' + d.userkey);
+      var arr = urls[d.cohort] == null ? [] : urls[d.cohort]
+      arr.push('?session=' + body.session + '&participationCode=' + d.userkey);
+
+      urls[d.cohort] = arr;
     }
 
     console.log('URLs fetched:', body.session);
