@@ -101,8 +101,8 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
     }
 
     for (var k = 0; k < ordering.usability.length; k++) {
-      const m = ordering.usability[k].metric;
-      const f = ordering.usability[k].field;
+      var m = ordering.usability[k].metric;
+      var f = ordering.usability[k].field;
       if (f !== null) {
         values.push(dataSubmission.usability[m][f]);
       } else {
