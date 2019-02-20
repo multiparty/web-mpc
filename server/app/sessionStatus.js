@@ -15,7 +15,8 @@ module.exports.getStatus = function (context, body, res) {
 
   promise.then(function (data) {
     var status = data ? data.status : 'PAUSE';
-    res.send(status);
+    var cohorts = data.cohorts;
+    res.json({status: status, cohorts: cohorts});
   }).catch(function (err) {
     console.log('Error in getting session status', err);
     res.status(500).send('Error getting session status.');
