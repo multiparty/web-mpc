@@ -734,10 +734,10 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       $instructions.css('margin-left', -offset);
     }
 
-    else{
-      $instructions.css('width', cardWidth);
-      $instructions.css('margin-left', cardMargin);
-    }
+    // else{
+    //   $instructions.css('width', cardWidth);
+    //   $instructions.css('margin-left', cardMargin);
+    // }
   }
 
   function resetTableWidth() {
