@@ -737,11 +737,12 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   }
 
   function getTemplate(value, field) {
-    for (var t of table_template.tables) {
+    table_template.tables.forEach(function (t) {
       if (t[field] === value) {
         return t;
       }
-    }
+    });
+
     return {};
   }
 
@@ -756,13 +757,12 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
       var data = [];
 
-      for (let row in table) {
-        data[i] = [];
-        for (let col in table[row]) {
+      table.forEach(function (row) {
+        table[row].forEach(function (col) {
           data[i].push(table[row][col]);
-        }
+        });
         i++;
-      }
+      });
 
       var settings = {
         readOnly: true,
@@ -785,22 +785,23 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   function getNestedHeaders(headers) {
     var h = [];
     var i = 0;
-    for (let row of headers) {
+    headers.forEach(function (row) {
       h[i] = [];
-      for (let col of row) {
+      row.forEach(function (col) {
         h[i].push(col.label);
-      }
+      });
       i++;
-    }
+    });
     return h;
   }
 
   // TODO: will need to adjust for BWWC
   function getHeaders(headers) {
     var h = [];
-    for (let row of headers) {
+    headers.forEach(function (row) {
       h.push(row.label);
-    }
+    });
+
     return h;
   }
 
@@ -916,7 +917,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       changes.push([0, i, totals[i]]);
     }
     table.setDataAtCell(changes); // This changes the data without changing cellProperties (e.g. keeps readOnly)
-    return {sums, NaNs}
+    return {sums: sums, NaNs: NaNs}
   }
 
   function saveTables(tables, session, title) {
@@ -942,11 +943,11 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
     var id = table.rootElement.id;
 
-    for (const t of table_template.tables) {
+    table_template.tables.forEach(function (t) {
       if (id === t.element) {
         return t.hot_parameters.rowHeaderWidth;
       }
-    }
+    });
 
     return 0;
   }
