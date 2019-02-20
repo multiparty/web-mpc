@@ -13,7 +13,7 @@
  *           or with parameters (true, <optional_output_object>) if authentication is successfull.
  *
  * Validation is performed automatically, followed by authentication if provided. Any failures here will result
- * in a 500 response code, with the appropriate error message. If both are sucessfull, the route function is executed.
+ * in a 500 response code, with the appropriate error message. If both are successful, the route function is executed.
  */
 
 // JOI validation schemas
