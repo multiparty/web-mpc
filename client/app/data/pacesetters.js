@@ -205,20 +205,20 @@ define([], function () {
       }
     ],
     'usability': [
-      'data_prefilled', 
-      {'time_spent': ['page', 'session-area', 'tables-area', 'review-and-submit']},
+      'data_prefilled',
+      {'time_spent': ['page', 'session-area', 'tables-area', 'amount-spent', 'number-MBEs', 'addressable-spend', 'review-and-submit']},
       {'browser': ['chrome', 'edge', 'msie', 'firefox', 'opera', 'other', 'safari']
       },
       {'validation_errors': [
-        'SESSION_KEY_ERROR', 
+        'SESSION_KEY_ERROR',
         'SESSION_INFO_ERROR',
-        'PARTICIPATION_CODE_ERROR', 
-        'SESSION_PARTICIPATION_CODE_SERVER_ERROR', 
-        'UNCHECKED_ERR', 
-        'GENERIC_TABLE_ERR', 
-        'SERVER_ERR', 
+        'PARTICIPATION_CODE_ERROR',
+        'SESSION_PARTICIPATION_CODE_SERVER_ERROR',
+        'UNCHECKED_ERR',
+        'GENERIC_TABLE_ERR',
+        'SERVER_ERR',
         'GENERIC_SUBMISSION_ERR',
-        'NAN_EMPTY_CELLS', 
+        'NAN_EMPTY_CELLS',
         'SEMANTIC_CELLS',
         'CELL_ERROR'
         ]

@@ -66,9 +66,9 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         // Hide by default
         $('#additional-questions').hide();
 
+        tableController.createTableElems(table_template.tables, '#tables-area');
         usabilityController.initialize();
 
-        tableController.createTableElems(table_template.tables, '#tables-area');
         displaySurveyQuestions();
 
         // Create the tabless
