@@ -163,10 +163,9 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
 
       // Compute and Format
       var promise = mpc.compute(jiff, submitters, ordering);
-      promise = mpc.format(promise, submitters, ordering);
       promise.then(function (result) {
         jiff.disconnect(false, false);
-        callback(result);
+        callback(mpc.format(result, submitters, ordering));
       }).catch(function (err) {
         error(err);
       });

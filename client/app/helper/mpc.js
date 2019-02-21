@@ -3,6 +3,19 @@ if (typeof define !== 'function') {
 }
 
 define([], function () {
+  var setOrAssign = function (obj, keys, value) {
+    for (var i = 0; i < keys.length - 1; i++) {
+      var key = keys[i];
+      if (obj[key] == null) {
+        obj[key] = {};
+      }
+
+      obj = obj[key];
+    }
+
+    obj[keys[keys.length - 1]] = value;
+  };
+
   // Order: consistent order on values as defined in the template.
   // The order will be the same on client, server, and analyst side.
   // Order:
@@ -38,7 +51,7 @@ define([], function () {
       }
     }
     // order questions
-    if (table_template.survey !== undefined) {
+    if (table_template.survey != null) {
       for (var q = 0; q < table_template.survey.questions.length; q++) {
         var question = table_template.survey.questions[q];
         for (var o = 0; o < question.inputs.length; o++) {
@@ -49,16 +62,19 @@ define([], function () {
       }
     }
 
-    if (table_template.usability !== undefined) {
-      for (let metric of table_template.usability) {
+    // order usability metrics
+    if (table_template.usability != null) {
+      for (var m = 0; m < table_template.usability.length; m++) {
+        var metric = table_template.usability[m];
+
         if (typeof(metric) === 'string') {
-          usability.push({metric: metric, field: null});
+          usability.push({metric: metric, field: ''});
         } else if (typeof(metric) === 'object') {
-          const key = Object.keys(metric)[0];
-          const fields = metric[key];
-  
-          for (let f of fields) {
-            usability.push({metric: key, field: f});
+          var key = Object.keys(metric)[0];
+          var arr = metric[key];
+          for (var f = 0; f < arr.length; f++) {
+            var field = arr[f];
+            usability.push({metric: key, field: field});
           }
         }
       }
@@ -67,132 +83,199 @@ define([], function () {
     return { tables: tables, questions: questions, usability:usability };
   };
 
-  var compute = function (jiff_instance, submitters, ordering) {
-    // go through all the tables and questions one entry at a time
-    // sum all received shares for that entry, and reveal the sum
-    // for that element to the analyst in order.
-    var shares = [];
-    for (var k = 0; k < ordering.tables.length + ordering.questions.length + ordering.usability.length; k++) {
-      var subid = submitters[0];
+  // Compute the function over table data under MPC for a single cohort
+  var computeTable = function (jiff_instance, cohortIds, ordering) {
+    var result = [];
+    for (var k = 0; k < ordering.tables.length; k++) {
+      var subid = cohortIds[0];
+
+      // Sum for averaging
+      var entry_sum = jiff_instance.share(null, null, [1, 's1'], [subid])[subid];
+      // Standard deviation is only computed under MPC for tables
+      var entry_squares_sum = jiff_instance.share(null, null, [1, 's1'], [subid])[subid];
+
+      for (var p = 1; p < cohortIds.length; p++) {
+        subid = cohortIds[p];
+
+        // Sum entries
+        var single_share = jiff_instance.share(null, null, [1, 's1'], [subid])[subid];
+        entry_sum = entry_sum.sadd(single_share);
+
+        // Sum squares
+        single_share = jiff_instance.share(null, null, [1, 's1'], [subid])[subid];
+        entry_squares_sum = entry_squares_sum.sadd(single_share);
+      }
+
+      // For entries in the table, we return a promise to an object
+      //    { sum: <sum of inputs>, squaresSum: <sum of squared inputs> }
+      var promise1 = jiff_instance.open(entry_sum, [1]);
+      var promise2 = jiff_instance.open(entry_squares_sum, [1]);
+      if (jiff_instance.id === 1) {
+        var promise = Promise.all([promise1, promise2]).then(function (results) {
+          return { sum: results[0], squaresSum: results[1]};
+        });
+        result.push(promise);
+      }
+    }
+
+    return result;
+  };
+
+  // Compute the function over question data under MPC for a single cohort
+  var computeQuestions = function (jiff_instance, cohortIds, ordering) {
+    var result = [];
+    for (var k = ordering.tables.length; k < ordering.tables.length + ordering.question.length; k++) {
+      var subid = cohortIds[0];
+
+      // Sum for averaging
+      var entry_sum = jiff_instance.share(null, null, [1, 's1'], [subid])[subid];
+      for (var p = 1; p < cohortIds.length; p++) {
+        subid = cohortIds[p];
+
+        // Sum entries
+        var single_share = jiff_instance.share(null, null, [1, 's1'], [subid])[subid];
+        entry_sum = entry_sum.sadd(single_share);
+      }
+
+      // For entries in the table, we return a promise to an object
+      //    { sum: <sum of inputs>, squaresSum: <sum of squared inputs> }
+      var promise = jiff_instance.open(entry_sum, [1]);
+      result.push(promise);
+    }
+
+    return result;
+  };
+
+  // Compute MPC functions over table and questions data per cohort
+  var computeCohort = function (jiff_instance, cohortIds, ordering) {
+    var result = computeTable(jiff_instance, cohortIds, ordering);
+    return Promise.all(result.concat(computeQuestions(jiff_instance, cohortIds, ordering)));
+  };
+
+  // Compute MPC usability function over all cohorts
+  var computeUsability = function (jiff_instance, allIds, ordering) {
+    var result = [];
+    for (var k = ordering.tables.length + ordering.questions.length; k < ordering.tables.length + ordering.questions.length + ordering.usability.length; k++) {
+      var subid = allIds[0];
 
       var entry_sum = jiff_instance.share(null, null, [1, 's1'], [subid]);
       entry_sum = entry_sum[subid];
 
-      // Standard deviation is only computed under MPC for tables
-      var entry_squares_sum;
-      if (k < ordering.tables.length) {
-        entry_squares_sum = jiff_instance.share(null, null, [1, 's1'], [subid]);
-        entry_squares_sum = entry_squares_sum[subid];
-      }
-
-      for (var p = 1; p < submitters.length; p++) {
-        subid = submitters[p];
+      for (var p = 1; p < allIds.length; p++) {
+        subid = allIds[p];
 
         var single_share = jiff_instance.share(null, null, [1, 's1'], [subid]);
         single_share = single_share[subid];
         entry_sum = entry_sum.sadd(single_share);
-
-        if (k < ordering.tables.length) {
-          var single_square = jiff_instance.share(null, null, [1, 's1'], [subid]);
-          single_square = single_square[subid];
-          entry_squares_sum = entry_squares_sum.sadd(single_square);
-        }
       }
 
       var promise = jiff_instance.open(entry_sum, [1]);
-
-      // For entries in the table, we return a promise to an object
-      //    { sum: <sum of inputs>, squaresSum: <sum of squared inputs> }
-      // For questions, we return a promise to a single sum/number corresponding to an option
-      if (k < ordering.tables.length) {
-        var promise2 = jiff_instance.open(entry_squares_sum, [1]);
-        if (jiff_instance.id === 1) {
-          promise = Promise.all([promise, promise2]).then(function (results) {
-            return { sum: results[0], squaresSum: results[1]};
-          });
-        }
-      }
-
-      shares.push(promise);
+      result.push(promise);
     }
-    return Promise.all(shares);
+
+    return Promise.all(result);
   };
 
-  // will be filled with shares coming in from submitters
-  // shares[0] will be all the shares received from the first party in submitters
-  //   and is an object on the form:
-  //   {
-  //      <table 1 name>: { <row 1 key>: { <col 1 key>: <share object>,<col 2 key>: <share object>, ... }, ... }
-  //      ...
-  //      <questions>: {
-  //        <question 1 text>: { <option 1 value>: <share object>, <option 2 value>: <share object>, ... },
-  //        ...
-  //      }
-  //   }
-  var format = function (resultsPromise, submitters, ordering) {
-    return resultsPromise.then(function (results) {
+  var compute = function (jiff_instance, submitters, ordering) {
+    var all_promises = [];
 
-      var averages = {}; // results array will be transformed to an object of the correct form
-      var questions = {};
-      var deviations = {};
-      var usability = {};
+    for (var i = 0; i < submitters['cohorts'].length; i++) {
+      var cohort = submitters['cohorts'][i];
+      all_promises.push(computeCohort(jiff_instance, submitters[cohort], ordering));
+    }
+    all_promises.push(computeUsability(jiff_instance, submitters['all'], ordering));
 
-      for (var i = 0; i < ordering.tables.length; i++) {
+    // format
+    return Promise.all(all_promises).then(function (results) {
+      var formatted = { cohorts: {} };
+      for (var i = 0; i < submitters['cohorts'].length; i++) {
+        var cohort = submitters['cohorts'][i];
+        formatted['cohorts'][cohort] = results[i];
+      }
+
+      formatted['usability'] = results[results.length - 1];
+      return formatted;
+    });
+  };
+
+  // Return format
+  // {
+  //   averages: { <cohort number>: { table row: { table col: average } }, ..., 'total': { same format but for all cohorts } }
+  //   deviations: { <cohort number>: { table row: { table col: deviation } }, ..., 'total': { same format but for all cohorts } }
+  //   questions: { <cohort number>: { question text: { questions option: count } }, ..., 'total': { same format but for all cohorts } }
+  //   usability: { metrics_object ...  no cohorts, the object is immediate for all cohorts }
+  // }
+  var format = function (results, submitters, ordering) {
+    var averages = {};
+    var questions = {};
+    var deviations = {};
+    var usability = {};
+
+    // format averages and deviations as [<cohort>][<table>][<row>][<col>] = avg or std dev
+    for (var i = 0; i < ordering.tables.length; i++) {
+      var totalMean = 0;
+      var totalDev = 0;
+
+      for (var j = 0; j < submitters['cohorts'].length; j++) {
+        var cohort = submitters['cohorts'][j];
+
         var table = ordering.tables[i].table;
         var row = ordering.tables[i].row;
         var col = ordering.tables[i].col;
 
         // Compute mean/average
-        var mean = results[i].sum;
-        mean = mean.div(submitters.length);
+        var mean = results['cohorts'][cohort][i].sum;
+        totalMean = mean.add(totalMean);
+        mean = mean.div(submitters[cohort].length);
 
         // Compute standard deviation
-        var deviation = results[i].squaresSum;
-        deviation = deviation.div(submitters.length);
+        var deviation = results['cohorts'][i].squaresSum;
+        totalDev = deviation.add(totalDev);
+        deviation = deviation.div(submitters[cohort].length);
         deviation = deviation.minus(mean.pow(2));
         deviation = deviation.sqrt();
 
-        if (averages[table] == null) {
-          averages[table] = {};
-          deviations[table] = {};
-        }
-        if (averages[table][row] == null) {
-          averages[table][row] = {};
-          deviations[table][row] = {};
-        }
-        averages[table][row][col] = mean.toFixed(2); // returns a string, with 2 digits after decimal
-        deviations[table][row][col] = deviation.toFixed(2);
+        setOrAssign(averages, [cohort, table, row, col], mean.toFixed(2));
+        setOrAssign(deviations, [cohort, table, row, col], deviation.toFixed(2));
       }
 
-      // format questions as questions[<question>][<option>] = count of parties that choose this option
-      for (var j = 0; j < ordering.questions.length; j++) {
+      // Compute mean and average for total
+      totalMean = totalMean.div(submitters['all'].length);
+      totalDev = totalDev.div(submitters['all'].length);
+      totalDev = totalDev.minus(totalMean.pow(2));
+      totalDev = totalDev.sqrt();
+
+      setOrAssign(averages, ['all', table, row, col], totalMean.toFixed(2));
+      setOrAssign(deviations, ['all', table, row, col], totalDev.toFixed(2));
+    }
+
+    // format questions as questions[<cohort>][<question>][<option>] = count of parties that choose this option
+    for (i = 0; i < ordering.questions.length; i++) {
+      var total = 0;
+      for (j = 0; j < submitters['cohorts'].length; j++) {
+        cohort = submitters['cohorts'][j];
+
         var question = ordering.questions[j].question;
         var label = ordering.questions[j].label;
 
-        if (questions[question] == null) {
-          questions[question] = {};
-        }
-        questions[question][label] = results[i+j].toString();
+        var value = results['cohorts'][ordering.tables.length + j];
+        total = value.add(total);
+
+        setOrAssign(questions, [cohort, question, label], value.toString());
       }
+      setOrAssign(questions, ['all', question, label], total.toString());
+    }
 
-      for (let k = 0; k < ordering.usability.length; k++) {
+    // format usability as usability[<metric>][<field>] = value
+    for (i = 0; i < ordering.usability.length; i++) {
+      var metric = ordering.usability[i].metric;
+      var field = ordering.usability[i].field;
+      value = results[i + ordering.tables.length + ordering.questions.length];
 
-        const m = ordering.usability[k].metric;
-        const f = ordering.usability[k].field;
-        const value = results[i+j+k].toString();
+      setOrAssign(usability, [metric, field], value.toString());
+    }
 
-        if (f === null) {
-          usability[m] = value;
-        } else {
-          if (!(m in usability)) {
-            usability[m] = {};
-          }
-          usability[m][f] = value;
-        
-        }
-      }
-      return { averages: averages, questions: questions, deviations: deviations, usability: usability };
-    });
+    return { averages: averages, questions: questions, deviations: deviations, usability: usability };
   };
 
   return {
