@@ -4,6 +4,8 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
 
     var session, password;
 
+    document.getElementById('password').value = 'szz6pcqs4zb19hxgh2zq6cdh2w';
+
     $('#session').val(analystController.getParameterByName('session'));
 
     // Login
@@ -16,18 +18,24 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
       la.start();
 
       analystController.checkStatus(session, password)
-        .then(function (status) {
-          changeStatusButtons(status);
+        .then(function (res) {
+
+          const totalCohorts = res.cohorts;
+          for (var i = 0; i < totalCohorts; i++) {
+            displayCohortElements(i);
+            enableCohortSubmit(i);
+          }
+
+          // TODO: something is broken with changing statuses
+          changeStatusButtons(res.status);
           return analystController.getExistingParticipants(session, password);
         })
-        .then(function (urls) {
- 
+        .then(function (existingParticipants) {
+
           // Remove login panel and show control panel
           $('#session-login').collapse();
           $('#session-panel').collapse();
           $('#cohort-card').collapse();
-
-          // generateParticipants(num_cohorts);
 
           la.stop();     
         })
@@ -52,7 +60,8 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
           // TODO: NEED AN ERROR MESSAGE HERE that session has been started / stopped
     
           for (var i = totalCohorts-numCohorts; i < totalCohorts; i++) {
-            addCohort(i);
+            displayCohortElements(i);
+            enableCohortSubmit(i);            
           }
         });
     });
@@ -86,32 +95,53 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
         });
     });
 
-    function addCohort(i) {
+    function enableCohortSubmit(i) {
+      $('#participants-submit-' + i).on('click', function (e) {
+        e.preventDefault();
 
+        var la = Ladda.create(document.getElementById('participants-submit-' + i));
+        la.start();
+
+        var count = $('#participants-count-' + i).val();
+  
+        analystController.generateUrls(session, password, count, i+1)
+          .then(function (urls) {
+            var $newParticipants = $('#participants-new-'+i);
+            if ($newParticipants.html() !== '') {
+              $newParticipants.append('\n');
+            }
+
+            $newParticipants.append(urls.join('\n')).removeClass('hidden');
+
+            la.stop();
+          });
+      });
+    }
+
+    function displayCohortElements(i) {
 
       var $form = $('<form>');
       var $participants = $('<div>', {class: 'form-group'})
                             .append('<label class="control-label" for="participants-count">New participants</label>')
-                            .append('<input type="number" id="participants-count-'+ i + ' class="form-control" placeholder="0" pattern="^[1-9]\d*{1,5}$" autocomplete="off" required/>')
+                            .append('<input type="number" id="participants-count-'+ i + '" class="form-control" placeholder="0" pattern="^[1-9]\d*{1,5}$" autocomplete="off" required/>')
                             .append('<span id="new-participants-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden" aria-hidden="true"></span>')
                             .append('<span id="new-participants-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden" aria-hidden="true"></span>')
                             .append('<span id="new-participants-fail-help" class="fail-help help-block hidden">Please input a digit smaller than 100.000</span>')
                             .append('<span id="new-participants-fail-custom-help" class="fail-custom help-block hidden"></span>');
                       
 
-      // var $submitBtn = $('div', {class: 'form-group'});
-                        // .append('<button type="submit" class="btn btn-primary ladda-button btn-block">Submit</button>"')
+      var $submitBtn = $('<div>', {class: 'form-group'})
+                        .append('<button type="submit" id="participants-submit-' + i + '"  class="btn btn-primary ladda-button btn-block">Submit</button>')
 
-    
       $form.append($participants);
-      $form.append('<button type="submit" id="participants-submit-' + i + '" class="btn btn-primary ladda-button btn-block">Submit</button>');
-
+      $form.append($submitBtn);
 
       $cohortSection = $('<section>', {id: 'cohort-' + i, class: 'card col-md-4'})
                     .append('<h2 class="text-center">Add Participants</h2>')
                     .append('<p class="text-center">Generate more URLs for new participants.</p>')
                     .append($form)
-                    .append('<pre class="hidden></pre>')
+                    .append('<hr/>')
+                    .append('<pre id="participants-new-' + i + '" class="hidden"></pre>')
                     .append('<hr/>')
                     .append('<h2 class="text-center">Existing participants</h2>')
                     .append('<p class-"text-center">View the list of existing participation URLS.</p>')
@@ -136,18 +166,6 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
                           .append('<hr/>')
                           .append($historyTable);
 
-
-                         // <hr/>
-                          // <table id="table" class="table table-striped hidden">
-                          //   <thead>
-                          //   <tr>
-                          //     <th>ID</th>
-                          //     <th>Timestamp</th>
-                          //   </tr>
-                          //   </thead>
-                          //   <tbody id="participants">
-                          //   </tbody>
-                          // </table>
 
       $cohortDiv = $('<div>', {class: 'row'})
         .append('<h2>Cohort ' + (i+1) + '</h1>')
@@ -189,32 +207,6 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
           break;
       }
     }
-
-    function generateParticipants(num_participants) {
-
-      for (var i = 0; i < num_participants; i++) {
-             // Generate new participation links
-        $('#participants-submit-' + i).on('click', function (e) {
-          e.preventDefault();
-
-          var la = Ladda.create(document.getElementById('participants-submit-' + i));
-          la.start();
-
-          analystController.generateUrls(session, password, $('#participants-count-'+i).val())
-            .then(function (urls) {
-              var $newParticipants = $('#participants-new-'+i);
-              if ($newParticipants.html() !== '') {
-                $newParticipants.append('\n');
-              }
-              $newParticipants.append(urls.join('\n')).removeClass('hidden');
-
-              la.stop();
-            });
-        });
-      }
-    }
-
-
   }
 
   return trackView;

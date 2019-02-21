@@ -71,12 +71,13 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
     return result;
   }
 
-  function generateUrls(session, password, count) {
+  function generateUrls(session, password, count, cohort) {
+    console.log(session, password, count, cohort);
     return $.ajax({
       type: 'POST',
       url: '/generate_client_urls',
       contentType: 'application/json',
-      data: JSON.stringify({count: count, session: session, password: password})
+      data: JSON.stringify({cohort: cohort, count: count, session: session, password: password})
     })
       .then(function (resp) {
         return formatUrls(resp.result);
