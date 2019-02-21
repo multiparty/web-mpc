@@ -919,23 +919,52 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     return {sums, NaNs}
   }
 
-  function saveTables(tables, session, title) {
+  function saveTables(cohorts, session, title, counts) {
+    var cohorts_csv = [];
 
-    var tables_csv = [];
+    for (var cohort in cohorts) {
+      var tables_csv = [];
 
-    for (var sheet in tables) {
-      var sheet_csv = [];
+      var tables = cohorts[cohort];
+      for (var sheet in tables) {
+        var cols = [];
+        var sheet_csv = [];
 
-      sheet_csv.push([sheet]);
+        sheet_csv.push([sheet]);
+        for (var row in tables[sheet]) {
+          if (sheet_csv.length === 1) {
+            for (var col in tables[sheet][row]) {
+              cols.push(col);
+            }
+            sheet_csv.push(cols.join(','));
+          }
 
-      for (var row in tables[sheet]) {
-        sheet_csv.push([row, tables[sheet][row].value].join(','))
+          var row_csv = [];
+          for (var c = 0; c < cols.length; c++) {
+            row_csv.push(tables[sheet][row][cols[c]]);
+          }
+          sheet_csv.push(row_csv.join(','));
+        }
+        tables_csv.push(sheet_csv.join('\n'));
       }
-      tables_csv.push(sheet_csv.join('\n'));
+
+      var count = 'Number of submissions ' + counts[cohort];
+      if (cohort === 'all') {
+        cohorts_csv[0] = 'All Cohorts -- ' + count + '\n\n' + tables_csv.join('\n\n');
+      } else {
+        cohorts_csv[cohort] = 'Cohort #' + cohort + ' -- ' + count + '\n\n' + tables_csv.join('\n\n');
+      }
     }
 
-    tables_csv = tables_csv.join('\n\n\n');
-    filesaver.saveAs(new Blob([tables_csv], {type: 'text/plain;charset=utf-8'}), 'Aggregate_' + title + '_' + session + '.csv');
+    // Sort by cohorts, all appears first
+    var joined = cohorts_csv[0];
+    for (var i = 1; i < cohorts_csv.length; i++) {
+      if (cohorts_csv[i] != null) {
+        joined += '\n\n\n\n' + cohorts_csv[i];
+      }
+    }
+
+    filesaver.saveAs(new Blob([cohorts_csv], {type: 'text/plain;charset=utf-8'}), 'Aggregate_' + title + '_' + session + '.csv');
   }
 
   function getHeaderWidth(table) {
@@ -1010,35 +1039,55 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     return colWidths;
   }
 
-  function saveUsability(usability, session) {
+  function saveUsability(usability, session, counts) {
+    var count = 'Total number of submissions ' + counts['all'];
     var json = JSON.stringify(usability);
-    filesaver.saveAs(new Blob([json], {type: 'application/json'}), 'Usability_' + session + '.json');
+    filesaver.saveAs(new Blob([count + '\n' + json], {type: 'application/json'}), 'Usability_' + session + '.json');
   }
 
-  function saveQuestions(questions, session) {
-    if (questions == null) {
+  function saveQuestions(cohorts, session, counts) {
+    if (cohorts == null) {
       return;
     }
 
-    var results = [];
-    for (var key in questions) {
-      if (!questions.hasOwnProperty(key) || questions[key] == null) {
-        continue;
-      }
+    var all_cohorts = [];
+    for (var cohort in cohorts) {
+      var questions = cohorts[cohort];
 
-      var question = questions[key];
-      for (var option in question) {
-        if (!question.hasOwnProperty(option) || question[option] == null) {
+      var results = [];
+      for (var key in questions) {
+        if (!questions.hasOwnProperty(key) || questions[key] == null) {
           continue;
         }
 
-        results.push(key + ',' + option + ',' + question[option]);
+        var question = questions[key];
+        for (var option in question) {
+          if (!question.hasOwnProperty(option) || question[option] == null) {
+            continue;
+          }
+
+          results.push(key + ',' + option + ',' + question[option]);
+        }
+        results.push('\n');
       }
-      results.push('\n');
+
+      var count = 'Number of submissions ' + counts[cohort];
+      if (cohort === 'all') {
+        all_cohorts[0] = 'All Cohorts -- ' + count + '\n' + results.join('\n');
+      } else {
+        all_cohorts[cohort] = 'Cohort #' + cohort + '-- ' + count + '\n' + results.join('\n');
+      }
     }
 
-    results = results.join('\n');
-    filesaver.saveAs(new Blob([results], {type: 'text/plain;charset=utf-8'}), 'Questions_' + session + '.csv');
+    // Sort by cohorts, all appears first
+    var joined = all_cohorts[0];
+    for (var i = 1; i < all_cohorts.length; i++) {
+      if (all_cohorts[i] != null) {
+        joined += '\n\n\n' + all_cohorts[i];
+      }
+    }
+
+    filesaver.saveAs(new Blob([joined], {type: 'text/plain;charset=utf-8'}), 'Questions_' + session + '.csv');
   }
 
   return {

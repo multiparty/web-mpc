@@ -275,7 +275,15 @@ define([], function () {
       setOrAssign(usability, [metric, field], value.toString());
     }
 
-    return { averages: averages, questions: questions, deviations: deviations, usability: usability };
+    return {
+      averages: averages,
+      questions: questions,
+      deviations: deviations,
+      usability: usability,
+      hasQuestions: ordering.questions.length > 0,
+      hasUsability: ordering.usability.length > 0,
+      cohorts: submitters,
+    };
   };
 
   return {
