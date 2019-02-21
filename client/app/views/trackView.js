@@ -3,7 +3,6 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
   function trackView() {
 
     var session, password;
-    var num_cohorts = 0;
 
     $('#session').val(analystController.getParameterByName('session'));
 
@@ -40,25 +39,21 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
     $('#cohort-generate').on('click', function (e) {
       e.preventDefault();
 
-      analystController.checkStatus(session, password)
+      var numCohorts = parseInt($('#cohort-number').val());
+
+      if (numCohorts <= 0) {
+        return;
+      }
+
+      analystController.setCohorts(session, password, numCohorts)
         .then(function(res) {
+          const totalCohorts = res.cohorts;
 
           // TODO: NEED AN ERROR MESSAGE HERE that session has been started / stopped
-          if (res === analystController.START || res === analystController.STOP) {
-            return;
-          }
-
-          var n = parseInt($('#cohort-number').val());
-          if (n <= 0) {
-            return;
-          }
     
-          for (var i = num_cohorts; i < num_cohorts+n; i++) {
+          for (var i = totalCohorts-numCohorts; i < totalCohorts; i++) {
             addCohort(i);
           }
-    
-          num_cohorts = num_cohorts + n;    
-
         });
     });
 
@@ -125,16 +120,17 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
       
 
       $thead = $('thead') 
-      .append('<tr>')
-      .append('<th>ID</th>')
-      .append('<th>Timestamp</th')
+                .append('<tr>')
+                .append('<th>ID</th>')
+                .append('<th>Timestamp</th')
 
             
-      $historyTable = $('table').append($thead)
-      .append('<tbody id="participants-history-' + i + '"></tbody>');
+      $historyTable = $('<table id="table-'+i+'" class="table-striped"></table>')
+                        .append($thead)
+                        .append('<tbody id="participants-history-' + i + '"></tbody>');
 
 
-      $historySection = $('<section>', {class: 'card col-md-7 col-md-offset-1'})
+      $historySection = $('<section></section>', {class: 'card col-md-7 col-md-offset-1'})
                           .append('<h2 class="text-center">Manage cohort</h2>')
                           .append('<p class="text-center">Fill in your cohort details on the left, add new participants and manage existing participation.</p>')
                           .append('<hr/>')

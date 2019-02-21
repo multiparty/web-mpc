@@ -10,6 +10,19 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
 
   'use strict';
 
+  function setCohorts(session, password, cohorts) {
+    return $.ajax({
+      type: 'POST',
+      url: '/set_cohorts',
+      contentType: 'application/json',
+      data: JSON.stringify({session: session, password: password, cohorts: cohorts})
+    }).then(function (res) {
+      return res;
+    }).catch(function() {
+      alert('error');
+    });
+  }
+
 
   function checkStatus(session, password) {
     if (!session || session.trim() === '' || !password) {
@@ -209,6 +222,7 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
     generateTable: generateTable,
     generateSession: generateSession,
     getParameterByName: getParameterByName,
+    setCohorts: setCohorts,
     START: 'START',
     PAUSE: 'PAUSE',
     STOP: 'STOP'
