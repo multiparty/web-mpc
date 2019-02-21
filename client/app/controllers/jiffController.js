@@ -76,7 +76,8 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
       maxBatchSize: 1000
     };
 
-    var instance = jiff.make_jiff(window.location.protocol + '//' + window.location.hostname, session, baseOptions);
+    var port = window.location.port === '8080' ? ':8080' : '';
+    var instance = jiff.make_jiff(window.location.protocol + '//' + window.location.hostname + port, session, baseOptions);
     instance.apply_extension(jiff_bignumber, bigNumberOptions);
     instance.apply_extension(jiff_restAPI, restOptions);
 
@@ -100,9 +101,9 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
     }
 
     for (var k = 0; k < ordering.usability.length; k++) {
-      const m = ordering.usability[k].metric;
-      const f = ordering.usability[k].field;
-      if (f !== null) {
+      var m = ordering.usability[k].metric;
+      var f = ordering.usability[k].field;
+      if (f != null && f !== '') {
         values.push(dataSubmission.usability[m][f]);
       } else {
         values.push(dataSubmission.usability[m]);

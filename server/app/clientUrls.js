@@ -16,7 +16,7 @@ module.exports = {};
 // end point for setting the number of cohorts in a session
 module.exports.setCohortNumber = function (context, body, response, sessionInfoObj) {
   // Password verified already by authentication!
-  if (sessionInfoObj.status === 'STOP') {
+  if (sessionInfoObj.status !== 'PAUSE') {
     response.status(500).send('Session status is ' + sessionInfoObj.status);
     return;
   }

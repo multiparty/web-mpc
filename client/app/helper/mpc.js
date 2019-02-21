@@ -124,7 +124,7 @@ define([], function () {
   // Compute the function over question data under MPC for a single cohort
   var computeQuestions = function (jiff_instance, cohortIds, ordering) {
     var result = [];
-    for (var k = ordering.tables.length; k < ordering.tables.length + ordering.question.length; k++) {
+    for (var k = ordering.tables.length; k < ordering.tables.length + ordering.questions.length; k++) {
       var subid = cohortIds[0];
 
       // Sum for averaging
@@ -178,7 +178,6 @@ define([], function () {
 
   var compute = function (jiff_instance, submitters, ordering) {
     var all_promises = [];
-
     for (var i = 0; i < submitters['cohorts'].length; i++) {
       var cohort = submitters['cohorts'][i];
       all_promises.push(computeCohort(jiff_instance, submitters[cohort], ordering));
@@ -186,16 +185,18 @@ define([], function () {
     all_promises.push(computeUsability(jiff_instance, submitters['all'], ordering));
 
     // format
-    return Promise.all(all_promises).then(function (results) {
-      var formatted = { cohorts: {} };
-      for (var i = 0; i < submitters['cohorts'].length; i++) {
-        var cohort = submitters['cohorts'][i];
-        formatted['cohorts'][cohort] = results[i];
-      }
+    if (jiff_instance.id === 1) {
+      return Promise.all(all_promises).then(function (results) {
+        var formatted = {cohorts: {}};
+        for (var i = 0; i < submitters['cohorts'].length; i++) {
+          var cohort = submitters['cohorts'][i];
+          formatted['cohorts'][cohort] = results[i];
+        }
 
-      formatted['usability'] = results[results.length - 1];
-      return formatted;
-    });
+        formatted['usability'] = results[results.length - 1];
+        return formatted;
+      });
+    }
   };
 
   // Return format
@@ -229,7 +230,7 @@ define([], function () {
         mean = mean.div(submitters[cohort].length);
 
         // Compute standard deviation
-        var deviation = results['cohorts'][i].squaresSum;
+        var deviation = results['cohorts'][cohort][i].squaresSum;
         totalDev = deviation.add(totalDev);
         deviation = deviation.div(submitters[cohort].length);
         deviation = deviation.minus(mean.pow(2));
@@ -258,7 +259,7 @@ define([], function () {
         var question = ordering.questions[j].question;
         var label = ordering.questions[j].label;
 
-        var value = results['cohorts'][ordering.tables.length + j];
+        var value = results['cohorts'][cohort][ordering.tables.length + j];
         total = value.add(total);
 
         setOrAssign(questions, [cohort, question, label], value.toString());
@@ -270,7 +271,7 @@ define([], function () {
     for (i = 0; i < ordering.usability.length; i++) {
       var metric = ordering.usability[i].metric;
       var field = ordering.usability[i].field;
-      value = results[i + ordering.tables.length + ordering.questions.length];
+      value = results['usability'][i];
 
       setOrAssign(usability, [metric, field], value.toString());
     }
