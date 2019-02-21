@@ -21,18 +21,13 @@ module.exports.setCohortNumber = function (context, body, response, sessionInfoO
     return;
   }
 
-  if (sessionInfoObj.cohorts > body.cohorts) {
-    response.status(500).send('Session cohorts cannot be decreased');
-    return;
-  }
-
   // no need to verify status, joi already did it
-  sessionInfoObj.cohorts = body.cohorts;
+  sessionInfoObj.cohorts += body.cohorts;
 
   // Update sessionInfo in database
   var promise = modulesWrappers.SessionInfo.update(sessionInfoObj);
   promise.then(function () {
-    console.log('Updated cohorts:', body.session, body.cohorts);
+    console.log('Updated cohorts:', body.session, sessionInfoObj.cohorts);
     response.json({cohorts: body.cohorts});
   }).catch(function (err) {
     console.log('Error setting cohorts count', err);
