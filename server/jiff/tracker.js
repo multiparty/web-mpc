@@ -28,6 +28,7 @@ module.exports = function (JIFFWrapper) {
     }
 
     // Construct submitters object
+    var cohorts = [];
     for (var submission of history) {
       var party_id = submission.jiff_party_id;
       var success = submission.success;
@@ -35,6 +36,7 @@ module.exports = function (JIFFWrapper) {
 
       if (submitters_ids[cohort] == null) {
         submitters_ids[cohort] = {}
+        cohorts.push(cohort);
       }
 
       if (success) {
@@ -45,12 +47,12 @@ module.exports = function (JIFFWrapper) {
     }
 
     // Reformat object
+    cohorts.sort(); // important: hides order of submission
+
     var tracker = {};
     var all = [];
-    for (cohort in submitters_ids) {
-      if (!submitters_ids.hasOwnProperty(cohort)) {
-        continue;
-      }
+    for (var i = 0; i < cohorts.length; i++) {
+      cohort = cohorts[i];
 
       var arr = [];
       for (var id in submitters_ids[cohort]) {
@@ -68,6 +70,7 @@ module.exports = function (JIFFWrapper) {
 
     all.sort(); // important: hides order of submission
     tracker['all'] = all;
+    tracker['cohorts'] = cohorts;
     return tracker;
   };
 };
