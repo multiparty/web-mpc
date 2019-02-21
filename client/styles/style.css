@@ -21,6 +21,14 @@
   /*padding: 0 10px;*/
 }
 
+.handsontable tbody th.ht__highlight{
+  background-color: #f3f3f3;
+}
+
+.handsontable thead th.ht__highlight{
+  background-color: #f3f3f3;
+}
+
 .handsontable td {
   /*font-size: 15px;*/
   white-space: pre-line;
