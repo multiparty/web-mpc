@@ -61,11 +61,7 @@ define([], function () {
         "element": "addressable-spend",
         "hot_parameters": {
           "rowHeaderWidth": 500,
-<<<<<<< HEAD
           "height": 225,
-=======
-          // "height": 325,
->>>>>>> 4e150cb6bd9fe7d89eeececf01f45b01cc2d8aa6
           "colWidths": 380
         },
         "rows": [
@@ -86,11 +82,7 @@ define([], function () {
           [
             {
               "key": "value",
-<<<<<<< HEAD
               "label": "Value for FY18 in Thousands of Dollars"
-=======
-              "label": "Value for FY in Thousands of Dollars ($)"
->>>>>>> 4e150cb6bd9fe7d89eeececf01f45b01cc2d8aa6
             }
           ]
         ],
@@ -120,11 +112,7 @@ define([], function () {
         "element": "number-MBEs",
         "hot_parameters": {
           "rowHeaderWidth": 500,
-<<<<<<< HEAD
           "height": 225,
-=======
-          // "height": 325,
->>>>>>> 4e150cb6bd9fe7d89eeececf01f45b01cc2d8aa6
           "colWidths": 380
         },
         "rows": [
