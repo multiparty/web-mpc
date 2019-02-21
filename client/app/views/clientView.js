@@ -66,14 +66,12 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         // Hide by default
         $('#additional-questions').hide();
 
-        usabilityController.initialize();
-
         tableController.createTableElems(table_template.tables, '#tables-area');
         displaySurveyQuestions();
-
         // Create the tabless
         var tables = tableController.makeTables(table_template.tables);
 
+        usabilityController.initialize();
         usabilityController.saveBrowser();
         // TODO
         //createResizeSensors(tables); THIS FUNCTION BREAKS THINGS I THINK! -IRA
