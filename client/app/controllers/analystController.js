@@ -21,7 +21,7 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
     }).catch(function() {
       alert('error');
     });
-  }
+  } 
 
 
   function checkStatus(session, password) {
@@ -60,15 +60,19 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
   }
 
   function formatUrls(urls) {
-    var port = window.location.port ? ':' + window.location.port : '';
-    var baseUrl = window.location.protocol + '//' + window.location.hostname + port;
+    var resultUrls = {};
 
-    var result = [];
-    for (var i = 0; i < urls.length; i++) {
-      result.push(baseUrl + urls[i]);
+    for (var cohort in urls) {
+      const cohortUrls = urls[cohort];
+      var port = window.location.port ? ':' + window.location.port : '';
+      var baseUrl = window.location.protocol + '//' + window.location.hostname + port;
+
+      resultUrls[cohort] = [];
+      for (var i = 0; i < cohortUrls.length; i++) {
+        resultUrls[cohort].push(baseUrl + cohortUrls);
+      }  
     }
-
-    return result;
+    return resultUrls;
   }
 
   function generateUrls(session, password, count, cohort) {

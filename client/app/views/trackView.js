@@ -4,7 +4,6 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
 
     var session, password;
 
-    document.getElementById('password').value = 'szz6pcqs4zb19hxgh2zq6cdh2w';
 
     $('#session').val(analystController.getParameterByName('session'));
 
@@ -31,6 +30,8 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
           return analystController.getExistingParticipants(session, password);
         })
         .then(function (existingParticipants) {
+
+          // analystController.generateTable('table', session, password, 'statusID');
 
           // Remove login panel and show control panel
           $('#session-login').collapse();
