@@ -12,23 +12,23 @@
 }
 
 .handsontable th {
-  font-size: 16px;
+  font-size: 12px;
   white-space: pre-line;
   max-width: 110px;
   vertical-align: middle;
-  height: 50px;
-  font-weight: 500;
-  padding: 0 10px;
+  /*height: 50px;*/
+  /*font-weight: 500;*/
+  /*padding: 0 10px;*/
 }
 
 .handsontable td {
-  font-size: 15px;
+  /*font-size: 15px;*/
   white-space: pre-line;
   vertical-align: middle;
 }
 
 textarea.handsontableInput {
-  line-height: 49px;
+  /*line-height: 49px;*/
   text-align: right;
 }
 
@@ -38,20 +38,25 @@ body {
   font-weight: 400;
   line-height: 1.5;
   color: #212529;
-  background-color: #eee;
   font-size: 16px;
+}
+
+#body_wrap {
+  padding-left: 8%;
+  padding-right: 8%;
+  padding-bottom: 50px;
 }
 
 h1, h2, h3 {
   color: #333;
+  line-height: 40px;
+  font-family: inherit;
+  font-weight: bold;
 }
 
 h1 {
-  font-size: 40px;
-  font-weight: bold;
-  color: rgba(51, 51, 51, 0.8);
-  text-shadow: 1px 4px 6px #fff, 0 0 0 #000, 1px 4px 6px #fff;
-  margin-top: 38px;
+  font-size: 38.5px;
+  margin: 10px 0 10px 0;
 }
 
 ::-moz-selection {
@@ -66,6 +71,12 @@ h1 {
   text-shadow: none;
 }
 
+#session, #participation-code {
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  height: 20px;
+  width: 200px;
+}
 .checkbox, .radio {
   margin-top: 20px;
   margin-bottom: 20px;
@@ -281,27 +292,20 @@ span.success {
 }
 
 #submit {
-  margin-top: 20px;
+  float: left;
 }
 
-@media (min-width: 992px) and (max-width: 1200px) {
-  h1 {
-    font-size: 35px;
-    margin-top: 42px;
-  }
+.btn-lg{
+  width: 70px;
+  height: 30px;
+  font-size: 14px;
+  text-align: left;
+  vertical-align: middle;
+  padding: 5px 10px 10px 10px;
 }
-
-@media (min-width: 768px) and (max-width: 992px) {
-  h1 {
-    font-size: 30px;
-    margin-top: 50px;
-  }
-}
-
 @media (max-width: 768px) {
   h1 {
     font-size: 30px;
-    margin-top: 50px;
   }
 
   header #logos img:not(:first-child) {
