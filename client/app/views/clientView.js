@@ -1,5 +1,5 @@
-define(['jquery', 'controllers/clientController', 'controllers/tableController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify', 'table_template', 'bootstrap'],
-  function ($, clientController, tableController, DropSheet, Spinner, Ladda, ResizeSensor, alertify, table_template) {
+define(['jquery', 'controllers/clientController', 'controllers/tableController', 'controllers/usabilityController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify', 'table_template', 'bootstrap'],
+  function ($, clientController, tableController, usabilityController, DropSheet, Spinner, Ladda, ResizeSensor, alertify, table_template) {
 
     function createQuestionText(text) {
       var p = document.createElement('p');
@@ -66,12 +66,16 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         // Hide by default
         $('#additional-questions').hide();
 
+        usabilityController.initialize();
+
         tableController.createTableElems(table_template.tables, '#tables-area');
         displaySurveyQuestions();
 
         // Create the tabless
         var tables = tableController.makeTables(table_template.tables);
 
+        usabilityController.saveBrowser();
+        // TODO
         //createResizeSensors(tables); THIS FUNCTION BREAKS THINGS I THINK! -IRA
 
         var totals_table = null;
@@ -260,6 +264,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         });
 
         $('#submit').click(function () {
+          usabilityController.stopAllTimers();
           var la = Ladda.create(document.getElementById('submit'));
           la.start();
 

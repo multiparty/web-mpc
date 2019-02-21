@@ -10,7 +10,7 @@ define([], function () {
         "element": "amount-spent",
         "hot_parameters": {
           "rowHeaderWidth": 500,
-          "height": 325,
+          "height": 225,
           "colWidths": 380
         },
         "rows": [
@@ -31,7 +31,7 @@ define([], function () {
           [
             {
               "key": "value",
-              "label": "Value for FY in Thousands of Dollars"
+              "label": "Value for FY18 in Thousands of Dollars"
             }
           ]
         ],
@@ -41,9 +41,9 @@ define([], function () {
               "row": "*",
               "col": "*"
             },
-            "type": "int",
+            "type": "currency",
             "min": 0,
-            "max_warning": 100,
+            "max_warning": 10000000,
             "empty": false,
           }
         ],
@@ -76,7 +76,7 @@ define([], function () {
         "element": "addressable-spend",
         "hot_parameters": {
           "rowHeaderWidth": 500,
-          "height": 325,
+          "height": 225,
           "colWidths": 380
         },
         "rows": [
@@ -97,7 +97,7 @@ define([], function () {
           [
             {
               "key": "value",
-              "label": "Value for FY in Thousands of Dollars"
+              "label": "Value for FY18 in Thousands of Dollars"
             }
           ]
         ],
@@ -107,9 +107,9 @@ define([], function () {
               "row": "*",
               "col": "*"
             },
-            "type": "int",
+            "type": "currency",
             "min": 0,
-            "max_warning": 100,
+            "max_warning": 10000000,
             "empty": false,
           }
         ],
@@ -142,7 +142,7 @@ define([], function () {
         "element": "number-MBEs",
         "hot_parameters": {
           "rowHeaderWidth": 500,
-          "height": 325,
+          "height": 225,
           "colWidths": 380
         },
         "rows": [
@@ -163,7 +163,7 @@ define([], function () {
           [
             {
               "key": "value",
-              "label": "Value for FY"
+              "label": "Value for FY18"
             }
           ]
         ],
@@ -175,7 +175,7 @@ define([], function () {
             },
             "type": "int",
             "min": 0,
-            "max_warning": 100,
+            "max_warning": 10000,
             "empty": false,
           }
         ],
@@ -201,6 +201,26 @@ define([], function () {
               "warning": "Are you sure this value is correct?"
             }
           }
+        ]
+      }
+    ],
+    'usability': [
+      'data_prefilled', 
+      {'time_spent': ['page', 'session-area', 'tables-area', 'review-and-submit']},
+      {'browser': ['chrome', 'edge', 'msie', 'firefox', 'opera', 'other', 'safari']
+      },
+      {'validation_errors': [
+        'SESSION_KEY_ERROR', 
+        'SESSION_INFO_ERROR',
+        'PARTICIPATION_CODE_ERROR', 
+        'SESSION_PARTICIPATION_CODE_SERVER_ERROR', 
+        'UNCHECKED_ERR', 
+        'GENERIC_TABLE_ERR', 
+        'SERVER_ERR', 
+        'GENERIC_SUBMISSION_ERR',
+        'NAN_EMPTY_CELLS', 
+        'SEMANTIC_CELLS',
+        'CELL_ERROR'
         ]
       }
     ]
