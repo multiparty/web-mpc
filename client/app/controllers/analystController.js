@@ -202,13 +202,13 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
 
 
   return {
-    checkStatus,
-    changeStatus,
-    generateUrls,
-    getExistingParticipants,
-    generateTable,
-    generateSession,
-    getParameterByName,
+    checkStatus: checkStatus,
+    changeStatus: changeStatus,
+    generateUrls: generateUrls,
+    getExistingParticipants: getExistingParticipants,
+    generateTable: generateTable,
+    generateSession: generateSession,
+    getParameterByName: getParameterByName,
     START: 'START',
     PAUSE: 'PAUSE',
     STOP: 'STOP'

@@ -356,7 +356,7 @@ span.success {
   transform: scaleY(-1);
 }
 
-#pacesetter-measure-hot td.htRight.htNumeric:after,
-#pacesetter-measure-hot-2 td.htRight.htNumeric:after{
+#amount-spent td.htRight.htNumeric:after,
+#addressable-spend td.htRight.htNumeric:after{
   content: 'K'
 }
