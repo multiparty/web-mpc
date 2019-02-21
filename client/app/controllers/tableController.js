@@ -933,13 +933,15 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
         sheet_csv.push([sheet]);
         for (var row in tables[sheet]) {
           if (sheet_csv.length === 1) {
+            cols.push('-');
             for (var col in tables[sheet][row]) {
               cols.push(col);
             }
             sheet_csv.push(cols.join(','));
           }
 
-          var row_csv = [];
+          var row_csv = []
+          row_csv.push(row);
           for (var c = 0; c < cols.length; c++) {
             row_csv.push(tables[sheet][row][cols[c]]);
           }
@@ -948,7 +950,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
         tables_csv.push(sheet_csv.join('\n'));
       }
 
-      var count = 'Number of submissions ' + counts[cohort];
+      var count = 'Number of submissions ' + counts[cohort].length;
       if (cohort === 'all') {
         cohorts_csv[0] = 'All Cohorts -- ' + count + '\n\n' + tables_csv.join('\n\n');
       } else {
@@ -964,7 +966,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       }
     }
 
-    filesaver.saveAs(new Blob([cohorts_csv], {type: 'text/plain;charset=utf-8'}), 'Aggregate_' + title + '_' + session + '.csv');
+    filesaver.saveAs(new Blob([joined], {type: 'text/plain;charset=utf-8'}), 'Aggregate_' + title + '_' + session + '.csv');
   }
 
   function getHeaderWidth(table) {
@@ -1040,7 +1042,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   }
 
   function saveUsability(usability, session, counts) {
-    var count = 'Total number of submissions ' + counts['all'];
+    var count = 'Total number of submissions ' + counts['all'].length;
     var json = JSON.stringify(usability);
     filesaver.saveAs(new Blob([count + '\n' + json], {type: 'application/json'}), 'Usability_' + session + '.json');
   }
@@ -1071,7 +1073,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
         results.push('\n');
       }
 
-      var count = 'Number of submissions ' + counts[cohort];
+      var count = 'Number of submissions ' + counts[cohort].length;
       if (cohort === 'all') {
         all_cohorts[0] = 'All Cohorts -- ' + count + '\n' + results.join('\n');
       } else {
