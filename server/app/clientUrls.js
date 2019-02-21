@@ -28,7 +28,7 @@ module.exports.setCohortNumber = function (context, body, response, sessionInfoO
   var promise = modulesWrappers.SessionInfo.update(sessionInfoObj);
   promise.then(function () {
     console.log('Updated cohorts:', body.session, sessionInfoObj.cohorts);
-    response.json({cohorts: body.cohorts});
+    response.json({cohorts: sessionInfoObj.cohorts});
   }).catch(function (err) {
     console.log('Error setting cohorts count', err);
     response.status(500).send('Error during session cohorts update.');

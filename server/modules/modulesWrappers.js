@@ -56,7 +56,7 @@ var insertSessionInfo = function (session_key, public_key, password, title, desc
     title: title,
     description: description,
     status: 'PAUSE',
-    cohorts: 1
+    cohorts: 0
   });
 
   return new Promise(function (resolve, reject) {
