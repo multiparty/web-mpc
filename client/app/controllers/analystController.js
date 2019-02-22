@@ -69,14 +69,13 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
 
       resultUrls[cohort] = [];
       for (var i = 0; i < cohortUrls.length; i++) {
-        resultUrls[cohort].push(baseUrl + cohortUrls);
+        resultUrls[cohort].push(baseUrl + cohortUrls[i]);
       }
     }
     return resultUrls;
   }
 
-  function generateUrls(session, password, count, cohort) {
-    console.log(session, password, count, cohort);
+  function generateNewParticipationCodes(session, password, count, cohort) {
     return $.ajax({
       type: 'POST',
       url: '/generate_client_urls',
@@ -84,7 +83,9 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
       data: JSON.stringify({cohort: cohort, count: count, session: session, password: password})
     })
       .then(function (res) {
-        return res;
+        const urls = {};
+        urls[res.cohort] = res.result;
+        return formatUrls(urls);     
       })
       .catch(function (err) {
         if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
@@ -190,7 +191,7 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
   return {
     checkStatus: checkStatus,
     changeStatus: changeStatus,
-    generateUrls: generateUrls,
+    generateNewParticipationCodes: generateNewParticipationCodes,
     getExistingParticipants: getExistingParticipants,
     getSubmissionHistory: getSubmissionHistory,
     generateSession: generateSession,

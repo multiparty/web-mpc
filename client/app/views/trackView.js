@@ -129,17 +129,18 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
 
         var count = $('#participants-count-' + i).val();
   
-        analystController.generateUrls(session, password, count, i+1)
+        analystController.generateNewParticipationCodes(session, password, count, i+1)
           .then(function (res) {
 
-            var cohortId = parseInt(res.cohort)-1;
+            var cohort = Object.keys(res)[0];
+            var cohortId = parseInt(cohort)-1;
 
             var $newParticipants = $('#participants-new-' + cohortId);
             if ($newParticipants.html() !== '') {
               $newParticipants.append('\n');
             }
 
-            $newParticipants.append(res.result.join('\n')).removeClass('hidden');
+            $newParticipants.append(res[cohort].join('\n')).removeClass('hidden');
 
             la.stop();
           });
