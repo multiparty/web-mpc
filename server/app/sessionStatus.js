@@ -15,7 +15,8 @@ module.exports.getStatus = function (context, body, res) {
 
   promise.then(function (data) {
     var status = data ? data.status : 'PAUSE';
-    res.send(status);
+    var cohorts = data.cohorts;
+    res.json({status: status, cohorts: cohorts});
   }).catch(function (err) {
     console.log('Error in getting session status', err);
     res.status(500).send('Error getting session status.');
@@ -48,17 +49,40 @@ module.exports.setStatus = function (context, body, response, sessionInfoObj) {
 
 // endpoint for returning dates of submissions
 module.exports.getSubmissionHistory = function (context, body, res) {
-  var promise = modulesWrappers.History.query(body.session, body.last_fetch);
+  var promise1 = modulesWrappers.History.query(body.session, body.last_fetch);
+  var promise2 = modulesWrappers.History.count(body.session);
 
-  promise.then(function (data) {
+  Promise.all([promise1, promise2]).then(function (data) {
+    var count = data[1];
+    var history = data[0];
+
+    // only send the most recent submission per id
+    var id_last_index = {};
     var to_send = [];
-    for (var d of data) {
+
+    for (var d of history) {
       if (d.success === true) {
         to_send.push(d.date);
+        if (id_last_index[d.jiff_party_id] != null) {
+          to_send[id_last_index[d.jiff_party_id]] = null;
+        }
+        id_last_index[d.jiff_party_id] = to_send.length - 1;
       }
     }
 
-    res.json({ result: to_send });
+    // efficiently remove nulls.
+    var shift = 0;
+    for (var i = 0; i < to_send.length; i++) {
+      var current = to_send[i];
+      if (current == null) {
+        shift++;
+      } else {
+        to_send[i-shift] = current;
+      }
+    }
+    to_send = to_send.slice(0, to_send.length - shift);
+
+    res.json({ history: to_send, count: count });
   }).catch(function (err) {
     console.log('Error getting submission history', err);
     res.status(500).send('Failed to fetch contributors.');
