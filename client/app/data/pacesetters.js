@@ -9,9 +9,9 @@ define([], function () {
         "name": "Amount Spent with MBEs",
         "element": "amount-spent",
         "hot_parameters": {
-          "rowHeaderWidth": 500,
-          "height": 325,
-          "colWidths": 380
+          "rowHeaderWidth": 200,
+          "stretchH": 'all',
+          "height": 225
         },
         "rows": [
           {
@@ -44,7 +44,7 @@ define([], function () {
             "type": "int",
             "min": 0,
             "max_warning": 100,
-            "empty": false,
+            "empty": false
           }
         ],
         "excel": [
@@ -75,9 +75,9 @@ define([], function () {
         "name": "Addressable Spend",
         "element": "addressable-spend",
         "hot_parameters": {
-          "rowHeaderWidth": 500,
+          "stretchH": 'all',
+          "rowHeaderWidth": 200,
           "height": 325,
-          "colWidths": 380
         },
         "rows": [
           {
@@ -110,7 +110,7 @@ define([], function () {
             "type": "int",
             "min": 0,
             "max_warning": 100,
-            "empty": false,
+            "empty": false
           }
         ],
         "excel": [
@@ -141,9 +141,9 @@ define([], function () {
         "name": "Number of MBEs",
         "element": "number-MBEs",
         "hot_parameters": {
-          "rowHeaderWidth": 500,
-          "height": 325,
-          "colWidths": 380
+          "rowHeaderWidth": 200,
+          "stretchH": 'all',
+          "height": 325
         },
         "rows": [
           {
@@ -176,7 +176,7 @@ define([], function () {
             "type": "int",
             "min": 0,
             "max_warning": 100,
-            "empty": false,
+            "empty": false
           }
         ],
         "excel": [
