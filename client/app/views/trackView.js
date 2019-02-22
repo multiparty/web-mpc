@@ -4,7 +4,6 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
 
     var session, password;
 
-
     $('#session').val(analystController.getParameterByName('session'));
 
     // Login
@@ -30,7 +29,15 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
           return analystController.getExistingParticipants(session, password);
         })
         .then(function (existingParticipants) {
+          for (var cohort in existingParticipants) {
 
+            var urls = existingParticipants[cohort];
+            var $existingParticipants = $('#participants-existing-'+ (parseInt(cohort)-1));
+
+            if ((urls.length, typeof(urls) === 'object')) {
+              $existingParticipants.html(urls.join('\n'))
+            }
+          }
           // analystController.generateTable('table', session, password, 'statusID');
 
           // Remove login panel and show control panel
@@ -106,13 +113,16 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
         var count = $('#participants-count-' + i).val();
   
         analystController.generateUrls(session, password, count, i+1)
-          .then(function (urls) {
-            var $newParticipants = $('#participants-new-'+i);
+          .then(function (res) {
+
+            var cohortId = parseInt(res.cohort)-1;
+
+            var $newParticipants = $('#participants-new-' + cohortId);
             if ($newParticipants.html() !== '') {
               $newParticipants.append('\n');
             }
 
-            $newParticipants.append(urls.join('\n')).removeClass('hidden');
+            $newParticipants.append(res.result.join('\n')).removeClass('hidden');
 
             la.stop();
           });

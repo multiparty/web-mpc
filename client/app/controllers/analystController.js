@@ -83,8 +83,8 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
       contentType: 'application/json',
       data: JSON.stringify({cohort: cohort, count: count, session: session, password: password})
     })
-      .then(function (resp) {
-        return formatUrls(resp.result);
+      .then(function (res) {
+        return res;
       })
       .catch(function (err) {
         if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
