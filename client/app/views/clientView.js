@@ -4,7 +4,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
     function createQuestionText(text) {
       var p = document.createElement('p');
       p.classList.add('question-text');
-      p.classList.add('help-block')
+      p.classList.add('help-block');
       p.innerHTML = text;
       return p;
     }
