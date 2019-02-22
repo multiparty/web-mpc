@@ -283,11 +283,8 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           data_submission[tables_data[i].name] = tables_data[i].data;
         }
 
-        if (document.getElementById('choose-file').files.length > 0) {
-          usabilityController.dataPrefilled();
-        }
-
         data_submission['usability'] = usabilityController.analytics;
+        console.log('ana',usabilityController.analytics);
 
         // Secret share / mask the data.
         jiffController.client.submit(session, participationCode, data_submission, function (err, response) {

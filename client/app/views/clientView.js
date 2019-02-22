@@ -141,37 +141,6 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
             NaNs = running.NaNs;
           }
         };
-
-        var _target = document.getElementById('drop-area');
-        var _choose = document.getElementById('choose-file-button');
-        var spinner;
-        var _workstart = function () {
-          spinner = new Spinner().spin(_target);
-        };
-        var _workend = function (status) {
-          $('#tables-area').show();
-          spinner.stop();
-        };
-
-        var _badfile = function () {
-          alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', 'This file does not appear to be a valid Excel file.', function () {
-          });
-
-          spinner.stop();
-        };
-        var _pending = function () {
-          alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', 'Please wait until the current file is processed.', function () {
-          });
-        };
-        var _large = function (len, cb) {
-          alertify.confirm('<img src="/images/cancel.png" alt="Error">Error!', 'This file is ' + (len / (1024 * 1024)).toFixed(2) + ' MB and may take a few moments. Your browser may lock up during this process. Continue?', cb);
-        };
-        var _failed = function (e) {
-          alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', 'This format is not supported.', function () {
-          });
-          spinner.stop();
-        };
-
         var $window, availableWidth, availableHeight;
         var calculateSize = function () {
           availableWidth = Math.max($('#drop-area').width(), 600);
@@ -183,45 +152,6 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
           $window.on('resize', calculateSize);
         });
 
-
-        var _onsheet = function (json, cols, sheetnames, select_sheet_cb) {
-          calculateSize();
-          if (!json) {
-            json = [];
-          }
-          /* add header row for table */
-          json.unshift(function (head) {
-            var o = {};
-
-            for (i = 0; i !== head.length; ++i) {
-              o[head[i]] = head[i];
-            }
-
-            return o;
-          }(cols));
-          calculateSize();
-        };
-
-        DropSheet({
-          drop: _target,
-          choose: _choose,
-          tables: tables,
-          tables_def: table_template,
-          on: {workstart: _workstart, workend: _workend, sheet: _onsheet},
-          errors: {badfile: _badfile, pending: _pending, failed: _failed, large: _large}
-        });
-
-        // Table accordion.
-        $('#tables-area').hide();
-
-        $('#expand-table-button').click(function (e) {
-          $('#tables-area').slideToggle(function () {
-            if (!$('#tables-area').is(':hidden')) {
-              tableController.updateWidth(tables);
-            }
-          });
-          $(e.target).toggleClass('flip');
-        });
 
         function addValidationErrors(msg) {
           $verify.prop('checked', false);
