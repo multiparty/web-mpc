@@ -26,31 +26,21 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
           var sessionPass = $('#session-password').val();
           var privateKey = e.target.result;
 
-          jiffController.analyst.computeAndFormat(sessionKey, sessionPass, privateKey, error, function (result) {     
-            var questions = result['questions'];
-            var usability = result['usability'];
-            delete result['usability'];
-            delete result['questions'];
-
-            // for tables only
-            var averages = result.averages;
-            var deviations = result.deviations;
-
-
+          jiffController.analyst.computeAndFormat(sessionKey, sessionPass, privateKey, error, function (result) {
             // download averages and deviations
-            tableController.saveTables(averages, sessionKey, 'Averages');
-            tableController.saveTables(deviations, sessionKey, 'Standard_Deviations');
-            if (questions !== null) {
-              tableController.saveQuestions(questions, sessionKey);
-            }
+            tableController.saveTables(result['averages'], sessionKey, 'Averages', result['cohorts']);
+            tableController.saveTables(result['deviations'], sessionKey, 'Standard_Deviations', result['cohorts']);
 
-            if (usability !== null) {
-              tableController.saveUsability(usability, sessionKey);
+            if (result['hasQuestions'] === true) {
+              tableController.saveQuestions(result['questions'], sessionKey, result['cohorts']);
+            }
+            if (result['hasUsability'] === true) {
+              tableController.saveUsability(result['usability'], sessionKey, result['cohorts']);
             }
 
             // Only display averages in the table
             tableController.createTableElems(table_template.tables, '#tables-area');
-            tableController.displayReadTable(averages);
+            tableController.displayReadTable(result['averages']['all']);
             $('#tables-area').show();
           });
         });

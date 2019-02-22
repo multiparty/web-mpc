@@ -10,6 +10,19 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
 
   'use strict';
 
+  function setCohorts(session, password, cohorts) {
+    return $.ajax({
+      type: 'POST',
+      url: '/set_cohorts',
+      contentType: 'application/json',
+      data: JSON.stringify({session: session, password: password, cohorts: cohorts})
+    }).then(function (res) {
+      return res;
+    }).catch(function() {
+      alert('error');
+    });
+  } 
+
 
   function checkStatus(session, password) {
     if (!session || session.trim() === '' || !password) {
@@ -47,26 +60,31 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
   }
 
   function formatUrls(urls) {
-    var port = window.location.port ? ':' + window.location.port : '';
-    var baseUrl = window.location.protocol + '//' + window.location.hostname + port;
+    var resultUrls = {};
 
-    var result = [];
-    for (var i = 0; i < urls.length; i++) {
-      result.push(baseUrl + urls[i]);
+    for (var cohort in urls) {
+      const cohortUrls = urls[cohort];
+      var port = window.location.port ? ':' + window.location.port : '';
+      var baseUrl = window.location.protocol + '//' + window.location.hostname + port;
+
+      resultUrls[cohort] = [];
+      for (var i = 0; i < cohortUrls.length; i++) {
+        resultUrls[cohort].push(baseUrl + cohortUrls);
+      }  
     }
-
-    return result;
+    return resultUrls;
   }
 
-  function generateUrls(session, password, count) {
+  function generateUrls(session, password, count, cohort) {
+    console.log(session, password, count, cohort);
     return $.ajax({
       type: 'POST',
       url: '/generate_client_urls',
       contentType: 'application/json',
-      data: JSON.stringify({count: count, session: session, password: password})
+      data: JSON.stringify({cohort: cohort, count: count, session: session, password: password})
     })
-      .then(function (resp) {
-        return formatUrls(resp.result);
+      .then(function (res) {
+        return res;
       })
       .catch(function (err) {
         if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
@@ -210,6 +228,7 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
     generateTable: generateTable,
     generateSession: generateSession,
     getParameterByName: getParameterByName,
+    setCohorts: setCohorts,
     START: 'START',
     PAUSE: 'PAUSE',
     STOP: 'STOP'

@@ -61,19 +61,18 @@ function JIFFWrapper(server, app) {
 }
 
 // Add volatile state management
-require('./volatile')(JIFFWrapper);
+require('./volatile.js')(JIFFWrapper);
+require('./tracker.js')(JIFFWrapper);
 
 // Initializing a JIFF computation when a session is created.
 JIFFWrapper.prototype.initializeSession = async function (session_key, public_key, password) {
-  this.tracker[session_key] = {};
-
   // Initialize
   var msg = { public_key: public_key, party_id: 1, party_count: MAX_SIZE, password: password };
   await this.serverInstance.initialize_party(session_key, 1, MAX_SIZE, msg);
 };
 
 // Setting up a listener for the session, to start computing when analyst requests.
-JIFFWrapper.prototype.computeSession = function (session_key) {
+JIFFWrapper.prototype.computeSession = async function (session_key) {
   console.log('Perform server side computation', session_key);
 
   var copy = Object.assign({}, computeOptions);
@@ -82,7 +81,7 @@ JIFFWrapper.prototype.computeSession = function (session_key) {
   computationInstance.connect();
 
   // Send submitters ids to analyst
-  var submitters = this.getTrackerParties(session_key);
+  var submitters = await this.getTrackerParties(session_key);
   computationInstance.emit('compute', [ 1 ], JSON.stringify(submitters), false);
 
   // Perform server-side MPC
