@@ -1,10 +1,10 @@
-define(['jquery', 'controllers/clientController', 'controllers/tableController', 'controllers/usabilityController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify', 'table_template', 'bootstrap'],
-  function ($, clientController, tableController, usabilityController, DropSheet, Spinner, Ladda, ResizeSensor, alertify, table_template) {
+define(['jquery', 'controllers/clientController', 'controllers/tableController', 'controllers/usabilityController', 'spin', 'Ladda', 'ResizeSensor', 'alertify', 'table_template', 'bootstrap'],
+  function ($, clientController, tableController, usabilityController, Spinner, Ladda, ResizeSensor, alertify, table_template) {
 
     function createQuestionText(text) {
       var p = document.createElement('p');
       p.classList.add('question-text');
-      p.classList.add('help-block')
+      p.classList.add('help-block');
       p.innerHTML = text;
       return p;
     }
@@ -205,14 +205,14 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
           calculateSize();
         };
 
-        DropSheet({
+        /*DropSheet({
           drop: _target,
           choose: _choose,
           tables: tables,
           tables_def: table_template,
           on: {workstart: _workstart, workend: _workend, sheet: _onsheet},
           errors: {badfile: _badfile, pending: _pending, failed: _failed, large: _large}
-        });
+        });*/
 
         // Table accordion.
         $('#tables-area').hide();
