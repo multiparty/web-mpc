@@ -180,32 +180,12 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
       });
   }
 
-      
-
-    //   error: function (err) {
-    //     return undefined;
-    //     // /* global errmsg */
-    //     // // NOTE: commented out because errmsg is assigned a value but never used
-    //     // // var errmsg = 'Error Connecting: Reconnect Attempt #' + counter.toString();
-    //     // if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
-    //     //   // errmsg = err.responseText;
-    //     // }
-
-    //     // //document.getElementById(status).className = 'alert alert-error';
-    //     // //document.getElementById(status).innerHTML = errmsg;
-    //     // setTimeout(function () {
-    //     //   // generateTable(tableBody, sessionID, password, status, date, counter + 1)
-    //     // }, 10000);
-    //   }
-    // });
-
   function getParameterByName(name) {
     name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
     var regex = new RegExp('[\\?&]' + name + '=([^&#]*)'),
       results = regex.exec(location.search);
     return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
   }
-
 
   return {
     checkStatus: checkStatus,
