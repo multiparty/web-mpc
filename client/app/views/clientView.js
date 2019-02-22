@@ -4,7 +4,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
     function createQuestionText(text) {
       var p = document.createElement('p');
       p.classList.add('question-text');
-      p.classList.add('help-block')
+      p.classList.add('help-block');
       p.innerHTML = text;
       return p;
     }
@@ -21,7 +21,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
         var input = document.createElement('input');
         $(input).attr('type', input_type)
-          .attr('value', i+1)
+          .attr('value', i + 1)
           .attr('name', 'opt' + input_type);
 
         label.appendChild(input);
@@ -38,7 +38,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
       $('#additional-questions').show();
 
-      const questions = table_template.survey.questions;
+      var questions = table_template.survey.questions;
 
       var questionsDiv = $('#questions');
 
@@ -51,14 +51,13 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
     }
 
     function createResizeSensors(tables) {
-      for (const t of tables) {
+      tables.forEach(function (t) {
         var div = $('#' + t.rootElement.id);
         new ResizeSensor((div).find('.wtHider').first()[0], function () {
           tableController.updateWidth(tables);
         });
-      }
+      });
     }
-
 
     function clientControllerView() {
 
@@ -66,14 +65,12 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         // Hide by default
         $('#additional-questions').hide();
 
-        usabilityController.initialize();
-
         tableController.createTableElems(table_template.tables, '#tables-area');
         displaySurveyQuestions();
-
         // Create the tabless
         var tables = tableController.makeTables(table_template.tables);
 
+        usabilityController.initialize();
         usabilityController.saveBrowser();
         // TODO
         //createResizeSensors(tables); THIS FUNCTION BREAKS THINGS I THINK! -IRA
@@ -219,7 +216,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
         $('#expand-table-button').click(function (e) {
           $('#tables-area').slideToggle(function () {
-            if (!$("#tables-area").is(":hidden")){
+            if (!$('#tables-area').is(':hidden')) {
               tableController.updateWidth(tables);
             }
           });

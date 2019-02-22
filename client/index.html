@@ -14,6 +14,7 @@
     }
   </script>
 
+  <script type="text/javascript" src="app/config/objectAssignPolyfill.js"></script>
   <script type="text/javascript" src="app/config/common.js"></script>
   <script type="text/javascript" src="app/config/jiff.js"></script>
 
@@ -59,20 +60,24 @@
       </table>
     </div>
 
-    <h3> Enter Session Key</h3>
-    <input type="text" id="session">
-    <h3>Enter Participation Code</h3>
-    <input type="text" id="participation-code">
+    <div id="session-area">
+      <h3> Enter Session Key</h3>
+      <input type="text" id="session">
+      <h3>Enter Participation Code</h3>
+      <input type="text" id="participation-code">
+    </div>
     <div id="tables-area"></div>
-    <form>
-      <div class="checkbox">
-        <label>
-          <input type="checkbox" id="verify" name="verify"> All numbers are verified and correct
-        </label>
-      </div>
-    </form>
-    <button name="submit" class="btn btn-primary btn-lg" id="submit" >Submit</button>
-    </button>
+    <div id="review-and-submit">
+      <form>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" id="verify" name="verify"> All numbers are verified and correct
+          </label>
+        </div>
+      </form>
+      <button name="submit" class="btn btn-primary btn-lg" id="submit" >Submit</button>
+      </button>
+    </div>
     <br/>
   </div>
 </body>

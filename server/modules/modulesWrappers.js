@@ -23,6 +23,21 @@ var queryHistory = function (session_key, last_fetch) {
   });
 };
 
+// Count number of submissions and resubmissions per session
+var countHistory = function (session_key) {
+  return new Promise(function (resolve, reject) {
+    var query = modules.History.where({session: session_key, success: true});
+    // deprecated on newer versions of mongoose: use .countDocuments instead if mongoose is updated to version 5+
+    query.count(function (err, count) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(count);
+      }
+    });
+  });
+};
+
 // add to history of a given session
 var insertHistory = function (session_key, jiff_party_id, success) {
   var history = new modules.History({
@@ -55,7 +70,8 @@ var insertSessionInfo = function (session_key, public_key, password, title, desc
     password: password,
     title: title,
     description: description,
-    status: 'PAUSE'
+    status: 'PAUSE',
+    cohorts: 0
   });
 
   return new Promise(function (resolve, reject) {
@@ -214,7 +230,8 @@ var queryMailbox = function (session_key, to_jiff_party_id) {
 module.exports = {
   History: {
     query: queryHistory,
-    insert: insertHistory
+    insert: insertHistory,
+    count: countHistory
   },
   SessionInfo: {
     get: getSessionInfo,

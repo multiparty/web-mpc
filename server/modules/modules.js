@@ -43,13 +43,15 @@ const SessionInfoModule = mongoose.model('SessionInfo', new mongoose.Schema({
   password: String,
   title: String,
   description: String,
-  status: String
+  status: String,
+  cohorts: Number
 }));
 const UserKeyModule = mongoose.model('UserKey', new mongoose.Schema({
   _id: String, // concat of session + userkey.
   session: String,
   userkey: String,
-  jiff_party_id: Number
+  jiff_party_id: Number,
+  cohort: Number
 }));
 
 // Export modules
