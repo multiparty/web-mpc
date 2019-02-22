@@ -158,62 +158,46 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
     });
   }
 
-  var global_submission_counter = 0;
 
-  function generateTable(tableBody, sessionID, password, status, timestamp, counter) {
+
+  function getSubmissionHistory(session, password, timestamp) {
     if (timestamp === undefined) {
       timestamp = 0;
     }
-    if (counter === undefined) {
-      counter = 1;
-    }
-    var date = Date.now();
-    $.ajax({
+    return $.ajax({
       type: 'POST',
       url: '/get_history',
       contentType: 'application/json',
-      data: JSON.stringify({session: sessionID, password: password, last_fetch: timestamp}),
-      dataType: 'json',
-      success: function (data) {
-        console.log(data);
-        // TODO: FORMAT HAS CHANGED
-
-        var res = data.history;
-        //document.getElementById(status).innerHTML = 'LOADING...';
-        //document.getElementById(status).className = 'alert alert-success';
-
-        document.getElementById('totalNumSubTh').innerHTML = 'Total number of submissions: ' + data.count;
-        for (var i = 0; i < res.length; i++) {
-          var submissionHTML = '<tr>\
-                  <td>' + (i + 1 + global_submission_counter) + '</td>\
-                  <td>' + new Date(res[i]).toLocaleString() + '</td>\
-                </tr>';
-
-          document.getElementById(tableBody).innerHTML += submissionHTML;
-        }
-
-        global_submission_counter += res.length;
-
-        setTimeout(function () {
-          generateTable(tableBody, sessionID, password, status, date)
-        }, 10000);
-      },
-      error: function (err) {
-        /* global errmsg */
-        // NOTE: commented out because errmsg is assigned a value but never used
-        // var errmsg = 'Error Connecting: Reconnect Attempt #' + counter.toString();
+      data: JSON.stringify({session: session, password: password, last_fetch: timestamp}),
+    })
+      .then(function (res) {
+        return res;
+      })
+      .catch(function (err) {
         if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
-          // errmsg = err.responseText;
+          alert(err.responseText);
         }
-
-        //document.getElementById(status).className = 'alert alert-error';
-        //document.getElementById(status).innerHTML = errmsg;
-        setTimeout(function () {
-          generateTable(tableBody, sessionID, password, status, date, counter + 1)
-        }, 10000);
-      }
-    });
+      });
   }
+
+      
+
+    //   error: function (err) {
+    //     return undefined;
+    //     // /* global errmsg */
+    //     // // NOTE: commented out because errmsg is assigned a value but never used
+    //     // // var errmsg = 'Error Connecting: Reconnect Attempt #' + counter.toString();
+    //     // if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
+    //     //   // errmsg = err.responseText;
+    //     // }
+
+    //     // //document.getElementById(status).className = 'alert alert-error';
+    //     // //document.getElementById(status).innerHTML = errmsg;
+    //     // setTimeout(function () {
+    //     //   // generateTable(tableBody, sessionID, password, status, date, counter + 1)
+    //     // }, 10000);
+    //   }
+    // });
 
   function getParameterByName(name) {
     name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
@@ -228,7 +212,7 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
     changeStatus: changeStatus,
     generateUrls: generateUrls,
     getExistingParticipants: getExistingParticipants,
-    generateTable: generateTable,
+    getSubmissionHistory: getSubmissionHistory,
     generateSession: generateSession,
     getParameterByName: getParameterByName,
     setCohorts: setCohorts,

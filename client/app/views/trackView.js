@@ -38,7 +38,15 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
               $existingParticipants.html(urls.join('\n'))
             }
           }
-          // analystController.generateTable('table', session, password, 'statusID');
+          analystController.getSubmissionHistory(session, password)
+            .then(function(res) {
+              if (res === undefined) {
+                return;
+              }
+              for (var cohort in res) {
+                displaySubmissionHistory(cohort, res[cohort].history);
+              }
+            });
 
           // Remove login panel and show control panel
           $('#session-login').collapse();
@@ -103,6 +111,15 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
         });
     });
 
+    function displaySubmissionHistory(cohort, data) {
+
+      var submissionHTML = '';
+      for (var i = 0; i < data.length; i++) {
+          submissionHTML += '<tr><td>' + (i+1) + '</td><td>' + new Date(data[i]).toLocaleString() + '</td></tr>';
+      }
+        document.getElementById('table-' + (parseInt(cohort)-1)).innerHTML += submissionHTML;
+    }
+
     function enableCohortSubmit(i) {
       $('#participants-submit-' + i).on('click', function (e) {
         e.preventDefault();
@@ -160,7 +177,7 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
                     .appendTo('#cohort-area')
       
 
-      $thead = $('thead') 
+      $thead = $('<thead>') 
                 .append('<tr>')
                 .append('<th>ID</th>')
                 .append('<th>Timestamp</th')
