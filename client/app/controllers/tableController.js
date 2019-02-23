@@ -734,10 +734,10 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       $instructions.css('margin-left', -offset);
     }
 
-    // else{
-    //   $instructions.css('width', cardWidth);
-    //   $instructions.css('margin-left', cardMargin);
-    // }
+    else{
+      $instructions.css('width', cardWidth);
+      $instructions.css('margin-left', cardMargin);
+    }
   }
 
   function resetTableWidth() {
@@ -1004,6 +1004,8 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
           maxTableWidth = w;
         }
       }
+
+      console.log("max",maxTableWidth);
 
       // Update width of instruction div based on maximum table width
       var padding = getPadding('#instructions');
