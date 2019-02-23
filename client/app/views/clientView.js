@@ -53,8 +53,16 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
     function createResizeSensors(tables) {
       for (const t of tables) {
         var div = $('#' + t.rootElement.id);
+
+        var width = $(window).width();
+        $(window).on('resize', function () {
+          if($(this).width() !== width) {
+            width = $(this).width();
+            tableController.updateWidth(tables);
+          }
+        });
+
         new ResizeSensor((div).find('.wtHider').first()[0], function () {
-          console.log("ping");
           tableController.updateWidth(tables);
         });
       }
