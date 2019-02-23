@@ -224,9 +224,6 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
         $('#expand-table-button').click(function (e) {
           $('#tables-area').slideToggle(function () {
-            // if (!$("#tables-area").is(":hidden")){
-            //   tableController.updateWidth(tables);
-            // }
             tableController.updateWidth(tables);
           });
           $(e.target).toggleClass('flip');
