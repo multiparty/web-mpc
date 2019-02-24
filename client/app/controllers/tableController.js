@@ -706,25 +706,34 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     return data;
   }
 
-  function updateTableWidth(maxWidth) {
+  function updateInstructionWidth(maxWidth) {
 
-    //$('#instructions').css('width', '1153px');
-    $('#instructions').css('max-width', '1153px');
+    var $instructions = $('#instructions');
+    var $container = $('.container');
+    var $card = $('.card.col-md-10.col-md-offset-1');
 
     var documentWidth = $(window).width();
-    var containerWidth = parseFloat($('.container').first().width());
-    var offset = (containerWidth - maxWidth) / 2;
+    var containerWidth = parseFloat($container.first().width());
+    var containerPadding = parseFloat($container.css('margin-left'));
 
-    if (offset < (containerWidth - documentWidth) / 2) {
-      offset = (containerWidth - documentWidth) / 2;
-    }
+    var cardPadding = parseFloat($card.css('padding-left'));
+    var cardMargin = parseFloat($card.css('margin-left'));
+    var cardWidth = parseFloat($card.width()) + cardPadding * 2;
 
+    var offset;
     if (maxWidth > documentWidth) {
-      $('header, #shadow').css('right', documentWidth - maxWidth);
+      var instructionsWidth = 0.9 * documentWidth;
+      offset = containerPadding - (documentWidth - instructionsWidth) / 2;
+      $instructions.css('width', instructionsWidth);
+      $instructions.css('margin-left', -offset);
+    } else if (maxWidth > containerWidth) {
+      offset = containerPadding - (documentWidth - maxWidth) / 2;
+      $instructions.css('width', maxWidth);
+      $instructions.css('margin-left', -offset);
+    } else {
+      $instructions.css('width', cardWidth);
+      $instructions.css('margin-left', cardMargin);
     }
-
-    // Bootstrap row has margin-left: -15px, add this back to offset to keep card centered
-    $('#instructions').css('margin-left', offset + 15);
   }
 
   function resetTableWidth() {
@@ -772,7 +781,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
         nestedHeaders: getNestedHeaders(template.cols),
         data: data,
         width: template.width
-      }
+      };
 
       var handsOn = new Handsontable(document.getElementById(template.element), settings);
 
@@ -1008,28 +1017,36 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   }
 
   function updateWidth(tables) {
+    if (!$("#tables-area").is(":hidden")) {
+      // Determine how wide the tables are
+      var maxTableWidth = 0;                             // Maximum table width
 
-    var maxWidth = $('#instructions').width();
-    for (var i = 0; i < tables.length; i++) {
+      for (var i = 0; i < tables.length; i++) {          // Find maximum table width
 
-      var t = tables[i];
+        var t = tables[i];
+        var w = getWidth(t) + getHeaderWidth(t);
 
-      var w = getWidth(t) + getHeaderWidth(t);
-
-      t.updateSettings({
-        width: w
-      });
-
-
-      if (w > maxWidth) {
-        maxWidth = w;
+        if (w > maxTableWidth) {
+          maxTableWidth = w;
+        }
       }
-    }
 
-    var padding = getPadding('#instructions')
+      // Update width of instruction div based on maximum table width
+      var padding = getPadding('#instructions');
+      if (maxTableWidth > 0) {
+        updateInstructionWidth(maxTableWidth + padding);
+      }
 
-    if (maxWidth > 0) {
-      updateTableWidth(maxWidth + padding);
+      // Update visible width of tables based on resized instruction div
+      var instructionWidth = $('#instructions').width();
+      for (var i = 0; i < tables.length; i++) {
+        var t = tables[i];
+        t.updateSettings({
+          width: instructionWidth
+        });
+      }
+    } else {
+      updateInstructionWidth(0);
     }
   }
 
@@ -1107,7 +1124,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     saveUsability: saveUsability,
     displayReadTable: displayReadTable,
     resetTableWidth: resetTableWidth,
-    updateTableWidth: updateTableWidth,
     getWidth: getWidth,
     updateWidth: updateWidth,
     checkTotals: checkTotals,
