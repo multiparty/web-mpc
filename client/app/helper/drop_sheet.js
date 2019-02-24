@@ -104,11 +104,11 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
     // Process individual sheet.
     function processWS(ws, table, start, end) {
 
-      let s = XLSX.utils.decode_cell(start);
-      let e = XLSX.utils.decode_cell(end);
+      var s = XLSX.utils.decode_cell(start);
+      var e = XLSX.utils.decode_cell(end);
 
-      for (let i = s.r; i <= e.r; i++) {
-        for (let j = s.c; j <= e.c; j++) {
+      for (var i = s.r; i <= e.r; i++) {
+        for (var j = s.c; j <= e.c; j++) {
           var cell = XLSX.utils.encode_cell({r: i, c: j});
           if (ws[cell] && !isNaN(ws[cell].v)) {
             // subtract initial offset
@@ -126,17 +126,17 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
     function processWB(wb) {
       var tableDef = opts.tables_def.tables;
 
-      for (const name of wb.SheetNames) {
-        let tableId = 0;
-        for (const table of tableDef) {
+      wb.SheetNames.forEach(function(name) {
+        var tableId = 0;
+        tableDef.forEach(function(table) {
           if (table.excel && table.excel[0] && table.excel[0].sheet === name) {
             if (!processWS(wb.Sheets[name], opts.tables[tableId], table.excel[0].start, table.excel[0].end)) {
               return false; // mistake in processing sheet
             }
           }
           tableId++;
-        }
-      }
+        });
+      });
 
       alertify.alert('<img src="/images/accept.png" alt="Success">Success', 'The tables below have been populated. Please confirm that your data is accurate and scroll down to answer the multiple choice questions, verify, and submit your data');
 
