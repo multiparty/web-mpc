@@ -950,7 +950,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
         tables_csv.push(sheet_csv.join('\n'));
       }
 
-      var count = 'Number of submissions ' + counts[cohort].length;
+      var count = 'Number of participants ' + counts[cohort].length;
       if (cohort === 'all') {
         cohorts_csv[0] = 'All Cohorts -- ' + count + '\n\n' + tables_csv.join('\n\n');
       } else {
@@ -1042,7 +1042,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   }
 
   function saveUsability(usability, session, counts) {
-    var count = 'Total number of submissions ' + counts['all'].length;
+    var count = 'Total number of participants ' + counts['all'].length;
     var json = JSON.stringify(usability);
     filesaver.saveAs(new Blob([count + '\n' + json], {type: 'application/json'}), 'Usability_' + session + '.json');
   }
@@ -1073,7 +1073,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
         results.push('\n');
       }
 
-      var count = 'Number of submissions ' + counts[cohort].length;
+      var count = 'Number of participants ' + counts[cohort].length;
       if (cohort === 'all') {
         all_cohorts[0] = 'All Cohorts -- ' + count + '\n' + results.join('\n');
       } else {
