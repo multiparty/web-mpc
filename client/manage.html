@@ -108,14 +108,16 @@
       </div>
     </section>
 
-    <section  id="cohort-card" class="card col-sm-4 col-md-offset-1 collapse">
+    <section  id="cohort-card" class="card col-sm-7 col-md-offset-1 collapse">
       <div>
           <h2 class="text-center">Enter number of cohorts</h2>
           <hr/>
           <form id="cohort-entry">
             <div class="form-group">
-              <label for="cohort-number">Cohorts</label>
-              <input type="text" id="cohort-number" placeholder="0" autocomplete="off" required/>
+              <label class="control-label" for="cohort-number">Add More Cohorts</label>
+              <input type="number" id="cohort-number" class="form-control" pattern="^[0-9]*$" placeholder="0" autocomplete="off" required/>
+            </div>
+            <div class="form-group">
               <button type="submit" id="cohort-generate" class="btn btn-block btn-primary">Generate</button>
             </div>
           </form>

@@ -15,69 +15,66 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
       var la = Ladda.create(document.getElementById('login'));
       la.start();
 
-      analystController.checkStatus(session, password)
-        .then(function (res) {
+      var statusPromise = analystController.checkStatus(session, password);
+      var urlsPromise = analystController.getExistingParticipants(session, password);
+      Promise.all([statusPromise, urlsPromise]).then(function (results) {
+        // Only logs in if both requests succeed
+        var status = results[0];
+        var existingParticipants = results[1];
 
-          const totalCohorts = res.cohorts;
-          for (var i = 0; i < totalCohorts; i++) {
-            displayCohortElements(i);
-            enableCohortSubmit(i);
-          }
-
-          // TODO: something is broken with changing statuses
-          changeStatusButtons(res.status);
-          return analystController.getExistingParticipants(session, password);
-        })
-        .then(function (existingParticipants) {
-          for (var cohort in existingParticipants) {
-
-            var urls = existingParticipants[cohort];
-            var $existingParticipants = $('#participants-existing-'+ (parseInt(cohort)-1));
-
-            if ((urls.length, typeof(urls) === 'object')) {
-              $existingParticipants.html(urls.join('\n'))
-            }
-          }
-          analystController.getSubmissionHistory(session, password)
-            .then(function(res) {
-              if (res === undefined) {
-                return;
-              }
-              for (var cohort in res) {
-                displaySubmissionHistory(cohort, res[cohort].history);
-              }
-            });
-
-          // Remove login panel and show control panel
-          $('#session-login').collapse();
-          $('#session-panel').collapse();
-          $('#cohort-card').collapse();
-
-          la.stop();     
-        })
-        .catch(function () {
+        if (status == null || existingParticipants == null) {
           la.stop();
-        });
+          return;
+        }
+
+        // Handle status
+        const totalCohorts = status.cohorts;
+        for (var i = 0; i < totalCohorts; i++) {
+          displayCohortElements(i);
+          enableCohortSubmit(i);
+        }
+        changeStatusButtons(status.status);
+
+        // Handle existing participants
+        for (var cohort in existingParticipants) {
+          if (!existingParticipants.hasOwnProperty(cohort)) {
+            continue;
+          }
+
+          var urls = existingParticipants[cohort];
+          var $existingParticipants = $('#participants-existing-' + (parseInt(cohort) - 1));
+          $existingParticipants.html(urls.join('\n'))
+        }
+
+        pollHistory(session, password, 0);
+
+        // Remove login panel and show control panel
+        $('#session-login').collapse();
+        $('#session-panel').collapse();
+        $('#cohort-card').collapse();
+      })
+      .catch(function () {
+        la.stop();
+      });
     });
 
     $('#cohort-generate').on('click', function (e) {
       e.preventDefault();
 
       var numCohorts = parseInt($('#cohort-number').val());
-
       if (numCohorts <= 0) {
         return;
       }
 
-      analystController.setCohorts(session, password, numCohorts)
-        .then(function(res) {
-          const totalCohorts = res.cohorts;
+      analystController.addCohorts(session, password, numCohorts)
+        .then(function (res) {
+          if (res != null) {
+            const totalCohorts = res.cohorts;
 
-          // TODO: NEED AN ERROR MESSAGE HERE that session has been started / stopped
-    
-          for (var i = totalCohorts-numCohorts; i < totalCohorts; i++) {
-            displayCohortElements(i);
-            enableCohortSubmit(i);            
+            for (var i = totalCohorts - numCohorts; i < totalCohorts; i++) {
+              displayCohortElements(i);
+              enableCohortSubmit(i);
+            }
           }
         });
     });
@@ -111,13 +108,39 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
         });
     });
 
-    function displaySubmissionHistory(cohort, data) {
+    function pollHistory(session, password, timestamp) {
+      var previous = Date.now();
+      analystController.getSubmissionHistory(session, password, timestamp)
+        .then(function (res) {
+          if (res != null) {
+            for (var cohort in res) {
+              if (res.hasOwnProperty(cohort)) {
+                displaySubmissionHistory(parseInt(cohort), res[cohort].history, res[cohort].count);
+              }
+            }
+          }
 
-      var submissionHTML = '';
+          // Poll every 10 seconds
+          setTimeout(function () {
+            pollHistory(session, password, previous)
+          }, 10000);
+        });
+    }
+
+    function displaySubmissionHistory(cohort, data, resubmissionCount) {
+      var count = $('#table-' + (cohort - 1) + ' tbody tr').length;
       for (var i = 0; i < data.length; i++) {
-          submissionHTML += '<tr><td>' + (i+1) + '</td><td>' + new Date(data[i]).toLocaleString() + '</td></tr>';
+        count++;
+
+        $('#table-' + (cohort - 1) + ' tbody').append(
+          $('<tr>')
+            .append('<td>' + count + '</td>')
+            .append('<td>' + new Date(data[i]).toLocaleString() + '</td>')
+        );
       }
-        document.getElementById('table-' + (parseInt(cohort)-1)).innerHTML += submissionHTML;
+
+      var counter = $('#table-' + (cohort - 1) + ' thead i');
+      counter.html(parseInt(counter.html()) + resubmissionCount);
     }
 
     function enableCohortSubmit(i) {
@@ -128,12 +151,11 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
         la.start();
 
         var count = $('#participants-count-' + i).val();
-  
-        analystController.generateNewParticipationCodes(session, password, count, i+1)
-          .then(function (res) {
 
+        analystController.generateNewParticipationCodes(session, password, count, i + 1)
+          .then(function (res) {
             var cohort = Object.keys(res)[0];
-            var cohortId = parseInt(cohort)-1;
+            var cohortId = parseInt(cohort) - 1;
 
             var $newParticipants = $('#participants-new-' + cohortId);
             if ($newParticipants.html() !== '') {
@@ -141,6 +163,8 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
             }
 
             $newParticipants.append(res[cohort].join('\n')).removeClass('hidden');
+            $('#participants-new-hr-' + cohortId).removeClass('hidden');
+            $('#participants-new-h2-' + cohortId).show();
 
             la.stop();
           });
@@ -148,62 +172,58 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
     }
 
     function displayCohortElements(i) {
-
       var $form = $('<form>');
       var $participants = $('<div>', {class: 'form-group'})
-                            .append('<label class="control-label" for="participants-count">New participants</label>')
-                            .append('<input type="number" id="participants-count-'+ i + '" class="form-control" placeholder="0" pattern="^[1-9]\d*{1,5}$" autocomplete="off" required/>')
-                            .append('<span id="new-participants-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden" aria-hidden="true"></span>')
-                            .append('<span id="new-participants-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden" aria-hidden="true"></span>')
-                            .append('<span id="new-participants-fail-help" class="fail-help help-block hidden">Please input a digit smaller than 100.000</span>')
-                            .append('<span id="new-participants-fail-custom-help" class="fail-custom help-block hidden"></span>');
-                      
+        .append('<label class="control-label" for="participants-count">New participants</label>')
+        .append('<input type="number" id="participants-count-' + i + '" class="form-control" placeholder="0" pattern="^[1-9]\d*{1,5}$" autocomplete="off" required/>')
+        .append('<span id="new-participants-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden" aria-hidden="true"></span>')
+        .append('<span id="new-participants-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden" aria-hidden="true"></span>')
+        .append('<span id="new-participants-fail-help" class="fail-help help-block hidden">Please input a digit smaller than 100.000</span>')
+        .append('<span id="new-participants-fail-custom-help" class="fail-custom help-block hidden"></span>');
 
       var $submitBtn = $('<div>', {class: 'form-group'})
-                        .append('<button type="submit" id="participants-submit-' + i + '"  class="btn btn-primary ladda-button btn-block">Submit</button>')
+        .append('<button type="submit" id="participants-submit-' + i + '"  class="btn btn-primary ladda-button btn-block">Submit</button>');
 
       $form.append($participants);
       $form.append($submitBtn);
 
-      $cohortSection = $('<section>', {id: 'cohort-' + i, class: 'card col-md-4'})
-                    .append('<h2 class="text-center">Add Participants</h2>')
-                    .append('<p class="text-center">Generate more URLs for new participants.</p>')
-                    .append($form)
-                    .append('<hr/>')
-                    .append('<pre id="participants-new-' + i + '" class="hidden"></pre>')
-                    .append('<hr/>')
-                    .append('<h2 class="text-center">Existing participants</h2>')
-                    .append('<p class-"text-center">View the list of existing participation URLS.</p>')
-                    .append('<pre id="participants-existing-' + i + '">No existing participants found</pre>')
-                    .appendTo('#cohort-area')
-      
+      var $cohortSection = $('<section>', {id: 'cohort-' + i, class: 'card col-md-4'})
+        .append('<h2 class="text-center">Add Participants</h2>')
+        .append('<p class="text-center">Generate more URLs for new participants.</p>')
+        .append($form)
+        .append('<hr id="participants-new-hr-' + i + '" class="hidden"/>')
+        .append('<h2 id="participants-new-h2-' + i + '" class="text-center" style="display:none;">New participants</h2>')
+        .append('<pre id="participants-new-' + i + '" class="hidden"></pre>')
+        .append('<hr/>')
+        .append('<h2 class="text-center">Existing participants</h2>')
+        .append('<p class-"text-center">View the list of existing participation URLS.</p>')
+        .append('<pre id="participants-existing-' + i + '">No existing participants found</pre>')
+        .appendTo('#cohort-area');
 
-      $thead = $('<thead>') 
-                .append('<tr>')
-                .append('<th>ID</th>')
-                .append('<th>Timestamp</th')
+      var $thead = $('<thead>')
+        .append($('<tr>')
+          .append('<th colspan="2">Total number of submissions: <i>0</i></th>')
+        ).append($('<tr>')
+          .append('<th>ID</th>')
+          .append('<th>Timestamp</th>')
+        );
 
-            
-      $historyTable = $('<table id="table-'+i+'" class="table-striped"></table>')
-                        .append($thead)
-                        .append('<tbody id="participants-history-' + i + '"></tbody>');
+      var $historyTable = $('<table id="table-' + i + '" class="table table-striped"></table>')
+        .append($thead)
+        .append('<tbody id="participants-history-' + i + '"></tbody>');
 
+      var $historySection = $('<section></section>', {class: 'card col-md-7 col-md-offset-1'})
+        .append('<h2 class="text-center">Manage cohort</h2>')
+        .append('<p class="text-center">Fill in your cohort details on the left, add new participants and manage existing participation.</p>')
+        .append('<hr/>')
+        .append($historyTable);
 
-      $historySection = $('<section></section>', {class: 'card col-md-7 col-md-offset-1'})
-                          .append('<h2 class="text-center">Manage cohort</h2>')
-                          .append('<p class="text-center">Fill in your cohort details on the left, add new participants and manage existing participation.</p>')
-                          .append('<hr/>')
-                          .append($historyTable);
-
-
-      $cohortDiv = $('<div>', {class: 'row'})
-        .append('<h2>Cohort ' + (i+1) + '</h1>')
+      var $cohortDiv = $('<div>', {class: 'row'})
+        .append('<h2>Cohort ' + (i + 1) + '</h1>')
         .append($cohortSection)
         .append($historySection);
 
-  
       $('#cohort-area').append($cohortDiv);
-
     }
 
     function changeStatusButtons(status) {
