@@ -2,6 +2,14 @@
 
 define(['jquery', 'controllers/jiffController', 'controllers/tableController', 'helper/drop_sheet', 'alertify', 'table_template'],
   function ($, jiffController, tableController, DropSheet, alertify, table_template) {
+    function getParameterByName(name) {
+      name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+      var regex = new RegExp('[\\?&]' + name + '=([^&#]*)'),
+        results = regex.exec(location.search);
+      return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    }
+
+    $('#session').val(getParameterByName('session'));
 
     function error(msg) {
       alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', msg);
