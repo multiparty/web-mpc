@@ -121,7 +121,7 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
 
     if (title == null || description == null || title === '' || description === '') {
       alert('Session title and description are required');
-      return;
+      return null;
     }
 
     return pki.generateKeyPair().then(function (result) {

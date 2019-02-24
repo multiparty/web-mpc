@@ -169,7 +169,7 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
         jiff.disconnect(false, false);
         callback(mpc.format(result, submitters, ordering));
       }).catch(function (err) {
-        error(err);
+        error(err.toString());
       });
     });
   };
