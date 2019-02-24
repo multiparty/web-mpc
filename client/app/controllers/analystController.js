@@ -10,7 +10,7 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
 
   'use strict';
 
-  function setCohorts(session, password, cohorts) {
+  function addCohorts(session, password, cohorts) {
     return $.ajax({
       type: 'POST',
       url: '/set_cohorts',
@@ -18,11 +18,12 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
       data: JSON.stringify({session: session, password: password, cohorts: cohorts})
     }).then(function (res) {
       return res;
-    }).catch(function() {
-      alert('error');
+    }).catch(function (err) {
+      if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
+        alert(err.responseText);
+      }
     });
   }
-
 
   function checkStatus(session, password) {
     if (!session || session.trim() === '' || !password) {
@@ -36,8 +37,10 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
       data: JSON.stringify({session: session})
     }).then(function (resp) {
       return resp;
-    }).catch(function () {
-      alert('error');
+    }).catch(function (err) {
+      if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
+        alert(err.responseText);
+      }
     });
   }
 
@@ -49,12 +52,13 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
         contentType: 'application/json',
         data: JSON.stringify({status: status, session: session, password: password})
       }).then(function (resp) {
-        return status;
-      }).catch(function () {
-        alert('error');
+        return resp.result;
+      }).catch(function (err) {
+        if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
+          alert(err.responseText);
+        }
       });
     } else {
-      // TODO add better error reporting
       alert('Error Not a valid Session Status');
     }
   }
@@ -85,7 +89,7 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
       .then(function (res) {
         const urls = {};
         urls[res.cohort] = res.result;
-        return formatUrls(urls);     
+        return formatUrls(urls);
       })
       .catch(function (err) {
         if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
@@ -115,13 +119,17 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
     var title = document.getElementById(titleID).value;
     var description = document.getElementById(descriptionID).value;
 
+    if (title == null || description == null || title === '' || description === '') {
+      alert('Session title and description are required');
+      return;
+    }
+
     return pki.generateKeyPair().then(function (result) {
       var privateKey = result.privateKey;
       var publicKey = result.publicKey;
 
       var priBlob = new Blob([privateKey], {type: 'text/plain;charset=utf-8'});
 
-      // TODO: shouldn't mix promises with callbacks like that
       return $.ajax({
         type: 'POST',
         url: '/create_session',
@@ -151,7 +159,7 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
         document.getElementById(pubID).innerHTML = errmsg;
         document.getElementById(passwordID).innerHTML = errmsg;
       });
-    }).catch(function (err) {
+    }).catch(function () {
       var errmsg = 'ERROR!!!: failed to load public key to server, please try again';
       document.getElementById(sessionID).innerHTML = errmsg;
       document.getElementById(privID).innerHTML = errmsg;
@@ -159,26 +167,21 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
     });
   }
 
-
-
   function getSubmissionHistory(session, password, timestamp) {
-    if (timestamp === undefined) {
-      timestamp = 0;
-    }
     return $.ajax({
       type: 'POST',
       url: '/get_history',
       contentType: 'application/json',
       data: JSON.stringify({session: session, password: password, last_fetch: timestamp}),
     })
-      .then(function (res) {
-        return res;
-      })
-      .catch(function (err) {
-        if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
-          alert(err.responseText);
-        }
-      });
+    .then(function (res) {
+      return res;
+    })
+    .catch(function (err) {
+      if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
+        alert(err.responseText);
+      }
+    });
   }
 
   function getParameterByName(name) {
@@ -196,11 +199,9 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
     getSubmissionHistory: getSubmissionHistory,
     generateSession: generateSession,
     getParameterByName: getParameterByName,
-    setCohorts: setCohorts,
+    addCohorts: addCohorts,
     START: 'START',
     PAUSE: 'PAUSE',
     STOP: 'STOP'
-
-  }
-
+  };
 });
