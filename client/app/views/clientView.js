@@ -50,24 +50,6 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
       }
     }
 
-    function createResizeSensors(tables) {
-      tables.forEach(function (t) {
-        var div = $('#' + t.rootElement.id);
-
-        var width = $(window).width();
-        $(window).on('resize', function () {
-          if($(this).width() !== width) {
-            width = $(this).width();
-            tableController.updateWidth(tables);
-          }
-        });
-
-        new ResizeSensor((div).find('.wtHider').first()[0], function () {
-          tableController.updateWidth(tables);
-        });
-      });
-    }
-
     function clientControllerView() {
 
       $(document).ready(function () {
@@ -81,8 +63,6 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
         usabilityController.initialize();
         usabilityController.saveBrowser();
-        // TODO
-        //createResizeSensors(tables); THIS FUNCTION BREAKS THINGS I THINK! -IRA
 
         var totals_table = null;
 
@@ -181,20 +161,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
           spinner.stop();
         };
 
-        var $window, availableWidth, availableHeight;
-        var calculateSize = function () {
-          availableWidth = Math.max($('#drop-area').width(), 600);
-          availableHeight = Math.max($window.height() - 250, 400);
-        };
-
-        $(document).ready(function () {
-          $window = $(window);
-          $window.on('resize', calculateSize);
-        });
-
-
         var _onsheet = function (json, cols, sheetnames, select_sheet_cb) {
-          calculateSize();
           if (!json) {
             json = [];
           }
@@ -208,7 +175,6 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
             return o;
           }(cols));
-          calculateSize();
         };
 
         DropSheet({
