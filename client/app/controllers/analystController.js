@@ -10,6 +10,19 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
 
   'use strict';
 
+  function setCohorts(session, password, cohorts) {
+    return $.ajax({
+      type: 'POST',
+      url: '/set_cohorts',
+      contentType: 'application/json',
+      data: JSON.stringify({session: session, password: password, cohorts: cohorts})
+    }).then(function (res) {
+      return res;
+    }).catch(function() {
+      alert('error');
+    });
+  }
+
 
   function checkStatus(session, password) {
     if (!session || session.trim() === '' || !password) {
@@ -47,26 +60,32 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
   }
 
   function formatUrls(urls) {
-    var port = window.location.port ? ':' + window.location.port : '';
-    var baseUrl = window.location.protocol + '//' + window.location.hostname + port;
+    var resultUrls = {};
 
-    var result = [];
-    for (var i = 0; i < urls.length; i++) {
-      result.push(baseUrl + urls[i]);
+    for (var cohort in urls) {
+      const cohortUrls = urls[cohort];
+      var port = window.location.port ? ':' + window.location.port : '';
+      var baseUrl = window.location.protocol + '//' + window.location.hostname + port;
+
+      resultUrls[cohort] = [];
+      for (var i = 0; i < cohortUrls.length; i++) {
+        resultUrls[cohort].push(baseUrl + cohortUrls[i]);
+      }
     }
-
-    return result;
+    return resultUrls;
   }
 
-  function generateUrls(session, password, count) {
+  function generateNewParticipationCodes(session, password, count, cohort) {
     return $.ajax({
       type: 'POST',
       url: '/generate_client_urls',
       contentType: 'application/json',
-      data: JSON.stringify({count: count, session: session, password: password})
+      data: JSON.stringify({cohort: cohort, count: count, session: session, password: password})
     })
-      .then(function (resp) {
-        return formatUrls(resp.result);
+      .then(function (res) {
+        const urls = {};
+        urls[res.cohort] = res.result;
+        return formatUrls(urls);     
       })
       .catch(function (err) {
         if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
@@ -140,57 +159,26 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
     });
   }
 
-  var global_submission_counter = 0;
 
-  function generateTable(tableBody, sessionID, password, status, timestamp, counter) {
+
+  function getSubmissionHistory(session, password, timestamp) {
     if (timestamp === undefined) {
       timestamp = 0;
     }
-    if (counter === undefined) {
-      counter = 1;
-    }
-    var date = Date.now();
-    $.ajax({
+    return $.ajax({
       type: 'POST',
       url: '/get_history',
       contentType: 'application/json',
-      data: JSON.stringify({session: sessionID, password: password, last_fetch: timestamp}),
-      dataType: 'json',
-      success: function (data) {
-        var res = data.result;
-        //document.getElementById(status).innerHTML = 'LOADING...';
-        //document.getElementById(status).className = 'alert alert-success';
-
-        for (var i = 0; i < res.length; i++) {
-          var submissionHTML = '<tr>\
-                  <td>' + (i + 1 + global_submission_counter) + '</td>\
-                  <td>' + new Date(res[i]).toLocaleString() + '</td>\
-                </tr>';
-
-          document.getElementById(tableBody).innerHTML += submissionHTML;
-        }
-
-        global_submission_counter += res.length;
-
-        setTimeout(function () {
-          generateTable(tableBody, sessionID, password, status, date)
-        }, 10000);
-      },
-      error: function (err) {
-        /* global errmsg */
-        // NOTE: commented out because errmsg is assigned a value but never used
-        // var errmsg = 'Error Connecting: Reconnect Attempt #' + counter.toString();
+      data: JSON.stringify({session: session, password: password, last_fetch: timestamp}),
+    })
+      .then(function (res) {
+        return res;
+      })
+      .catch(function (err) {
         if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
-          // errmsg = err.responseText;
+          alert(err.responseText);
         }
-
-        //document.getElementById(status).className = 'alert alert-error';
-        //document.getElementById(status).innerHTML = errmsg;
-        setTimeout(function () {
-          generateTable(tableBody, sessionID, password, status, date, counter + 1)
-        }, 10000);
-      }
-    });
+      });
   }
 
   function getParameterByName(name) {
@@ -200,15 +188,15 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
     return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
   }
 
-
   return {
-    checkStatus,
-    changeStatus,
-    generateUrls,
-    getExistingParticipants,
-    generateTable,
-    generateSession,
-    getParameterByName,
+    checkStatus: checkStatus,
+    changeStatus: changeStatus,
+    generateNewParticipationCodes: generateNewParticipationCodes,
+    getExistingParticipants: getExistingParticipants,
+    getSubmissionHistory: getSubmissionHistory,
+    generateSession: generateSession,
+    getParameterByName: getParameterByName,
+    setCohorts: setCohorts,
     START: 'START',
     PAUSE: 'PAUSE',
     STOP: 'STOP'

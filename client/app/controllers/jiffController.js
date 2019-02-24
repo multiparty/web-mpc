@@ -68,7 +68,7 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
     };
     baseOptions = Object.assign(baseOptions, options);
     baseOptions.hooks = Object.assign({}, baseOptions.hooks, cryptoHooks);
-    var bigNumberOptions = { Zp: '36893488147419103183' }; // 2^65-49
+    var bigNumberOptions = { Zp: '618970019642690137449562111' }; // 2^89-1
 
     var restOptions = {
       flushInterval: 0,
@@ -76,7 +76,8 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
       maxBatchSize: 1000
     };
 
-    var instance = jiff.make_jiff('http://localhost:8080', session, baseOptions);
+    var port = window.location.port === '8080' ? ':8080' : '';
+    var instance = jiff.make_jiff(window.location.protocol + '//' + window.location.hostname + port, session, baseOptions);
     instance.apply_extension(jiff_bignumber, bigNumberOptions);
     instance.apply_extension(jiff_restAPI, restOptions);
 
@@ -92,11 +93,22 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
     // List values according to consistent ordering
     for (var i = 0; i < ordering.tables.length; i++) {
       var t = ordering.tables[i];
-      values.push(dataSubmission[t.table][t.row][t.col]);
+      values.push(Math.round(dataSubmission[t.table][t.row][t.col]));
     }
     for (var j = 0; j < ordering.questions.length; j++) {
       var q = ordering.questions[j];
       values.push(dataSubmission['questions'][q.question][q.option]);
+    }
+
+    for (var k = 0; k < ordering.usability.length; k++) {
+      var m = ordering.usability[k].metric;
+      var f = ordering.usability[k].field;
+
+      if (f != null && f !== '') {
+        values.push(dataSubmission.usability[m][f]);
+      } else {
+        values.push(dataSubmission.usability[m]);
+      }
     }
 
     // Handle jiff errors returned from server
@@ -116,9 +128,13 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
       jiff.restReceive = function () {
         jiff.disconnect(false, false);
         callback.apply(null, arguments);
-      }
+      };
       for (var i = 0; i < values.length; i++) {
         jiff.share(values[i], null, [1, 's1'], [jiff.id]);
+        // Share the square of the input for standard deviation: only for tables, but not for questions
+        if (i < ordering.tables.length) {
+          jiff.share(new BigNumber(values[i]).pow(2), null, [1, 's1'], [jiff.id]);
+        }
       }
       jiff.restFlush();
     });
@@ -149,10 +165,9 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
 
       // Compute and Format
       var promise = mpc.compute(jiff, submitters, ordering);
-      promise = mpc.format(promise, submitters, ordering);
       promise.then(function (result) {
         jiff.disconnect(false, false);
-        callback(result);
+        callback(mpc.format(result, submitters, ordering));
       }).catch(function (err) {
         error(err);
       });

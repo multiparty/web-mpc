@@ -718,7 +718,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
     var cardPadding = parseFloat($card.css('padding-left'));
     var cardMargin = parseFloat($card.css('margin-left'));
-    var cardWidth = parseFloat($card.width()) + cardPadding*2;
+    var cardWidth = parseFloat($card.width()) + cardPadding * 2;
 
     var offset;
     if (maxWidth > documentWidth) {
@@ -726,15 +726,11 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       offset = containerPadding - (documentWidth - instructionsWidth) / 2;
       $instructions.css('width', instructionsWidth);
       $instructions.css('margin-left', -offset);
-    }
-
-    else if (maxWidth > containerWidth) {
+    } else if (maxWidth > containerWidth) {
       offset = containerPadding - (documentWidth - maxWidth) / 2;
       $instructions.css('width', maxWidth);
       $instructions.css('margin-left', -offset);
-    }
-
-    else{
+    } else {
       $instructions.css('width', cardWidth);
       $instructions.css('margin-left', cardMargin);
     }
@@ -750,11 +746,12 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   }
 
   function getTemplate(value, field) {
-    for (var t of table_template.tables) {
+    table_template.tables.forEach(function (t) {
       if (t[field] === value) {
         return t;
       }
-    }
+    });
+
     return {};
   }
 
@@ -769,13 +766,12 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
       var data = [];
 
-      for (let row in table) {
-        data[i] = [];
-        for (let col in table[row]) {
+      table.forEach(function (row) {
+        table[row].forEach(function (col) {
           data[i].push(table[row][col]);
-        }
+        });
         i++;
-      }
+      });
 
       var settings = {
         readOnly: true,
@@ -785,7 +781,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
         nestedHeaders: getNestedHeaders(template.cols),
         data: data,
         width: template.width
-      }
+      };
 
       var handsOn = new Handsontable(document.getElementById(template.element), settings);
 
@@ -798,22 +794,23 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   function getNestedHeaders(headers) {
     var h = [];
     var i = 0;
-    for (let row of headers) {
+    headers.forEach(function (row) {
       h[i] = [];
-      for (let col of row) {
+      row.forEach(function (col) {
         h[i].push(col.label);
-      }
+      });
       i++;
-    }
+    });
     return h;
   }
 
   // TODO: will need to adjust for BWWC
   function getHeaders(headers) {
     var h = [];
-    for (let row of headers) {
+    headers.forEach(function (row) {
       h.push(row.label);
-    }
+    });
+
     return h;
   }
 
@@ -929,38 +926,68 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       changes.push([0, i, totals[i]]);
     }
     table.setDataAtCell(changes); // This changes the data without changing cellProperties (e.g. keeps readOnly)
-    return {sums, NaNs}
+    return {sums: sums, NaNs: NaNs}
   }
 
-  function saveTables(tables, session) {
+  function saveTables(cohorts, session, title, counts) {
+    var cohorts_csv = [];
 
-    var tables_csv = [];
+    for (var cohort in cohorts) {
+      var tables_csv = [];
 
-    for (var sheet in tables) {
-      var sheet_csv = [];
+      var tables = cohorts[cohort];
+      for (var sheet in tables) {
+        var cols = [];
+        var sheet_csv = [];
 
-      sheet_csv.push([sheet]);
+        sheet_csv.push([sheet]);
+        for (var row in tables[sheet]) {
+          if (sheet_csv.length === 1) {
+            cols.push('-');
+            for (var col in tables[sheet][row]) {
+              cols.push(col);
+            }
+            sheet_csv.push(cols.join(','));
+          }
 
-      for (var row in tables[sheet]) {
-        sheet_csv.push([row, tables[sheet][row].value].join(','))
+          var row_csv = []
+          row_csv.push(row);
+          for (var c = 0; c < cols.length; c++) {
+            row_csv.push(tables[sheet][row][cols[c]]);
+          }
+          sheet_csv.push(row_csv.join(','));
+        }
+        tables_csv.push(sheet_csv.join('\n'));
       }
-      tables_csv.push(sheet_csv.join('\n'));
+
+      var count = 'Number of submissions ' + counts[cohort].length;
+      if (cohort === 'all') {
+        cohorts_csv[0] = 'All Cohorts -- ' + count + '\n\n' + tables_csv.join('\n\n');
+      } else {
+        cohorts_csv[cohort] = 'Cohort #' + cohort + ' -- ' + count + '\n\n' + tables_csv.join('\n\n');
+      }
     }
 
-    tables_csv = tables_csv.join('\n\n\n');
-    filesaver.saveAs(new Blob([tables_csv], {type: 'text/plain;charset=utf-8'}), 'Aggregate_Data_' + session + '.csv');
+    // Sort by cohorts, all appears first
+    var joined = cohorts_csv[0];
+    for (var i = 1; i < cohorts_csv.length; i++) {
+      if (cohorts_csv[i] != null) {
+        joined += '\n\n\n\n' + cohorts_csv[i];
+      }
+    }
 
+    filesaver.saveAs(new Blob([joined], {type: 'text/plain;charset=utf-8'}), 'Aggregate_' + title + '_' + session + '.csv');
   }
 
   function getHeaderWidth(table) {
 
     var id = table.rootElement.id;
 
-    for (const t of table_template.tables) {
+    table_template.tables.forEach(function (t) {
       if (id === t.element) {
         return t.hot_parameters.rowHeaderWidth;
       }
-    }
+    });
 
     return 0;
   }
@@ -997,15 +1024,12 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       for (var i = 0; i < tables.length; i++) {          // Find maximum table width
 
         var t = tables[i];
-
         var w = getWidth(t) + getHeaderWidth(t);
 
         if (w > maxTableWidth) {
           maxTableWidth = w;
         }
       }
-
-      console.log("max",maxTableWidth);
 
       // Update width of instruction div based on maximum table width
       var padding = getPadding('#instructions');
@@ -1021,8 +1045,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
           width: instructionWidth
         });
       }
-    }
-    else{
+    } else {
       updateInstructionWidth(0);
     }
   }
@@ -1036,49 +1059,74 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     return colWidths;
   }
 
-  function saveQuestions(questions, session) {
-    if (questions == null) {
+  function saveUsability(usability, session, counts) {
+    var count = 'Total number of submissions ' + counts['all'].length;
+    var json = JSON.stringify(usability);
+    filesaver.saveAs(new Blob([count + '\n' + json], {type: 'application/json'}), 'Usability_' + session + '.json');
+  }
+
+  function saveQuestions(cohorts, session, counts) {
+    if (cohorts == null) {
       return;
     }
 
-    var results = [];
-    for (var key in questions) {
-      if (!questions.hasOwnProperty(key) || questions[key] == null) {
-        continue;
-      }
+    var all_cohorts = [];
+    for (var cohort in cohorts) {
+      var questions = cohorts[cohort];
 
-      var question = questions[key];
-      for (var option in question) {
-        if (!question.hasOwnProperty(option) || question[option] == null) {
+      var results = [];
+      for (var key in questions) {
+        if (!questions.hasOwnProperty(key) || questions[key] == null) {
           continue;
         }
 
-        results.push(key + ',' + option + ',' + question[option]);
+        var question = questions[key];
+        for (var option in question) {
+          if (!question.hasOwnProperty(option) || question[option] == null) {
+            continue;
+          }
+
+          results.push(key + ',' + option + ',' + question[option]);
+        }
+        results.push('\n');
       }
-      results.push('\n');
+
+      var count = 'Number of submissions ' + counts[cohort].length;
+      if (cohort === 'all') {
+        all_cohorts[0] = 'All Cohorts -- ' + count + '\n' + results.join('\n');
+      } else {
+        all_cohorts[cohort] = 'Cohort #' + cohort + '-- ' + count + '\n' + results.join('\n');
+      }
     }
 
-    results = results.join('\n');
-    filesaver.saveAs(new Blob([results], {type: 'text/plain;charset=utf-8'}), 'Questions_' + session + '.csv');
+    // Sort by cohorts, all appears first
+    var joined = all_cohorts[0];
+    for (var i = 1; i < all_cohorts.length; i++) {
+      if (all_cohorts[i] != null) {
+        joined += '\n\n\n' + all_cohorts[i];
+      }
+    }
+
+    filesaver.saveAs(new Blob([joined], {type: 'text/plain;charset=utf-8'}), 'Questions_' + session + '.csv');
   }
 
   return {
-    makeTables,
-    registerValidator,
-    registerErrorHandler,
-    removeValidator,
-    removeValidators,
-    removeErrorHandler,
-    constructDataTables,
-    fillData,
-    saveTables,
-    saveQuestions,
-    displayReadTable,
-    resetTableWidth,
-    updateInstructionWidth,
-    getWidth,
-    updateWidth,
-    checkTotals,
-    createTableElems
+    makeTables: makeTables,
+    registerValidator: registerValidator,
+    registerErrorHandler: registerErrorHandler,
+    removeValidator: removeValidator,
+    removeValidators: removeValidators,
+    removeErrorHandler: removeErrorHandler,
+    constructDataTables: constructDataTables,
+    fillData: fillData,
+    saveTables: saveTables,
+    saveQuestions: saveQuestions,
+    saveUsability: saveUsability,
+    displayReadTable: displayReadTable,
+    resetTableWidth: resetTableWidth,
+    getWidth: getWidth,
+    updateWidth: updateWidth,
+    checkTotals: checkTotals,
+    createTableElems: createTableElems
   }
 });

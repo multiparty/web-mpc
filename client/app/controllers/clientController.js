@@ -1,6 +1,6 @@
 /* global alertify, $ */
-define(['jquery', 'controllers/tableController', 'controllers/jiffController', 'alertify', 'alertify_defaults', 'table_template'],
-  function ($, tableController, jiffController, alertify, _, table_template) {
+define(['jquery', 'controllers/tableController', 'controllers/jiffController', 'controllers/usabilityController', 'alertify', 'alertify_defaults', 'table_template'],
+  function ($, tableController, jiffController, usabilityController, alertify, _, table_template) {
     var client = (function () {
       /**
        * Displays the given submission as the last submission in
@@ -40,11 +40,13 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
         min: NAN_EMPTY_CELLS,
         discrepancies: SEMANTIC_CELLS
       };
+
       // TODO: create new view for alerts
       function error(msg) {
         appendSubmissionHistory(new Date(), false);
         alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', msg);
       }
+
       function success(msg) {
         appendSubmissionHistory(new Date(), true);
         alertify.alert('<img src="/images/accept.png" alt="Success">Success!', msg);
@@ -77,6 +79,7 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           return false;
         }
       }
+
       function verifySessionServer(callback) {
         var session = $('#session').val().trim().toLowerCase();
         var participationCode = $('#participation-code').val().trim().toLowerCase();
@@ -104,6 +107,7 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           callback && callback(true);
         }).catch(function (err) {
           var errorMsg = SERVER_ERR;
+          usabilityController.addValidationError('SESSION_INFO_ERROR');
           if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
             errorMsg = err.responseText;
           }
@@ -127,11 +131,13 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
         var $session = $('#session');
         if (!validateSessionInput($session, false)) {
           errors.push(SESSION_KEY_ERROR);
+          usabilityController.addValidationError('SESSION_KEY_ERROR');
         }
 
         var $participationCode = $('#participation-code');
         if (!validateSessionInput($participationCode, false)) {
           errors.push(PARTICIPATION_CODE_ERROR);
+          usabilityController.addValidationError('PARTICIPATION_CODE_ERROR');
         }
 
         // Validate the remaining components after session and
@@ -139,16 +145,18 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
         var validateRemainingComponents = function (result) {
           if (!result) {
             errors.push(SESSION_PARTICIPATION_CODE_SERVER_ERROR);
+            usabilityController.addValidationError('SESSION_PARTICIPATION_CODE_SERVER_ERROR');
           }
 
           // Verify confirmation check box was checked
           var verifyChecked = $('#verify').is(':checked');
           if (!verifyChecked) {
             errors.push(UNCHECKED_ERR);
+            usabilityController.addValidationError('UNCHECKED_ERR');
           }
 
           // Verify additional questions
-          if (table_template.survey != null) {
+          if (table_template.survey !== null) {
             var questionsValid = true;
             var questions = $('#questions form');
             for (var q = 0; q < questions.length; q++) {
@@ -194,6 +202,7 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
             }
             if (errors.indexOf(errorMsg) === -1) {
               errors.push(errorMsg);
+              usabilityController.addValidationError('CELL_ERROR');
             }
           };
           tableController.registerErrorHandler(errorHandler);
@@ -274,6 +283,12 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           data_submission[tables_data[i].name] = tables_data[i].data;
         }
 
+        if (document.getElementById('choose-file').files.length > 0) {
+          usabilityController.dataPrefilled();
+        }
+
+        data_submission['usability'] = usabilityController.analytics;
+
         // Secret share / mask the data.
         jiffController.client.submit(session, participationCode, data_submission, function (err, response) {
           if (err == null || err === 200) {
@@ -286,8 +301,10 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           } else if (err === 0 || err === 500) {
             // check for status 0 or status 500 (Server not reachable.)
             error(SERVER_ERR);
+            usabilityController.addValidationError('SERVER_ERR');
           } else {
             error(GENERIC_SUBMISSION_ERR);
+            usabilityController.addValidationError('GENERIC_SUBMISSION_ERR');
           }
 
           la.stop();
@@ -309,7 +326,7 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
         // Ignore indices were there is some non-numerical value
         for (var i = 0; i < tables.length - 1; i++) {
           var v = tables[i].getDataAtCell(r, c);
-          if (typeof(v) !== 'number' || v < 0) {
+          if (typeof (v) !== 'number' || v < 0) {
             return callback(true);
           }
         }
@@ -351,11 +368,11 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
       }
 
       return {
-        validate,
-        constructAndSend,
-        validateSessionInput,
+        validate: validate,
+        constructAndSend: constructAndSend,
+        validateSessionInput: validateSessionInput,
       };
     })();
 
     return client;
-});
+  });

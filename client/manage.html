@@ -105,40 +105,22 @@
             </div>
           </div>
         </div>
-
-        <hr/>
-
-        <h2 class="text-center">Add participants</h2>
-        <p class="text-center">Generate more URLs for new participants.</p>
-        <form>
-          <div class="form-group">
-            <label class="control-label" for="participants-count">New participants</label>
-            <input type="number" id="participants-count" class="form-control" placeholder="0" pattern="^[1-9]\d*{1,5}$"
-                   autocomplete="off" required/>
-            <span id="new-participants-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
-                  aria-hidden="true"></span>
-            <span id="new-participants-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
-                  aria-hidden="true"></span>
-            <span id="new-participants-fail-help"
-                  class="fail-help help-block hidden">Please input a digit smaller than 100.000</span>
-            <span id="new-participants-fail-custom-help"
-                  class="fail-custom help-block hidden"></span>
-          </div>
-          <div class="form-group">
-            <button type="submit" id="participants-submit" class="btn btn-primary ladda-button btn-block">
-              Submit
-            </button>
-          </div>
-        </form>
-        <pre id="participants-new" class="hidden"></pre>
-        <hr/>
-        <h2 class="text-center">Existing participants</h2>
-        <p class="text-center">View the list of existing participation URLs.</p>
-        <pre id="participants-existing">No existing participants found</pre>
       </div>
     </section>
 
-    <section class="card col-md-7 col-md-offset-1">
+    <section  id="cohort-card" class="card col-sm-4 col-md-offset-1 collapse">
+      <div>
+          <h2 class="text-center">Enter number of cohorts</h2>
+          <hr/>
+          <form id="cohort-entry">
+            <div class="form-group">
+              <label for="cohort-number">Cohorts</label>
+              <input type="text" id="cohort-number" placeholder="0" autocomplete="off" required/>
+              <button type="submit" id="cohort-generate" class="btn btn-block btn-primary">Generate</button>
+            </div>
+          </form>
+      </div>
+    <!--section class="card col-md-7 col-md-offset-1">
       <h2 class="text-center">Manage session</h2>
       <p class="text-center">Fill in your session details on the left to manage your session, add new participants and
         manage existing participation.</p>
@@ -146,16 +128,20 @@
       <table id="table" class="table table-striped hidden">
         <thead>
         <tr>
+          <th colspan="2" id="totalNumSubTh">Total number of submissions: 0</th>
+        </tr>
+        <tr>
           <th>ID</th>
           <th>Timestamp</th>
         </tr>
         </thead>
         <tbody id="participants">
         </tbody>
-      </table>
+      </table-->
     </section>
   </div>
 
+  <div id="cohort-area"></div>
 </div>
 </body>
 </html>

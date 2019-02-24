@@ -1,5 +1,5 @@
-define(['jquery', 'controllers/clientController', 'controllers/tableController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify', 'table_template', 'bootstrap'],
-  function ($, clientController, tableController, DropSheet, Spinner, Ladda, ResizeSensor, alertify, table_template) {
+define(['jquery', 'controllers/clientController', 'controllers/tableController', 'controllers/usabilityController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify', 'table_template', 'bootstrap'],
+  function ($, clientController, tableController, usabilityController, DropSheet, Spinner, Ladda, ResizeSensor, alertify, table_template) {
 
     function createQuestionText(text) {
       var p = document.createElement('p');
@@ -21,7 +21,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
         var input = document.createElement('input');
         $(input).attr('type', input_type)
-          .attr('value', i+1)
+          .attr('value', i + 1)
           .attr('name', 'opt' + input_type);
 
         label.appendChild(input);
@@ -38,7 +38,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
       $('#additional-questions').show();
 
-      const questions = table_template.survey.questions;
+      var questions = table_template.survey.questions;
 
       var questionsDiv = $('#questions');
 
@@ -51,7 +51,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
     }
 
     function createResizeSensors(tables) {
-      for (const t of tables) {
+      tables.forEach(function (t) {
         var div = $('#' + t.rootElement.id);
 
         var width = $(window).width();
@@ -65,9 +65,8 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         new ResizeSensor((div).find('.wtHider').first()[0], function () {
           tableController.updateWidth(tables);
         });
-      }
+      });
     }
-
 
     function clientControllerView() {
 
@@ -77,11 +76,13 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
         tableController.createTableElems(table_template.tables, '#tables-area');
         displaySurveyQuestions();
-
         // Create the tables
         var tables = tableController.makeTables(table_template.tables);
 
-        createResizeSensors(tables);
+        usabilityController.initialize();
+        usabilityController.saveBrowser();
+        // TODO
+        //createResizeSensors(tables); THIS FUNCTION BREAKS THINGS I THINK! -IRA
 
         var totals_table = null;
 
@@ -224,7 +225,9 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
         $('#expand-table-button').click(function (e) {
           $('#tables-area').slideToggle(function () {
-            tableController.updateWidth(tables);
+            if (!$('#tables-area').is(':hidden')) {
+              tableController.updateWidth(tables);
+            }
           });
           $(e.target).toggleClass('flip');
         });
@@ -267,6 +270,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         });
 
         $('#submit').click(function () {
+          usabilityController.stopAllTimers();
           var la = Ladda.create(document.getElementById('submit'));
           la.start();
 

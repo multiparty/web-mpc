@@ -2,6 +2,7 @@
 
 define(['jquery', 'controllers/jiffController', 'controllers/tableController', 'helper/drop_sheet', 'alertify', 'table_template'],
   function ($, jiffController, tableController, DropSheet, alertify, table_template) {
+
     function error(msg) {
       alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', msg);
     }
@@ -26,17 +27,21 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
           var privateKey = e.target.result;
 
           jiffController.analyst.computeAndFormat(sessionKey, sessionPass, privateKey, error, function (result) {
-            var questions = result['questions'];
-            delete result['questions'];
+            // download averages and deviations
+            tableController.saveTables(result['averages'], sessionKey, 'Averages', result['cohorts']);
+            tableController.saveTables(result['deviations'], sessionKey, 'Standard_Deviations', result['cohorts']);
 
-            tableController.createTableElems(table_template.tables, '#tables-area');
-            tableController.saveTables(result, sessionKey);
-            if (questions != null) {
-              tableController.saveQuestions(questions, sessionKey);
+            if (result['hasQuestions'] === true) {
+              tableController.saveQuestions(result['questions'], sessionKey, result['cohorts']);
+            }
+            if (result['hasUsability'] === true) {
+              tableController.saveUsability(result['usability'], sessionKey, result['cohorts']);
             }
 
+            // Only display averages in the table
+            tableController.createTableElems(table_template.tables, '#tables-area');
+            tableController.displayReadTable(result['averages']['all']);
             $('#tables-area').show();
-            tableController.displayReadTable(result);
           });
         });
       }
