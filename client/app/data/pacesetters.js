@@ -157,16 +157,16 @@ define([], function () {
       {'browser': ['chrome', 'edge', 'msie', 'firefox', 'opera', 'other', 'safari']
       },
       {'validation_errors': [
-        'SESSION_KEY_ERROR',
+        'SESSION_KEY_ERROR', 
         'SESSION_INFO_ERROR',
-        'PARTICIPATION_CODE_ERROR',
-        'SESSION_PARTICIPATION_CODE_SERVER_ERROR',
-        'UNCHECKED_ERR',
-        'GENERIC_TABLE_ERR',
-        'SERVER_ERR',
+        'PARTICIPATION_CODE_ERROR', 
+        'SESSION_PARTICIPATION_CODE_SERVER_ERROR', 
+        'UNCHECKED_ERR', 
+        'GENERIC_TABLE_ERR', 
+        'SERVER_ERR', 
         'GENERIC_SUBMISSION_ERR',
-        'NAN_EMPTY_CELLS',
-        'SEMANTIC_CELLS',
+        'EMPTY_CELL',
+        'INVALID_CELL',
         'CELL_ERROR'
         ]
       }
