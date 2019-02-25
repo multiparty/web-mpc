@@ -368,3 +368,11 @@ span.success {
 #addressable-spend td.htRight.htNumeric:after{
   content: 'K'
 }
+
+@media only screen and (max-width: 600px) {
+  .handsontable th {
+    font-size: small;
+    font-weight: 100;
+  }
+
+}

@@ -1,4 +1,4 @@
-define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qtip'], function ($, Handsontable, table_template, filesaver, alertify) {
+define(['jquery','controllers/usabilityController', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qtip'], function ($, usabilityController, Handsontable, table_template, filesaver, alertify) {
 
   'use strict';
 
@@ -201,14 +201,9 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
     var cell = instance._sail_meta.cells[row][col];
 
-    //Hacky and terrible way to do make the read-only cells a different color since something is wrong with below.
-    if (cell.col_key === "sum" && cell.row_key === "sum"){
-      TD.style.background = '#888889';
-    }
-
     // Readonly
-    if (cell.readOnly !== undefined) {
-      cellProperties.readOnly = cell.readOnly;
+    if (cell.read_only !== null) {
+      cellProperties.readOnly = cell.read_only;
     }
 
     // Tooltip
@@ -505,7 +500,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     for (var i = 0; i < table.rowsCount; i++) {
       for (var j = 0; j < table.colsCount; j++) {
         var cell_def = table.cells[i][j];
-        //console.log(cell_def);
         var type = cell_def.type;
         var empty = true;
         var read_only = false;
@@ -516,27 +510,20 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
         }
         if (cell_def.read_only) {
           read_only = cell_def.read_only;
-          //console.log(read_only);
         }
         if (cell_def.placeholder) {
           placeholder = cell_def.placeholder.toString();
-        }
-
-        if (cell_def.row_key == 'sum' && cell_def.col_key == 'sum') {
-          read_only = true;
         }
 
         var cell = {
           row: i, col: j, type: type,
           allowEmpty: empty, readOnly: read_only, placeholder: placeholder,
           validator: validator, renderer: renderer
-
         };
         if (types_map[cell_def.type]) {
           Object.assign(cell, types_map[cell_def.type]);
         }
-        // console.log(cell_def);
-        // console.log(cell);
+
         cells.push(cell);
       }
     }
@@ -721,25 +708,34 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     return data;
   }
 
-  function updateTableWidth(maxWidth) {
+  function updateInstructionWidth(maxWidth) {
 
-    //$('#instructions').css('width', '1153px');
-    $('#instructions').css('max-width', '1153px');
+    var $instructions = $('#instructions');
+    var $container = $('.container');
+    var $card = $('.card.col-md-10.col-md-offset-1');
 
     var documentWidth = $(window).width();
-    var containerWidth = parseFloat($('.container').first().width());
-    var offset = (containerWidth - maxWidth) / 2;
+    var containerWidth = parseFloat($container.first().width());
+    var containerPadding = parseFloat($container.css('margin-left'));
 
-    if (offset < (containerWidth - documentWidth) / 2) {
-      offset = (containerWidth - documentWidth) / 2;
-    }
+    var cardPadding = parseFloat($card.css('padding-left'));
+    var cardMargin = parseFloat($card.css('margin-left'));
+    var cardWidth = parseFloat($card.width()) + cardPadding * 2;
 
+    var offset;
     if (maxWidth > documentWidth) {
-      $('header, #shadow').css('right', documentWidth - maxWidth);
+      var instructionsWidth = 0.9 * documentWidth;
+      offset = containerPadding - (documentWidth - instructionsWidth) / 2;
+      $instructions.css('width', instructionsWidth);
+      $instructions.css('margin-left', -offset);
+    } else if (maxWidth > containerWidth) {
+      offset = containerPadding - (documentWidth - maxWidth) / 2;
+      $instructions.css('width', maxWidth);
+      $instructions.css('margin-left', -offset);
+    } else {
+      $instructions.css('width', cardWidth);
+      $instructions.css('margin-left', cardMargin);
     }
-
-    // Bootstrap row has margin-left: -15px, add this back to offset to keep card centered
-    $('#instructions').css('margin-left', offset + 15);
   }
 
   function resetTableWidth() {
@@ -752,28 +748,28 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   }
 
   function getTemplate(value, field) {
-    table_template.tables.forEach(function (t) {
+    for (var i = 0; i < table_template.tables.length; i++) {
+      var t = table_template.tables[i];
       if (t[field] === value) {
         return t;
       }
-    });
+    }
 
     return {};
   }
 
-
   function displayReadTable(tables) {
-
     for (var name in tables) {
       var template = getTemplate(name, 'name');
       var table = tables[name];
 
       var i = 0;
-
       var data = [];
-
-      table.forEach(function (row) {
-        table[row].forEach(function (col) {
+      template.rows.forEach(function (row) {
+        data[i] = [];
+        row = row.key;
+        template.cols[template.cols.length-1].forEach(function (col) {
+          col = col.key;
           data[i].push(table[row][col]);
         });
         i++;
@@ -787,12 +783,11 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
         nestedHeaders: getNestedHeaders(template.cols),
         data: data,
         width: template.width
-      }
+      };
 
       var handsOn = new Handsontable(document.getElementById(template.element), settings);
 
       handsOn.render();
-
     }
   }
 
@@ -949,7 +944,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
         sheet_csv.push([sheet]);
         for (var row in tables[sheet]) {
           if (sheet_csv.length === 1) {
-            cols.push('-');
+            cols.push('row');
             for (var col in tables[sheet][row]) {
               cols.push(col);
             }
@@ -958,7 +953,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
           var row_csv = []
           row_csv.push(row);
-          for (var c = 0; c < cols.length; c++) {
+          for (var c = 1; c < cols.length; c++) {
             row_csv.push(tables[sheet][row][cols[c]]);
           }
           sheet_csv.push(row_csv.join(','));
@@ -966,7 +961,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
         tables_csv.push(sheet_csv.join('\n'));
       }
 
-      var count = 'Number of submissions ' + counts[cohort].length;
+      var count = 'Number of participants ' + counts[cohort].length;
       if (cohort === 'all') {
         cohorts_csv[0] = 'All Cohorts -- ' + count + '\n\n' + tables_csv.join('\n\n');
       } else {
@@ -1023,27 +1018,36 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   }
 
   function updateWidth(tables) {
+    if (!$("#tables-area").is(":hidden")) {
+      // Determine how wide the tables are
+      var maxTableWidth = 0;                             // Maximum table width
 
-    var maxWidth = $('#instructions').width();
-    for (var i = 0; i < tables.length; i++) {
+      for (var i = 0; i < tables.length; i++) {          // Find maximum table width
 
-      var t = tables[i];
+        var t = tables[i];
+        var w = getWidth(t) + getHeaderWidth(t);
 
-      var w = getWidth(t) + getHeaderWidth(t);
-
-      t.updateSettings({
-        width: w
-      });
-
-      if (w > maxWidth) {
-        maxWidth = w;
+        if (w > maxTableWidth) {
+          maxTableWidth = w;
+        }
       }
-    }
 
-    var padding = getPadding('#instructions');
+      // Update width of instruction div based on maximum table width
+      var padding = getPadding('#instructions');
+      if (maxTableWidth > 0) {
+        updateInstructionWidth(maxTableWidth + padding);
+      }
 
-    if (maxWidth > 0) {
-      updateTableWidth(maxWidth + padding);
+      // Update visible width of tables based on resized instruction div
+      var instructionWidth = $('#instructions').width();
+      for (var i = 0; i < tables.length; i++) {
+        var t = tables[i];
+        t.updateSettings({
+          width: instructionWidth
+        });
+      }
+    } else {
+      updateInstructionWidth(0);
     }
   }
 
@@ -1057,7 +1061,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   }
 
   function saveUsability(usability, session, counts) {
-    var count = 'Total number of submissions ' + counts['all'].length;
+    var count = 'Total number of participants ' + counts['all'].length;
     var json = JSON.stringify(usability);
     filesaver.saveAs(new Blob([count + '\n' + json], {type: 'application/json'}), 'Usability_' + session + '.json');
   }
@@ -1088,7 +1092,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
         results.push('\n');
       }
 
-      var count = 'Number of submissions ' + counts[cohort].length;
+      var count = 'Number of participants ' + counts[cohort].length;
       if (cohort === 'all') {
         all_cohorts[0] = 'All Cohorts -- ' + count + '\n' + results.join('\n');
       } else {
@@ -1121,7 +1125,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     saveUsability: saveUsability,
     displayReadTable: displayReadTable,
     resetTableWidth: resetTableWidth,
-    updateTableWidth: updateTableWidth,
     getWidth: getWidth,
     updateWidth: updateWidth,
     checkTotals: checkTotals,

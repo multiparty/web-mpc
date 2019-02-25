@@ -50,39 +50,58 @@ module.exports.setStatus = function (context, body, response, sessionInfoObj) {
 // endpoint for returning dates of submissions
 module.exports.getSubmissionHistory = function (context, body, res) {
   var promise1 = modulesWrappers.History.query(body.session, body.last_fetch);
-  var promise2 = modulesWrappers.History.count(body.session);
+  var promise2 = modulesWrappers.UserKey.query(body.session);
 
   Promise.all([promise1, promise2]).then(function (data) {
-    var count = data[1];
+    var cohortMap = {};
+    for (var k of data[1]) {
+      cohortMap[k.jiff_party_id] = k.cohort;
+    }
     var history = data[0];
 
     // only send the most recent submission per id
     var id_last_index = {};
-    var to_send = [];
+    var to_send = {}; // maps cohort number to submissions
 
     for (var d of history) {
       if (d.success === true) {
-        to_send.push(d.date);
-        if (id_last_index[d.jiff_party_id] != null) {
-          to_send[id_last_index[d.jiff_party_id]] = null;
+        var cohort = cohortMap[d.jiff_party_id];
+        var arr = to_send[cohort];
+        if (arr == null) {
+          arr = [];
         }
-        id_last_index[d.jiff_party_id] = to_send.length - 1;
+
+        arr.push(d.date);
+        if (id_last_index[d.jiff_party_id] != null) {
+          arr[id_last_index[d.jiff_party_id]] = null;
+        }
+        id_last_index[d.jiff_party_id] = arr.length - 1;
+
+        to_send[cohort] = arr;
       }
     }
 
     // efficiently remove nulls.
-    var shift = 0;
-    for (var i = 0; i < to_send.length; i++) {
-      var current = to_send[i];
-      if (current == null) {
-        shift++;
-      } else {
-        to_send[i-shift] = current;
+    for (cohort in to_send) {
+      if (!to_send.hasOwnProperty(cohort)) {
+        continue;
       }
-    }
-    to_send = to_send.slice(0, to_send.length - shift);
 
-    res.json({ history: to_send, count: count });
+      var arr = to_send[cohort];
+      var shift = 0;
+      var count = arr.length;
+      for (var i = 0; i < arr.length; i++) {
+        var current = arr[i];
+        if (current == null) {
+          shift++;
+        } else {
+          arr[i - shift] = current;
+        }
+      }
+      to_send[cohort] = {history: arr.slice(0, arr.length - shift), count: count};
+    }
+
+    res.json(to_send);
   }).catch(function (err) {
     console.log('Error getting submission history', err);
     res.status(500).send('Failed to fetch contributors.');

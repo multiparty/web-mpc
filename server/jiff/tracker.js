@@ -35,7 +35,7 @@ module.exports = function (JIFFWrapper) {
       var cohort = id_to_cohort[party_id];
 
       if (submitters_ids[cohort] == null) {
-        submitters_ids[cohort] = {}
+        submitters_ids[cohort] = {};
         cohorts.push(cohort);
       }
 

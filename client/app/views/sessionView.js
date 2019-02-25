@@ -10,11 +10,15 @@ define(['jquery', 'controllers/analystController', 'Ladda'], function ($, analys
         var la = Ladda.create(document.getElementById('generate'));
         la.start();
 
-        analystController.generateSession('infoDiv', 'sessionID', 'passwordID', 'pubkeyID', 'privkeyID', 'link-id', 'session-title', 'session-description')
-          .then(function () {
+        var result = analystController.generateSession('infoDiv', 'sessionID', 'passwordID', 'pubkeyID', 'privkeyID', 'link-id', 'session-title', 'session-description');
+        if (result == null) {
+          la.stop();
+        } else {
+          result.then(function () {
             la.stop();
             $('#session-details').removeClass('hidden');
           });
+        }
       });
     });
   }

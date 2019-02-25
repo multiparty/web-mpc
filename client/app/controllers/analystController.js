@@ -10,7 +10,7 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
 
   'use strict';
 
-  function setCohorts(session, password, cohorts) {
+  function addCohorts(session, password, cohorts) {
     return $.ajax({
       type: 'POST',
       url: '/set_cohorts',
@@ -18,11 +18,12 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
       data: JSON.stringify({session: session, password: password, cohorts: cohorts})
     }).then(function (res) {
       return res;
-    }).catch(function() {
-      alert('error');
+    }).catch(function (err) {
+      if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
+        alert(err.responseText);
+      }
     });
-  } 
-
+  }
 
   function checkStatus(session, password) {
     if (!session || session.trim() === '' || !password) {
@@ -36,8 +37,10 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
       data: JSON.stringify({session: session})
     }).then(function (resp) {
       return resp;
-    }).catch(function () {
-      alert('error');
+    }).catch(function (err) {
+      if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
+        alert(err.responseText);
+      }
     });
   }
 
@@ -49,12 +52,13 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
         contentType: 'application/json',
         data: JSON.stringify({status: status, session: session, password: password})
       }).then(function (resp) {
-        return status;
-      }).catch(function () {
-        alert('error');
+        return resp.result;
+      }).catch(function (err) {
+        if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
+          alert(err.responseText);
+        }
       });
     } else {
-      // TODO add better error reporting
       alert('Error Not a valid Session Status');
     }
   }
@@ -69,14 +73,13 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
 
       resultUrls[cohort] = [];
       for (var i = 0; i < cohortUrls.length; i++) {
-        resultUrls[cohort].push(baseUrl + cohortUrls);
-      }  
+        resultUrls[cohort].push(baseUrl + cohortUrls[i]);
+      }
     }
     return resultUrls;
   }
 
-  function generateUrls(session, password, count, cohort) {
-    console.log(session, password, count, cohort);
+  function generateNewParticipationCodes(session, password, count, cohort) {
     return $.ajax({
       type: 'POST',
       url: '/generate_client_urls',
@@ -84,7 +87,9 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
       data: JSON.stringify({cohort: cohort, count: count, session: session, password: password})
     })
       .then(function (res) {
-        return res;
+        const urls = {};
+        urls[res.cohort] = res.result;
+        return formatUrls(urls);
       })
       .catch(function (err) {
         if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
@@ -114,13 +119,17 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
     var title = document.getElementById(titleID).value;
     var description = document.getElementById(descriptionID).value;
 
+    if (title == null || description == null || title === '' || description === '') {
+      alert('Session title and description are required');
+      return null;
+    }
+
     return pki.generateKeyPair().then(function (result) {
       var privateKey = result.privateKey;
       var publicKey = result.publicKey;
 
       var priBlob = new Blob([privateKey], {type: 'text/plain;charset=utf-8'});
 
-      // TODO: shouldn't mix promises with callbacks like that
       return $.ajax({
         type: 'POST',
         url: '/create_session',
@@ -150,7 +159,7 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
         document.getElementById(pubID).innerHTML = errmsg;
         document.getElementById(passwordID).innerHTML = errmsg;
       });
-    }).catch(function (err) {
+    }).catch(function () {
       var errmsg = 'ERROR!!!: failed to load public key to server, please try again';
       document.getElementById(sessionID).innerHTML = errmsg;
       document.getElementById(privID).innerHTML = errmsg;
@@ -158,56 +167,19 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
     });
   }
 
-  var global_submission_counter = 0;
-
-  function generateTable(tableBody, sessionID, password, status, timestamp, counter) {
-    if (timestamp === undefined) {
-      timestamp = 0;
-    }
-    if (counter === undefined) {
-      counter = 1;
-    }
-    var date = Date.now();
-    $.ajax({
+  function getSubmissionHistory(session, password, timestamp) {
+    return $.ajax({
       type: 'POST',
       url: '/get_history',
       contentType: 'application/json',
-      data: JSON.stringify({session: sessionID, password: password, last_fetch: timestamp}),
-      dataType: 'json',
-      success: function (data) {
-        var res = data.history;
-        //document.getElementById(status).innerHTML = 'LOADING...';
-        //document.getElementById(status).className = 'alert alert-success';
-
-        document.getElementById('totalNumSubTh').innerHTML = 'Total number of submissions: ' + data.count;
-        for (var i = 0; i < res.length; i++) {
-          var submissionHTML = '<tr>\
-                  <td>' + (i + 1 + global_submission_counter) + '</td>\
-                  <td>' + new Date(res[i]).toLocaleString() + '</td>\
-                </tr>';
-
-          document.getElementById(tableBody).innerHTML += submissionHTML;
-        }
-
-        global_submission_counter += res.length;
-
-        setTimeout(function () {
-          generateTable(tableBody, sessionID, password, status, date)
-        }, 10000);
-      },
-      error: function (err) {
-        /* global errmsg */
-        // NOTE: commented out because errmsg is assigned a value but never used
-        // var errmsg = 'Error Connecting: Reconnect Attempt #' + counter.toString();
-        if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
-          // errmsg = err.responseText;
-        }
-
-        //document.getElementById(status).className = 'alert alert-error';
-        //document.getElementById(status).innerHTML = errmsg;
-        setTimeout(function () {
-          generateTable(tableBody, sessionID, password, status, date, counter + 1)
-        }, 10000);
+      data: JSON.stringify({session: session, password: password, last_fetch: timestamp}),
+    })
+    .then(function (res) {
+      return res;
+    })
+    .catch(function (err) {
+      if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
+        alert(err.responseText);
       }
     });
   }
@@ -219,20 +191,17 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
     return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
   }
 
-
   return {
     checkStatus: checkStatus,
     changeStatus: changeStatus,
-    generateUrls: generateUrls,
+    generateNewParticipationCodes: generateNewParticipationCodes,
     getExistingParticipants: getExistingParticipants,
-    generateTable: generateTable,
+    getSubmissionHistory: getSubmissionHistory,
     generateSession: generateSession,
     getParameterByName: getParameterByName,
-    setCohorts: setCohorts,
+    addCohorts: addCohorts,
     START: 'START',
     PAUSE: 'PAUSE',
     STOP: 'STOP'
-
-  }
-
+  };
 });

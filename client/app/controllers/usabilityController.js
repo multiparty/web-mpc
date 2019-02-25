@@ -79,6 +79,7 @@ define(['table_template'], function (table_template) {
   }
 
   function addValidationError(err) {
+    console.log('err',err);
     if (analytics.validation_errors[err] === undefined) {
       return;
     }
