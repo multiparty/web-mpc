@@ -1,4 +1,4 @@
-define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qtip'], function ($, Handsontable, table_template, filesaver, alertify) {
+define(['jquery','controllers/usabilityController', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qtip'], function ($, usabilityController, Handsontable, table_template, filesaver, alertify) {
 
   'use strict';
 
@@ -567,11 +567,13 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       beforeChange: function (changes, source) {
         return !(this.readOnly);
       },
-      afterSetDataAtCell: function (changes, source) {
-        //update_width(this);
-      },
-      afterChange: function (row, column) {
-        //update_width(this);
+      afterSetDataAtCell: function (changes) {
+        var cellInput = changes[0][3];
+        if (cellInput === '') {
+          usabilityController.addValidationError('EMPTY_CELL');
+        } else if (isNaN(parseInt(cellInput))) {
+          usabilityController.addValidationError('INVALID_CELL');
+        }
       }
     };
 
