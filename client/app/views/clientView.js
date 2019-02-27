@@ -131,8 +131,8 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
           }
         };
 
-        //var _target = document.getElementById('drop-area');
-        //var _choose = document.getElementById('choose-file-button');
+        var _target = document.getElementById('drop-area');
+        var _choose = document.getElementById('choose-file-button');
         var spinner;
         var _workstart = function () {
           spinner = new Spinner().spin(_target);
@@ -177,17 +177,17 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
           }(cols));
         };
 
-        /*DropSheet({
+        DropSheet({
           drop: _target,
           choose: _choose,
           tables: tables,
           tables_def: table_template,
           on: {workstart: _workstart, workend: _workend, sheet: _onsheet},
           errors: {badfile: _badfile, pending: _pending, failed: _failed, large: _large}
-        });*/
+        });
 
         // Table accordion.
-        //$('#tables-area').hide();
+        $('#tables-area').hide();
 
         $('#expand-table-button').click(function (e) {
           $('#tables-area').slideToggle(function () {
