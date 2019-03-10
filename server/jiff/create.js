@@ -78,6 +78,7 @@ JIFFWrapper.prototype.computeSession = async function (session_key) {
   var copy = Object.assign({}, computeOptions);
   copy.hooks = Object.assign({}, computeOptions.hooks, cryptoHooks);
   const computationInstance = this.serverInstance.compute(session_key, computeOptions);
+  computationInstance.initialize_counters();
   computationInstance.connect();
 
   // Send submitters ids to analyst
