@@ -3,6 +3,13 @@ import { Selector } from 'testcafe';
 
 let sessionKey = null;
 let sessionPassword = null;
+let participant_codes = [];
+
+// FILL THESE IN
+const numberOfParticipants = 2;
+const download_folder = '/Users/lucyqin/Downloads/';
+const data_file = './files/bwwc.xlsx';
+
 
 function createSession() {
   fixture `Creating a session`
@@ -70,7 +77,80 @@ function getParticipationCodes() {
 }
 
 
+
+function massUpload() {
+  const fileUpload = Selector('#choose-file');
+  const okBtn = Selector('button').withText('OK');
+  // const verifyBtn = Selector('label').withText('I verified all data is correct');
+  const successImg = Selector('img').withAttribute('src', '/images/accept.png');
+
+  fixture `Mass submission`
+    .page `localhost:8080/`;
+
+    test('Mass Participants Upload', async t => {
+      for (var i = 0; i < participant_codes.length; i++)
+        await t
+          .wait(1000)
+          .selectText('#session')
+          .pressKey('delete')
+          .click('#session')
+          .typeText('#session', sessionKey)
+          .selectText('#participation-code')
+          .pressKey('delete')
+          .click('#participation-code')
+          .typeText('#participation-code', participant_codes[i])
+          .setFilesToUpload(fileUpload, data_file)
+          .click(okBtn)
+          .click(Selector('label').withText('Human Resources').find('[name="optradio"]'))
+          .click(Selector('label').withText('Large').find('[name="optradio"]'))
+          .click(Selector('label').withText('Extremely easy').find('[name="optradio"]'))
+          .click(Selector('.radio').nth(15).find('label').withText('Extremely easy'))
+          .click(Selector('label').withText('Less than 1 business day').find('[name="optradio"]'))
+          .click('#verify')
+          .click('#submit')
+          .wait(100)
+          // .click('.ajs-ok');
+    });
+}
+
+function endSession() {
+  fixture `Stop`
+    .page `localhost:8080/manage`;
+    test('Stopping a session', async t => {
+      await t
+        .wait(100)
+        .click('#session')
+        .typeText('#session', sessionKey)
+        .click('#password')
+        .typeText('#password', sessionPassword)
+        .click('#login')
+        .click('#session-stop')
+        .click('#session-close-confirm')
+    });
+}
+
+
+function unmaskData() {
+  const fileUpload = Selector('#choose-file');
+
+  fixture `Unmasking`
+    .page `localhost:8080/unmask`;
+    test('Unmasking data', async t => {
+      await t
+      .click('#session')
+      .typeText('#session', sessionKey)
+      .click('#session-password')
+      .typeText('#session-password', sessionPassword)
+      .setFilesToUpload(fileUpload, download_folder+'Session_' + sessionKey + '_private_key.pem')
+      .debug();
+    });
+}
+
+
+
 createSession();
 startSession();
-
-
+getParticipationCodes();
+massUpload();
+endSession();
+unmaskData();
