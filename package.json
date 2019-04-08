@@ -8,7 +8,8 @@
   },
   "dependencies": {
     "amdefine": "^1.0.1",
-    "forge": "^2.3.0"
+    "forge": "^2.3.0",
+    "testcafe": "^1.1.1"
   },
   "devDependencies": {
     "eslint": "^3.19.0",
@@ -17,7 +18,7 @@
     "eslint-plugin-requirejs": "^3.1.1"
   },
   "scripts": {
-    "test":  "testcafe chrome test/cafe/test.js --ssl pfx=test/cafe/certs-keys/bundle.pfx;rejectUnauthorized=true ./node_modules/.bin/eslint client"
+    "test": "testcafe chrome test/cafe/test.js --ssl pfx=test/cafe/certs-keys/bundle.pfx;rejectUnauthorized=true ./node_modules/.bin/eslint client"
   },
   "repository": {
     "type": "git",
