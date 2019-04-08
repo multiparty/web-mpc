@@ -9,7 +9,7 @@ function createSession() {
         .typeText('#session-description', 'a test description')
         .click('#generate')
         .wait(2000);
-        
+
     // sessionKey = (await Selector('#sessionID').innerText).trim();
     // sessionPassword = (await Selector('#passwordID').innerText).trim();
     // console.log(sessionKey, sessionPassword);

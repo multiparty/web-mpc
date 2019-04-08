@@ -4,12 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "testcafe chrome test.js --ssl pfx=certs-keys/bundle.pfx;rejectUnauthorized=true"
   },
-  "author": "SAIL",
-  "license": "ISC",
+  "author": "Boston University Software & Application Innovation Lab",
+  "license": "MIT",
   "dependencies": {
-    "openssl-self-signed-certificate": "^1.1.6",
     "testcafe": "^0.23.3"
   }
 }
