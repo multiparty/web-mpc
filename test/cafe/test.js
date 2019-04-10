@@ -111,7 +111,8 @@ function massUpload() {
           .click(Selector('label').withText('Less than 1 business day').find('[name="optradio"]'))
           .click('#verify')
           .click('#submit')
-          .debug();
+          .wait(2500)
+          .click('.ajs-ok');
     });
 }
 
