@@ -1,4 +1,4 @@
-import { Selector } from 'testcafe';
+import { Selector, ClientFunction } from 'testcafe';
 
 
 let sessionKey = null;
@@ -108,8 +108,6 @@ function massUpload() {
           .click(Selector('label').withText('Less than 1 business day').find('[name="optradio"]'))
           .click('#verify')
           .click('#submit')
-          .wait(100)
-          // .click('.ajs-ok');
     });
 }
 
@@ -130,18 +128,40 @@ function endSession() {
 }
 
 
+
+sessionKey = 'n9jmp852q6ecv4ng669g2fhf7m';
+
+sessionPassword = '6rw4p5gv6xn9t98ddazn5mnh3c';
+
 function unmaskData() {
   const fileUpload = Selector('#choose-file');
 
+  const checkValues = ClientFunction(numParticipants => {
+    $('td').each(function() {
+      var tableValue = ($(this).html());
+      if (!(isNaN(parseInt(tableValue)))) {
+        if (tableValue !== numParticipants) {
+          return false;
+        }
+      }
+    });
+    return true;
+  });
+  
+
   fixture `Unmasking`
     .page `localhost:8080/unmask`;
+    var values = Selector('.htDimmed');
     test('Unmasking data', async t => {
       await t
       .click('#session')
+      .debug()
       .typeText('#session', sessionKey)
       .click('#session-password')
       .typeText('#session-password', sessionPassword)
       .setFilesToUpload(fileUpload, download_folder+'Session_' + sessionKey + '_private_key.pem')
+      .wait(3000)
+      .expect(checkValues(numberOfParticipants)).eql(true)
       .debug();
     });
 }
