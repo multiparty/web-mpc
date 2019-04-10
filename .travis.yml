@@ -19,12 +19,12 @@ before_script:
   - fluxbox >/dev/null 2>&1 &
 
 services:
-  - xvfb
   - mongodb
+  - xvfb
 
 install: 
   - npm install
-  - cd server && npm install
+  - cd server && npm install && cd ..
 
 script:
   - node server/index.js 
