@@ -27,5 +27,4 @@ install:
   - cd server && npm install && cd ..
 
 script:
-  - node server/index.js 
   - npm test
