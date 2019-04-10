@@ -7,9 +7,13 @@ let participant_codes = [];
 
 // FILL THESE IN
 const numberOfParticipants = 2;
-const download_folder = '/Users/lucyqin/Downloads/';
-const data_file = './files/bwwc.xlsx';
+const downloadFolder = getUserHome() + '/Downloads/';
+const dataFile = './files/bwwc.xlsx';
 
+
+function getUserHome() {
+  return process.env.HOME || process.env.USERPROFILE;
+}
 
 function createSession() {
   fixture `Creating a session`
@@ -24,7 +28,6 @@ function createSession() {
 
     sessionKey = (await Selector('#sessionID').innerText).trim();
     sessionPassword = (await Selector('#passwordID').innerText).trim();
-    console.log(sessionKey, sessionPassword);
   });
 }
 
@@ -99,7 +102,7 @@ function massUpload() {
           .pressKey('delete')
           .click('#participation-code')
           .typeText('#participation-code', participant_codes[i])
-          .setFilesToUpload(fileUpload, data_file)
+          .setFilesToUpload(fileUpload, dataFile)
           .click(okBtn)
           .click(Selector('label').withText('Human Resources').find('[name="optradio"]'))
           .click(Selector('label').withText('Large').find('[name="optradio"]'))
@@ -108,6 +111,7 @@ function massUpload() {
           .click(Selector('label').withText('Less than 1 business day').find('[name="optradio"]'))
           .click('#verify')
           .click('#submit')
+          .debug();
     });
 }
 
@@ -127,12 +131,6 @@ function endSession() {
     });
 }
 
-
-
-sessionKey = 'n9jmp852q6ecv4ng669g2fhf7m';
-
-sessionPassword = '6rw4p5gv6xn9t98ddazn5mnh3c';
-
 function unmaskData() {
   const fileUpload = Selector('#choose-file');
 
@@ -151,18 +149,15 @@ function unmaskData() {
 
   fixture `Unmasking`
     .page `localhost:8080/unmask`;
-    var values = Selector('.htDimmed');
     test('Unmasking data', async t => {
       await t
       .click('#session')
-      .debug()
       .typeText('#session', sessionKey)
       .click('#session-password')
       .typeText('#session-password', sessionPassword)
-      .setFilesToUpload(fileUpload, download_folder+'Session_' + sessionKey + '_private_key.pem')
+      .setFilesToUpload(fileUpload, downloadFolder+'Session_' + sessionKey + '_private_key.pem')
       .wait(3000)
-      .expect(checkValues(numberOfParticipants)).eql(true)
-      .debug();
+      .expect(checkValues(numberOfParticipants)).eql(true);
     });
 }
 
