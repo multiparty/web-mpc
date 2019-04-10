@@ -25,7 +25,6 @@ services:
 install: 
   - npm install
   - cd server && npm install
-  - cd client && npm install
 
 script:
   - node server/index.js 
