@@ -84,8 +84,6 @@ function getParticipationCodes() {
 function massUpload() {
   const fileUpload = Selector('#choose-file');
   const okBtn = Selector('button').withText('OK');
-  // const verifyBtn = Selector('label').withText('I verified all data is correct');
-  const successImg = Selector('img').withAttribute('src', '/images/accept.png');
 
   fixture `Mass submission`
     .page `localhost:8080/`;
