@@ -1016,7 +1016,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   }
 
   function updateWidth(tables) {
-    if (!$("#tables-area").is(":hidden")) {
+    if (!$('#tables-area').is(':hidden')) {
       // Determine how wide the tables are
       var maxTableWidth = 0;                             // Maximum table width
 
@@ -1038,8 +1038,8 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
 
       // Update visible width of tables based on resized instruction div
       var instructionWidth = $('#instructions').width();
-      for (var i = 0; i < tables.length; i++) {
-        var t = tables[i];
+      for (i = 0; i < tables.length; i++) {
+        t = tables[i];
         t.updateSettings({
           width: instructionWidth
         });

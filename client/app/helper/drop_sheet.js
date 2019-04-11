@@ -126,9 +126,9 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
     function processWB(wb) {
       var tableDef = opts.tables_def.tables;
 
-      wb.SheetNames.forEach(function(name) {
+      wb.SheetNames.forEach(function (name) {
         var tableId = 0;
-        tableDef.forEach(function(table) {
+        tableDef.forEach(function (table) {
           if (table.excel && table.excel[0] && table.excel[0].sheet === name) {
             if (!processWS(wb.Sheets[name], opts.tables[tableId], table.excel[0].start, table.excel[0].end)) {
               return false; // mistake in processing sheet
