@@ -62,6 +62,13 @@ mongod
 ```
 * Open a new terminal tab or window and navigate back to the `server/` directory if you are not already there.
 
+* Initialize JIFF:
+```
+git submodule init
+git submodule update
+cd jiff && npm install
+```
+
 #### Non-production testing
 
 * For testing, start the Node.js server with no environment variables:
