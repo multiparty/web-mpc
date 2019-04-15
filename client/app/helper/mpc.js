@@ -105,7 +105,6 @@ define([], function () {
         single_share = jiff_instance.share(null, null, [1, 's1'], [subid])[subid];
         entry_squares_sum = entry_squares_sum.sadd(single_share);
       }
-
       // For entries in the table, we return a promise to an object
       //    { sum: <sum of inputs>, squaresSum: <sum of squared inputs> }
       var promise1 = jiff_instance.open(entry_sum, [1]);
@@ -180,13 +179,17 @@ define([], function () {
     var all_promises = [];
     for (var i = 0; i < submitters['cohorts'].length; i++) {
       var cohort = submitters['cohorts'][i];
+
       all_promises.push(computeCohort(jiff_instance, submitters[cohort], ordering));
     }
     all_promises.push(computeUsability(jiff_instance, submitters['all'], ordering));
 
+    console.log("promises!", all_promises);
     // format
     if (jiff_instance.id === 1) {
+      console.log('trying to get results!')
       return Promise.all(all_promises).then(function (results) {
+        console.log('result: ', results)
         var formatted = {cohorts: {}};
         for (var i = 0; i < submitters['cohorts'].length; i++) {
           var cohort = submitters['cohorts'][i];

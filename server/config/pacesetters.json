@@ -15,7 +15,7 @@
 
   "client": {
     "table_template": "data/pacesetters",
-    "title": "Pacesetters",
+    "organization": "Pacesetters",
     "subtitle": "Data Submission",
     "logo": "images/gbcc.png"
   }
