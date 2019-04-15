@@ -1,12 +1,31 @@
 define(['jquery', 'controllers/clientController', 'controllers/tableController', 'controllers/usabilityController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify', 'table_template', 'bootstrap'],
   function ($, clientController, tableController, usabilityController, DropSheet, Spinner, Ladda, ResizeSensor, alertify, table_template) {
 
+    const SELF_SELECT = "cohort_selection";
+
     function createQuestionText(text) {
       var p = document.createElement('p');
       p.classList.add('question-text');
       p.classList.add('help-block')
       p.innerHTML = text;
       return p;
+    }
+
+    function cohortSelfSelect() {
+      if (!Object.keys(table_template).includes(SELF_SELECT) || !table_template[SELF_SELECT]) {
+        $('#cohort-self-selection').hide();
+        return;
+      }
+
+      const cohortDropDown = $('#cohortDrop');
+
+      // // TODO: make call to get cohort names
+      const cohortNames = ['Tech', 'Medical', 'Academic', 'Finance'];
+
+      for (var c of cohortNames) {
+        $('<option />', {value: c, text: c}).appendTo(cohortDropDown)
+      }
+    
     }
 
     function renderSurveyInputs(question, form) {
@@ -32,6 +51,8 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
     // Creates survey
     function displaySurveyQuestions() {
+      $('#additional-questions').hide();
+
       if (!('survey' in table_template) || Object.keys(table_template.survey).length === 0) {
         return;
       }
@@ -54,7 +75,6 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
       $(document).ready(function () {
         // Hide by default
-        $('#additional-questions').hide();
 
         tableController.createTableElems(table_template.tables, '#tables-area');
         displaySurveyQuestions();
@@ -63,6 +83,8 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
         usabilityController.initialize();
         usabilityController.saveBrowser();
+
+        cohortSelfSelect();
 
         var totals_table = null;
 
