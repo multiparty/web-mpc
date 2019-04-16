@@ -47,7 +47,7 @@ var insertHistory = function (session_key, jiff_party_id, success) {
  * SESSION INFO MODULE
  */
 // insert new session
-var insertSessionInfo = function (session_key, public_key, password, title, description) {
+var insertSessionInfo = function (session_key, public_key, password, title, description, cohorts) {
   var sessionInfo = new modules.SessionInfo({
     _id: session_key,
     session: session_key,
@@ -56,7 +56,7 @@ var insertSessionInfo = function (session_key, public_key, password, title, desc
     title: title,
     description: description,
     status: 'PAUSE',
-    cohorts: 0
+    cohorts: cohorts
   });
 
   return new Promise(function (resolve, reject) {

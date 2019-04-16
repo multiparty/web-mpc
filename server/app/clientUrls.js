@@ -21,8 +21,8 @@ module.exports.setCohortNumber = function (context, body, response, sessionInfoO
     return;
   }
 
-  // no need to verify status, joi already did it
-  sessionInfoObj.cohorts += body.cohorts;
+  // Do not need to verify since joi already did it
+  sessionInfoObj.cohorts.push(body.cohorts);
 
   // Update sessionInfo in database
   var promise = modulesWrappers.SessionInfo.update(sessionInfoObj);
@@ -30,7 +30,7 @@ module.exports.setCohortNumber = function (context, body, response, sessionInfoO
     console.log('Updated cohorts:', body.session, sessionInfoObj.cohorts);
     response.json({cohorts: sessionInfoObj.cohorts});
   }).catch(function (err) {
-    console.log('Error setting cohorts count', err);
+    console.log('Error creating new cohort', err);
     response.status(500).send('Error during session cohorts update.');
   });
 };
@@ -57,14 +57,21 @@ module.exports.getClientUrls = function (context, body, res) {
   });
 };
 
-
+// TODO
 // endpoint for creating new client urls
 module.exports.createClientUrls = function (context, body, response, sessionInfoObj) {
-  // Check that the cohort number is ok
-  if (body.cohort > sessionInfoObj.cohorts) {
-    response.status(500).send('Selected Cohort does not exist!');
-    return;
-  }
+
+  let cohortId = null;
+  
+  // Check if generating cohort specific links
+  // if ( ??? ) {
+  //   cohortId = body.cohort;
+      // check that the cohort id does exist and belongs to a real cohort
+    // if (body.cohort ??? ) {
+    //   response.status(500).send('Selected Cohort does not exist!');
+    //   return;
+    // }
+  // }
 
   var promise = modulesWrappers.UserKey.query(body.session);
   promise.then(function (data) {
@@ -105,7 +112,7 @@ module.exports.createClientUrls = function (context, body, response, sessionInfo
         session: body.session,
         userkey: userkey,
         jiff_party_id: jiff_party_id,
-        cohort: body.cohort
+        cohort: cohortId
       });
     }
 
@@ -113,7 +120,7 @@ module.exports.createClientUrls = function (context, body, response, sessionInfo
     var promise = modulesWrappers.UserKey.insertMany(dbObjs);
     promise.then(function () {
       console.log('URLs generated:', body.session, urls);
-      response.json({ result: urls, cohort: body.cohort });
+      response.json({ result: urls, cohort: cohortId });
     }).catch(function (err) {
       console.log('Error in inserting client urls', err);
       response.status(500).send('Error during storing keys.');

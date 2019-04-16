@@ -18,6 +18,11 @@ mongoose.Promise = Promise;
   }
 }());
 
+const cohortSchema = new mongoose.Schema({
+  name: String,
+  id: String
+});
+
 // Mongoose Model definitions
 const HistoryModule = mongoose.model('History', new mongoose.Schema({
   // Keeps track of submission history
@@ -44,14 +49,14 @@ const SessionInfoModule = mongoose.model('SessionInfo', new mongoose.Schema({
   title: String,
   description: String,
   status: String,
-  cohorts: Number
+  cohorts: [cohortSchema]
 }));
 const UserKeyModule = mongoose.model('UserKey', new mongoose.Schema({
   _id: String, // concat of session + userkey.
   session: String,
   userkey: String,
   jiff_party_id: Number,
-  cohort: Number
+  cohort: Number,
 }));
 
 // Export modules

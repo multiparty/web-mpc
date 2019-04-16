@@ -6,6 +6,8 @@
 // DB Operation Wrappers
 const modulesWrappers = require('../modules/modulesWrappers.js');
 const helpers = require('./helpers.js');
+const config = require('../config/config.js');
+var tableTemplate = require('../../client/app/' + config.client.table_template + '.js');
 
 // Export route handlers
 module.exports = {};
@@ -19,7 +21,17 @@ module.exports.createSession = function (context, body, res) {
   var title = body.title.split('<').join('&lt;').split('>').join('&gt;');
   var description = body.description.split('<').join('&lt;').split('>').join('&gt;');
 
-  var promise = modulesWrappers.SessionInfo.insert(sessionID, publickey, password, title, description);
+  var cohorts = [];
+
+  // If there are pre-set cohorts, add them by default
+  if (Object.keys(tableTemplate).includes('cohorts')) {
+    for (var c of tableTemplate['cohorts']) {
+      // TODO: validate that fields are correct (each cohort has a name -> string, id -> string);
+      cohorts.push(c);
+    }
+  }
+
+  var promise = modulesWrappers.SessionInfo.insert(sessionID, publickey, password, title, description, cohorts);
   promise.then(function () {
     console.log('Session generated for:', sessionID);
 
@@ -28,7 +40,7 @@ module.exports.createSession = function (context, body, res) {
     console.log('JIFF Session initialized');
 
     // Done
-    res.json({ sessionID: sessionID, password: password });
+    res.json({ sessionID: sessionID, password: password, cohorts: cohorts});
   }).catch(function (err) {
     console.log('Error in creating session', err);
     res.status(500).send('Error during session creation');

@@ -16,6 +16,11 @@ schemaTemplates.keyPasswordTemplate = {
   password: schemaTemplates.passwordSchema
 };
 
+const cohortSchema = {
+  name: joi.string().required(),
+  id: joi.string().alphanum().required()
+}
+
 
 // Concrete Request schemas!
 module.exports = {
@@ -35,7 +40,7 @@ module.exports = {
   },
 
   setCohortNumber: Object.assign({
-    cohorts: joi.number().integer().min(1).max(10000).required()
+    cohorts: cohortSchema
   }, schemaTemplates.keyPasswordTemplate),
 
   getClientUrls: Object.assign({}, schemaTemplates.keyPasswordTemplate),

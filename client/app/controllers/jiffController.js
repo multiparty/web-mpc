@@ -86,6 +86,7 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
   };
 
   // Client side stuff
+  // TODO: add cohort here
   var clientSubmit = function (sessionkey, userkey, dataSubmission, callback) {
     var ordering = mpc.consistentOrdering(table_template);
     var values = [];
@@ -120,6 +121,8 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
         userkey: userkey
       }
     };
+
+    // TODO: assign cohort if one does not exist for userKey.
 
     // Initialize and submit
     var jiff = initialize(sessionkey, 'client', options);

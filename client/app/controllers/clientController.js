@@ -289,6 +289,8 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
 
         data_submission['usability'] = usabilityController.analytics;
 
+
+        // TODO: add cohort here
         // Secret share / mask the data.
         jiffController.client.submit(session, participationCode, data_submission, function (err, response) {
           if (err == null || err === 200) {

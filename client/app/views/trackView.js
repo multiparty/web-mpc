@@ -12,6 +12,18 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda',  '
       session = $('#session').val();
       password = $('#password').val();
 
+      // analystController.addCohorts(session, password, {"name": "BigMath", "id": "8"})
+      //   .then(function (res) {
+      //   //   if (res != null) {
+      //   //     const totalCohorts = res.cohorts;
+
+      //   //     for (var i = totalCohorts - numCohorts; i < totalCohorts; i++) {
+      //   //       displayCohortElements(i);
+      //   //       enableCohortSubmit(i);
+      //   //     }
+      //   //   }
+      //   });
+
       var la = Ladda.create(document.getElementById('login'));
       la.start();
 
