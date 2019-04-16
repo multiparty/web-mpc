@@ -210,8 +210,7 @@ define([], function () {
     'usability': [
       'data_prefilled', 
       {'time_spent': ['page', 'session-area', 'tables-area', 'amount-spent', 'number-MBEs', 'addressable-spend', 'review-and-submit']},
-      {'browser': ['chrome', 'edge', 'msie', 'firefox', 'opera', 'other', 'safari']
-      },
+      {'browser': ['chrome', 'edge', 'msie', 'firefox', 'opera', 'other', 'safari']},
       {'validation_errors': [
         'SESSION_KEY_ERROR', 
         'SESSION_INFO_ERROR',

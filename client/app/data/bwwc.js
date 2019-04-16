@@ -871,6 +871,7 @@ define([], function () {
     'usability': [
       'data_prefilled', 
       {'time_spent': ['page', 'review-and-submit']},
+      {'browser': ['chrome', 'edge', 'msie', 'firefox', 'opera', 'other', 'safari']},
       {'validation_errors': [
         'SESSION_KEY_ERROR', 
         'SESSION_INFO_ERROR',
@@ -886,6 +887,10 @@ define([], function () {
         ]
       }
     ],
-    'cohort_selection': true
+    'cohort_selection': true,
+    'cohorts': [
+      {name: 'Tech', id: '1'}, 
+      {name: 'Medical', id: '2'},
+      {name: 'Academic', id: '3'}]
   }
 });

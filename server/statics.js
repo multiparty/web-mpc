@@ -22,12 +22,9 @@ module.exports = function (app) {
     res.sendFile((path.join(__dirname + '/../client/create.html')));
   });
 
-  app.get('/track', function (req, res) {
-    res.sendFile((path.join(__dirname + '/../client/manage.html')));
-  });
-
   app.get('/manage', function (req, res) {
-    res.sendFile((path.join(__dirname + '/../client/manage.html')));
+    // /client/manage.html
+    res.render('manage.html', config.client);
   });
 
   app.get('/unmask', function (req, res) {

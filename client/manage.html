@@ -1,40 +1,55 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Trusted Party Live Session Manager</title>
-  <link rel="icon" type="image" href="images/gbcc-small.png">
+<link rel="icon" type="image" href="images/gbcc-small.png">
 
-  <script type="text/javascript" src="app/config/common.js"></script>
-  <script data-main="app/track" src="app/vendor/require.js"></script>
+<script type="text/javascript">
+  var require = {
+    paths: {
+      table_template: '{{ table_template }}'
+    }
+  }
+</script>
 
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
-        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
-        integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
-  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.0/ladda-themeless.min.css"
-        integrity="sha256-d7VZTlP9P3ZTCZ3Bkl8aGZ/+Vs4i+bpcOGNfibU7+LU=" crossorigin="anonymous"/>
+<script type="text/javascript" src="app/config/common.js"></script>
+<script type="text/javascript" src="app/config/jiff.js"></script>
+<script data-main="app/track" src="app/vendor/require.js"></script>
 
-  <link rel="stylesheet" href="/styles/style.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+      integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+      integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.0/ladda-themeless.min.css"
+      integrity="sha256-d7VZTlP9P3ZTCZ3Bkl8aGZ/+Vs4i+bpcOGNfibU7+LU=" crossorigin="anonymous"/>
+<link rel="stylesheet" type="text/css" href="styles/handsontable.full.min.css">
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.10.0/css/alertify.min.css"
+      integrity="sha256-bNEFYRlNlnu0CH4DIKCXv0F6JVl/DdA2M9XVZn317q0=" crossorigin="anonymous"/>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.10.0/css/themes/bootstrap.min.css"
+      integrity="sha256-vt37wNLVK8ICNWGrl+1MLb+pjq33sn6v37Q/7OPgkSU=" crossorigin="anonymous"/>
+
+<link rel="stylesheet" href="/styles/style.css">
+
+<style type="text/css">
+
+</style>
 
 </head>
 <body>
 <header>
-  <div class="container">
-    <h1>Trusted Party<br/>
-      <small>Live Session Manager</small>
-    </h1>
-    <div id="logos">
-      <img src="/images/gbcc.jpg" width="130" alt="BWWC Logo"/>
-      <img src="/images/bu.gif" alt="BU Logo"/>
-    </div>
+<div class="container">
+  <h1>Trusted Party<br/>
+    <small>Live Session Manager</small>
+  </h1>
+  <div id="logos">
+    <img src="images/gbcc.jpg" width="130" alt="GBCC Logo"/>
+    <img src="images/bu.gif" alt="BU Logo"/>
   </div>
+</div>
 </header>
+
 <div id="shadow" class="ss-style-multitriangles"></div>
 <main id="content" class="container">
 </main>
 <div class="container">
-  <div class="row">
+  <div class="row" id="session-content">
     <section class="card col-md-4">
       <div id="session-login" class="collapse in">
         <h2 class="text-center">Enter session details</h2>
@@ -108,8 +123,8 @@
       </div>
     </section>
 
-    <section  id="cohort-card" class="card col-sm-7 col-md-offset-1 collapse">
-      <div>
+    <section id="cohort-card" class="card col-sm-7 col-md-offset-1 collapse">
+      <!-- <div>
           <h2 class="text-center">Enter number of cohorts</h2>
           <hr/>
           <form id="cohort-entry">
@@ -121,26 +136,21 @@
               <button type="submit" id="cohort-generate" class="btn btn-block btn-primary">Generate</button>
             </div>
           </form>
+      </div> -->
+
+      <div>
+          <h2 class="text-center">Enter number of cohorts</h2>
+          <hr/>
+          <form id="cohort-entry">
+            <div class="form-group">
+              <label class="control-label" for="cohort-number">Enter Cohort Name</label>
+              <input type="text" id="cohort-input" class="form-control" pattern="^[a-zA-Z0-9]{26}$" placeholder="Cohort name" autocomplete="off" required/>
+            </div>
+            <div class="form-group">
+              <button type="submit" id="cohort-generate" class="btn btn-block btn-primary">Generate</button>
+            </div>
+          </form>
       </div>
-    <!--section class="card col-md-7 col-md-offset-1">
-      <h2 class="text-center">Manage session</h2>
-      <p class="text-center">Fill in your session details on the left to manage your session, add new participants and
-        manage existing participation.</p>
-      <hr/>
-      <table id="table" class="table table-striped hidden">
-        <thead>
-        <tr>
-          <th colspan="2" id="totalNumSubTh">Total number of submissions: 0</th>
-        </tr>
-        <tr>
-          <th>ID</th>
-          <th>Timestamp</th>
-        </tr>
-        </thead>
-        <tbody id="participants">
-        </tbody>
-      </table-->
-    </section>
   </div>
 
   <div id="cohort-area"></div>
