@@ -289,6 +289,7 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
 
         data_submission['usability'] = usabilityController.analytics;
 
+        var cohort = $('#cohortDrop option:selected').text();
 
         // TODO: add cohort here
         // Secret share / mask the data.
@@ -310,7 +311,7 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           }
 
           la.stop();
-        });
+        }, cohort);
       }
 
       /**
@@ -369,10 +370,27 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
         callback(true);
       }
 
+      // API Calls
+      function getExistingCohorts(session, userkey) {
+        return $.ajax({
+          type: 'POST',
+          url: '/get_cohorts',
+          contentType: 'application/json',
+          data: JSON.stringify({session: session, userkey: userkey})
+        }).then(function (resp) {
+          return resp.cohorts;
+        }).catch(function (err) {
+          if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
+            alert(err.responseText);
+          }
+        });
+      }
+
       return {
         validate: validate,
         constructAndSend: constructAndSend,
         validateSessionInput: validateSessionInput,
+        getExistingCohorts: getExistingCohorts
       };
     })();
 

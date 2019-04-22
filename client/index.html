@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width,initial-scale=1" name="viewport">
-  <title>{{ title }}</title>
-  <link rel="icon" type="image" href="images/gbcc-small.png">
+  <title>{{ organization }}</title>
+  <link rel="icon" type="image" href="{{ logo }}" alt="{{ organization }} logo">
 
   <script type="text/javascript">
     var require = {
@@ -102,8 +102,8 @@
                     class="fail-custom help-block hidden"></span>
             </div>
           </form>
-          <div id="cohort-self-selection" class="form-group">
-              <label for="cohortDrop">Cohort selection</label>
+          <div id="cohort-self-selection" class="form-group collapse">
+              <label for="cohortDrop">{{ cohort }} selection</label>
               <select class="form-control" id="cohortDrop">
                 <option>-- Select option --</option>
               </select>

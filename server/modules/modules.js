@@ -18,7 +18,7 @@ mongoose.Promise = Promise;
   }
 }());
 
-const cohortSchema = new mongoose.Schema({
+const cohortMappingSchema = new mongoose.Schema({
   name: String,
   id: String
 });
@@ -49,7 +49,8 @@ const SessionInfoModule = mongoose.model('SessionInfo', new mongoose.Schema({
   title: String,
   description: String,
   status: String,
-  cohorts: [cohortSchema]
+  cohorts: Number,
+  cohort_mapping: [cohortMappingSchema]
 }));
 const UserKeyModule = mongoose.model('UserKey', new mongoose.Schema({
   _id: String, // concat of session + userkey.

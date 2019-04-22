@@ -16,12 +16,6 @@ schemaTemplates.keyPasswordTemplate = {
   password: schemaTemplates.passwordSchema
 };
 
-const cohortSchema = {
-  name: joi.string().required(),
-  id: joi.string().alphanum().required()
-}
-
-
 // Concrete Request schemas!
 module.exports = {
   getStatus: {
@@ -39,15 +33,22 @@ module.exports = {
     description: joi.string().required()
   },
 
-  setCohortNumber: Object.assign({
-    cohorts: cohortSchema
+  getCohorts: {
+    session: schemaTemplates.sessionKeySchema,
+    userkey: schemaTemplates.userKeySchema
+  },
+
+  getCohortsManage: Object.assign({}, schemaTemplates.keyPasswordTemplate),
+
+  createNewCohort: Object.assign({
+    cohort: joi.string().required(),
   }, schemaTemplates.keyPasswordTemplate),
 
   getClientUrls: Object.assign({}, schemaTemplates.keyPasswordTemplate),
 
   createClientUrls: Object.assign({
     count: joi.number().integer().min(0).max(10000).required(),
-    cohort: joi.number().integer().min(1).max(10000).required()
+    cohort: joi.string().required() 
   }, schemaTemplates.keyPasswordTemplate),
 
   getSubmissionHistory: Object.assign({

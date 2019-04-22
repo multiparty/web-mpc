@@ -10,12 +10,12 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
 
   'use strict';
 
-  function addCohorts(session, password, cohorts) {
+  function addCohort(session, password, cohort) {
     return $.ajax({
       type: 'POST',
-      url: '/set_cohorts',
+      url: '/add_cohort',
       contentType: 'application/json',
-      data: JSON.stringify({session: session, password: password, cohorts: cohorts})
+      data: JSON.stringify({session: session, password: password, cohort: cohort})
     }).then(function (res) {
       return res;
     }).catch(function (err) {
@@ -98,6 +98,21 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
       });
   }
 
+  function getExistingCohorts(session, password) {
+    return $.ajax({
+      type: 'POST',
+      url: '/get_cohorts_manage',
+      contentType: 'application/json',
+      data: JSON.stringify({session: session, password: password})
+    }).then(function (resp) {
+      return resp.cohorts;
+    }).catch(function (err) {
+      if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
+        alert(err.responseText);
+      }
+    });
+  }
+
   function getExistingParticipants(session, password) {
     return $.ajax({
       type: 'POST',
@@ -144,8 +159,8 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
         document.getElementById(sessionID).innerHTML = rndSess;
         document.getElementById(passwordID).innerHTML = password;
         // TODO clean up how this workflow
-        document.getElementById(linkID).innerHTML = 'tracking page';
-        document.getElementById(linkID).href = '/track?session=' + rndSess;
+        document.getElementById(linkID).innerHTML = 'manage page';
+        document.getElementById(linkID).href = '/manage?session=' + rndSess;
 
         filesaver.saveAs(priBlob, 'Session_' + rndSess + '_private_key.pem');
 
@@ -196,10 +211,11 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
     changeStatus: changeStatus,
     generateNewParticipationCodes: generateNewParticipationCodes,
     getExistingParticipants: getExistingParticipants,
+    getExistingCohorts: getExistingCohorts,
     getSubmissionHistory: getSubmissionHistory,
     generateSession: generateSession,
     getParameterByName: getParameterByName,
-    addCohorts: addCohorts,
+    addCohort: addCohort,
     START: 'START',
     PAUSE: 'PAUSE',
     STOP: 'STOP'

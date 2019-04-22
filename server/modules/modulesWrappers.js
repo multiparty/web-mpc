@@ -47,7 +47,7 @@ var insertHistory = function (session_key, jiff_party_id, success) {
  * SESSION INFO MODULE
  */
 // insert new session
-var insertSessionInfo = function (session_key, public_key, password, title, description, cohorts) {
+var insertSessionInfo = function (session_key, public_key, password, title, description, cohortMapping) {
   var sessionInfo = new modules.SessionInfo({
     _id: session_key,
     session: session_key,
@@ -56,7 +56,8 @@ var insertSessionInfo = function (session_key, public_key, password, title, desc
     title: title,
     description: description,
     status: 'PAUSE',
-    cohorts: cohorts
+    cohort_mapping: cohortMapping,
+    cohorts: cohortMapping.length
   });
 
   return new Promise(function (resolve, reject) {
@@ -145,7 +146,7 @@ var queryUserKey = function (session_key) {
 };
 
 // insert several user keys
-var insertManyUserKey = function (array) {
+var insertManyUserKey = function (array) {  
   array = array.map(function (obj) {
     obj['_id'] = obj.session + obj.userkey;
     return new modules.UserKey(obj);

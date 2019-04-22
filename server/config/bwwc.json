@@ -17,6 +17,7 @@
     "table_template": "data/bwwc",
     "organization": "Boston Women's Workforce Council",
     "subtitle": "100% Talent Data Submission",
-    "logo": "images/bwwc.png"
+    "logo": "images/bwwc.png",
+    "cohort": "Industry"
   }
 }

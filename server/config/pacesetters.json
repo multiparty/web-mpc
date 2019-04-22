@@ -17,6 +17,7 @@
     "table_template": "data/pacesetters",
     "organization": "Pacesetters",
     "subtitle": "Data Submission",
-    "logo": "images/gbcc.png"
+    "logo": "images/gbcc.png",
+    "cohort": "Cohort"
   }
 }

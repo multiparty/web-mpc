@@ -889,8 +889,13 @@ define([], function () {
     ],
     'cohort_selection': true,
     'cohorts': [
-      {name: 'Tech', id: '1'}, 
-      {name: 'Medical', id: '2'},
-      {name: 'Academic', id: '3'}]
+      {name: 'Banking/Finance'}, 
+      {name: 'Professional, Scientific, and Tech Services'},
+      {name: 'Information Services and Data'},
+      {name: 'Education Services'},
+      {name: 'Construction, Manufacturing, Utilities'},
+      {name: 'Hospital and Social Assistance'},
+      {name: 'Other'}
+    ]
   }
 });

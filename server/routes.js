@@ -30,6 +30,7 @@ module.exports = [
   // Session creation and query routes
   { url: '/create_session', route: sessionRoutes.createSession, validation: validation.createSession },
   { url: '/sessioninfo', route: sessionRoutes.getSessionInfo, validation: validation.getSessionInfo, authentication: auth.userKey },
+  { url: '/get_cohorts', route: clientURLsRoutes.getCohorts, validation: validation.getCohorts, authentication: auth.userKey},
 
   // Session status and history routes
   { url: '/fetch_status', route: sessionStatusRoutes.getStatus, validation: validation.getStatus },
@@ -37,7 +38,8 @@ module.exports = [
   { url: '/get_history', route: sessionStatusRoutes.getSubmissionHistory, validation: validation.getSubmissionHistory, authentication: auth.password },
 
   // Routes to generate and query (client urls / user keys / participation code)
-  { url: '/set_cohorts', route: clientURLsRoutes.setCohortNumber, validation: validation.setCohortNumber, authentication: auth.password },
+  { url: '/add_cohort', route: clientURLsRoutes.createNewCohort, validation: validation.createNewCohort, authentication: auth.password },
+  { url: '/get_cohorts_manage', route: clientURLsRoutes.getCohorts, validation: validation.getCohortsManage, authentication: auth.password},
   { url: '/generate_client_urls', route: clientURLsRoutes.createClientUrls, validation: validation.createClientUrls, authentication: auth.password },
   { url: '/get_client_urls', route: clientURLsRoutes.getClientUrls, validation: validation.getClientUrls, authentication: auth.password }
 ];

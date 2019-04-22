@@ -1,5 +1,5 @@
-<link rel="icon" type="image" href="images/gbcc-small.png">
-
+<title>{{ organization }}</title>
+<link rel="icon" type="image" href="{{ logo }}" alt="{{ organization }} logo">
 <script type="text/javascript">
   var require = {
     paths: {
@@ -39,7 +39,7 @@
     <small>Live Session Manager</small>
   </h1>
   <div id="logos">
-    <img src="images/gbcc.jpg" width="130" alt="GBCC Logo"/>
+    <img src="{{ logo }}" alt="{{ organization}} Logo"/>
     <img src="images/bu.gif" alt="BU Logo"/>
   </div>
 </div>
@@ -50,109 +50,97 @@
 </main>
 <div class="container">
   <div class="row" id="session-content">
-    <section class="card col-md-4">
-      <div id="session-login" class="collapse in">
-        <h2 class="text-center">Enter session details</h2>
-        <hr/>
-        <form>
-          <div class="form-group">
-            <label class="control-label" for="session">Session key</label>
-            <input type="text" id="session" class="form-control" placeholder="Session key" pattern="^[a-zA-Z0-9]{26}$"
-                   autocomplete="off" required/>
-            <span id="session-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
-                  aria-hidden="true"></span>
-            <span id="session-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
-                  aria-hidden="true"></span>
-            <span id="session-fail-help"
-                  class="fail-help help-block hidden">Please input the 26-character session key.</span>
-            <span id="session-fail-custom-help"
-                  class="fail-custom help-block hidden"></span>
-          </div>
-          <div class="form-group">
-            <label class="control-label" for="password">Session password</label>
-            <input type="password" id="password" class="form-control" placeholder="Session password"
-                   autocomplete="off" required>
-            <span id="password-success"
-                  class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
-                  aria-hidden="true"></span>
-            <span id="password-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
-                  aria-hidden="true"></span>
-            <span id="password-fail-help"
-                  class="fail-help help-block hidden">Please input the session password.</span>
-            <span id="password-fail-custom-help"
-                  class="fail-custom help-block hidden"></span>
-          </div>
-          <div class="form-group">
-            <button type="submit" id="login" class="btn btn-primary ladda-button btn-lg btn-block">Submit</button>
-          </div>
-        </form>
-      </div>
+    <div class="col-md-4" id="session-content-left">
+      <section class="card">
+        <div id="session-login" class="collapse in">
+          <h2 class="text-center">Enter session details</h2>
+          <hr/>
+          <form>
+            <div class="form-group">
+              <label class="control-label" for="session">Session key</label>
+              <input type="text" id="session" class="form-control" placeholder="Session key" pattern="^[a-zA-Z0-9]{26}$"
+              autocomplete="off" required/>
+              <span id="session-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
+                    aria-hidden="true"></span>
+              <span id="session-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
+                    aria-hidden="true"></span>
+              <span id="session-fail-help"
+                    class="fail-help help-block hidden">Please input the 26-character session key.</span>
+              <span id="session-fail-custom-help"
+                    class="fail-custom help-block hidden"></span>
+            </div>
+            <div class="form-group"> 
+              <label class="control-label" for="password">Session password</label>
+              <input type="password" id="password" class="form-control" placeholder="Session password" autocomplete="off" required>
+              <span id="password-success"
+                    class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
+                    aria-hidden="true"></span>
+              <span id="password-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
+                    aria-hidden="true"></span>
+              <span id="password-fail-help"
+                    class="fail-help help-block hidden">Please input the session password.</span>
+              <span id="password-fail-custom-help"
+                    class="fail-custom help-block hidden"></span>
+            </div>
+            <div class="form-group">
+              <button type="submit" id="login" class="btn btn-primary ladda-button btn-lg btn-block">Submit</button>
+            </div>
+          </form>
+        </div>
 
-      <div id="session-panel" class="collapse">
-        <h2 class="text-center">Manage your session</h2>
-        <p class="text-center">Session status: <span id="session-status"></span></p>
-        <p id="session-unmask" class="hidden">Click <a href="">here</a> to unmask session data.</p>
-        <form id="session-manage">
-          <button type="submit" id="session-start" class="btn btn-success btn-block">Start</button>
-          <button type="submit" id="session-pause" class="btn btn-warning btn-block">Pause</button>
-          <button type="submit" id="session-stop" class="btn btn-danger btn-block"
-                  data-toggle="modal" data-target="#session-stop-modal">Stop
-          </button>
-        </form>
+        <div id="session-panel" class="collapse">
+          <h2 class="text-center">Manage your session</h2>
+          <p class="text-center">Session status: <span id="session-status"></span></p>
+          <p id="session-unmask" class="hidden">Click <a href="">here</a> to unmask session data.</p>
+          <form id="session-manage">
+            <button type="submit" id="session-start" class="btn btn-success btn-block">Start</button>
+            <button type="submit" id="session-pause" class="btn btn-warning btn-block">Pause</button>
+            <button type="submit" id="session-stop" class="btn btn-danger btn-block"
+                    data-toggle="modal" data-target="#session-stop-modal">Stop
+            </button>
+          </form>
 
-        <div id="session-stop-modal" class="modal fade" tabindex="-1" role="dialog">
-          <div class="modal-dialog" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
-                </button>
-                <h4 class="modal-title">Close session</h4>
-              </div>
-              <div class="modal-body">
-                <p class="text-danger">Are you sure you wish to permanently close the session? There is NO undo!</p>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                <button id="session-close-confirm" type="button" class="btn btn-danger"
-                        data-dismiss="modal">Close session
-                </button>
+          <div id="session-stop-modal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title">Close session</h4>
+                </div>
+                <div class="modal-body">
+                  <p class="text-danger">Are you sure you wish to permanently close the session? There is NO undo!</p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                  <button id="session-close-confirm" type="button" class="btn btn-danger"
+                          data-dismiss="modal">Close session
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
 
-    <section id="cohort-card" class="card col-sm-7 col-md-offset-1 collapse">
-      <!-- <div>
-          <h2 class="text-center">Enter number of cohorts</h2>
-          <hr/>
-          <form id="cohort-entry">
-            <div class="form-group">
-              <label class="control-label" for="cohort-number">Add More Cohorts</label>
-              <input type="number" id="cohort-number" class="form-control" pattern="^[0-9]*$" placeholder="0" autocomplete="off" required/>
-            </div>
-            <div class="form-group">
-              <button type="submit" id="cohort-generate" class="btn btn-block btn-primary">Generate</button>
-            </div>
-          </form>
-      </div> -->
+      <section id="cohort-card" class="card col-sm-7 col-md-offset-1 collapse">
+        <div>
+            <h2 class="text-center">Create New {{ cohort }}</h2>
+            <hr/>
+            <form id="cohort-entry">
+              <div class="form-group">
+                <label class="control-label" for="cohort-number">Enter {{ cohort }} Name</label>
+                <input type="text" id="cohort-input" class="form-control" pattern="^[a-zA-Z0-9]{26}$" placeholder="{{ cohort }} name" autocomplete="off" required/>
+              </div>
+              <div class="form-group">
+                <button type="submit" id="cohort-generate" class="btn btn-block btn-primary">Generate</button>
+              </div>
+            </form>
+        </div>
+      </section>
 
-      <div>
-          <h2 class="text-center">Enter number of cohorts</h2>
-          <hr/>
-          <form id="cohort-entry">
-            <div class="form-group">
-              <label class="control-label" for="cohort-number">Enter Cohort Name</label>
-              <input type="text" id="cohort-input" class="form-control" pattern="^[a-zA-Z0-9]{26}$" placeholder="Cohort name" autocomplete="off" required/>
-            </div>
-            <div class="form-group">
-              <button type="submit" id="cohort-generate" class="btn btn-block btn-primary">Generate</button>
-            </div>
-          </form>
-      </div>
   </div>
-
   <div id="cohort-area"></div>
 </div>
 </body>

@@ -21,17 +21,19 @@ module.exports.createSession = function (context, body, res) {
   var title = body.title.split('<').join('&lt;').split('>').join('&gt;');
   var description = body.description.split('<').join('&lt;').split('>').join('&gt;');
 
-  var cohorts = [];
+  var cohortMapping = [];
+  var n = 0;
 
   // If there are pre-set cohorts, add them by default
   if (Object.keys(tableTemplate).includes('cohorts')) {
     for (var c of tableTemplate['cohorts']) {
       // TODO: validate that fields are correct (each cohort has a name -> string, id -> string);
-      cohorts.push(c);
+      cohortMapping.push({name: c.name, id: n});
+      n++;
     }
   }
 
-  var promise = modulesWrappers.SessionInfo.insert(sessionID, publickey, password, title, description, cohorts);
+  var promise = modulesWrappers.SessionInfo.insert(sessionID, publickey, password, title, description, cohortMapping);
   promise.then(function () {
     console.log('Session generated for:', sessionID);
 
@@ -40,7 +42,7 @@ module.exports.createSession = function (context, body, res) {
     console.log('JIFF Session initialized');
 
     // Done
-    res.json({ sessionID: sessionID, password: password, cohorts: cohorts});
+    res.json({ sessionID: sessionID, password: password, cohort_mapping: cohortMapping});
   }).catch(function (err) {
     console.log('Error in creating session', err);
     res.status(500).send('Error during session creation');

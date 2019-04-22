@@ -15,6 +15,7 @@ function analystAuth(computation_id, msg, params) {
   });
 }
 
+// TODO: does this still work when cohort-self selection isn't on?
 function userAuth(computation_id, msg, params) {
   return new Promise(function (resolve, reject) {
     auth.userKey({ session: computation_id, userkey: msg['userkey'] }, function (success, data) {
@@ -23,7 +24,31 @@ function userAuth(computation_id, msg, params) {
       } else {
         // Give party a consistent id (will remain the same when reconnecting / resubmitting)
         params.party_id = data.jiff_party_id;
-        resolve(params);
+
+        // handle cohort
+        modulesWrappers.SessionInfo.get(computation_id).then(function (sessionInfo) {
+          let cohortId = null;
+
+          for (var c of sessionInfo.cohort_mapping) {
+            if (msg.cohort === c.name) {
+              cohortId = c.id;
+            }
+          }
+
+          if (cohortId === null && msg.cohort !== null) {
+            reject(new Error('Cohort name does not exist.'));
+          }
+
+          data.cohort = cohortId;
+
+          data.save(function (error) {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(params);
+            }
+          });
+        }, reject);
       }
     });
   });

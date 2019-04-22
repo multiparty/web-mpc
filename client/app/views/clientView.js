@@ -11,21 +11,21 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
       return p;
     }
 
-    function cohortSelfSelect() {
-      if (!Object.keys(table_template).includes(SELF_SELECT) || !table_template[SELF_SELECT]) {
-        $('#cohort-self-selection').hide();
-        return;
-      }
+    function cohortSelfSelect(cohorts) {
+      $('#cohortDrop option').each(function() {
+        if (!isNaN(parseInt($(this).val()))) {
+          $(this).remove();
+          return;
+        }
+      });
+
+      $('#cohort-self-selection').collapse();
 
       const cohortDropDown = $('#cohortDrop');
 
-      // // TODO: make call to get cohort names
-      const cohortNames = ['Tech', 'Medical', 'Academic', 'Finance'];
-
-      for (var c of cohortNames) {
-        $('<option />', {value: c, text: c}).appendTo(cohortDropDown)
+      for (var c of cohorts) {
+        $('<option />', {value: c.id, text: c.name}).appendTo(cohortDropDown)
       }
-    
     }
 
     function renderSurveyInputs(question, form) {
@@ -84,8 +84,6 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         usabilityController.initialize();
         usabilityController.saveBrowser();
 
-        cohortSelfSelect();
-
         var totals_table = null;
 
         if (table_template.totals) {
@@ -100,11 +98,19 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         $('#session, #participation-code').on('blur', function (e) {
           e.target.dataset['did_blur'] = true;
           clientController.validateSessionInput(e.target, true);
+
+
+          if (Object.keys(table_template).includes(SELF_SELECT) && table_template[SELF_SELECT]) {
+            clientController.getExistingCohorts($session.val(), $participationCode.val())
+            .then(function(cohorts) {
+              cohortSelfSelect(cohorts);
+            });
+          }
         });
 
         $('#session, #participation-code').on('input', function (e) {
           if (e.target.dataset['did_blur']) {
-            clientController.validateSessionInput(e.target, false);
+            clientController.validateSessionInput(cohort, false);
           }
           $verify.prop('checked', false);
         });
