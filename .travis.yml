@@ -22,9 +22,10 @@ services:
   - mongodb
   - xvfb
 
-install: 
+install:
   - npm install
   - cd server && npm install && cd ..
 
 script:
   - npm test
+  - node test/cafe/session_interaction.js
