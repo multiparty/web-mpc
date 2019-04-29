@@ -167,7 +167,7 @@ async function dataSubmission(driver, originalTab) {
           var verifyBox = await driver.findElement(By.id('verify'));
           verifyBox.click();
           await driver.sleep(500);
-          await driver.wait(async function() {
+          await driver.wait(async function () {
             var button = await driver.findElement(By.id('submit'));
             if (button.isEnabled()) {
               button.click();
@@ -179,6 +179,7 @@ async function dataSubmission(driver, originalTab) {
             }
           }, 5000);
 
+          //TODO wait until submission confirmation popup
           await driver.sleep(3000);
         });
     }
@@ -223,16 +224,19 @@ async function unmaskData(driver) {
     var fileUpload = await driver.findElement(By.id('choose-file'));
     var filePath = getUserHome() + '/Downloads/' + 'Session_' + sessionKey + '_private_key.pem'
     fileUpload.sendKeys(filePath);
-    await driver.sleep(300);
+
+
+    var tableValues;
+    await driver.wait(async function () {
+      tableValues = await driver.findElements(By.xpath('//td[@class="htDimmed"]'));
+      return (tableValues.length > 0);
+    }, 5000);
 
     // check values
-    var tableValues = await driver.findElements(By.className('td'));
     for (var i = 0; i < tableValues.length; i++) {
-      var value = tableValues[i].getText();
+      var value = await tableValues[i].getText();
       if (!isNaN(parseInt(value))) {
-
-      } else {
-
+        console.assert(parseInt(value) === numberOfParticipants);
       }
     }
   } catch (err) {
@@ -242,13 +246,17 @@ async function unmaskData(driver) {
 
 
 async function runTests() {
-  let driver = new Builder().forBrowser('chrome').build();
-  var originalTab = driver.getWindowHandle();
+  for (var browser of browsers) {
+    let driver = new Builder().forBrowser(browser).build();
+    var originalTab = driver.getWindowHandle();
 
-  await createSession(driver);
-  await dataSubmission(driver, originalTab);
-  await closeSession(driver, originalTab);
-  await unmaskData(driver);
+    await createSession(driver);
+    await dataSubmission(driver, originalTab);
+    await closeSession(driver, originalTab);
+    await unmaskData(driver);
+    await driver.quit();
+    //
+  }
 }
 runTests();
 
