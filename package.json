@@ -8,9 +8,10 @@
   },
   "dependencies": {
     "amdefine": "^1.0.1",
+    "chromedriver": "^74.0.0",
     "forge": "^2.3.0",
-    "selenium-webdriver": "^4.0.0-alpha.1",
-    "testcafe": "^1.1.1"
+    "mocha": "^6.1.4",
+    "selenium-webdriver": "^4.0.0-alpha.1"
   },
   "devDependencies": {
     "chai": "^4.2.0",
@@ -20,7 +21,7 @@
     "eslint-plugin-requirejs": "^3.1.1"
   },
   "scripts": {
-    "test": "node test/selenium/test.js"
+    "test": "mocha test/selenium/mocha_tests.js"
   },
   "repository": {
     "type": "git",

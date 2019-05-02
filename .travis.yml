@@ -15,8 +15,8 @@ addons:
 before_script:
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
-  - sleep 3
   - fluxbox >/dev/null 2>&1 &
+  - node server/index.js & 
 
 services:
   - mongodb
@@ -28,4 +28,4 @@ install:
 
 script:
   - npm test
-  - node test/cafe/session_interaction.js
+  
