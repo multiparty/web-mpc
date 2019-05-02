@@ -20,34 +20,34 @@ async function createSession(driver){
   driver.sleep(1000);
   try {
 
-    await driver.get('localhost:8080/create')
-      .then(() => driver.findElement(By.id('session-title')) )
-      .then((title) =>  title.sendKeys('test-session') )
-      .then(() => driver.findElement(By.id('session-description')) )
-        .then((description) => description.sendKeys('test-session description') )
-        .then(() => driver.findElement(By.id('generate')).click() )
+    // await driver.get('localhost:8080/create')
+    //   .then(() => driver.findElement(By.id('session-title')) )
+    //   .then((title) =>  title.sendKeys('test-session') )
+    //   .then(() => driver.findElement(By.id('session-description')) )
+    //     .then((description) => description.sendKeys('test-session description') )
+    //     .then(() => driver.findElement(By.id('generate')).click() )
 
-    // wait for sessionKey to be displayed
-    await driver.wait(function() {
-      return driver.findElement(By.id('sessionID')).isDisplayed();
-    }, 10000);
-    // save session key
-    await driver.findElement(By.id('sessionID'))
-      .then(elem => elem.getText()
-        .then(function (text) {
-          sessionKey = text;
-          //console.log('sessionKey', text);
-        }));
-    // wait for sessionPassword to be displayed
-    await driver.wait(function() {
-      return driver.findElement(By.id('passwordID')).isDisplayed();
-    }, 10000);
-    //save sessionPassword
-    await driver.findElement(By.id('passwordID'))
-      .then(elem => elem.getText()
-        .then(function (text) {
-          sessionPassword = text;
-        }));
+    // // wait for sessionKey to be displayed
+    // await driver.wait(function() {
+    //   return driver.findElement(By.id('sessionID')).isDisplayed();
+    // }, 10000);
+    // // save session key
+    // await driver.findElement(By.id('sessionID'))
+    //   .then(elem => elem.getText()
+    //     .then(function (text) {
+    //       sessionKey = text;
+    //       //console.log('sessionKey', text);
+    //     }));
+    // // wait for sessionPassword to be displayed
+    // await driver.wait(function() {
+    //   return driver.findElement(By.id('passwordID')).isDisplayed();
+    // }, 10000);
+    // //save sessionPassword
+    // await driver.findElement(By.id('passwordID'))
+    //   .then(elem => elem.getText()
+    //     .then(function (text) {
+    //       sessionPassword = text;
+    //     }));
 
     await driver.wait(function() {
       return driver.findElement(By.id('link-id')).isDisplayed();
@@ -124,6 +124,7 @@ async function dataSubmission(driver, originalTab) {
         await driver.switchTo().window(windows[i]);
       }
     }
+
     for (var i = 0; i < participant_links.length; i++){
       //console.log(participant_links[i]);
       await driver.get(participant_links[i])
