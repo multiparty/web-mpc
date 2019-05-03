@@ -20,7 +20,7 @@ var service = new chrome.ServiceBuilder(path).build();
     chrome.setDefaultService(service);
 var driver = new webdriver.Builder()
     .forBrowser('chrome')
-    .withCapabilities(webdriver.Capabilities.chrome())
+    .withCapabilities(webdriver.Capabilities.chrome()) 
     .build();
 
 
@@ -31,7 +31,7 @@ function getUserHome() {
 
 describe('End-to-end workflow test', function() {
 
-  it('Create session', function (done) {
+  it('Create session', async () => {
 
     await driver.get('localhost:8080/create')
       .then(() => driver.findElement(By.id('session-title')))
@@ -64,8 +64,6 @@ describe('End-to-end workflow test', function() {
           console.log('sessionPs', sessionPassword);
           expect(text.length).to.equal(26);
         }));
-
-    done();
   });    
 
   // it ('Get participant links', async() => {
