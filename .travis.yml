@@ -16,6 +16,7 @@ before_script:
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
   - fluxbox >/dev/null 2>&1 &
+  - node server/index.js & 
 
 services:
   - mongodb
@@ -26,6 +27,5 @@ install:
   - cd server && npm install && cd ..
 
 script:
-  - node server/index.js
   - npm test
   
