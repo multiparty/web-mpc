@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "amdefine": "^1.0.1",
+    "chromedriver": "^74.0.0",
     "forge": "^2.3.0",
     "mocha": "^6.1.4",
     "selenium-webdriver": "^4.0.0-alpha.1"

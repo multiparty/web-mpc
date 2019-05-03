@@ -3,6 +3,8 @@ const assert = require('assert');
 const webdriver = require('selenium-webdriver');
 const {Builder, By, Key, until} = require('selenium-webdriver');
 const expect = require('chai').expect;
+let chrome = require('selenium-webdriver/chrome');
+let path = require('chromedriver').path;
 
 let sessionKey = null;
 let sessionPassword = null;
@@ -14,10 +16,12 @@ const numberOfParticipants = 2;
 const participant_codes = [];
 const participant_links = [];
 
-
+var service = new chrome.ServiceBuilder(path).build();
+    chrome.setDefaultService(service);
 var driver = new webdriver.Builder()
-.withCapabilities(webdriver.Capabilities.chrome())
-.build();
+    .forBrowser('chrome')
+    .withCapabilities(webdriver.Capabilities.chrome())
+    .build();
 
 
 function getUserHome() {
@@ -62,59 +66,59 @@ describe('End-to-end workflow test', function() {
         }));
   });    
 
-  it ('Get participant links', async() => {
-    await driver.wait(function() {
-      return driver.findElement(By.id('link-id')).isDisplayed();
-    }, 20000);
-    // click link to manage page
-    await driver.findElement(By.id('link-id'))
-      .then((manageLink) => manageLink.click());
+  // it ('Get participant links', async() => {
+  //   await driver.wait(function() {
+  //     return driver.findElement(By.id('link-id')).isDisplayed();
+  //   }, 20000);
+  //   // click link to manage page
+  //   await driver.findElement(By.id('link-id'))
+  //     .then((manageLink) => manageLink.click());
 
-    // wait for fields to appear, then enter session password (SessionKey should be filled already)
-    await driver.wait(function() {
-      return driver.findElement(By.id('password')).isDisplayed();
-    }, 2000);
+  //   // wait for fields to appear, then enter session password (SessionKey should be filled already)
+  //   await driver.wait(function() {
+  //     return driver.findElement(By.id('password')).isDisplayed();
+  //   }, 2000);
 
-    await driver.findElement(By.id('password'))
-      .then((description) => description.sendKeys(sessionPassword) )
-      //click submit button
-      .then(() => driver.findElement(By.id('login')).click() );
+  //   await driver.findElement(By.id('password'))
+  //     .then((description) => description.sendKeys(sessionPassword) )
+  //     //click submit button
+  //     .then(() => driver.findElement(By.id('login')).click() );
 
-    await driver.sleep(200);
-    await driver.wait(function() {
-      return driver.findElement(By.id('session-start')).isDisplayed();
-    }, 20000);
-    //start session
-    await driver.findElement(By.id('session-start'))
-      .then((startButton) => startButton.click() );
+  //   await driver.sleep(200);
+  //   await driver.wait(function() {
+  //     return driver.findElement(By.id('session-start')).isDisplayed();
+  //   }, 20000);
+  //   //start session
+  //   await driver.findElement(By.id('session-start'))
+  //     .then((startButton) => startButton.click() );
 
-    await driver.sleep(100);
-    //add participants
-    await driver.wait(function () {
-      return driver.findElement(By.id('participants-submit')).isDisplayed();
-    }, 20000);
-    await driver.findElement(By.id('participants-count'))
-      .then((description) => description.sendKeys(numberOfParticipants.toString()) )
-      .then(() => driver.findElement(By.id('participants-submit')).click() );
+  //   await driver.sleep(100);
+  //   //add participants
+  //   await driver.wait(function () {
+  //     return driver.findElement(By.id('participants-submit')).isDisplayed();
+  //   }, 20000);
+  //   await driver.findElement(By.id('participants-count'))
+  //     .then((description) => description.sendKeys(numberOfParticipants.toString()) )
+  //     .then(() => driver.findElement(By.id('participants-submit')).click() );
 
-    await driver.wait(function () {
-      return driver.findElement(By.id('participants-new')).isDisplayed();
-    }, 10000);
-    await driver.findElement(By.id('participants-new'))
-      .then((participants) => participants.getText().then(function (text) {
-        var participants = text.trim().split('\n');
-        for (var i = 0; i < participants.length; i++) {
-          participants[i] = participants[i].trim();
-          participant_links.push(participants[i]);
+  //   await driver.wait(function () {
+  //     return driver.findElement(By.id('participants-new')).isDisplayed();
+  //   }, 10000);
+  //   await driver.findElement(By.id('participants-new'))
+  //     .then((participants) => participants.getText().then(function (text) {
+  //       var participants = text.trim().split('\n');
+  //       for (var i = 0; i < participants.length; i++) {
+  //         participants[i] = participants[i].trim();
+  //         participant_links.push(participants[i]);
 
-          if (participants[i] !== '') {
-            var index = participants[i].indexOf('participationCode') + 'participationCode'.length + 1;
-            participant_codes.push(participants[i].substring(index));
-          }
-        }
-        expect(participant_links.length).to.equal(numberOfParticipants);
-      }) );
-  });
+  //         if (participants[i] !== '') {
+  //           var index = participants[i].indexOf('participationCode') + 'participationCode'.length + 1;
+  //           participant_codes.push(participants[i].substring(index));
+  //         }
+  //       }
+  //       expect(participant_links.length).to.equal(numberOfParticipants);
+  //     }) );
+  // });
 
   // it('Data submission', async() => {
   
