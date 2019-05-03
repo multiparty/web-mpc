@@ -31,7 +31,7 @@ function getUserHome() {
 
 describe('End-to-end workflow test', function() {
 
-  it('Create session', async () => {
+  it('Create session', function (done) {
 
     await driver.get('localhost:8080/create')
       .then(() => driver.findElement(By.id('session-title')))
@@ -64,6 +64,8 @@ describe('End-to-end workflow test', function() {
           console.log('sessionPs', sessionPassword);
           expect(text.length).to.equal(26);
         }));
+
+    done();
   });    
 
   // it ('Get participant links', async() => {
