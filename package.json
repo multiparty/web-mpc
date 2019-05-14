@@ -21,7 +21,7 @@
     "eslint-plugin-requirejs": "^3.1.1"
   },
   "scripts": {
-    "test": "mocha test/selenium/mocha_tests.js"
+    "test": "mocha --timeout 800000 test/selenium/mocha_tests.js"
   },
   "repository": {
     "type": "git",
