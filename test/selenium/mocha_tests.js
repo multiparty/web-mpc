@@ -72,18 +72,23 @@ describe('End-to-end workflow test', function() {
 
   it ('Get participant links', async() => {
     try {
-      driver.get('http://localhost:8080/manage');
-      driver.sleep(200);
-
-      await driver.findElement(By.id('session'))
-        .then((session) => session.sendKeys(sessionKey));
-    
+      await driver.wait(function() {
+        return driver.findElement(By.id('link-id')).isDisplayed();
+      }, 20000);
+      // click link to manage page
+      await driver.findElement(By.id('link-id'))
+        .then((manageLink) => manageLink.click());
+  
+      // wait for fields to appear, then enter session password (SessionKey should be filled already)
+      await driver.wait(function() {
+        return driver.findElement(By.id('password')).isDisplayed();
+      }, 2000);
+  
       await driver.findElement(By.id('password'))
-        .then((password) => password.sendKeys(sessionPassword))
+        .then((description) => description.sendKeys(sessionPassword) )
         //click submit button
-        .then(() => driver.findElement(By.id('login')).click());
-      
-
+        .then(() => driver.findElement(By.id('login')).click() );
+  
       await driver.sleep(200);
       await driver.wait(function() {
         return driver.findElement(By.id('session-start')).isDisplayed();
@@ -91,16 +96,16 @@ describe('End-to-end workflow test', function() {
       //start session
       await driver.findElement(By.id('session-start'))
         .then((startButton) => startButton.click() );
-
+  
       await driver.sleep(100);
       //add participants
       await driver.wait(function () {
         return driver.findElement(By.id('participants-submit')).isDisplayed();
       }, 20000);
       await driver.findElement(By.id('participants-count'))
-        .then((partCount) => partCount.sendKeys(numberOfParticipants.toString()) )
+        .then((description) => description.sendKeys(numberOfParticipants.toString()) )
         .then(() => driver.findElement(By.id('participants-submit')).click() );
-
+  
       await driver.wait(function () {
         return driver.findElement(By.id('participants-new')).isDisplayed();
       }, 10000);
@@ -110,7 +115,7 @@ describe('End-to-end workflow test', function() {
           for (var i = 0; i < participants.length; i++) {
             participants[i] = participants[i].trim();
             participant_links.push(participants[i]);
-
+  
             if (participants[i] !== '') {
               var index = participants[i].indexOf('participationCode') + 'participationCode'.length + 1;
               participant_codes.push(participants[i].substring(index));
@@ -120,9 +125,10 @@ describe('End-to-end workflow test', function() {
           console.log('Number of participants: ', participant_links.length, ',' , numberOfParticipants);
           console.log(participant_links);
         }) );
-    } catch (e) {
-      assert.fail('Participation link generation failure: ' + e)
+      } catch (e) {
+      handleFailure(e, driver)
     }
+
   });
 
   it('Data submission', async() => {
