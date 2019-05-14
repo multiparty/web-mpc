@@ -1,5 +1,5 @@
 const assert = require('assert');
-// const test = require('selenium-webdriver/testing');
+{ describe , before , after , it }  require('selenium-webdriver/testing');
 const webdriver = require('selenium-webdriver');
 const {Builder, By, Key, until} = require('selenium-webdriver');
 const expect = require('chai').expect;
@@ -9,15 +9,28 @@ let path = require('chromedriver').path;
 let sessionKey = null;
 let sessionPassword = null;
 
-var service = new chrome.ServiceBuilder(path).build();
+function createDriver() {
+  var service = new chrome.ServiceBuilder(path).build();
     chrome.setDefaultService(service);
-var driver = new webdriver.Builder()
+  var driver = new webdriver.Builder()
     .forBrowser('chrome')
     .withCapabilities(webdriver.Capabilities.chrome())
     .build();
 
+  return driver;
+
+}
+
 
 describe('End-to-end workflow test', function() {
+  var driver; 
+  before(function() {
+    driver = createDriver();
+  });
+
+  after(function() {
+    driver.quit();
+  });
 
   it('Create session', async () => {
 
