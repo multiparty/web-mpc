@@ -23,7 +23,7 @@
     "nightwatch": "^1.0.19"
   },
   "scripts": {
-    "test": "mocha --timeout 300000 test/selenium/mocha_tests.js"
+    "test": "mocha --timeout 600000 test/selenium/mocha_tests.js"
   },
   "repository": {
     "type": "git",
