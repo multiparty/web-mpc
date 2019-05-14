@@ -4,7 +4,6 @@ const { By } = require('selenium-webdriver');
 const expect = require('chai').expect;
 let chrome = require('selenium-webdriver/chrome');
 let path = require('chromedriver').path;
-const fs = require('fs');
 
 
 let sessionKey = null;
@@ -59,7 +58,7 @@ describe('End-to-end workflow test', function() {
   // - - - - - - -
   function handleFailure(err, driver) {
     // driver.takeScreenshot();
-    assert.fail('Error: ', err)
+    assert.fail('Error: ' + err)
     driver.quit();
   }
   
@@ -212,6 +211,7 @@ describe('End-to-end workflow test', function() {
         var value = await tableValues[i].getText();
         if (!isNaN(parseInt(value))) {
           expect(parseInt(value)).to.equal(numberOfParticipants);
+          console.log(parseInt(value));
         }
       }
     } catch (err) {
