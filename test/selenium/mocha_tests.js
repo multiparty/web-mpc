@@ -1,11 +1,11 @@
 const assert = require('assert');
-{ describe , before , after , it }  require('selenium-webdriver/testing');
 const webdriver = require('selenium-webdriver');
-const {Builder, By, Key, until} = require('selenium-webdriver');
+const { By } = require('selenium-webdriver');
 const expect = require('chai').expect;
 let chrome = require('selenium-webdriver/chrome');
 let path = require('chromedriver').path;
 const fs = require('fs');
+
 
 let sessionKey = null;
 let sessionPassword = null;
@@ -128,127 +128,83 @@ describe('End-to-end workflow test', function() {
       } catch (e) {
       handleFailure(e, driver)
     }
-
   });
 
   it('Data submission', async() => {
     var originalTab = driver.getWindowHandle();
     await dataSubmission(driver, originalTab);
-
-    // try {
-    //   for (var l of participant_links) {
-
-    //     await driver.get('http://localhost:8080').then(async function() {
-
-    //       const session = await driver.findElement(By.id('session'));
-    //       session.click();
-    //       session.sendKeys(sessionKey);
-
-    //       const participationCode = await driver.findElement(By.id('participation-code'));
-    //       participationCode.click();
-    //       participationCode.sendKeys(l.split('&participationCode=')[1]);
-
-    //       var sessionSuccess = await driver.findElement(By.id('session-success'));
-
-    //       expect(sessionSuccess).to.exist;
-
-    //       var fileUpload = await driver.findElement(By.id('choose-file'));
-    //       var filePath = process.cwd() + '/test/selenium/files/bwwc.xlsx';
-          
-    //       fs.open(filePath, 'r', (err, fd) => {
-    //         if (err) {
-    //           console.log('error', err);
-    //         } else {
-    //           console.log('success');
-    //         }
-    //       });
-    //       await fileUpload.sendKeys(filePath);
-
-    //       await driver.findElements(By.className('ajs-ok'))
-    //       .then(function(ok) {
-    //         if (ok.length > 0) {
-    //           ok[0].click();
-    //         } else {
-    //           assert.fail('Data failed to upload.');
-    //         }
-    //       });
-          
-    //       var surveyOpts = await driver.findElements(By.xpath('//input[@name="optradio" and @value="1"]'));
-    //       if (surveyOpts[0].isSelected()) {
-    //         for (var k = 0; k < surveyOpts.length; k++) {
-    //           surveyOpts[k].click();
-    //         }
-    //       } else {
-    //         assert.fail('Survey failure.')
-    //       }
-
-                
-    //       var verifyBox = await driver.findElement(By.id('verify'));
-    //       verifyBox.click();
-
-    //       driver.sleep(10000);
-    //       var button = await driver.findElement(By.id('submit'));
-    //       button.click();
-          
-    //       await driver.findElements(By.className('ajs-ok'))
-    //       .then(function(ok) {
-    //         if (ok.length > 0) {
-    //           ok[0].click();
-    //         } else {
-    //           assert.fail('Data failed to upload.');
-    //         }
-    //       });
-
-    //       var success = await driver.findElements(By.id('submission-success-btn'));
-    //       expect(success).to.exist;
-    //     });
-    //   }
-
-    // } catch(err) {
-    //   console.log('err', err)
-    //   assert.fail('Data submission failure', err)
-    // }
   });
 
-  // it('Close session', async() => {
-  //   try {
-  //     driver.get('http://localhost:8080/manage');
+  it('Close and unmask session', async() => {
+    var tabs = await driver.getAllWindowHandles();
+    await closeSession(driver, tabs[0]);
+    await unmaskData(driver);
+  });
 
-  //     await driver.findElement(By.id('session'))
-  //       .then((session) => session.sendKeys(sessionKey));
-    
-  //     await driver.findElement(By.id('password'))
-  //       .then((password) => password.sendKeys(sessionPassword))
-  //       //click submit button
-  //       .then(() => driver.findElement(By.id('login')).click());
-
-  //     await driver.sleep(200);
-  //     await driver.wait(function() {
-  //       return driver.findElement(By.id('session-stop')).isDisplayed();
-  //     }, 20000);
-  //     //start session
-  //     await driver.findElement(By.id('session-stop'))
-  //       .then((stopButton) => stopButton.click());
-
-
-  //     await driver.sleep(500);
-  //     var confirmButton = await driver.findElement(By.id('session-close-confirm'));
-  //     confirmButton.click();
-
-  //     // TODO: check submission table rows = # submissions
-  //     await driver.findElement(By.id('table'))
-  //       .then((table) => expect(table).to.exist);
-        
-  //   } catch (e) {
-  //     assert.fail('Closing session failure', e)
-  //   }
-  // });
-
-
+  // - - - - - - - 
+  // H E L P E R S
+  // - - - - - - -
   function handleFailure(err, driver) {
     // driver.takeScreenshot();
     assert.fail('Error: ', err)
     driver.quit();
+  }
+
+  async function closeSession(driver, originalTab) {
+    try {
+      //switch back to manage page
+      await driver.switchTo().window(originalTab);
+      driver.sleep(20000);
+      // stop session
+      var stopButton = await driver.findElement(By.id('session-stop'));
+      stopButton.click();
+      // press okay
+      await driver.sleep(500);
+      var confirmButton = await driver.findElement(By.id('session-close-confirm'));
+      confirmButton.click();  
+      // unmask
+      await driver.sleep(500);
+      // click link to unmask page
+      await driver.findElement(By.xpath('//a[.="here"]'))
+        .then((manageLink) => manageLink.click());
+    } catch (err) {
+      handleFailure(err, driver);
+    }
+  
+  }
+  
+  function getUserHome() {
+    return process.env.HOME || process.env.USERPROFILE;
+  }
+  async function unmaskData(driver) {
+    try {
+      await driver.sleep(500);
+      driver.findElement(By.id('session'))
+        .then((key) =>  key.sendKeys(sessionKey) )
+        .then(() => driver.findElement(By.id('session-password')) )
+        .then((password) => password.sendKeys(sessionPassword) )
+      await driver.sleep(500);
+      var fileUpload = await driver.findElement(By.id('choose-file'));
+      var filePath = getUserHome() + '/Downloads/' + 'Session_' + sessionKey + '_private_key.pem'
+      fileUpload.sendKeys(filePath);
+  
+  
+      var tableValues;
+      await driver.wait(async function () {
+        tableValues = await driver.findElements(By.xpath('//td[@class="htDimmed"]'));
+        return (tableValues.length > 0);
+      }, 5000);
+  
+      // check values
+      for (var i = 0; i < tableValues.length; i++) {
+        var value = await tableValues[i].getText();
+        if (!isNaN(parseInt(value))) {
+          console.assert(parseInt(value) === numberOfParticipants);
+        }
+      }
+    } catch (err) {
+      handleFailure(err, driver);
+    }
   }
 
   async function dataSubmission(driver, originalTab) {
@@ -336,36 +292,4 @@ describe('End-to-end workflow test', function() {
       handleFailure(err, driver);
     }
   }
-
-  // it('Unmask submission', async() => {
-  //   try {
-  //     await driver.sleep(500);
-  //     driver.findElement(By.id('session'))
-  //       .then((key) =>  key.sendKeys(sessionKey) )
-  //       .then(() => driver.findElement(By.id('session-password')) )
-  //       .then((password) => password.sendKeys(sessionPassword) )
-  //     await driver.sleep(500);
-  //     var fileUpload = await driver.findElement(By.id('choose-file'));
-  //     var filePath = getUserHome() + '/Downloads/' + 'Session_' + sessionKey + '_private_key.pem'
-  //     fileUpload.sendKeys(filePath);
-  
-  
-  //     var tableValues;
-  //     await driver.wait(async function () {
-  //       tableValues = await driver.findElements(By.xpath('//td[@class="htDimmed"]'));
-  //       return (tableValues.length > 0);
-  //     }, 5000);
-  
-  //     // check values
-  //     for (var i = 0; i < tableValues.length; i++) {
-  //       var value = await tableValues[i].getText();
-  //       if (!isNaN(parseInt(value))) {
-  //         console.assert(parseInt(value) === numberOfParticipants);
-  //       }
-  //     }
-  //   } catch (err) {
-  //     handleFailure(err, driver);
-  //   }
-
-  // });
 });
