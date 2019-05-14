@@ -73,6 +73,7 @@ describe('End-to-end workflow test', function() {
   it ('Get participant links', async() => {
     try {
       driver.get('http://localhost:8080/manage');
+      driver.sleep(200);
 
       await driver.findElement(By.id('session'))
         .then((session) => session.sendKeys(sessionKey));
@@ -120,7 +121,7 @@ describe('End-to-end workflow test', function() {
           console.log(participant_links);
         }) );
     } catch (e) {
-      assert.fail('Participation link generation failure', e)
+      assert.fail('Participation link generation failure: ' + e)
     }
   });
 
