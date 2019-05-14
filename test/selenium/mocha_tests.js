@@ -9,7 +9,7 @@ const fs = require('fs');
 
 let sessionKey = null;
 let sessionPassword = null;
-const numberOfParticipants = 2;
+const numberOfParticipants = 4;
 // const cohortNumber = 1;
 const participant_codes = [];
 const participant_links = [];
