@@ -36,41 +36,73 @@ describe('End-to-end workflow test', function() {
   });
 
   it('Create session', async () => {
-
-    await driver.get('localhost:8080/create')
-      .then(() => driver.findElement(By.id('session-title')))
-      .then((title) =>  title.sendKeys('test-session'))
-      .then(() => driver.findElement(By.id('session-description')))
-      .then((description) => description.sendKeys('test-session description'))
-      .then(() => driver.findElement(By.id('generate')).click());
-
-    // Get session key
-    await driver.wait(function() {
-      return driver.findElement(By.id('sessionID')).isDisplayed();
-    }, 10000);
-    await driver.findElement(By.id('sessionID'))
-      .then(elem => elem.getText()
-        .then(function (text) {
-          sessionKey = text;
-          console.log('key', sessionKey);
-          expect(text.length).to.equal(26);
-        }));
-
-    // Get session password
-    await driver.wait(function() {
-      return driver.findElement(By.id('passwordID')).isDisplayed();
-    }, 10000);
-    //save sessionPassword
-    await driver.findElement(By.id('passwordID'))
-      .then(elem => elem.getText()
-        .then(function (text) {
-          sessionPassword = text;
-          console.log('sessionPs', sessionPassword);
-          expect(text.length).to.equal(26);
-        }));
+    await createSession(driver);
   });    
 
   it ('Get participant links', async() => {
+    await generateParticipantLinks(driver);
+  });
+
+  it('Data submission', async() => {
+    var originalTab = driver.getWindowHandle();
+    await dataSubmission(driver, originalTab);
+  });
+
+  it('Close and unmask session', async() => {
+    var tabs = await driver.getAllWindowHandles();
+    await closeSession(driver, tabs[0]);
+    await unmaskData(driver);
+  });
+
+  // - - - - - - - 
+  // H E L P E R S
+  // - - - - - - -
+  function handleFailure(err, driver) {
+    // driver.takeScreenshot();
+    assert.fail('Error: ', err)
+    driver.quit();
+  }
+  
+  function getUserHome() {
+    return process.env.HOME || process.env.USERPROFILE;
+  }
+
+  async function createSession(driver) {
+    await driver.get('localhost:8080/create')
+    .then(() => driver.findElement(By.id('session-title')))
+    .then((title) =>  title.sendKeys('test-session'))
+    .then(() => driver.findElement(By.id('session-description')))
+    .then((description) => description.sendKeys('test-session description'))
+    .then(() => driver.findElement(By.id('generate')).click());
+
+  // Get session key
+  await driver.wait(function() {
+    return driver.findElement(By.id('sessionID')).isDisplayed();
+  }, 10000);
+  await driver.findElement(By.id('sessionID'))
+    .then(elem => elem.getText()
+      .then(function (text) {
+        sessionKey = text;
+        console.log('key', sessionKey);
+        expect(text.length).to.equal(26);
+      }));
+
+  // Get session password
+  await driver.wait(function() {
+    return driver.findElement(By.id('passwordID')).isDisplayed();
+  }, 10000);
+  //save sessionPassword
+  await driver.findElement(By.id('passwordID'))
+    .then(elem => elem.getText()
+      .then(function (text) {
+        sessionPassword = text;
+        console.log('sessionPs', sessionPassword);
+        expect(text.length).to.equal(26);
+      }));
+  }
+
+
+  async function generateParticipantLinks(driver) {
     try {
       await driver.wait(function() {
         return driver.findElement(By.id('link-id')).isDisplayed();
@@ -128,26 +160,6 @@ describe('End-to-end workflow test', function() {
       } catch (e) {
       handleFailure(e, driver)
     }
-  });
-
-  it('Data submission', async() => {
-    var originalTab = driver.getWindowHandle();
-    await dataSubmission(driver, originalTab);
-  });
-
-  it('Close and unmask session', async() => {
-    var tabs = await driver.getAllWindowHandles();
-    await closeSession(driver, tabs[0]);
-    await unmaskData(driver);
-  });
-
-  // - - - - - - - 
-  // H E L P E R S
-  // - - - - - - -
-  function handleFailure(err, driver) {
-    // driver.takeScreenshot();
-    assert.fail('Error: ', err)
-    driver.quit();
   }
 
   async function closeSession(driver, originalTab) {
@@ -162,6 +174,10 @@ describe('End-to-end workflow test', function() {
       await driver.sleep(500);
       var confirmButton = await driver.findElement(By.id('session-close-confirm'));
       confirmButton.click();  
+
+      const table = await driver.findElement(By.id('table'));
+      expect(table).to.exist;
+
       // unmask
       await driver.sleep(500);
       // click link to unmask page
@@ -170,12 +186,8 @@ describe('End-to-end workflow test', function() {
     } catch (err) {
       handleFailure(err, driver);
     }
-  
   }
-  
-  function getUserHome() {
-    return process.env.HOME || process.env.USERPROFILE;
-  }
+
   async function unmaskData(driver) {
     try {
       await driver.sleep(500);
@@ -199,7 +211,7 @@ describe('End-to-end workflow test', function() {
       for (var i = 0; i < tableValues.length; i++) {
         var value = await tableValues[i].getText();
         if (!isNaN(parseInt(value))) {
-          console.assert(parseInt(value) === numberOfParticipants);
+          expect(parseInt(value)).to.equal(numberOfParticipants);
         }
       }
     } catch (err) {
@@ -210,7 +222,6 @@ describe('End-to-end workflow test', function() {
   async function dataSubmission(driver, originalTab) {
     try {
       await driver.wait(function () {
-        //console.log('waiting for session to be created', participant_links);
         return participant_links.length > 0;
       }, 20000);
       driver.executeScript('window.open();');
@@ -228,7 +239,6 @@ describe('End-to-end workflow test', function() {
       }
   
       for (var i = 0; i < participant_links.length; i++){
-        //console.log(participant_links[i]);
         await driver.get(participant_links[i])
           .then(async function () {
             //wait to have the session id / code verified
@@ -285,7 +295,6 @@ describe('End-to-end workflow test', function() {
             await driver.sleep(3000);
             var success = await driver.findElements(By.id('submission-success-btn'));
             expect(success).to.exist;
-  
           });
       }
     } catch (err) {
