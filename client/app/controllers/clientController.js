@@ -30,7 +30,7 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
     }
 
     function success(msg) {
-      alertify.alert('<img src="/images/accept.png" alt="Success">Success!', msg);
+      alertify.alert('<img id="submission-success-btn" src="/images/accept.png" alt="Success">Success!', msg);
     }
 
     /**
