@@ -9,7 +9,7 @@ let path = require('chromedriver').path;
 let sessionKey = null;
 let sessionPassword = null;
 
-const numberOfParticipants = 4;
+const numberOfParticipants = 2;
 // const cohortNumber = 1;
 const dataValue = 2;
 
@@ -156,7 +156,7 @@ describe('End-to-end workflow test', function() {
             }
           }
           expect(participant_links.length).to.equal(numberOfParticipants);
-          console.log('Number of participants: ', participant_links.length, ',' , numberOfParticipants);
+          console.log('Number of links: ', participant_links.length);
           console.log(participant_links);
         }) );
       } catch (e) {
@@ -177,8 +177,10 @@ describe('End-to-end workflow test', function() {
       var confirmButton = await driver.findElement(By.id('session-close-confirm'));
       confirmButton.click();  
 
-      const table = await driver.findElement(By.id('table'));
-      expect(table).to.exist;
+      const rows = await driver.findElements(By.id('history-row')); 
+      expect(rows.length).to.equal(numberOfParticipants);
+      console.log('Number of submissions: ', rows.length);
+
 
       // unmask
       await driver.sleep(500);
