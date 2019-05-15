@@ -2,16 +2,14 @@ const assert = require('assert');
 const webdriver = require('selenium-webdriver');
 const { By } = require('selenium-webdriver');
 const expect = require('chai').expect;
-let chrome = require('selenium-webdriver/chrome');
-let path = require('chromedriver').path;
-
+const chrome = require('selenium-webdriver/chrome');
+const path = require('chromedriver').path;
 
 let sessionKey = null;
 let sessionPassword = null;
 
-const numberOfParticipants = 4;
-// const cohortNumber = 1;
-const dataValue = 2;
+const numberOfParticipants = 2;
+const dataValue = 1;
 
 const participant_codes = [];
 const participant_links = [];
