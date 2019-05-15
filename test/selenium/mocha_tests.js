@@ -210,7 +210,7 @@ describe('End-to-end workflow test', function() {
       for (var i = 0; i < tableValues.length; i++) {
         var value = await tableValues[i].getText();
         if (!isNaN(parseInt(value))) {
-          expect(parseInt(value)).to.equal(numberOfParticipants);
+          expect(parseInt(value)).to.equal(1);
         }
       }
     } catch (err) {
