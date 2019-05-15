@@ -9,7 +9,7 @@ let path = require('chromedriver').path;
 let sessionKey = null;
 let sessionPassword = null;
 
-const numberOfParticipants = 2;
+const numberOfParticipants = 4;
 // const cohortNumber = 1;
 const dataValue = 2;
 
@@ -296,7 +296,7 @@ describe('End-to-end workflow test', function() {
             }, 5000);
   
             //TODO wait until submission confirmation popup
-            await driver.sleep(5000);
+            await driver.sleep(10000);
             var success = await driver.findElements(By.id('submission-success-btn'));
             expect(success).to.exist;
           });
