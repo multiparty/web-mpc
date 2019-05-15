@@ -8,7 +8,7 @@ let path = require('chromedriver').path;
 
 let sessionKey = null;
 let sessionPassword = null;
-const numberOfParticipants = 2;
+const numberOfParticipants = 4;
 // const cohortNumber = 1;
 const participant_codes = [];
 const participant_links = [];
@@ -211,7 +211,6 @@ describe('End-to-end workflow test', function() {
         var value = await tableValues[i].getText();
         if (!isNaN(parseInt(value))) {
           expect(parseInt(value)).to.equal(numberOfParticipants);
-          console.log(parseInt(value));
         }
       }
     } catch (err) {
