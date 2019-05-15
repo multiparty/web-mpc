@@ -8,8 +8,11 @@ let path = require('chromedriver').path;
 
 let sessionKey = null;
 let sessionPassword = null;
+
 const numberOfParticipants = 4;
 // const cohortNumber = 1;
+const dataValue = 2;
+
 const participant_codes = [];
 const participant_links = [];
 
@@ -210,7 +213,7 @@ describe('End-to-end workflow test', function() {
       for (var i = 0; i < tableValues.length; i++) {
         var value = await tableValues[i].getText();
         if (!isNaN(parseInt(value))) {
-          expect(parseInt(value)).to.equal(1);
+          expect(parseInt(value)).to.equal(dataValue * numberOfParticipants);
         }
       }
     } catch (err) {
