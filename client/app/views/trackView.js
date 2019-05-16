@@ -225,6 +225,7 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda',  '
         $historySection.setAttribute('class', 'card');
         $title.innerText = cohortName;
         var $subTitle = document.createElement('h3');
+        $subTitle.setAttribute('class', 'historySubTitle');
         $subTitle.innerText = 'Submission History'
         $header.appendChild($title);
         $header.appendChild($subTitle);

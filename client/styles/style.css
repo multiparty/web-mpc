@@ -362,5 +362,8 @@ span.success {
     font-size: small;
     font-weight: 100;
   }
+}
 
+.historySubTitle {
+  margin-top: 0px;
 }

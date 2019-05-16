@@ -14,12 +14,8 @@ module.exports = function (app) {
     res.render('index.html', config.client);
   });
 
-  app.get('/session', function (req, res) {
-    res.sendFile((path.join(__dirname + '/../client/create.html')));
-  });
-
   app.get('/create', function (req, res) {
-    res.sendFile((path.join(__dirname + '/../client/create.html')));
+    res.render('create.html', config.client);
   });
 
   app.get('/manage', function (req, res) {
@@ -30,10 +26,6 @@ module.exports = function (app) {
   app.get('/unmask', function (req, res) {
     // /client/unmask.html
     res.render('unmask.html', config.client);
-  });
-
-  app.get('/definitions', function (req, res) {
-    res.sendFile((path.join(__dirname + '/../client/definitions.html')));
   });
 
   app.use(express.static(__dirname + '/../client'));
