@@ -290,6 +290,10 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
         data_submission['usability'] = usabilityController.analytics;
 
         var cohort = $('#cohortDrop option:selected').text();
+        if (cohort === '-- Select option --') {
+          cohort = null;
+          console.log('null!')
+        }
 
         // TODO: add cohort here
         // Secret share / mask the data.

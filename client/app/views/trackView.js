@@ -78,6 +78,12 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda',  '
           var cohortId = res.cohortId.toString();
           createCohort(cohortName, cohortId);
           enableCohortSubmit(cohortId);
+          document.getElementById("cohort-input").value = "";
+
+          // scroll to correct cohort
+          $('html, body').animate({
+            scrollTop: $("#" + cohortId).offset().top
+        }, 500);
         }
       });
     });
@@ -251,7 +257,7 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda',  '
       // Content
       // TODO: do we need this if the id already shows how many?
       // $historyNum.innerHTML = 'Total number of submissions: <i>0</i>';
-      $idCell.innerText = 'ID';
+      $idCell.innerText = 'Submission #';
       $timeCell.innerText = 'Timestamp';
       
       return $historySection

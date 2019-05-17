@@ -184,12 +184,9 @@ define([], function () {
     }
     all_promises.push(computeUsability(jiff_instance, submitters['all'], ordering));
 
-    console.log("promises!", all_promises);
     // format
     if (jiff_instance.id === 1) {
-      console.log('trying to get results!')
       return Promise.all(all_promises).then(function (results) {
-        console.log('result: ', results)
         var formatted = {cohorts: {}};
         for (var i = 0; i < submitters['cohorts'].length; i++) {
           var cohort = submitters['cohorts'][i];

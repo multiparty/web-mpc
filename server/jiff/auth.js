@@ -34,7 +34,7 @@ function userAuth(computation_id, msg, params) {
               cohortId = c.id;
             }
           }
-
+          
           if (cohortId === null && msg.cohort !== null) {
             reject(new Error('Cohort name does not exist.'));
           }
