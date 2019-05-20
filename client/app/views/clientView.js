@@ -1,7 +1,7 @@
 define(['jquery', 'controllers/clientController', 'controllers/tableController', 'controllers/usabilityController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify', 'table_template', 'bootstrap'],
   function ($, clientController, tableController, usabilityController, DropSheet, Spinner, Ladda, ResizeSensor, alertify, table_template) {
 
-    const SELF_SELECT = "cohort_selection";
+    const SELF_SELECT = 'cohort_selection';
 
     function createQuestionText(text) {
       var p = document.createElement('p');

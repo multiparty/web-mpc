@@ -179,7 +179,6 @@ define([], function () {
     var all_promises = [];
     for (var i = 0; i < submitters['cohorts'].length; i++) {
       var cohort = submitters['cohorts'][i];
-
       all_promises.push(computeCohort(jiff_instance, submitters[cohort], ordering));
     }
     all_promises.push(computeUsability(jiff_instance, submitters['all'], ordering));

@@ -73,7 +73,7 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
     var restOptions = {
       flushInterval: 0,
       pollInterval: 0,
-      maxBatchSize: 1000
+      maxBatchSize: 5000
     };
 
     var port = window.location.port === '8080' ? ':8080' : '';
