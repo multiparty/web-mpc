@@ -22,19 +22,18 @@ function userAuth(computation_id, msg, params) {
       if (!success) {
         reject(new Error(data));
       } else {
+        let cohortId = data.cohort;
         // Give party a consistent id (will remain the same when reconnecting / resubmitting)
         params.party_id = data.jiff_party_id;
-
         // handle cohort
         modulesWrappers.SessionInfo.get(computation_id).then(function (sessionInfo) {
-          let cohortId = null;
-
+          
           for (var c of sessionInfo.cohort_mapping) {
             if (msg.cohort === c.name) {
               cohortId = c.id;
             }
           }
-          
+
           if (cohortId === null && msg.cohort !== null) {
             reject(new Error('Cohort name does not exist.'));
           }

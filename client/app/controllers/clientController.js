@@ -97,7 +97,6 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           dataType: 'text'
         }).then(function (response) {
           JSON.parse(response); // verify response is json (error responses are string messages)
-
           var $parent = $('#session, #participation-code').parent();
           $parent.removeClass('has-error').addClass('has-success has-feedback');
           $parent.find('.success-icon').removeClass('hidden').addClass('show');
@@ -292,11 +291,8 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
         var cohort = $('#cohortDrop option:selected').text();
         if (cohort === '-- Select option --') {
           cohort = null;
-          console.log('null!')
         }
 
-        // TODO: add cohort here
-        // Secret share / mask the data.
         jiffController.client.submit(session, participationCode, data_submission, function (err, response) {
           if (err == null || err === 200) {
             response = JSON.parse(response);
