@@ -1,7 +1,7 @@
 /*eslint no-console: ["error", { allow: ["warn", "error"] }] */
 
-define(['jquery', 'controllers/jiffController', 'controllers/tableController', 'helper/drop_sheet', 'alertify', 'table_template'],
-  function ($, jiffController, tableController, DropSheet, alertify, table_template) {
+define(['jquery', 'controllers/jiffController', 'controllers/tableController', 'controllers/analystController', 'helper/drop_sheet', 'alertify', 'table_template'],
+  function ($, jiffController, tableController, analystController, DropSheet, alertify, table_template) {
     function getParameterByName(name) {
       name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
       var regex = new RegExp('[\\?&]' + name + '=([^&#]*)'),
@@ -35,9 +35,13 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
           var privateKey = e.target.result;
 
           jiffController.analyst.computeAndFormat(sessionKey, sessionPass, privateKey, error, function (result) {
-            // download averages and deviations
-            tableController.saveTables(result['averages'], sessionKey, 'Averages', result['cohorts']);
-            tableController.saveTables(result['deviations'], sessionKey, 'Standard_Deviations', result['cohorts']);
+
+            analystController.getExistingCohorts(sessionKey, sessionPass)
+            .then(function(cohortMapping) {
+              
+              tableController.saveTables(result['averages'], sessionKey, 'Averages', result['cohorts'], cohortMapping);
+              tableController.saveTables(result['deviations'], sessionKey, 'Standard_Deviations', result['cohorts'], cohortMapping);
+            });
 
             if (result['hasQuestions'] === true) {
               tableController.saveQuestions(result['questions'], sessionKey, result['cohorts']);

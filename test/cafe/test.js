@@ -1,22 +1,15 @@
 import { Selector, ClientFunction } from 'testcafe';
 
-const PACESETTERS = 'pacesetters';
-const BWWC = 'bwwc';
 
-let deployment = BWWC;
 let sessionKey = null;
 let sessionPassword = null;
 let participant_codes = [];
 
 // FILL THESE IN
 const numberOfParticipants = 2;
-const cohortNumber = 1;
-const downloadFolder = getUserHome() + '/Downloads/';
-const dataFile = './files/' + deployment + '.xlsx';
+const download_folder = '/Users/lucyqin/Downloads/';
+const data_file = './files/bwwc.xlsx';
 
-function getUserHome() {
-  return process.env.HOME || process.env.USERPROFILE;
-}
 
 function createSession() {
   fixture `Creating a session`
@@ -31,11 +24,29 @@ function createSession() {
 
     sessionKey = (await Selector('#sessionID').innerText).trim();
     sessionPassword = (await Selector('#passwordID').innerText).trim();
+    console.log(sessionKey, sessionPassword);
   });
 }
 
+function startSession() { 
+  fixture `Start`
+    .page `localhost:8080/manage`;
+    test('Starting a session', async t => {
+      await t
+        .click('#session')
+        .typeText('#session', sessionKey)
+        .click('#password')
+        .typeText('#password', sessionPassword)
+        .click('#login')
+        .wait(2000)
+        .click('#session-start');
+    });
+}
+
+
+let participants = null;
+
 function getParticipationCodes() { 
-  console.log(sessionKey, sessionPassword)
   fixture `Participation Codes`
     .page `localhost:8080/manage`;
     test('Generating Participation codes', async t => {
@@ -46,28 +57,21 @@ function getParticipationCodes() {
         .typeText('#password', sessionPassword)
         .click('#login')
         .wait(3000)
-        .typeText('#cohort-number', cohortNumber.toString())
-        .click('#cohort-generate')
-        .click('#session-start');
+        .typeText('#participants-count', numberOfParticipants.toString())
+        .click('#participants-submit')
+        .wait(2000);
 
-      for (var i = 0; i < cohortNumber; i++) {
-        await Selector('#participants-count-' + i);
-        await t
-              .typeText('#participants-count-' + i, numberOfParticipants.toString())
-              .click('#participants-submit-' + i);
-
-        let participants = await Selector("#participants-new-" + i).innerText;
-        participants = participants.trim().split('\n');
-      
-        for (var j = 0; j < participants.length; j++) {
-          participants[j] = participants[j].trim();
-          if (participants[j] !== '') {
-            var index = participants[j].indexOf('participationCode') + 'participationCode'.length + 1;
-            participant_codes.push(participants[j].substring(index));
-         }
+      participants = await Selector('#participants-new').innerText;
+      participants = participants.trim().split('\n');
+      for (var i = 0; i < participants.length; i++) {
+        participants[i] = participants[i].trim();
+        if (participants[i] !== '') {
+          var index = participants[i].indexOf('participationCode') + 'participationCode'.length + 1;
+          participant_codes.push(participants[i].substring(index));
         }
-      }  
-      await t.expect(participant_codes.length).eql(numberOfParticipants * cohortNumber);
+      }
+
+      await t.expect(participant_codes.length).eql(numberOfParticipants);
       console.log(participant_codes);
     });
 }
@@ -77,6 +81,8 @@ function getParticipationCodes() {
 function massUpload() {
   const fileUpload = Selector('#choose-file');
   const okBtn = Selector('button').withText('OK');
+  // const verifyBtn = Selector('label').withText('I verified all data is correct');
+  const successImg = Selector('img').withAttribute('src', '/images/accept.png');
 
   fixture `Mass submission`
     .page `localhost:8080/`;
@@ -93,12 +99,15 @@ function massUpload() {
           .pressKey('delete')
           .click('#participation-code')
           .typeText('#participation-code', participant_codes[i])
-          .setFilesToUpload(fileUpload, dataFile)
+          .setFilesToUpload(fileUpload, data_file)
           .click(okBtn)
+          .click(Selector('label').withText('Human Resources').find('[name="optradio"]'))
+          .click(Selector('label').withText('Large').find('[name="optradio"]'))
+          .click(Selector('label').withText('Extremely easy').find('[name="optradio"]'))
+          .click(Selector('.radio').nth(15).find('label').withText('Extremely easy'))
+          .click(Selector('label').withText('Less than 1 business day').find('[name="optradio"]'))
           .click('#verify')
           .click('#submit')
-          .wait(2500)
-          .click('.ajs-ok');
     });
 }
 
@@ -118,6 +127,12 @@ function endSession() {
     });
 }
 
+
+
+sessionKey = 'n9jmp852q6ecv4ng669g2fhf7m';
+
+sessionPassword = '6rw4p5gv6xn9t98ddazn5mnh3c';
+
 function unmaskData() {
   const fileUpload = Selector('#choose-file');
 
@@ -136,21 +151,25 @@ function unmaskData() {
 
   fixture `Unmasking`
     .page `localhost:8080/unmask`;
+    var values = Selector('.htDimmed');
     test('Unmasking data', async t => {
       await t
       .click('#session')
+      .debug()
       .typeText('#session', sessionKey)
       .click('#session-password')
       .typeText('#session-password', sessionPassword)
-      .setFilesToUpload(fileUpload, downloadFolder+'Session_' + sessionKey + '_private_key.pem')
+      .setFilesToUpload(fileUpload, download_folder+'Session_' + sessionKey + '_private_key.pem')
       .wait(3000)
-      .expect(checkValues(numberOfParticipants)).eql(true);
+      .expect(checkValues(numberOfParticipants)).eql(true)
+      .debug();
     });
 }
 
 
 
 createSession();
+startSession();
 getParticipationCodes();
 massUpload();
 endSession();

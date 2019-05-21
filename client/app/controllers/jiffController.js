@@ -123,7 +123,6 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
       }
     };
 
-    // TODO: assign cohort if one does not exist for userKey.
 
     // Initialize and submit
     var jiff = initialize(sessionkey, 'client', options);

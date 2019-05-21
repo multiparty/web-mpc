@@ -15,7 +15,7 @@ function analystAuth(computation_id, msg, params) {
   });
 }
 
-// TODO: does this still work when cohort-self selection isn't on?
+// TODO: clean this up for when self-selection is false
 function userAuth(computation_id, msg, params) {
   return new Promise(function (resolve, reject) {
     auth.userKey({ session: computation_id, userkey: msg['userkey'] }, function (success, data) {
@@ -28,16 +28,18 @@ function userAuth(computation_id, msg, params) {
         // handle cohort
         modulesWrappers.SessionInfo.get(computation_id).then(function (sessionInfo) {
           
-          for (var c of sessionInfo.cohort_mapping) {
-            if (msg.cohort === c.name) {
-              cohortId = c.id;
+          if (cohortId === undefined) {
+            for (var c of sessionInfo.cohort_mapping) {
+              if (msg.cohort === c.name) {
+                cohortId = c.id;
+              }
             }
+  
+            if (cohortId === undefined && msg.cohort !== null) {
+              reject(new Error('Cohort name does not exist.'));
+            }  
           }
-
-          if (cohortId === null && msg.cohort !== null) {
-            reject(new Error('Cohort name does not exist.'));
-          }
-
+          
           data.cohort = cohortId;
 
           data.save(function (error) {

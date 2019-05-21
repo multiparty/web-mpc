@@ -928,7 +928,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     return {sums: sums, NaNs: NaNs}
   }
 
-  function saveTables(cohorts, session, title, counts) {
+  function saveTables(cohorts, session, title, counts, cohortMapping) {
     var cohorts_csv = [];
 
     for (var cohort in cohorts) {
@@ -959,19 +959,20 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
         tables_csv.push(sheet_csv.join('\n'));
       }
 
-      var count = 'Number of participants ' + counts[cohort].length;
+      var count = 'Number of participants: ' + counts[cohort].length;
       if (cohort === 'all') {
-        cohorts_csv[0] = 'All Cohorts -- ' + count + '\n\n' + tables_csv.join('\n\n');
+        cohorts_csv.push('All Cohorts -- ' + count + '\n\n' + tables_csv.join('\n\n'));
       } else {
-        cohorts_csv[cohort] = 'Cohort #' + cohort + ' -- ' + count + '\n\n' + tables_csv.join('\n\n');
+        cohorts_csv.push(cohortMapping[cohort].name + ' -- ' + count + '\n\n' + tables_csv.join('\n\n'));
       }
     }
 
     // Sort by cohorts, all appears first
-    var joined = cohorts_csv[0];
-    for (var i = 1; i < cohorts_csv.length; i++) {
+    var joined = [];
+
+    for (var i = cohorts_csv.length-1; i >= 0; i--) {
       if (cohorts_csv[i] != null) {
-        joined += '\n\n\n\n' + cohorts_csv[i];
+        joined += cohorts_csv[i] + '\n\n\n\n';
       }
     }
 

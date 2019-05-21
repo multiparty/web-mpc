@@ -35,7 +35,6 @@
     "eslint-plugin-requirejs": "^3.1.1"
   },
   "scripts": {
-    "test": "testcafe chrome test/cafe/test.js --app \"node server/index.js\" --ssl pfx=test/cafe/certs-keys/bundle.pfx;rejectUnauthorized=true ./node_modules/.bin/eslint client"
   },
   "repository": {
     "type": "git",

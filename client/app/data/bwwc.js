@@ -887,7 +887,7 @@ define([], function () {
         ]
       }
     ],
-    'cohort_selection': false,
+    'cohort_selection': true,
     'cohorts': [
       {name: 'Banking/Finance'}, 
       {name: 'Professional, Scientific, and Tech Services'},
