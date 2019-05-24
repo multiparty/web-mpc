@@ -1,18 +1,28 @@
 import { Selector, ClientFunction } from 'testcafe';
 
+<<<<<<< HEAD
 const PACESETTERS = 'pacesetters';
 const BWWC = 'bwwc';
 
 let deployment = BWWC;
+=======
+
+>>>>>>> master
 let sessionKey = null;
 let sessionPassword = null;
 let participant_codes = [];
 
 // FILL THESE IN
 const numberOfParticipants = 2;
+<<<<<<< HEAD
 const cohortNumber = 1;
 const downloadFolder = getUserHome() + '/Downloads/';
 const dataFile = './files/' + deployment + '.xlsx';
+=======
+const downloadFolder = getUserHome() + '/Downloads/';
+const dataFile = './files/bwwc.xlsx';
+
+>>>>>>> master
 
 function getUserHome() {
   return process.env.HOME || process.env.USERPROFILE;
@@ -34,8 +44,30 @@ function createSession() {
   });
 }
 
+<<<<<<< HEAD
 function getParticipationCodes() { 
   console.log(sessionKey, sessionPassword)
+=======
+function startSession() { 
+  fixture `Start`
+    .page `localhost:8080/manage`;
+    test('Starting a session', async t => {
+      await t
+        .click('#session')
+        .typeText('#session', sessionKey)
+        .click('#password')
+        .typeText('#password', sessionPassword)
+        .click('#login')
+        .wait(2000)
+        .click('#session-start');
+    });
+}
+
+
+let participants = null;
+
+function getParticipationCodes() { 
+>>>>>>> master
   fixture `Participation Codes`
     .page `localhost:8080/manage`;
     test('Generating Participation codes', async t => {
@@ -46,6 +78,7 @@ function getParticipationCodes() {
         .typeText('#password', sessionPassword)
         .click('#login')
         .wait(3000)
+<<<<<<< HEAD
         .typeText('#cohort-number', cohortNumber.toString())
         .click('#cohort-generate')
         .click('#session-start');
@@ -68,6 +101,23 @@ function getParticipationCodes() {
         }
       }  
       await t.expect(participant_codes.length).eql(numberOfParticipants * cohortNumber);
+=======
+        .typeText('#participants-count', numberOfParticipants.toString())
+        .click('#participants-submit')
+        .wait(2000);
+
+      participants = await Selector('#participants-new').innerText;
+      participants = participants.trim().split('\n');
+      for (var i = 0; i < participants.length; i++) {
+        participants[i] = participants[i].trim();
+        if (participants[i] !== '') {
+          var index = participants[i].indexOf('participationCode') + 'participationCode'.length + 1;
+          participant_codes.push(participants[i].substring(index));
+        }
+      }
+
+      await t.expect(participant_codes.length).eql(numberOfParticipants);
+>>>>>>> master
       console.log(participant_codes);
     });
 }
@@ -95,6 +145,14 @@ function massUpload() {
           .typeText('#participation-code', participant_codes[i])
           .setFilesToUpload(fileUpload, dataFile)
           .click(okBtn)
+<<<<<<< HEAD
+=======
+          .click(Selector('label').withText('Human Resources').find('[name="optradio"]'))
+          .click(Selector('label').withText('Large').find('[name="optradio"]'))
+          .click(Selector('label').withText('Extremely easy').find('[name="optradio"]'))
+          .click(Selector('.radio').nth(15).find('label').withText('Extremely easy'))
+          .click(Selector('label').withText('Less than 1 business day').find('[name="optradio"]'))
+>>>>>>> master
           .click('#verify')
           .click('#submit')
           .wait(2500)
@@ -151,7 +209,15 @@ function unmaskData() {
 
 
 createSession();
+<<<<<<< HEAD
 getParticipationCodes();
 massUpload();
 endSession();
 unmaskData();
+=======
+startSession();
+getParticipationCodes();
+massUpload();
+endSession();
+unmaskData();
+>>>>>>> master
