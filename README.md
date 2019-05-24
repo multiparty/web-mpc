@@ -1,5 +1,5 @@
 # web-mpc
-[![DOI](https://zenodo.org/badge/84491506.svg)](https://zenodo.org/badge/latestdoi/84491506)
+[![DOI](https://zenodo.org/badge/84491506.svg)](https://zenodo.org/badge/latestdoi/84491506) [![Build Status](https://travis-ci.org/multiparty/web-mpc.svg?branch=master)](https://travis-ci.org/multiparty/web-mpc)
 
 Implementation of a web-based data collection and aggregation infrastructure that utilizes secure multi-party computation techniques to allow individual contributors to submit their data without revealing it to the other participants.
 
