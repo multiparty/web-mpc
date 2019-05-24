@@ -1,4 +1,4 @@
-define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], function ($, analystController, Ladda) {
+define(['jquery', 'controllers/analystController', 'Ladda', 'alertify', 'bootstrap'], function ($, analystController, Ladda, alertify) {
 
   function trackView() {
 
@@ -104,14 +104,25 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
     }
 
 
+
+
+
+
     // Generate new participation links
     $('#participants-submit').on('click', function (e) {
       e.preventDefault();
 
+      var pc = parseInt($('#participants-count').val());
+      
+      if (pc < 1.0 || pc > 100.00) {
+        alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', "Please enter a valid number between 1 and 100");        
+        return;
+      }
+
       var la = Ladda.create(document.getElementById('participants-submit'));
       la.start();
 
-      analystController.generateUrls(session, password, $('#participants-count').val())
+      analystController.generateUrls(session, password, pc)
         .then(function (urls) {
           var $newParticipants = $('#participants-new');
           if ($newParticipants.html() !== '') {
