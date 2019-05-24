@@ -34,12 +34,7 @@
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-requirejs": "^3.1.1"
   },
-  "scripts": {
-<<<<<<< HEAD
-=======
-    "test": "testcafe chrome test/cafe/test.js --app \"node server/index.js\" --ssl pfx=test/cafe/certs-keys/bundle.pfx;rejectUnauthorized=true ./node_modules/.bin/eslint client"
->>>>>>> 1460dae... changed the test script
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/multiparty/web-mpc.git"
