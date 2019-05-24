@@ -29,10 +29,6 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
       alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', msg);
     }
 
-    function success(msg) {
-      alertify.alert('<img src="/images/accept.png" alt="Success">Success!', msg);
-    }
-
     /**
      * Validate the session and participation code input fields.
      */
@@ -371,7 +367,7 @@ define(['jquery', 'controllers/tableController', 'helper/mpc', 'alertify', 'aler
         var submitTime = new Date();
         submitEntries.push({time: submitTime, submitted: true});
 
-        success('Submitted data.');
+        alertify.alert('<img src="/images/accept.png" alt="Success">Success!', '<div id="submission-success">Submitted data.</div>');
         convertToHTML(submitEntries);
 
         // Stop loading animation

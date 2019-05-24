@@ -209,7 +209,7 @@ define(['filesaver'], function (filesaver) {
         //document.getElementById(status).className = 'alert alert-success';
 
         for (var i = 0; i < res.length; i++) {
-          var submissionHTML = '<tr>\
+          var submissionHTML = '<tr id="history-row">\
                   <td>' + (i + 1 + global_submission_counter) + '</td>\
                   <td>' + new Date(res[i]).toLocaleString() + '</td>\
                 </tr>';

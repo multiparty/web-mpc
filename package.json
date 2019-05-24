@@ -8,17 +8,20 @@
   },
   "dependencies": {
     "amdefine": "^1.0.1",
+    "chromedriver": "^74.0.0",
     "forge": "^2.3.0",
-    "testcafe": "^1.1.1"
+    "mocha": "^6.1.4",
+    "selenium-webdriver": "^4.0.0-alpha.1"
   },
   "devDependencies": {
+    "chai": "^4.2.0",
     "eslint": "^3.19.0",
     "eslint-config-airbnb-base": "^11.2.0",
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-requirejs": "^3.1.1"
   },
   "scripts": {
-    "test": "testcafe chrome test/cafe/test.js --app \"node server/index.js\" --ssl pfx=test/cafe/certs-keys/bundle.pfx;rejectUnauthorized=true ./node_modules/.bin/eslint client"
+    "test": "mocha --timeout 1200000 test/selenium/mocha_tests.js"
   },
   "repository": {
     "type": "git",
