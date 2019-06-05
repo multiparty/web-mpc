@@ -357,7 +357,7 @@ describe('End-to-end workflow tests', function() {
         }, unmaskingTimeout);
 
   
-    
+        console.log('Received unmasked values')
         // check values
         for (var i = 0; i < tableValues.length; i++) {
           var value = await tableValues[i].getText();

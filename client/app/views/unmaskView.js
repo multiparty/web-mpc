@@ -1,22 +1,16 @@
 /*eslint no-console: ["error", { allow: ["warn", "error"] }] */
 
-define(['jquery', 'controllers/jiffController', 'controllers/tableController', 'controllers/analystController', 'helper/drop_sheet', 'alertify', 'table_template'],
-  function ($, jiffController, tableController, analystController, DropSheet, alertify, table_template) {
-    function getParameterByName(name) {
-      name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-      var regex = new RegExp('[\\?&]' + name + '=([^&#]*)'),
-        results = regex.exec(location.search);
-      return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-    }
-
-    $('#session').val(getParameterByName('session'));
-
+define(['jquery', 'controllers/jiffController', 'controllers/tableController', 'controllers/analystController', 'helper/drop_sheet', 'alertify', 'table_template', 'spin'],
+  function ($, jiffController, tableController, analystController, DropSheet, alertify, table_template, Spinner) {
     function error(msg) {
       alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', msg);
     }
 
     function handle_file(event) {
       var f;
+
+      var dropArea = document.getElementById('drop-area');
+      var spinner = new Spinner().spin(dropArea);
 
       if (event.type === 'drop') {
         f = event.dataTransfer.files[0];
@@ -46,6 +40,7 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
               tableController.saveUsability(result['usability'], sessionKey, result['cohorts']);
             }
             $('#tables-area').show();
+            spinner.stop();
 
             // Only display averages in the table
             tableController.createTableElems(table_template.tables, '#tables-area');
