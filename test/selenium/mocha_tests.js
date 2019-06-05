@@ -4,7 +4,6 @@ const { By } = require('selenium-webdriver');
 const expect = require('chai').expect;
 const chrome = require('selenium-webdriver/chrome');
 const path = require('chromedriver').path;
-const fs = require('fs');
 
 let sessionKey = null;
 let sessionPassword = null;
@@ -16,7 +15,7 @@ const numberOfCohorts = 2;
 const shortTimeout = 5000;
 const medTimeout = 20000;
 const longTimeout = 200000;
-const unmaskingTimeout = 500000;
+const unmaskingTimeout = 900000;
 const participant_links = [];
 
 function createDriver() {
