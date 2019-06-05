@@ -49,7 +49,7 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
 
       function success(msg) {
         appendSubmissionHistory(new Date(), true);
-        alertify.alert('<img src="/images/accept.png" alt="Success">Success!', msg);
+        alertify.alert('<img src="/images/accept.png" alt="Success">Success!', '<div id="submission-success">' + msg + '</div>');
       }
 
       /**

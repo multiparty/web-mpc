@@ -15,7 +15,6 @@ function analystAuth(computation_id, msg, params) {
   });
 }
 
-// TODO: clean this up for when self-selection is false
 function userAuth(computation_id, msg, params) {
   return new Promise(function (resolve, reject) {
     auth.userKey({ session: computation_id, userkey: msg['userkey'] }, function (success, data) {
@@ -27,21 +26,20 @@ function userAuth(computation_id, msg, params) {
         params.party_id = data.jiff_party_id;
         // handle cohort
         modulesWrappers.SessionInfo.get(computation_id).then(function (sessionInfo) {
-          
+
           if (cohortId === undefined) {
             for (var c of sessionInfo.cohort_mapping) {
               if (msg.cohort === c.name) {
                 cohortId = c.id;
               }
             }
-  
+
             if (cohortId === undefined && msg.cohort !== null) {
               reject(new Error('Cohort name does not exist.'));
-            }  
+            }
           }
-          
-          data.cohort = cohortId;
 
+          data.cohort = cohortId;
           data.save(function (error) {
             if (error) {
               reject(error);
@@ -112,7 +110,7 @@ module.exports = {
     function (jiff, computation_id, msg, params) {
       // Internal: no authentication
       if (params.party_id === 's1') {
-        return msg;
+        return params;
       }
 
       // Authenticate as analyst

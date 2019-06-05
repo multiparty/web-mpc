@@ -2,6 +2,8 @@ if (typeof define !== 'function') {
   var define = require('amdefine')(module);
 }
 
+var tableHeight = 750;
+
 define([], function () {
   return {
     "tables":[
@@ -10,7 +12,7 @@ define([], function () {
         "element":"number-employees-hot",
         "hot_parameters":{
           "rowHeaderWidth":200,
-          "height":425
+          "height": tableHeight
         },
         "rows":[
           {
@@ -215,7 +217,7 @@ define([], function () {
         "element":"compensation-hot",
         "hot_parameters":{
           "rowHeaderWidth":200,
-          "height":425
+          "height":850
         },
         "rows":[
           {
@@ -419,7 +421,7 @@ define([], function () {
         "element":"performance-pay-hot",
         "hot_parameters":{
           "rowHeaderWidth":200,
-          "height":425
+          "height": tableHeight
         },
         "rows":[
           {
@@ -623,7 +625,7 @@ define([], function () {
         "element":"service-length-hot",
         "hot_parameters":{
           "rowHeaderWidth":200,
-          "height":425
+          "height": tableHeight
         },
         "rows":[
           {

@@ -12,6 +12,7 @@
     "bignumber.js": "^5.0.0",
     "bluebird": "^3.5.0",
     "body-parser": "^1.17.2",
+    "chromedriver": "^74.0.0",
     "compression": "^1.7.1",
     "cross-env": "^5.0.5",
     "express": "^4.15.3",
@@ -23,18 +24,23 @@
     "jquery-deferred": "^0.3.1",
     "le-acme-core": "^2.1.3",
     "mathjs": "^5.0.4",
+    "mocha": "^6.1.4",
     "mongoose": "^4.11.1",
     "numeric": "^1.2.6",
     "nunjucks": "^3.1.7",
+    "selenium-webdriver": "^4.0.0-alpha.1",
     "spdy": "^3.4.7"
   },
   "devDependencies": {
+    "chai": "^4.2.0",
     "eslint": "^3.19.0",
     "eslint-config-airbnb-base": "^11.2.0",
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-requirejs": "^3.1.1"
   },
-  "scripts": {},
+  "scripts": {
+    "test": "mocha --timeout 1200000 test/selenium/mocha_tests.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/multiparty/web-mpc.git"

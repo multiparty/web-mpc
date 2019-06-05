@@ -1,30 +1,15 @@
 define(['forge'], function (forge) {
   /**
-   * JIFF section
+   * Array Buffer / String Manipulation
    */
-  // Parsing from PEM
-  var parsePublicKey = function (publicKeyString) {
-    var pki = forge.pki;
-    return pki.publicKeyFromPem(publicKeyString);
+  var stringToArrayBuffer = function (str) {
+    var b = new ArrayBuffer(str.length);
+    var view = new Uint8Array(b);
+    for (var i = 0; i < str.length; i++) {
+      view[i] = str.charCodeAt(i);
+    }
+    return b;
   };
-  var parsePrivateKey = function (privateKeyString) {
-    var pki = forge.pki;
-    return pki.privateKeyFromPem(privateKeyString);
-  };
-
-  // Encrypt / Decrypt
-  var encrypt = function (message, pki) {
-    var result = pki.encrypt(message, 'RSA-OAEP', {md: forge.md.sha256.create()});
-    return result;
-  };
-  var decrypt = function (message, ski) {
-    var result = ski.decrypt(message, 'RSA-OAEP', {md: forge.md.sha256.create()});
-    return result;
-  };
-
-  /**
-   * For generating keys in analyst controller at session creation.
-   */
   var arrayBufferToString = function (arrayBuffer) {
     var byteArray = new Uint8Array(arrayBuffer);
     var byteString = '';
@@ -33,6 +18,52 @@ define(['forge'], function (forge) {
     }
     return byteString;
   };
+
+  /**
+   * JIFF section
+   */
+  // Parsing from PEM
+  var parsePublicKey = function (publicKeyString) {
+    var pki = forge.pki;
+    return pki.publicKeyFromPem(publicKeyString);
+  };
+  var parsePrivateKey = function (privateKeyString) {
+    // var pki = forge.pki;
+    // return pki.privateKeyFromPem(privateKeyString);
+    try {
+      privateKeyString = privateKeyString.split('\n')[1];
+
+      return window.crypto.subtle.importKey(
+        'pkcs8', // (private only)
+        stringToArrayBuffer(atob(privateKeyString)),
+        {name: 'RSA-OAEP', hash: {name: 'SHA-256'}},
+        false, // whether the key is extractable (i.e. can be used in exportKey)
+        ['decrypt']
+      );
+    } catch (err) {
+      throw new Error('Error: invalid key file.');
+    }
+  };
+
+  // Encrypt / Decrypt
+  var encrypt = function (message, pki) {
+    var result = pki.encrypt(message, 'RSA-OAEP', {md: forge.md.sha256.create()});
+    return result;
+  };
+  var decrypt = function (message, ski) {
+    // var result = ski.decrypt(message, 'RSA-OAEP', {md: forge.md.sha256.create()});
+    // return result;
+    return ski.then(function (ski) {
+      var promise = window.crypto.subtle.decrypt({name: 'RSA-OAEP'}, ski, stringToArrayBuffer(message));
+      return promise.then(function (decrypted) {
+        return arrayBufferToString(decrypted);
+      });
+    });
+  };
+
+  /**
+   * For generating keys in analyst controller at session creation.
+   */
   var arrayBufferToBase64String = function (arrayBuffer) {
     return btoa(arrayBufferToString(arrayBuffer));
   };

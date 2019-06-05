@@ -71,15 +71,26 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
       }
     }
 
+    function addResizeSensors(tables) {
+      for (var i = 0; i < table_template.tables.length; i++) {
+        var elem = table_template.tables[i].element;
+        new ResizeSensor($('#' + elem).find('.wtHider').first()[0], function () {
+          tableController.updateWidth(tables, false);
+        });
+      }
+    }
+
     function clientControllerView() {
 
       $(document).ready(function () {
         // Hide by default
 
         tableController.createTableElems(table_template.tables, '#tables-area');
+
         displaySurveyQuestions();
         // Create the tables
         var tables = tableController.makeTables(table_template.tables);
+     
 
         usabilityController.initialize();
         usabilityController.saveBrowser();
@@ -159,6 +170,23 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
           }
         };
 
+        addResizeSensors(tables);
+
+        // Table accordion.
+        $('#tables-area').hide();
+
+        $('#expand-table-button').click(function (e) {
+          $('#tables-area').slideToggle(function () {
+            if (!$('#tables-area').is(':hidden')) {
+              tableController.updateWidth(tables);
+            } else{
+              tableController.resetTableWidth();
+            }
+          });
+          $(e.target).toggleClass('flip');
+        });
+        
+
         var _target = document.getElementById('drop-area');
         var _choose = document.getElementById('choose-file-button');
         var spinner;
@@ -167,6 +195,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         };
         var _workend = function (status) {
           $('#tables-area').show();
+          tableController.updateWidth(tables);
           spinner.stop();
         };
 
@@ -212,18 +241,6 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
           tables_def: table_template,
           on: {workstart: _workstart, workend: _workend, sheet: _onsheet},
           errors: {badfile: _badfile, pending: _pending, failed: _failed, large: _large}
-        });
-
-        // Table accordion.
-        $('#tables-area').hide();
-
-        $('#expand-table-button').click(function (e) {
-          $('#tables-area').slideToggle(function () {
-            if (!$('#tables-area').is(':hidden')) {
-              tableController.updateWidth(tables);
-            }
-          });
-          $(e.target).toggleClass('flip');
         });
 
         function addValidationErrors(msg) {

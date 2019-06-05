@@ -25,7 +25,6 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
       }
 
       if (f) {
-
         var keyReader = new FileReader();
         keyReader.readAsText(f);
 
@@ -35,10 +34,7 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
           var privateKey = e.target.result;
 
           jiffController.analyst.computeAndFormat(sessionKey, sessionPass, privateKey, error, function (result) {
-
-            analystController.getExistingCohorts(sessionKey, sessionPass)
-            .then(function(cohortMapping) {
-              
+            analystController.getExistingCohorts(sessionKey, sessionPass).then(function(cohortMapping) {
               tableController.saveTables(result['averages'], sessionKey, 'Averages', result['cohorts'], cohortMapping);
               tableController.saveTables(result['deviations'], sessionKey, 'Standard_Deviations', result['cohorts'], cohortMapping);
             });
@@ -49,11 +45,12 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
             if (result['hasUsability'] === true) {
               tableController.saveUsability(result['usability'], sessionKey, result['cohorts']);
             }
+            $('#tables-area').show();
 
             // Only display averages in the table
             tableController.createTableElems(table_template.tables, '#tables-area');
             tableController.displayReadTable(result['averages']['all']);
-            $('#tables-area').show();
+            
           });
         });
       }
@@ -63,13 +60,9 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
       var expand_button = $('#expand-table-button');
 
       $(expand_button).click(function () {
-
         var ta = $('#tables-area');
-
         if (ta.css('display') === 'none') {
           ta.show();
-          var maxWidth = $('.wtHider').width() + 50;
-          tableController.updateTableWidth(maxWidth)
         } else {
           ta.hide();
           tableController.resetTableWidth()

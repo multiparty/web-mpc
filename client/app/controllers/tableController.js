@@ -1,4 +1,4 @@
-define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qtip'], function ($, Handsontable, table_template, filesaver, alertify) {
+define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor'], function ($, Handsontable, table_template, filesaver, ResizeSensor) {
 
   'use strict';
 
@@ -561,20 +561,14 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       nestedHeaders: table.cols,
       // Styling information
       width: table.width,
+
       // Per cell properties
       cell: createCells(table),
       // Workaround for handsontable undo issue for readOnly tables
       beforeChange: function (changes, source) {
         return !(this.readOnly);
-      },
-      afterSetDataAtCell: function (changes, source) {
-        //update_width(this);
-      },
-      afterChange: function (row, column) {
-        //update_width(this);
       }
     };
-
     // other parameters from config
     Object.assign(hotSettings, table.hot_parameters);
 
@@ -704,36 +698,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       }
     }
     return data;
-  }
-
-  function updateInstructionWidth(maxWidth) {
-
-    var $instructions = $('#instructions');
-    var $container = $('.container');
-    var $card = $('.card.col-md-10.col-md-offset-1');
-
-    var documentWidth = $(window).width();
-    var containerWidth = parseFloat($container.first().width());
-    var containerPadding = parseFloat($container.css('margin-left'));
-
-    var cardPadding = parseFloat($card.css('padding-left'));
-    var cardMargin = parseFloat($card.css('margin-left'));
-    var cardWidth = parseFloat($card.width()) + cardPadding * 2;
-
-    var offset;
-    if (maxWidth > documentWidth) {
-      var instructionsWidth = 0.9 * documentWidth;
-      offset = containerPadding - (documentWidth - instructionsWidth) / 2;
-      $instructions.css('width', instructionsWidth);
-      $instructions.css('margin-left', -offset);
-    } else if (maxWidth > containerWidth) {
-      offset = containerPadding - (documentWidth - maxWidth) / 2;
-      $instructions.css('width', maxWidth);
-      $instructions.css('margin-left', -offset);
-    } else {
-      $instructions.css('width', cardWidth);
-      $instructions.css('margin-left', cardMargin);
-    }
   }
 
   function resetTableWidth() {
@@ -928,7 +892,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     return {sums: sums, NaNs: NaNs}
   }
 
-  function saveTables(cohorts, session, title, counts, cohortMapping) {
+  function saveTables(cohorts, session, title, counts) {
     var cohorts_csv = [];
 
     for (var cohort in cohorts) {
@@ -959,20 +923,19 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
         tables_csv.push(sheet_csv.join('\n'));
       }
 
-      var count = 'Number of participants: ' + counts[cohort].length;
+      var count = 'Number of participants ' + counts[cohort].length;
       if (cohort === 'all') {
-        cohorts_csv.push('All Cohorts -- ' + count + '\n\n' + tables_csv.join('\n\n'));
+        cohorts_csv[0] = 'All Cohorts -- ' + count + '\n\n' + tables_csv.join('\n\n');
       } else {
-        cohorts_csv.push(cohortMapping[cohort].name + ' -- ' + count + '\n\n' + tables_csv.join('\n\n'));
+        cohorts_csv[cohort] = 'Cohort #' + cohort + ' -- ' + count + '\n\n' + tables_csv.join('\n\n');
       }
     }
 
     // Sort by cohorts, all appears first
-    var joined = [];
-
-    for (var i = cohorts_csv.length-1; i >= 0; i--) {
+    var joined = cohorts_csv[0];
+    for (var i = 1; i < cohorts_csv.length; i++) {
       if (cohorts_csv[i] != null) {
-        joined += cohorts_csv[i] + '\n\n\n\n';
+        joined += '\n\n\n\n' + cohorts_csv[i];
       }
     }
 
@@ -1016,47 +979,76 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
     }
   }
 
-  function updateWidth(tables) {
-    if (!$('#tables-area').is(':hidden')) {
-      // Determine how wide the tables are
-      var maxTableWidth = 0;                             // Maximum table width
 
-      for (var i = 0; i < tables.length; i++) {          // Find maximum table width
+  function updateTableWidth(maxWidth) {
+    $('#instructions').css('width', maxWidth);
+    $('#instructions').css('max-width', maxWidth);
+    var documentWidth = $(window).width();
+    var containerWidth = parseFloat($('.container').first().width());
+    var offset = (containerWidth - maxWidth) / 2;
 
-        var t = tables[i];
-        var w = getWidth(t) + getHeaderWidth(t);
-
-        if (w > maxTableWidth) {
-          maxTableWidth = w;
-        }
-      }
-
-      // Update width of instruction div based on maximum table width
-      var padding = getPadding('#instructions');
-      if (maxTableWidth > 0) {
-        updateInstructionWidth(maxTableWidth + padding);
-      }
-
-      // Update visible width of tables based on resized instruction div
-      var instructionWidth = $('#instructions').width();
-      for (i = 0; i < tables.length; i++) {
-        t = tables[i];
-        t.updateSettings({
-          width: instructionWidth
-        });
-      }
-    } else {
-      updateInstructionWidth(0);
+    if (offset < (containerWidth - documentWidth) / 2) {
+      offset = (containerWidth - documentWidth) / 2;
     }
+
+    if (maxWidth > documentWidth) {
+      $('header, #shadow').css('right', documentWidth - maxWidth);
+    }
+
+    // Bootstrap row has margin-left: -15px, add this back to offset to keep card centered
+    $('#instructions').css('margin-left', offset);
+  }
+
+  function updateWidth(tables, reset) {
+    var tableWidthsOld = $('#instructions').width()
+
+    if (reset) {
+      resetTableWidth();
+
+      tableWidthsOld = [];
+      return;
+    }
+    var tableWidths = [];
+
+    for (var i = 0; i < tables.length - 1; i++) {
+      var table = tables[i];
+      var header_width = getWidth(table);
+      tableWidths.push(parseFloat(header_width));
+    }
+
+    // No need to resize if width hasn't changed
+    // Quick and dirty equality check of arrays
+    if (JSON.stringify(tableWidths) === JSON.stringify(tableWidthsOld)) {
+      return;
+    }
+
+    for (var j = 0; j < tables.length - 1; j++) {
+      table = tables[j];
+      table.updateSettings({
+        width: tableWidths[j]
+      });
+    }
+
+    var maxWidth = Math.max.apply(null, tableWidths);
+
+    updateTableWidth(maxWidth);
+    tableWidthsOld = tableWidths.concat();
   }
 
   function getWidth(table) {
-    var colWidths = 0;
+ 
+    var colWidths = [];
+
     for (var i = 0; i < table.countRenderedCols(); i++) {
-      colWidths += parseFloat(table.getColWidth(i));
+      colWidths.push(parseFloat(table.getColWidth(i)));
     }
 
-    return colWidths;
+    // Need to account for column header.
+    var narrowestCol = Math.min.apply(null, colWidths);
+    var colSum = colWidths.reduce(function (a, b) {
+      return a + b
+    }, 0);
+    return narrowestCol * 5 + colSum;
   }
 
   function saveUsability(usability, session, counts) {
