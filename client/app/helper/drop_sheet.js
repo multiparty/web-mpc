@@ -124,25 +124,34 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
       return true;
     }
 
-    // Parses workbook for relevant cells.
+    /**
+     * Processes the uploaded spreadsheet
+     * @param {excel-workbook} wb
+     * @returns void 
+     */
     function processWB(wb) {
       var tableDef = opts.tables_def.tables;
 
-      wb.SheetNames.forEach(function (name) {
-        var tableId = 0;
-        tableDef.forEach(function (table) {
+      if (wb.SheetNames.length < 1) {
+        throw 'No spreadsheets were found.'
+      }
+
+      for (var i = 0; i < tableDef.length; i++) {
+        var table = tableDef[i];
+        var processed = false;
+        wb.SheetNames.forEach(function(name) {
           if (table.excel && table.excel[0] && table.excel[0].sheet === name) {
-            if (!processWS(wb.Sheets[name], opts.tables[tableId], table.excel[0].start, table.excel[0].end)) {
-              return false; // mistake in processing sheet
+            if (processWS(wb.Sheets[name], opts.tables[i], table.excel[0].start, table.excel[0].end)) {
+              processed = true;
             }
           }
-          tableId++;
         });
-      });
 
+        if (!processed) {
+          throw 'Spreadsheet name does not match with format.'
+        }
+      }
       alertify.alert('<img src="/images/accept.png" alt="Success">Success', 'The tables below have been populated. Please confirm that your data is accurate and scroll down to answer the multiple choice questions, verify, and submit your data');
-
-      return true;
     }
 
 
