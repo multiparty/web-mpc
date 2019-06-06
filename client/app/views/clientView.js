@@ -114,6 +114,9 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
           if (Object.keys(table_template).includes(SELF_SELECT) && table_template[SELF_SELECT]) {
             clientController.getExistingCohorts($session.val(), $participationCode.val())
             .then(function(cohorts) {
+              if (cohorts === undefined) {
+                return;
+              }
               cohortSelfSelect(cohorts);
             });
           }

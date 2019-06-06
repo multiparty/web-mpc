@@ -103,6 +103,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
 
     // Process individual sheet.
     function processWS(ws, table, start, end) {
+      var changes = [];
 
       var s = XLSX.utils.decode_cell(start);
       var e = XLSX.utils.decode_cell(end);
@@ -112,13 +113,14 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
           var cell = XLSX.utils.encode_cell({r: i, c: j});
           if (ws[cell] && !isNaN(ws[cell].v)) {
             // subtract initial offset
-            table.setDataAtCell(i-s.r, j-s.c, ws[cell].v);
+            changes.push([i-s.r, j-s.c, ws[cell].v]);
           } else {
             alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", "Spreadsheet format does not match original template, or there are empty cells, or non-numeric data. Please copy-and-paste or type data into the 'Number Of Employees' table manually.");
             return false;
           }
         }
       }
+      table.setDataAtCell(changes);
       return true;
     }
 
