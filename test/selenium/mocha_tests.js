@@ -9,7 +9,7 @@ let sessionKey = null;
 let sessionPassword = null;
 let numberOfParticipants = 2;
 let dataValue = 1;
-let numberOfCohorts = 2;
+let numberOfCohorts = 1;
 
 // TIMEOUT CONSTANTS
 const shortTimeout = 5000;
@@ -50,6 +50,16 @@ describe('Workflow tests', function() {
     await unmaskData(driver);
   });    
 
+  it('Basic end to end test with cohort self selection', async () => {
+    numberOfCohorts = 6;
+    numberOfParticipants = 5;
+    await createSession(driver);
+    var participantLinks = await generateParticipantLinks(driver, 'null');
+    await dataSubmission(driver, participantLinks, '/test/selenium/files/bwwc.xlsx', true);
+    await closeSession(driver);
+    await unmaskData(driver);
+  });    
+
   it('Spreadsheet formatting', async () => {
     numberOfCohorts = 1;
     numberOfParticipants = 1;
@@ -60,7 +70,6 @@ describe('Workflow tests', function() {
     await dataSubmission(driver, participantLinks, '/test/selenium/files/pace.xlsx', false);
   });
 });
-
 
 
 // - - - - - - - 
@@ -206,78 +215,82 @@ async function generateParticipantLinks(driver, cohort) {
 }
 
 async function dataSubmission(driver, participantLinks, uploadFile, succeed) {
-  console.log('participantLinks', participantLinks);
   try {  
-    for (var i = 0; i < participantLinks.length; i++){
-      await driver.get(participantLinks[i])
-        .then(async function () {
-        await driver.wait(async function() {
-          return await driver.findElement(By.id('participation-code-success')).isDisplayed();
-        }, shortTimeout);
-
-        var cohort = Math.floor(i/numberOfCohorts);
-
-        await driver.wait(async function() {
-          var cohorts = await driver.findElement(By.id('cohortDrop'))
-          if (cohorts.isDisplayed()) {
-            cohorts.click();
-            cohorts.findElement(By.css("option[value='" + cohort + "']")).click();
-            return true;
-          }
-          return false;
-        }, shortTimeout);
-
-        var fileUpload = await driver.findElement(By.id('choose-file'));
-        var filePath = process.cwd() + uploadFile;
-        fileUpload.sendKeys(filePath);
-        driver.sleep(10000)
-
-        // test fail condition
-        if (!succeed) {
+    console.log('ello')
+    for (var cohort = 0; cohort < numberOfCohorts; cohort++) {
+      console.log('HI!', cohort)
+      for (var i = 0; i < numberOfParticipants; i++){
+        var participant = participantLinks.pop();
+        console.log('p', participant)
+        await driver.get(participant)
+          .then(async function () {
           await driver.wait(async function() {
-            var popup = await driver.findElements(By.className('ajs-content'));
-            if (popup.length > 0) {
-              await popup[0].getText().then(function(t) {
-                expect(t).to.equal(SHEET_ERROR);
-              });
+            return await driver.findElement(By.id('participation-code-success')).isDisplayed();
+          }, shortTimeout);
+
+          await driver.wait(async function() {
+            var cohorts = await driver.findElement(By.id('cohortDrop'))
+            if (cohorts.isDisplayed()) {
+              cohorts.click();
+              cohorts.findElement(By.css("option[value='" + cohort + "']")).click();
+              return true;
+            }
+            return false;
+          }, shortTimeout);
+
+          var fileUpload = await driver.findElement(By.id('choose-file'));
+          var filePath = process.cwd() + uploadFile;
+          fileUpload.sendKeys(filePath);
+          driver.sleep(10000)
+
+          // test fail condition
+          if (!succeed) {
+            await driver.wait(async function() {
+              var popup = await driver.findElements(By.className('ajs-content'));
+              if (popup.length > 0) {
+                await popup[0].getText().then(function(t) {
+                  expect(t).to.equal(SHEET_ERROR);
+                });
+                return true;
+              }
+            }, longTimeout);
+            return;
+          }
+
+          //wait for upload success
+          await driver.wait(async function() {
+            var ok = await driver.findElements(By.className('ajs-ok'));
+            if (ok.length > 0) {
+              ok[0].click();
               return true;
             }
           }, longTimeout);
-          return;
-        }
 
-        //wait for upload success
-        await driver.wait(async function() {
-          var ok = await driver.findElements(By.className('ajs-ok'));
-          if (ok.length > 0) {
-            ok[0].click();
-            return true;
-          }
-        }, longTimeout);
-
-        await driver.wait(async function () {
-          var verify = await driver.findElement(By.id('verify'));
-          var submit = await driver.findElement(By.id('submit'));
-          if (verify.isEnabled()) {
-            var checked = await verify.isSelected();
-            var enabled = await submit.isEnabled();
-            if (checked && enabled) {
-              submit.click();
-              return true;
-            } else {
-              verify.click();
+          await driver.wait(async function () {
+            var verify = await driver.findElement(By.id('verify'));
+            var submit = await driver.findElement(By.id('submit'));
+            if (verify.isEnabled()) {
+              var checked = await verify.isSelected();
+              var enabled = await submit.isEnabled();
+              if (checked && enabled) {
+                submit.click();
+                return true;
+              } else {
+                verify.click();
+              }
             }
-          }
-        }, longTimeout);
+          }, longTimeout);
 
 
-        await driver.wait(async function() {
-          var ok = await driver.findElements(By.id('submission-success'));
-          if (ok.length > 0) {
-            return true;
-          }
-        }, longTimeout);
-      });
+          await driver.wait(async function() {
+            var ok = await driver.findElements(By.id('submission-success'));
+            if (ok.length > 0) {
+              return true;
+            }
+          }, longTimeout);
+          console.log('Successful submission: ', i);
+        });
+      }
     }
   } catch (err) {
     handleFailure(err, driver);
