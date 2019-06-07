@@ -91,7 +91,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         // Create the tables
         var tables = tableController.makeTables(table_template.tables);
      
-
+        
         usabilityController.initialize();
         usabilityController.saveBrowser();
 
@@ -105,6 +105,17 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         var $verify = $('#verify');
         var $session = $('#session');
         var $participationCode = $('#participation-code');
+
+        $('#choose-file').on('change', function(e) {
+          var fileName = null;
+          if (e.type === 'drop') {
+            fileName = e.dataTransfer.files[0].name;
+          } else if (e.type === 'change') {
+            fileName = e.target.files[0].name;
+          }
+    
+          $('#file-name').text(fileName);
+        });
 
         $('#session, #participation-code').on('blur', function (e) {
           e.target.dataset['did_blur'] = true;

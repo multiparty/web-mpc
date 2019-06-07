@@ -367,3 +367,8 @@ span.success {
 .historySubTitle {
   margin-top: 0px;
 }
+
+#file-name {
+  display: block;
+  font-size: medium;
+}

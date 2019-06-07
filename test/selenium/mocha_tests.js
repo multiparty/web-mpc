@@ -42,7 +42,7 @@ describe('Workflow tests', function() {
     driver.quit();
   });
 
-  it('Basic end to end test with cohort self selection', async () => {
+  it('Basic end to end test with one cohort', async () => {
     await createSession(driver);
     var participantLinks = await generateParticipantLinks(driver, 'null');
     await dataSubmission(driver, participantLinks, '/test/selenium/files/bwwc.xlsx', true);
@@ -60,15 +60,15 @@ describe('Workflow tests', function() {
     await unmaskData(driver);
   });    
 
-  it('Spreadsheet formatting', async () => {
-    numberOfCohorts = 1;
-    numberOfParticipants = 1;
-    await createSession(driver);
-    var participantLinks = await generateParticipantLinks(driver, 'null');
-    console.log('received', participantLinks)
-    await dataSubmission(driver, participantLinks, '/test/selenium/files/bwwc_missing_cell.xlsx', false);
-    await dataSubmission(driver, participantLinks, '/test/selenium/files/pace.xlsx', false);
-  });
+  // it('Spreadsheet formatting', async () => {
+  //   numberOfCohorts = 1;
+  //   numberOfParticipants = 1;
+  //   await createSession(driver);
+  //   var participantLinks = await generateParticipantLinks(driver, 'null');
+  //   console.log('received', participantLinks)
+  //   await dataSubmission(driver, participantLinks, '/test/selenium/files/bwwc_missing_cell.xlsx', false);
+  //   await dataSubmission(driver, participantLinks, '/test/selenium/files/pace.xlsx', false);
+  // });
 });
 
 
@@ -216,12 +216,9 @@ async function generateParticipantLinks(driver, cohort) {
 
 async function dataSubmission(driver, participantLinks, uploadFile, succeed) {
   try {  
-    console.log('ello')
     for (var cohort = 0; cohort < numberOfCohorts; cohort++) {
-      console.log('HI!', cohort)
       for (var i = 0; i < numberOfParticipants; i++){
         var participant = participantLinks.pop();
-        console.log('p', participant)
         await driver.get(participant)
           .then(async function () {
           await driver.wait(async function() {
