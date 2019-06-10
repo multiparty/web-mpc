@@ -721,6 +721,8 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
   }
 
   function displayReadTable(tables) {
+    window.handsontables = []; // for testing // TODO remove when fixing testing
+
     for (var name in tables) {
       var template = getTemplate(name, 'name');
       var table = tables[name];
@@ -748,8 +750,8 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
       };
 
       var handsOn = new Handsontable(document.getElementById(template.element), settings);
-
       handsOn.render();
+      window.handsontables.push(handsOn);
     }
   }
 
@@ -1036,7 +1038,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
   }
 
   function getWidth(table) {
- 
+
     var colWidths = [];
 
     for (var i = 0; i < table.countRenderedCols(); i++) {

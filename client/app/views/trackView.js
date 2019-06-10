@@ -1,10 +1,13 @@
 define(['jquery', 'controllers/analystController', 'table_template', 'Ladda',  'bootstrap'], function ($, analystController, tableTemplate, Ladda) {
 
   function trackView() {
-    let SELF_SELECT = false;
+    var SELF_SELECT = false;
     var session, password;
 
-    $('#session').val(analystController.getParameterByName('session'));
+    var sessionParam = analystController.getParameterByName('session');
+    if (sessionParam) {
+      $('#session').val(sessionParam);
+    }
 
     // Login
     $('#login').on('click', function (e) {
@@ -12,29 +15,29 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda',  '
       session = $('#session').val();
       password = $('#password').val();
 
+      if (!session || !password) {
+        alert('Enter a valid Session Key and Password');
+        return;
+      }
+
       var la = Ladda.create(document.getElementById('login'));
       la.start();
 
-      var statusPromise = analystController.checkStatus(session, password);
       var urlsPromise = analystController.getExistingParticipants(session, password);
-      Promise.all([statusPromise, urlsPromise]).then(function (results) {
+      var statusPromise = analystController.checkStatus(session, password);
+      Promise.all([urlsPromise, statusPromise]).then(function (results) {
         // Only logs in if both requests succeed
-        var status = results[0];
         var existingParticipants = results[1];
-
-        if (status == null || existingParticipants == null) {
-          la.stop();
-          return;
-        }
+        console.log('bla');
 
         // if self-selection, add participant agnostic link div
-        if (Object.keys(tableTemplate).includes("cohort_selection") && tableTemplate["cohort_selection"]) {
+        if (Object.keys(tableTemplate).includes('cohort_selection') && tableTemplate['cohort_selection']) {
           SELF_SELECT = true;
           $('#session-content-left').append(createLinkGeneration('null'));
 
-          $( "#cohort-null" ).removeClass("col-md-4");
-          $( "#cohort-null" ).addClass("card");
-          
+          $('#cohort-null').removeClass('col-md-4');
+          $('#cohort-null').addClass('card');
+
           enableCohortSubmit('null');
 
           $('#session-content').append($('#cohort-area').addClass('col-sm-7 col-md-offset-1'));
@@ -43,16 +46,15 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda',  '
         }
 
         if (Object.keys(tableTemplate).includes('cohorts') && tableTemplate['cohorts'].length > 0) {
-          
-          analystController.getExistingCohorts(session, password)
-            .then(function(cohorts) {
-              for (var c of cohorts) {
-                createCohort(c.name, c.id);
-                enableCohortSubmit(c.id);
-              }
-              handleExistingParticipants(existingParticipants);
-              pollHistory(session, password, 0, cohorts);
-            });
+          analystController.getExistingCohorts(session, password).then(function (cohorts) {
+            for (var c of cohorts) {
+              createCohort(c.name, c.id);
+              enableCohortSubmit(c.id);
+            }
+
+            handleExistingParticipants(existingParticipants);
+            pollHistory(session, password, 0, cohorts);
+          });
         }
 
         // Handle status
@@ -61,9 +63,10 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda',  '
         // Remove login panel and show control panel
         $('#session-login').collapse();
         $('#session-panel').collapse();
-      })
-      .catch(function () {
+      }).catch(function (error) {
         la.stop();
+        alert(error);
+        alert(error.message);
       });
     });
 
@@ -71,26 +74,24 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda',  '
       e.preventDefault();
 
       var cohortName = $('#cohort-input').val();
-
-      analystController.addCohort(session, password, cohortName)
-      .then(function (res) {
+      analystController.addCohort(session, password, cohortName).then(function (res) {
         if (res != null) {
           var cohortId = res.cohortId.toString();
           createCohort(cohortName, cohortId);
           enableCohortSubmit(cohortId);
-          document.getElementById("cohort-input").value = "";
+          document.getElementById('cohort-input').value = '';
 
           // scroll to correct cohort
           $('html, body').animate({
-            scrollTop: $("#" + cohortId).offset().top
-        }, 500);
+            scrollTop: $('#' + cohortId).offset().top
+          }, 500);
         }
       });
     });
 
     // Handle existing participants
     function handleExistingParticipants(existingParticipants) {
-      // Handle cohort-agnostic links 
+      // Handle cohort-agnostic links
       if (existingParticipants['undefined'] && $('#participants-existing-null')) {
         var urls = existingParticipants['undefined'];
         var $existingParticipants = $('#participants-existing-null');
@@ -240,10 +241,10 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda',  '
         $header.appendChild($title);
       }
 
-      
+
       // Attach elements
       $historySection.appendChild($header);
-    
+
       $historySection.appendChild($historyTable);
       $historySection.appendChild($historyNum);
 
@@ -259,7 +260,7 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda',  '
       // $historyNum.innerHTML = 'Total number of submissions: <i>0</i>';
       $idCell.innerText = 'Submission #';
       $timeCell.innerText = 'Timestamp';
-      
+
       return $historySection
     }
 

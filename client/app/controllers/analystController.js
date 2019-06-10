@@ -38,9 +38,8 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
     }).then(function (resp) {
       return resp;
     }).catch(function (err) {
-      if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
-        alert(err.responseText);
-      }
+      console.log(err);
+      throw new Error(err.responseText);
     });
   }
 
@@ -124,9 +123,7 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
         return formatUrls(resp.result);
       })
       .catch(function (err) {
-        if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
-          alert(err.responseText);
-        }
+        throw new Error(err.responseText);
       });
   }
 

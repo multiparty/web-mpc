@@ -45,7 +45,6 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
             // Only display averages in the table
             tableController.createTableElems(table_template.tables, '#tables-area');
             tableController.displayReadTable(result['averages']['all']);
-            
           });
         });
       }
