@@ -365,6 +365,10 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
       table_widths[result[t].rootElement.id] = get_width(result[t]);
     }
 
+    // TODO: hack for testing
+    if (!window.__tables) {
+      window.__tables = result;
+    }
     return result;
   }
 
@@ -721,8 +725,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
   }
 
   function displayReadTable(tables) {
-    window.handsontables = []; // for testing // TODO remove when fixing testing
-
+    var hotTables = [];
     for (var name in tables) {
       var template = getTemplate(name, 'name');
       var table = tables[name];
@@ -751,8 +754,10 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
 
       var handsOn = new Handsontable(document.getElementById(template.element), settings);
       handsOn.render();
-      window.handsontables.push(handsOn);
+      hotTables.push(handsOn);
     }
+
+    window.__tables = hotTables;
   }
 
   // TODO: combien the two functions below based on BWWC
@@ -1002,16 +1007,15 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
   }
 
   function updateWidth(tables, reset) {
-    var tableWidthsOld = $('#instructions').width()
+    var tableWidthsOld = $('#instructions').width();
 
     if (reset) {
       resetTableWidth();
-
       tableWidthsOld = [];
       return;
     }
-    var tableWidths = [];
 
+    var tableWidths = [];
     for (var i = 0; i < tables.length - 1; i++) {
       var table = tables[i];
       var header_width = getWidth(table);
@@ -1038,9 +1042,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
   }
 
   function getWidth(table) {
-
     var colWidths = [];
-
     for (var i = 0; i < table.countRenderedCols(); i++) {
       colWidths.push(parseFloat(table.getColWidth(i)));
     }

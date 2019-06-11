@@ -1,3 +1,5 @@
+const BigNumber = require('bignumber.js');
+
 module.exports = {
   conditionOrAlertError: async function (driver, condition) {
     var result = await driver.wait(async function (driver) {
@@ -23,5 +25,25 @@ module.exports = {
   },
   getUserHome: function () {
     return process.env.HOME || process.env.USERPROFILE;
+  },
+  readTableDataAsArray: async function (driver) {
+    var formattedData = [];
+    var tableCount = await driver.executeScript('return window.__tables.length;');
+    for (var table = 0; table < tableCount; table++) {
+      const data = await driver.executeScript('return window.__tables[' + table + '].getData()');
+      formattedData = formattedData.concat(data.reduce((v1, v2) => v1.concat(v2)).map(v => new BigNumber(v).toFixed(2)));
+    }
+
+    return formattedData;
+  },
+  generateRandomData: function(rows, cols, maxElement=1000000) {
+    var values = [];
+    for (var i = 0; i < rows; i++) {
+      values[i] = [];
+      for (var j = 0; j < cols; j++) {
+        values[i][j] = BigNumber.random().times(maxElement).floor().toString();
+      }
+    }
+    return values;
   }
 };

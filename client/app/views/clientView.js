@@ -52,17 +52,13 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
     // Creates survey
     function displaySurveyQuestions() {
       $('#additional-questions').hide();
-
       if (!('survey' in table_template) || Object.keys(table_template.survey).length === 0) {
         return;
       }
 
       $('#additional-questions').show();
-
       var questions = table_template.survey.questions;
-
       var questionsDiv = $('#questions');
-
       for (var i = 0; i < questions.length; i++) {
         var form = document.createElement('form');
         form.append(createQuestionText(questions[i].question_text));
@@ -81,7 +77,6 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
     }
 
     function clientControllerView() {
-
       $(document).ready(function () {
         // Hide by default
 
@@ -90,13 +85,11 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         displaySurveyQuestions();
         // Create the tables
         var tables = tableController.makeTables(table_template.tables);
-     
-        
+
         usabilityController.initialize();
         usabilityController.saveBrowser();
 
         var totals_table = null;
-
         if (table_template.totals) {
           tableController.createTableElems([table_template.totals], '#totals-table');
           totals_table = tableController.makeTables([table_template.totals])[0];
@@ -113,14 +106,13 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
           } else if (e.type === 'change') {
             fileName = e.target.files[0].name;
           }
-    
+
           $('#file-name').text(fileName);
         });
 
         $('#session, #participation-code').on('blur', function (e) {
           e.target.dataset['did_blur'] = true;
           clientController.validateSessionInput(e.target, true);
-
 
           if (Object.keys(table_template).includes(SELF_SELECT) && table_template[SELF_SELECT]) {
             clientController.getExistingCohorts($session.val(), $participationCode.val())
@@ -149,9 +141,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         };
 
         $participationCode.val(getParameterByName('participationCode'));
-
         $session.val(getParameterByName('session'));
-
         if (String($session.val()).trim() !== '') {
           $session.blur();
         }
@@ -170,7 +160,6 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         var sums = [0, 0]; // Internal total of Non NaNs values.
         var NaNs = [0, 0]; // Counts how many NaNs exist for every cell participating in a total.
 
-
         // Custom afterChange hook that computes the totals
         var afterChange = function (changes) {
           if (table_template.totals) {
@@ -188,18 +177,16 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
         // Table accordion.
         $('#tables-area').hide();
-
         $('#expand-table-button').click(function (e) {
           $('#tables-area').slideToggle(function () {
             if (!$('#tables-area').is(':hidden')) {
               tableController.updateWidth(tables);
-            } else{
+            } else {
               tableController.resetTableWidth();
             }
           });
           $(e.target).toggleClass('flip');
         });
-        
 
         var _target = document.getElementById('drop-area');
         var _choose = document.getElementById('choose-file-button');

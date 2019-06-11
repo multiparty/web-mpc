@@ -1,11 +1,47 @@
 /* eslint-env node, mocha */
 const { By, until } = require('selenium-webdriver');
-
 const helpers = require('../helpers.js');
-const uploadFile = '/test/selenium/files/bwwc.xlsx';
+
+async function uploadFile(driver, uploadFilePath) {
+  // Upload File
+  const uploadFileField = await driver.findElement(By.id('choose-file'));
+  await uploadFileField.sendKeys(process.cwd() + uploadFilePath);
+
+  // Close alertify dialog showing successful file parsing
+  const alertifyOk = await driver.wait(until.elementLocated(By.className('ajs-ok')));
+  await driver.wait(until.elementIsEnabled(alertifyOk));
+  await alertifyOk.click();
+
+  const alertifyModal = await driver.findElement(By.className('ajs-modal'));
+  await driver.wait(until.elementIsNotVisible(alertifyModal));
+
+  return await helpers.readTableDataAsArray(driver);
+}
+
+async function enterRandomData(driver, maxElement=undefined) {
+  // open tables area
+  const expandToggle = await driver.findElement(By.id('expand-table-button'));
+  await expandToggle.click();
+
+  // get the tables
+  var formattedData = [];
+  var tableCount = await driver.executeScript('return window.__tables.length;');
+  for (var table = 0; table < tableCount; table++) {
+    var rowCount = await driver.executeScript('return window.__tables[' + table + '].countRows();');
+    var colCount = await driver.executeScript('return window.__tables[' + table + '].countCols();');
+
+    var data = helpers.generateRandomData(rowCount, colCount, maxElement);
+    var strData = JSON.stringify(data);
+
+    await driver.executeScript('window.__tables[' + table + '].updateSettings({data: JSON.parse(\'' + strData + '\')});');
+    formattedData = formattedData.concat(data.reduce((v1, v2) => v1.concat(v2)));
+  }
+
+  return formattedData
+}
 
 module.exports = {
-  submitCohortSelf: async function (driver, link, cohort) {
+  submitCohortSelf: async function (driver, link, cohort, uploadFilePath=undefined, maxElement=undefined) {
     driver.get(link);
 
     const participationCodeSuccessField = await driver.findElement(By.id('participation-code-success'));
@@ -19,17 +55,14 @@ module.exports = {
     await cohortSelectField.click();
     await cohortSelectField.findElement(By.css("option[value='" + cohort + "']")).click();
 
-    // Upload File
-    const fileUpload = await driver.findElement(By.id('choose-file'));
-    await fileUpload.sendKeys(process.cwd() + uploadFile);
-
-    // Close alertify dialog showing successful file parsing
-    var alertifyOk = await driver.wait(until.elementLocated(By.className('ajs-ok')));
-    await driver.wait(until.elementIsEnabled(alertifyOk));
-    await alertifyOk.click();
-
-    const alertifyModal = await driver.findElement(By.className('ajs-modal'));
-    await driver.wait(until.elementIsNotVisible(alertifyModal));
+    var data;
+    if (uploadFilePath != null) {
+      // Test by parsing spreadsheet
+      data = await uploadFile(driver, uploadFilePath);
+    } else {
+      // Test manual entry
+      data = await enterRandomData(driver, maxElement);
+    }
 
     // Verify data
     const verifyButton = await driver.findElement(By.id('verify'));
@@ -45,10 +78,16 @@ module.exports = {
     const successDialog = await helpers.conditionOrAlertError(driver, until.elementLocated(By.id('submission-success')));
     await driver.wait(until.elementIsVisible(successDialog));
 
-    alertifyOk = await driver.wait(until.elementLocated(By.className('ajs-ok')));
+    // Close alertify dialog
+    const alertifyOk = await driver.wait(until.elementLocated(By.className('ajs-ok')));
+    const alertifyModal = await driver.findElement(By.className('ajs-modal'));
+
     await driver.wait(until.elementIsEnabled(alertifyOk));
     await alertifyOk.click();
 
     await driver.wait(until.elementIsNotVisible(alertifyModal));
+
+    // return uploaded data
+    return data;
   }
 };
