@@ -15,11 +15,11 @@ module.exports = {
   computeDeviation: function (inputs) {
     const count = inputs.length;
 
-    var squareOfAverage = module.exports.sum(inputs);
+    var squareOfAverage = module.exports.sumRows(inputs);
     squareOfAverage = squareOfAverage.map(v => new BigNumber(v).div(count).pow(2));
 
     var averageOfSquare = inputs.map(input => input.map(v => new BigNumber(v).pow(2)));
-    averageOfSquare = module.exports.sum(averageOfSquare).map(v => new BigNumber(v).div(count));
+    averageOfSquare = module.exports.sumRows(averageOfSquare).map(v => new BigNumber(v).div(count));
 
     var deviations = averageOfSquare.map((v, i) => v.minus(squareOfAverage[i]));
     return deviations.map(v => v.sqrt().toFixed(2));

@@ -1,11 +1,14 @@
 /* eslint-env node, mocha */
 const { By, Condition } = require('selenium-webdriver');
+const readline = require('readline');
+const fs = require('fs');
 
 const helpers = require('../helpers.js');
 
 module.exports = {};
 module.exports.unmask = async function (driver, sessionKey, password, outputCount) {
-  const pemFilePath = helpers.getUserHome() + '/Downloads/Session_' + sessionKey + '_private_key.pem';
+  const downloadsPath = helpers.getUserHome() + '/Downloads/';
+  const pemFilePath = downloadsPath + 'Session_' + sessionKey + '_private_key.pem';
 
   await driver.get('localhost:8080/unmask');
 
@@ -34,5 +37,15 @@ module.exports.unmask = async function (driver, sessionKey, password, outputCoun
   });
 
   await helpers.conditionOrAlertError(driver, countCondition);
-  return await helpers.readTableDataAsArray(driver);
+  const tablesContent = await helpers.readTableDataAsArray(driver);
+
+  // Read downloaded files
+  await driver.sleep(3000);
+
+  const averageFile = downloadsPath + 'Aggregate_Averages_' + sessionKey + '.csv';
+  const deviationFile = downloadsPath + 'Aggregate_Standard_Deviations_' + sessionKey + '.csv';
+
+  const averagesContent = fs.readFileSync(averageFile, 'utf8');
+  const deviationsContent = fs.readFileSync(deviationFile, 'utf8');
+  return { tablesContent, averagesContent, deviationsContent };
 };

@@ -28,7 +28,7 @@ module.exports.createNewCohort = function (context, body, response, sessionInfoO
       return;
     }
   }
-  
+
   const cohortNum = cohortMapping.length;
 
   // Do not need to verify since joi already did it
@@ -47,7 +47,6 @@ module.exports.createNewCohort = function (context, body, response, sessionInfoO
 };
 
 // Need to get cohorts from multiple locations
-// TODO: require userKey or Password?
 module.exports.getCohorts = function(context, body, res) {
   var promise = modulesWrappers.SessionInfo.get(body.session);
 
@@ -58,7 +57,7 @@ module.exports.getCohorts = function(context, body, res) {
     console.log('Error getting cohorts', err);
     res.status(500).send('Error getting cohorts.');
   });
-}
+};
 
 // endpoint for returning previously created client urls
 module.exports.getClientUrls = function (context, body, res) {
@@ -97,7 +96,7 @@ module.exports.createClientUrls = function (context, body, response, sessionInfo
 
     var userKeys = {}; // fast lookup
     var jiffIds = {}; // fast lookup
-    
+
     for (var d of data) {
       userKeys[d.userkey] = true;
       jiffIds[d.jiff_party_id] = true;

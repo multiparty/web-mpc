@@ -57,7 +57,7 @@ var insertSessionInfo = function (session_key, public_key, password, title, desc
     description: description,
     status: 'PAUSE',
     cohort_mapping: cohortMapping,
-    cohorts: cohortMapping.length
+    cohorts: cohortMapping.length + 1
   });
 
   return new Promise(function (resolve, reject) {
@@ -146,7 +146,7 @@ var queryUserKey = function (session_key) {
 };
 
 // insert several user keys
-var insertManyUserKey = function (array) {  
+var insertManyUserKey = function (array) {
   array = array.map(function (obj) {
     obj['_id'] = obj.session + obj.userkey;
     return new modules.UserKey(obj);

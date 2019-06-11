@@ -27,8 +27,8 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda',  '
       var statusPromise = analystController.checkStatus(session, password);
       Promise.all([urlsPromise, statusPromise]).then(function (results) {
         // Only logs in if both requests succeed
-        var existingParticipants = results[1];
-        console.log('bla');
+        var existingParticipants = results[0];
+        var status = results[1];
 
         // if self-selection, add participant agnostic link div
         if (Object.keys(tableTemplate).includes('cohort_selection') && tableTemplate['cohort_selection']) {

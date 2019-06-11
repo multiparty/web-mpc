@@ -38,7 +38,6 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
     }).then(function (resp) {
       return resp;
     }).catch(function (err) {
-      console.log(err);
       throw new Error(err.responseText);
     });
   }

@@ -16,8 +16,8 @@ module.exports.login = async function (driver, sessionKey, password) {
   await passwordField.sendKeys(password);
   loginButton.click();
 
-  const sessionStartButton = await driver.findElement(By.id('session-start'));
-  await helpers.conditionOrAlertError(driver, until.elementIsVisible(sessionStartButton));
+  const sessionStatusText = await driver.findElement(By.id('session-status'));
+  await helpers.conditionOrAlertError(driver, until.elementTextMatches(sessionStatusText, /^(STARTED)|(PAUSED)|(STOPPED)$/));
 };
 
 module.exports.generateLinksNoCohorts = async function (driver, count) {
