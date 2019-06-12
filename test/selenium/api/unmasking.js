@@ -23,7 +23,7 @@ module.exports.unmask = async function (driver, sessionKey, password, outputCoun
   const fileUpload = await driver.findElement(By.id('choose-file'));
   await fileUpload.sendKeys(pemFilePath);
 
-  // Wait until done
+  // Wait until done (detect done by the tables expanding)
   const countCondition = new Condition('Ensure table elements count is 640', async function () {
     var elements = await driver.findElements(By.xpath('//td[@class="htDimmed"]'));
     if (elements.length === outputCount) {
@@ -35,13 +35,15 @@ module.exports.unmask = async function (driver, sessionKey, password, outputCoun
     }
     return false;
   });
-
   await helpers.conditionOrAlertError(driver, countCondition);
+
+  // Sleep to ensure files were downloaded
+  await driver.sleep(5000);
+
+  // Read data from UI / Tables
   const tablesContent = await helpers.readTableDataAsArray(driver);
 
-  // Read downloaded files
-  await driver.sleep(3000);
-
+  // Read data from CSV
   const averageFile = downloadsPath + 'Aggregate_Averages_' + sessionKey + '.csv';
   const deviationFile = downloadsPath + 'Aggregate_Standard_Deviations_' + sessionKey + '.csv';
 

@@ -61,16 +61,18 @@ module.exports.getCohorts = function(context, body, res) {
 
 // endpoint for returning previously created client urls
 module.exports.getClientUrls = function (context, body, res) {
+  var table_template = require('../../client/app/' + config.client.table_template + '.js');
+
   // Password verified already by authentication!
   var promise = modulesWrappers.UserKey.query(body.session);
 
   promise.then(function (data) {
     var urls = {};
     for (var d of data) {
-      var arr = urls[d.cohort] == null ? [] : urls[d.cohort]
+      var cohort = table_template.cohort_selection === true ? 'undefined' : d.cohort;
+      var arr = urls[cohort] == null ? [] : urls[cohort]
       arr.push('?session=' + body.session + '&participationCode=' + d.userkey);
-
-      urls[d.cohort] = arr;
+      urls[cohort] = arr;
     }
 
     console.log('URLs fetched:', body.session);
