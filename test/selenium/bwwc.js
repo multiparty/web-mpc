@@ -26,84 +26,101 @@ describe('BWWC Tests', function () {
   });
 
   // End-to-end Workflow
-  it('End-to-end with one cohort', async function () {
-    const driver = driverWrapper.getDriver();
+  describe('End-to-end Workflow', function () {
+    let sessionKey, password, links, driver, inputs;
+
+    before(function () {
+      driver = driverWrapper.getDriver();
+      inputs = { all: [] };
+    });
 
     // Create session
-    const { sessionKey, password } = await session.createSession(driver);
+    it('Session Creation', async function () {
+      let returned = await session.createSession(driver);
+      sessionKey = returned.sessionKey;
+      password = returned.password;
+    });
 
-    // Session Management
-    await manage.login(driver, sessionKey, password);
-    const links = await manage.generateLinksNoCohorts(driver, CONTRIBUTOR_COUNT);
-    await manage.changeSessionStatus(driver, 'start');
+    // Generate Participation Links
+    it('Generate Links', async function () {
+      await manage.login(driver, sessionKey, password); // Login to Session Management
+      links = await manage.generateLinksNoCohorts(driver, CONTRIBUTOR_COUNT);
+    });
+
+    // Start Session
+    it('Start Session', async function () {
+      await manage.changeSessionStatus(driver, 'start');
+    });
 
     // Submit
-    console.time('Total Submission');
-    const inputs = { all: [] };
-    for (var i = 0; i < links.length; i++) {
-      const cohort = (i % COHORT_COUNT) + 1;
-      const uploadFile = i % 3 === 0 ? UPLOAD_FILE : undefined;
+    it('Data Submissions', async function () {
+      for (let i = 0; i < links.length; i++) {
+        const cohort = (i % COHORT_COUNT) + 1;
+        const uploadFile = i % 3 === 0 ? UPLOAD_FILE : undefined;
 
-      console.time('Submission ' + i);
-      const input = await submission.submitCohortSelf(driver, links[i], cohort, uploadFile);
-      console.timeEnd('Submission ' + i);
+        const submissionID = '\tSubmission: ' + (i+1) + '. Cohort: ' + cohort + '. ' + (uploadFile == null ? 'Manual' : 'Upload');
+        console.time(submissionID);
+        const input = await submission.submitCohortSelf(driver, links[i], cohort, uploadFile);
+        console.timeEnd(submissionID);
 
-      // Add input to inputs
-      const cohortInputs = inputs[cohort] || [];
-      cohortInputs.push(input);
-      inputs[cohort] = cohortInputs;
-      inputs['all'].push(input);
-    }
-    console.timeEnd('Total Submission');
+        // Add input to inputs
+        const cohortInputs = inputs[cohort] || [];
+        cohortInputs.push(input);
+        inputs[cohort] = cohortInputs;
+        inputs['all'].push(input);
+      }
+    });
 
-    // Stop session
-    await manage.login(driver, sessionKey, password);
-    await manage.changeSessionStatus(driver, 'stop');
+      // Stop session
+    it('Stop Session', async function () {
+      await manage.login(driver, sessionKey, password);
+      await manage.changeSessionStatus(driver, 'stop');
+    });
 
     // Sleep to give server time to finish processing
-    console.log('Waiting 20 seconds');
-    await driver.sleep(20000);
-    console.log('Done waiting');
+    it('Sleep 20 seconds', async function () {
+      await driver.sleep(20000);
+    });
 
     // Unmask
-    console.time('Unmasking');
-    const { tablesContent, averagesContent, deviationsContent } = await unmasking.unmask(driver, sessionKey, password, inputs['all'][0].length);
-    console.timeEnd('Unmasking');
+    it('Unmasking', async function () {
+      const { tablesContent, averagesContent, deviationsContent } = await unmasking.unmask(driver, sessionKey, password, inputs['all'][0].length);
 
-    // Parse CSV and check results are correct
-    const { cohorts: averagesCohorts, parsed: averages } = csv.parseCSVCohorts(averagesContent);
-    const { cohorts: deviationsCohorts, parsed: deviations } = csv.parseCSVCohorts(deviationsContent);
+      // Parse CSV and check results are correct
+      const { cohorts: averagesCohorts, parsed: averages } = csv.parseCSVCohorts(averagesContent);
+      const { cohorts: deviationsCohorts, parsed: deviations } = csv.parseCSVCohorts(deviationsContent);
 
-    // Check cohorts are what we expected
-    averagesCohorts.sort();
-    deviationsCohorts.sort();
-    const cohorts = Object.keys(inputs).filter(i => (i !== 'all' && (inputs[i] || []).length > 0)).sort();
+      // Check cohorts are what we expected
+      averagesCohorts.sort();
+      deviationsCohorts.sort();
+      const cohorts = Object.keys(inputs).filter(i => (i !== 'all' && (inputs[i] || []).length > 0)).sort();
 
-    assert.deepEqual(averagesCohorts, cohorts, 'Average CSV file does not have correct cohorts');
-    assert.deepEqual(deviationsCohorts, cohorts, 'Standard Deviation CSV file does not have correct cohorts');
+      assert.deepEqual(averagesCohorts, cohorts, 'Average CSV file does not have correct cohorts');
+      assert.deepEqual(deviationsCohorts, cohorts, 'Standard Deviation CSV file does not have correct cohorts');
 
-    // Verify results for UI
-    const allAverage = compute.computeAverage(inputs['all']);
-    const allDeviation = compute.computeDeviation(inputs['all']);
-    assert.deepEqual(tablesContent, allAverage, 'UI Average over all cohorts is incorrect');
+      // Verify results for UI
+      const allAverage = compute.computeAverage(inputs['all']);
+      const allDeviation = compute.computeDeviation(inputs['all']);
+      assert.deepEqual(tablesContent, allAverage, 'UI Average over all cohorts is incorrect');
 
-    // Verify results from csv
-    assert.equal(averages['all'].count, inputs['all'].length, 'CSV Average over all cohorts has incorrect # of participants');
-    assert.deepEqual(averages['all'].values, allAverage, 'CSV Average over all cohorts is incorrect');
+      // Verify results from csv
+      assert.equal(averages['all'].count, inputs['all'].length, 'CSV Average over all cohorts has incorrect # of participants');
+      assert.deepEqual(averages['all'].values, allAverage, 'CSV Average over all cohorts is incorrect');
 
-    assert.equal(deviations['all'].count, inputs['all'].length, 'CSV Deviation over all cohorts has incorrect # of participants');
-    assert.deepEqual(deviations['all'].values, allDeviation, 'CSV Deviation over all cohorts is incorrect');
+      assert.equal(deviations['all'].count, inputs['all'].length, 'CSV Deviation over all cohorts has incorrect # of participants');
+      assert.deepEqual(deviations['all'].values, allDeviation, 'CSV Deviation over all cohorts is incorrect');
 
-    // Check each cohort
-    for (const cohort of cohorts) {
-      const cohortAverage = compute.computeAverage(inputs[cohort]);
-      assert.equal(averages[cohort].count, inputs[cohort].length, 'CSV Average - Cohort ' + cohort + ' has incorrect # of participants');
-      assert.deepEqual(averages[cohort].values, cohortAverage, 'CSV Average - Cohort ' + cohort + ' has incorrect # of participants');
+      // Check each cohort
+      for (const cohort of cohorts) {
+        const cohortAverage = compute.computeAverage(inputs[cohort]);
+        assert.equal(averages[cohort].count, inputs[cohort].length, 'CSV Average - Cohort ' + cohort + ' has incorrect # of participants');
+        assert.deepEqual(averages[cohort].values, cohortAverage, 'CSV Average - Cohort ' + cohort + ' has incorrect # of participants');
 
-      const cohortDeviation = compute.computeDeviation(inputs[cohort]);
-      assert.equal(deviations[cohort].count, inputs[cohort].length, 'CSV Deviation - Cohort ' + cohort + ' has incorrect # of participants');
-      assert.deepEqual(deviations[cohort].values, cohortDeviation, 'CSV Deviation - Cohort ' + cohort + ' has incorrect # of participants');
-    }
+        const cohortDeviation = compute.computeDeviation(inputs[cohort]);
+        assert.equal(deviations[cohort].count, inputs[cohort].length, 'CSV Deviation - Cohort ' + cohort + ' has incorrect # of participants');
+        assert.deepEqual(deviations[cohort].values, cohortDeviation, 'CSV Deviation - Cohort ' + cohort + ' has incorrect # of participants');
+      }
+    });
   });
 });
 

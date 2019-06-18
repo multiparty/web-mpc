@@ -10,6 +10,7 @@ async function uploadFile(driver, uploadFilePath) {
   // Close alertify dialog showing successful file parsing
   const alertifyOk = await driver.wait(until.elementLocated(By.className('ajs-ok')));
   await driver.wait(until.elementIsEnabled(alertifyOk));
+  await driver.wait(until.elementIsVisible(alertifyOk));
   await alertifyOk.click();
 
   const alertifyModal = await driver.findElement(By.className('ajs-modal'));
@@ -42,7 +43,7 @@ async function enterRandomData(driver, maxElement=undefined) {
 
 module.exports = {
   submitCohortSelf: async function (driver, link, cohort, uploadFilePath=undefined, maxElement=undefined) {
-    driver.get(link);
+    await driver.get(link);
 
     const participationCodeSuccessField = await driver.findElement(By.id('participation-code-success'));
     const cohortSelectField = await driver.findElement(By.id('cohortDrop'));
@@ -64,13 +65,20 @@ module.exports = {
       data = await enterRandomData(driver, maxElement);
     }
 
-    // Verify data
+    // Verify & Submit data
     const verifyButton = await driver.findElement(By.id('verify'));
-    await driver.wait(until.elementIsEnabled(verifyButton));
-    await verifyButton.click();
-
-    // Submit data
     const submitButton = await driver.findElement(By.id('submit'));
+    await driver.wait(until.elementIsEnabled(verifyButton));
+
+    do { // may need to verify a few times if tables have not fully populated properly at times.
+      try {
+        await verifyButton.click();
+      } catch (error) {
+        // handles common errors if tests are run locally, and the mouse is moved
+        console.log(error);
+      }
+    } while (! await verifyButton.isSelected());
+
     await driver.wait(until.elementIsEnabled(submitButton));
     await submitButton.click();
 
