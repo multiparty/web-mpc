@@ -872,7 +872,7 @@ define([], function () {
     },
     'usability': [
       'data_prefilled', 
-      {'time_spent': ['page', 'review-and-submit']},
+      {'time_spent': ['page', 'session-area', 'number-employees-hot', 'compensation-hot', 'performance-pay-hot', 'service-length-hot', 'review-and-submit']},
       {'browser': ['chrome', 'edge', 'msie', 'firefox', 'opera', 'other', 'safari']},
       {'validation_errors': [
         'SESSION_KEY_ERROR', 

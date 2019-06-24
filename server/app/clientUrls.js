@@ -61,15 +61,13 @@ module.exports.getCohorts = function(context, body, res) {
 
 // endpoint for returning previously created client urls
 module.exports.getClientUrls = function (context, body, res) {
-  var table_template = require('../../client/app/' + config.client.table_template + '.js');
-
   // Password verified already by authentication!
   var promise = modulesWrappers.UserKey.query(body.session);
 
   promise.then(function (data) {
     var urls = {};
     for (var d of data) {
-      var cohort = table_template.cohort_selection === true ? 'undefined' : d.cohort;
+      var cohort = d.cohort;
       var arr = urls[cohort] == null ? [] : urls[cohort]
       arr.push('?session=' + body.session + '&participationCode=' + d.userkey);
       urls[cohort] = arr;
@@ -125,20 +123,14 @@ module.exports.createClientUrls = function (context, body, response, sessionInfo
       // Generate URL and add dbObject
       i++;
       urls.push('?session=' + body.session + '&participationCode=' + userkey);
-      if (cohortId === 'null') {
-        dbObjs.push({
-          session: body.session,
-          userkey: userkey,
-          jiff_party_id: jiff_party_id,
-        });
-      } else {
-        dbObjs.push({
-          session: body.session,
-          userkey: userkey,
-          jiff_party_id: jiff_party_id,
-          cohort: cohortId
-        });
-      }
+      
+      dbObjs.push({
+        session: body.session,
+        userkey: userkey,
+        jiff_party_id: jiff_party_id,
+        cohort: cohortId
+      });
+      // }
     }
 
     // Save the userKeys into the db.

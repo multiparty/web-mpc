@@ -809,12 +809,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
    the first key is the row key, and the second is the column key.
    * @param {hot} table_hot - the handsontable object.
    */
-
-  // function format_table(data) {
-
-  // }
-
-
   function createMetaMap() {
     var meta_table = table_template.tables[0];
     var meta_map = {};
@@ -949,23 +943,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
     filesaver.saveAs(new Blob([joined], {type: 'text/plain;charset=utf-8'}), 'Aggregate_' + title + '_' + session + '.csv');
   }
 
-  function getHeaderWidth(table) {
-
-    var id = table.rootElement.id;
-
-    table_template.tables.forEach(function (t) {
-      if (id === t.element) {
-        return t.hot_parameters.rowHeaderWidth;
-      }
-    });
-
-    return 0;
-  }
-
-  function getPadding(div) {
-    return parseInt($(div).css('padding-right').split('px')[0]) + parseInt($(div).css('padding-left').split('px')[0]);
-  }
-
   function createTableElems(tables, tablesDiv) {
 
     var tablesArea = $(tablesDiv);
@@ -1056,9 +1033,9 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
   }
 
   function saveUsability(usability, session, counts) {
-    var count = 'Total number of participants ' + counts['all'].length;
-    var json = JSON.stringify(usability);
-    filesaver.saveAs(new Blob([count + '\n' + json], {type: 'application/json'}), 'Usability_' + session + '.json');
+ 
+    usability['num_participants'] = counts['all'].length;
+    filesaver.saveAs(new Blob([JSON.stringify(usability)], {type: 'application/json'}), 'Usability_' + session + '.json');
   }
 
   function saveQuestions(cohorts, session, counts) {

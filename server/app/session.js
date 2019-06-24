@@ -21,7 +21,7 @@ module.exports.createSession = function (context, body, res) {
   var title = body.title.split('<').join('&lt;').split('>').join('&gt;');
   var description = body.description.split('<').join('&lt;').split('>').join('&gt;');
 
-  // If there are pre-set cohorts, add them by default
+  // If there are pre-set cohorts, add them by default. Cohort numbers start at 1
   var cohortMapping = (tableTemplate['cohorts'] || []).map((v, i) => ({name: v.name, id: i+1}));
 
   var promise = modulesWrappers.SessionInfo.insert(sessionID, publickey, password, title, description, cohortMapping);

@@ -21,9 +21,9 @@ module.exports.login = async function (driver, sessionKey, password) {
 };
 
 module.exports.generateLinksNoCohorts = async function (driver, count) {
-  const linksCountField = await driver.findElement(By.id('participants-count-null'));
-  const submitButton = await driver.findElement(By.id('participants-submit-null'));
-  const linksArea = await driver.findElement(By.id('participants-new-null'));
+  const linksCountField = await driver.findElement(By.id('participants-count-0'));
+  const submitButton = await driver.findElement(By.id('participants-submit-0'));
+  const linksArea = await driver.findElement(By.id('participants-new-0'));
 
   await driver.wait(until.elementIsVisible(submitButton));
   await driver.wait(until.elementIsEnabled(submitButton));

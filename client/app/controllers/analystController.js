@@ -77,6 +77,13 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
     return resultUrls;
   }
 
+  /**
+   * 
+   * @param {*} session 
+   * @param {*} password 
+   * @param {*} count number of total links that should be generated
+   * @param {*} cohort 
+   */
   function generateNewParticipationCodes(session, password, count, cohort) {
     return $.ajax({
       type: 'POST',

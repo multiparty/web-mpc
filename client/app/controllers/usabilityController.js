@@ -19,11 +19,7 @@ define(['table_template'], function (table_template) {
     });
 
     Object.keys(analytics.time_spent).forEach(function (k) {
-      if (k === 'page') {
-        timers[k] = new Date();
-      } else {
-        timers[k] = null;
-      }
+      timers[k] = null;
 
       $('#' + k).on('mouseenter', function () {
         startTimer(k);

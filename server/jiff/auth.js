@@ -2,6 +2,10 @@ const Promise = require('bluebird');
 const auth = require('../app/auth.js');
 const modulesWrappers = require('../modules/modulesWrappers.js');
 
+// this should be a check within sessionInfo
+const config = require('../config/config.js');
+const table_template = require('../../client/app/' + config.client.table_template + '.js');
+
 // Wrappers around ../app/auth.js
 function analystAuth(computation_id, msg, params) {
   return new Promise(function (resolve, reject) {
@@ -27,7 +31,7 @@ function userAuth(computation_id, msg, params) {
         // handle cohort
         modulesWrappers.SessionInfo.get(computation_id).then(function (sessionInfo) {
 
-          if (cohortId === undefined) {
+          if (table_template.cohort_selection === true) {
             for (var c of sessionInfo.cohort_mapping) {
               if (msg.cohort === c.name) {
                 cohortId = c.id;

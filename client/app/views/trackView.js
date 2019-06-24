@@ -33,12 +33,12 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda',  '
         // if self-selection, add participant agnostic link div
         if (Object.keys(tableTemplate).includes('cohort_selection') && tableTemplate['cohort_selection']) {
           SELF_SELECT = true;
-          $('#session-content-left').append(createLinkGeneration('null'));
+          $('#session-content-left').append(createLinkGeneration('0'));
 
-          $('#cohort-null').removeClass('col-md-4');
-          $('#cohort-null').addClass('card');
+          $('#cohort-0').removeClass('col-md-4');
+          $('#cohort-0').addClass('card');
 
-          enableCohortSubmit('null');
+          enableCohortSubmit('0');
 
           $('#session-content').append($('#cohort-area').addClass('col-sm-7 col-md-offset-1'));
         } else {
@@ -152,6 +152,7 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda',  '
       var previous = Date.now();
       analystController.getSubmissionHistory(session, password, timestamp)
         .then(function (res) {
+          console.log('res', res);
           if (res != null) {
             for (var cohort in res) {
               if (res.hasOwnProperty(cohort)) {
