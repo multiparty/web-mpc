@@ -40,7 +40,14 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda',  '
 
           enableCohortSubmit('0');
 
-          $('#session-content').append($('#cohort-area').addClass('col-sm-7 col-md-offset-1'));
+        
+          var $cohortArea = $('#cohort-area').addClass('col-sm-7 card col-md-offset-1');
+          $historyTitle = document.createElement('h2');
+          $historyTitle.setAttribute('class', 'text-center');
+          $historyTitle.innerText = 'Submission History';
+          $cohortArea.append($historyTitle);
+          $('#session-content').append($cohortArea);
+
         } else {
           $('#cohort-card').collapse();
         }
@@ -79,7 +86,6 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda',  '
           var cohortId = res.cohortId.toString();
           createCohort(cohortName, cohortId);
           enableCohortSubmit(cohortId);
-          document.getElementById('cohort-input').value = '';
 
           // scroll to correct cohort
           $('html, body').animate({
@@ -213,7 +219,6 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda',  '
 
       // Create new elements
       var $historySection = document.createElement('div');
-      $historySection.setAttribute('class', 'col-md-7 col-md-offset-1');
 
       var $historyTable = document.createElement('table');
       $historyTable.setAttribute('id', 'table-' + cohortId);
@@ -226,22 +231,20 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda',  '
       var $idCell = document.createElement('th');
       var $timeCell = document.createElement('th');
       var $header = document.createElement('div');
-      var $title = document.createElement('h2');
+      var $title;
       $header.setAttribute('class', 'text-center');
 
       if (SELF_SELECT) {
-        $historySection.setAttribute('class', 'card');
+        $historyTable.style.marginBottom = '75px';
+        $title = document.createElement('h3');
+        $title.setAttribute('class', 'historySubTitle');
         $title.innerText = cohortName;
-        var $subTitle = document.createElement('h3');
-        $subTitle.setAttribute('class', 'historySubTitle');
-        $subTitle.innerText = 'Submission History'
         $header.appendChild($title);
-        $header.appendChild($subTitle);
       } else {
         $title.innerText = 'Submission History';
         $header.appendChild($title);
+        $historySection.setAttribute('class', 'col-md-7 col-md-offset-1');
       }
-
 
       // Attach elements
       $historySection.appendChild($header);

@@ -23,46 +23,6 @@ describe('BWWC Tests', function () {
     driverWrapper.quit();
   });
 
-
-  describe('Resubmission', function () {
-    let sessionKey, password, links, driver, inputs;
-
-    const COHORT_COUNT = 2;
-    const CONTRIBUTOR_COUNT = 2;
-
-    before(function() {
-      driver = driverWrapper.getDriver();
-      inputs = { all: [] };
-    });
-
-     // Create session
-    it('Session Creation', async function () {
-      let returned = await session.createSession(driver);
-      sessionKey = returned.sessionKey;
-      password = returned.password;
-    });
-
-        // Generate Participation Links
-    it('Generate Links', async function () {
-      await manage.login(driver, sessionKey, password); // Login to Session Management
-      links = await manage.generateLinksNoCohorts(driver, CONTRIBUTOR_COUNT);
-    });
-
-    // Start Session
-    it('Start Session', async function () {
-      await manage.changeSessionStatus(driver, 'start');
-    });
-
-    // Submit
-    it('Data Submissions', async function () {
-      for (var i = 1; i <= COHORT_COUNT; i++) {
-        await submission.submitCohort(driver, links, i, UPLOAD_FILE);
-        await manage.login(driver, sessionKey, password);
-        await manage.checkHistory(driver, i, CONTRIBUTOR_COUNT);
-      }
-    });
-  });
-
   // End-to-end Workflow
   describe('End-to-end Workflow', function () {
     let sessionKey, password, links, driver, inputs;
@@ -160,6 +120,44 @@ describe('BWWC Tests', function () {
         const cohortDeviation = compute.computeDeviation(inputs[cohort]);
         assert.equal(deviations[cohort].count, inputs[cohort].length, 'CSV Deviation - Cohort ' + cohort + ' has incorrect # of participants');
         assert.deepEqual(deviations[cohort].values, cohortDeviation, 'CSV Deviation - Cohort ' + cohort + ' has incorrect # of participants');
+      }
+    });
+  });
+
+  describe('Resubmission', function () {
+    let sessionKey, password, links, driver, inputs;
+
+    const COHORT_COUNT = 2;
+    const CONTRIBUTOR_COUNT = 2;
+
+    before(function() {
+      driver = driverWrapper.getDriver();
+    });
+
+     // Create session
+    it('Session Creation', async function () {
+      let returned = await session.createSession(driver);
+      sessionKey = returned.sessionKey;
+      password = returned.password;
+    });
+
+        // Generate Participation Links
+    it('Generate Links', async function () {
+      await manage.login(driver, sessionKey, password); // Login to Session Management
+      links = await manage.generateLinksNoCohorts(driver, CONTRIBUTOR_COUNT);
+    });
+
+    // Start Session
+    it('Start Session', async function () {
+      await manage.changeSessionStatus(driver, 'start');
+    });
+
+    // Submit
+    it('Data Submissions', async function () {
+      for (var i = 1; i <= COHORT_COUNT; i++) {
+        inputs = await submission.submitCohort(driver, links, i, UPLOAD_FILE);
+        await manage.login(driver, sessionKey, password);
+        await manage.checkHistory(driver, i, CONTRIBUTOR_COUNT);
       }
     });
   });

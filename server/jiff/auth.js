@@ -1,4 +1,3 @@
-const Promise = require('bluebird');
 const auth = require('../app/auth.js');
 const modulesWrappers = require('../models/modelWrappers');
 
