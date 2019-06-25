@@ -41,6 +41,13 @@ module.exports.generateLinksNoCohorts = async function (driver, count) {
   return links;
 };
 
+module.exports.checkHistory = async function(driver, cohort, numberOfParticipants) {
+
+  const history = await driver.findElements(By.xpath('// *[@id="table-'+ cohort +'"]/tbody/tr'));
+  console.log('Number of submissions in cohort ' + cohort + ': ', history.length, ', number expected: ' + numberOfParticipants)
+  assert.equal(history.length, numberOfParticipants, 'Incorrect submission history for cohort ' + cohort);
+}
+
 module.exports.changeSessionStatus = async function (driver, status) {
   var statusSuccess = status.toUpperCase() + 'ED';
   if (status === 'pause') {
