@@ -1,7 +1,9 @@
 const { By, until } = require('selenium-webdriver');
 const assert = require('assert');
-
 const helpers = require('../helpers.js');
+const fs = require('fs');
+
+const UNASSIGNED_COHORT = '0';
 
 module.exports = {};
 
@@ -20,10 +22,28 @@ module.exports.login = async function (driver, sessionKey, password) {
   await helpers.conditionOrAlertError(driver, until.elementTextMatches(sessionStatusText, /^(STARTED)|(PAUSED)|(STOPPED)$/));
 };
 
+// module.exports.downloadLinks = async function(driver, cohort, count) {
+//   const downloadBtn = await driver.findElement(By.id('participants-download-' + cohort));
+//   downloadBtn.click();
+
+//   if (count === 0) {
+//       // Close alertify dialog showing error
+//     const alertifyError = await driver.wait(until.elementLocated(By.className('ajs-ok')));
+//     await driver.wait(until.elementIsEnabled(alertifyError));
+//     await driver.wait(until.elementIsVisible(alertifyError));
+//     await alertifyError.click();
+//     return;
+//   }
+
+//   const downloadsPath = helpers.getUserHome() + '/Downloads/' + 'Participant_Links.csv';
+//   content = fs.readFileSync(downloadsPath, 'utf8');
+//   assert.equal(content.split(',').length, count);
+// };
+
 module.exports.generateLinksNoCohorts = async function (driver, count) {
-  const linksCountField = await driver.findElement(By.id('participants-count-0'));
-  const submitButton = await driver.findElement(By.id('participants-submit-0'));
-  const linksArea = await driver.findElement(By.id('participants-new-0'));
+  const linksCountField = await driver.findElement(By.id('participants-count-' + UNASSIGNED_COHORT));
+  const submitButton = await driver.findElement(By.id('participants-submit-' + UNASSIGNED_COHORT));
+  const linksArea = await driver.findElement(By.id('participants-new-' + UNASSIGNED_COHORT));
 
   await driver.wait(until.elementIsVisible(submitButton));
   await driver.wait(until.elementIsEnabled(submitButton));
