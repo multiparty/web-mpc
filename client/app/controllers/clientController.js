@@ -19,7 +19,7 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
       /**
        * Error messages definitions
        */
-      var SUCCESS_MESSAGE = 'Submitted data.';
+      var SUCCESS_MESSAGE = 'Thank you for participating in the data submission! If you discover that there was an error in your submission, you may correct your data, revist this page, and submit your data again.';
       var SESSION_KEY_ERROR = 'Invalid session number';
       var PARTICIPATION_CODE_ERROR = 'Invalid participation code';
 
@@ -244,7 +244,7 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
       /**
        * All inputs are valid. Construct JSON objects and send them to the server.
        */
-      function constructAndSend(tables, la) {
+      function constructAndSend(tables, cohort, la) {
         // Begin constructing the data
         var questions = $('#questions form');
         var data_submission = questions.length ? {questions: {}} : {};
@@ -287,11 +287,6 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
         }
 
         data_submission['usability'] = usabilityController.analytics;
-
-        var cohort = $('#cohortDrop option:selected').text();
-        if (cohort === '-- Select option --') {
-          cohort = null;
-        }
 
         jiffController.client.submit(session, participationCode, data_submission, function (err, response) {
           if (err == null || err === 200) {

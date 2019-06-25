@@ -1,7 +1,8 @@
 define(['jquery', 'controllers/clientController', 'controllers/tableController', 'controllers/usabilityController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify', 'table_template', 'bootstrap'],
   function ($, clientController, tableController, usabilityController, DropSheet, Spinner, Ladda, ResizeSensor, alertify, table_template) {
 
-    const SELF_SELECT = 'cohort_selection';
+    var SELF_SELECT = 'cohort_selection';
+    var cohort_mapping = null;
 
     function createQuestionText(text) {
       var p = document.createElement('p');
@@ -67,6 +68,17 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
       }
     }
 
+    function checkCohort(cohort) {
+       for (var i = 0; i < cohort_mapping.length; i++) {
+        if (cohort === cohort_mapping[i].name) {
+          return true;
+        }
+       }
+
+      alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', 'Your selection "' + cohort + '" does not exist. Please try again.', function () {});
+      return false;
+    }
+
     function addResizeSensors(tables) {
       for (var i = 0; i < table_template.tables.length; i++) {
         var elem = table_template.tables[i].element;
@@ -120,6 +132,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
               if (cohorts === undefined) {
                 return;
               }
+              cohort_mapping = cohorts;
               cohortSelfSelect(cohorts);
             });
           }
@@ -292,7 +305,16 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
               la.stop();
               addValidationErrors(msg);
             } else {
-              clientController.constructAndSend(tables, la);
+              var cohort = '0';
+              if (Object.keys(table_template).includes(SELF_SELECT) && table_template[SELF_SELECT]) {
+                cohort = $('#cohortDrop option:selected').text();
+                if (!checkCohort(cohort)) {
+                  la.stop();
+                  return;
+                }
+              }
+              
+              clientController.constructAndSend(tables, cohort, la);
             }
           });
         });

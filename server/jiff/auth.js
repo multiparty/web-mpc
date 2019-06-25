@@ -38,8 +38,11 @@ function userAuth(computation_id, msg, params) {
               }
             }
 
-            if (cohortId === undefined && msg.cohort !== null) {
-              reject(new Error('Cohort name does not exist.'));
+            console.log('cohort ID on submission',cohortId);
+            var c = parseInt(cohortId);
+
+            if (isNaN(c) || c <= 0) {
+              reject(new Error('The selected cohort does not exist.'));
             }
           }
 
