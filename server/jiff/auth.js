@@ -43,7 +43,6 @@ function userAuth(computation_id, msg, params) {
               }
             }
 
-            console.log('cohort ID on submission', cohortId);
             if (!cohortExists) {
               reject(new Error('The selected cohort does not exist.'));
             }
@@ -129,13 +128,11 @@ module.exports = {
       }
 
       // Authenticate as data owner party
-      else if (params.party_id == null) {
+      if (params.party_id == null) {
         return userAuth(computation_id, msg, params);
       }
 
-      else {
-        throw new Error('Party must either request to be the analyst (party_id = 1) or an non-specific party (party_id = null) with a userkey');
-      }
+      throw new Error('Party must either request to be the analyst (party_id = 1) or an non-specific party (party_id = null) with a userkey');
     }
   ],
   onInitializeUsedId: function (jiff, computation_id, party_id, party_count, msg) {

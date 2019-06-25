@@ -7,6 +7,7 @@
 const modelWrappers = require('../models/modelWrappers.js');
 const config = require('../config/config.js');
 const helpers = require('./helpers.js');
+const table_template = require('../../client/app/' + config.client.table_template + '.js');
 
 const MAX_SIZE = config.MAX_SIZE;
 
@@ -67,8 +68,8 @@ module.exports.getClientUrls = function (context, body, res) {
   promise.then(function (data) {
     var urls = {};
     for (var d of data) {
-      var cohort = d.cohort;
-      var arr = urls[cohort] == null ? [] : urls[cohort]
+      var cohort = table_template.cohort_selection === true ? 0 : d.cohort;
+      var arr = urls[cohort] == null ? [] : urls[cohort];
       arr.push('?session=' + body.session + '&participationCode=' + d.userkey);
       urls[cohort] = arr;
     }
@@ -81,7 +82,6 @@ module.exports.getClientUrls = function (context, body, res) {
   });
 };
 
-// TODO
 // endpoint for creating new client urls
 module.exports.createClientUrls = function (context, body, response, sessionInfoObj) {
   var cohortId = body.cohort;
@@ -130,7 +130,6 @@ module.exports.createClientUrls = function (context, body, response, sessionInfo
         jiff_party_id: jiff_party_id,
         cohort: cohortId
       });
-      // }
     }
 
     // Save the userKeys into the db.

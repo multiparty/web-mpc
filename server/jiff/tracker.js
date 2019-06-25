@@ -14,7 +14,6 @@ module.exports = function (JIFFWrapper) {
     });
   };
 
-  // TODO: 
   JIFFWrapper.prototype.getTrackerParties = async function (session_key) {
     var submitters_ids = {};
 

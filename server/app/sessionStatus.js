@@ -87,18 +87,18 @@ module.exports.getSubmissionHistory = function (context, body, res) {
         continue;
       }
 
-      var arr = to_send[cohort];
+      var arrNoNulls = to_send[cohort];
       var shift = 0;
-      var count = arr.length;
-      for (var i = 0; i < arr.length; i++) {
-        var current = arr[i];
+      var count = arrNoNulls.length;
+      for (var i = 0; i < arrNoNulls.length; i++) {
+        var current = arrNoNulls[i];
         if (current == null) {
           shift++;
         } else {
-          arr[i - shift] = current;
+          arrNoNulls[i - shift] = current;
         }
       }
-      to_send[cohort] = {history: arr.slice(0, arr.length - shift), count: count};
+      to_send[cohort] = {history: arrNoNulls.slice(0, arrNoNulls.length - shift), count: count};
     }
 
     res.json(to_send);
