@@ -1,6 +1,6 @@
 const Promise = require('bluebird');
 const auth = require('../app/auth.js');
-const modulesWrappers = require('../modules/modulesWrappers.js');
+const modulesWrappers = require('../models/modelWrappers');
 
 // this should be a check within sessionInfo
 const config = require('../config/config.js');

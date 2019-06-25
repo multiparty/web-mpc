@@ -4,7 +4,7 @@
  */
 
 // DB Operation Wrappers
-const modulesWrappers = require('../modules/modulesWrappers.js');
+const modelWrappers = require('../models/modelWrappers.js');
 const config = require('../config/config.js');
 const helpers = require('./helpers.js');
 
@@ -36,7 +36,7 @@ module.exports.createNewCohort = function (context, body, response, sessionInfoO
   sessionInfoObj.cohort_mapping.push({id: cohortNum, name: body.cohort});
 
   // Update sessionInfo in database
-  var promise = modulesWrappers.SessionInfo.update(sessionInfoObj);
+  var promise = modelWrappers.SessionInfo.update(sessionInfoObj);
   promise.then(function () {
     console.log('Updated cohorts:', body.session, sessionInfoObj.cohorts);
     response.json({cohortId: cohortNum, cohortMapping: sessionInfoObj.cohort_mapping});
@@ -48,7 +48,7 @@ module.exports.createNewCohort = function (context, body, response, sessionInfoO
 
 // Need to get cohorts from multiple locations
 module.exports.getCohorts = function(context, body, res) {
-  var promise = modulesWrappers.SessionInfo.get(body.session);
+  var promise = modelWrappers.SessionInfo.get(body.session);
 
   promise.then(function(data) {
     res.json({cohorts: data.cohort_mapping});
@@ -62,7 +62,7 @@ module.exports.getCohorts = function(context, body, res) {
 // endpoint for returning previously created client urls
 module.exports.getClientUrls = function (context, body, res) {
   // Password verified already by authentication!
-  var promise = modulesWrappers.UserKey.query(body.session);
+  var promise = modelWrappers.UserKey.query(body.session);
 
   promise.then(function (data) {
     var urls = {};
@@ -86,7 +86,7 @@ module.exports.getClientUrls = function (context, body, res) {
 module.exports.createClientUrls = function (context, body, response, sessionInfoObj) {
   var cohortId = body.cohort;
 
-  var promise = modulesWrappers.UserKey.query(body.session);
+  var promise = modelWrappers.UserKey.query(body.session);
   promise.then(function (data) {
     var count = 1 + data.length; // starts at 1, because the first party is the analyst
     if (body.count + count > MAX_SIZE) {
@@ -134,7 +134,7 @@ module.exports.createClientUrls = function (context, body, response, sessionInfo
     }
 
     // Save the userKeys into the db.
-    var promise = modulesWrappers.UserKey.insertMany(dbObjs);
+    var promise = modelWrappers.UserKey.insertMany(dbObjs);
     promise.then(function () {
       console.log('URLs generated:', body.session, urls);
       response.json({ result: urls, cohort: cohortId });

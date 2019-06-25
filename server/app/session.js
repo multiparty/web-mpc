@@ -4,7 +4,7 @@
  */
 
 // DB Operation Wrappers
-const modulesWrappers = require('../modules/modulesWrappers.js');
+const modelWrappers = require('../models/modelWrappers.js');
 const helpers = require('./helpers.js');
 const config = require('../config/config.js');
 var tableTemplate = require('../../client/app/' + config.client.table_template + '.js');
@@ -24,7 +24,7 @@ module.exports.createSession = function (context, body, res) {
   // If there are pre-set cohorts, add them by default. Cohort numbers start at 1
   var cohortMapping = (tableTemplate['cohorts'] || []).map((v, i) => ({name: v.name, id: i+1}));
 
-  var promise = modulesWrappers.SessionInfo.insert(sessionID, publickey, password, title, description, cohortMapping);
+  var promise = modelWrappers.SessionInfo.insert(sessionID, publickey, password, title, description, cohortMapping);
   promise.then(function () {
     console.log('Session generated for:', sessionID);
 
@@ -42,7 +42,7 @@ module.exports.createSession = function (context, body, res) {
 
 // endpoint for verifying user and session key and getting the session info.
 module.exports.getSessionInfo = function (context, body, response) {
-  var promise = modulesWrappers.SessionInfo.get(body.session);
+  var promise = modelWrappers.SessionInfo.get(body.session);
 
   promise.then(function (data) {
     if (data) {

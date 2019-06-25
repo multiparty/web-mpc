@@ -10,7 +10,6 @@
     "amdefine": "^1.0.1",
     "base32-encode": "^0.1.0",
     "bignumber.js": "^5.0.0",
-    "bluebird": "^3.5.0",
     "body-parser": "^1.17.2",
     "chromedriver": "^74.0.0",
     "compression": "^1.7.1",

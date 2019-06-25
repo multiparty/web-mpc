@@ -1,4 +1,4 @@
-const modulesWrappers = require('../modules/modulesWrappers.js');
+const modulesWrappers = require('../models/modelWrappers.js');
 
 module.exports = function (JIFFWrapper) {
   // Keeps track of submitters IDs

@@ -1,14 +1,10 @@
 /**
- * Database modules
+ * Database Models
  */
 
 'use strict';
 
 const mongoose = require('mongoose');
-const Promise = require('bluebird');
-
-// Override deprecated promise
-mongoose.Promise = Promise;
 
 (async function () {
   try {
@@ -24,14 +20,14 @@ const cohortMappingSchema = new mongoose.Schema({
 });
 
 // Mongoose Model definitions
-const HistoryModule = mongoose.model('History', new mongoose.Schema({
+const HistoryModel = mongoose.model('History', new mongoose.Schema({
   // Keeps track of submission history
   session: String,
   jiff_party_id: Number,
   date: Number,
   success: Boolean
 }));
-const MailboxModule = mongoose.model('Mailbox', new mongoose.Schema({
+const MailboxModel = mongoose.model('Mailbox', new mongoose.Schema({
   // Store messages/shares
   _id: String, // "session:from_id:to_id:op_id"
   session: String, // Session Key
@@ -41,7 +37,7 @@ const MailboxModule = mongoose.model('Mailbox', new mongoose.Schema({
   label: String,
   message: String
 }));
-const SessionInfoModule = mongoose.model('SessionInfo', new mongoose.Schema({
+const SessionInfoModel = mongoose.model('SessionInfo', new mongoose.Schema({
   _id: String,
   session: String,
   pub_key: String,
@@ -52,7 +48,7 @@ const SessionInfoModule = mongoose.model('SessionInfo', new mongoose.Schema({
   cohorts: Number,
   cohort_mapping: [cohortMappingSchema]
 }));
-const UserKeyModule = mongoose.model('UserKey', new mongoose.Schema({
+const UserKeyModel = mongoose.model('UserKey', new mongoose.Schema({
   _id: String, // concat of session + userkey.
   session: String,
   userkey: String,
@@ -60,10 +56,10 @@ const UserKeyModule = mongoose.model('UserKey', new mongoose.Schema({
   cohort: Number,
 }));
 
-// Export modules
+// Export models
 module.exports = {
-  History: HistoryModule,
-  Mailbox: MailboxModule,
-  SessionInfo: SessionInfoModule,
-  UserKey: UserKeyModule
+  History: HistoryModel,
+  Mailbox: MailboxModel,
+  SessionInfo: SessionInfoModel,
+  UserKey: UserKeyModel
 };

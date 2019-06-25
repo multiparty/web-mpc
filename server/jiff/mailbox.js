@@ -1,4 +1,4 @@
-const modulesWrappers = require('../modules/modulesWrappers.js');
+const modulesWrappers = require('../models/modelWrappers');
 
 module.exports = {
   put_in_mailbox: function (jiff, label, msg, computation_id, to_id) {

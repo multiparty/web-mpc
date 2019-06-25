@@ -4,14 +4,14 @@
  */
 
 // DB Operation Wrappers
-const modulesWrappers = require('../modules/modulesWrappers.js');
+const modelWrappers = require('../models/modelWrappers.js');
 
 // Export route handlers
 module.exports = {};
 
 // endpoint for getting the status of a session
 module.exports.getStatus = function (context, body, res) {
-  var promise = modulesWrappers.SessionInfo.get(body.session);
+  var promise = modelWrappers.SessionInfo.get(body.session);
 
   promise.then(function (data) {
     var status = data ? data.status : 'PAUSE';
@@ -34,7 +34,7 @@ module.exports.setStatus = function (context, body, response, sessionInfoObj) {
   sessionInfoObj.status = body.status;
 
   // Update sessionInfo in database
-  var promise = modulesWrappers.SessionInfo.update(sessionInfoObj);
+  var promise = modelWrappers.SessionInfo.update(sessionInfoObj);
   promise.then(function () {
     console.log('Session Status:', body.session, body.status);
     if (body.status === 'STOP') {
@@ -49,8 +49,8 @@ module.exports.setStatus = function (context, body, response, sessionInfoObj) {
 
 // endpoint for returning dates of submissions
 module.exports.getSubmissionHistory = function (context, body, res) {
-  var promise1 = modulesWrappers.History.query(body.session, body.last_fetch);
-  var promise2 = modulesWrappers.UserKey.query(body.session);
+  var promise1 = modelWrappers.History.query(body.session, body.last_fetch);
+  var promise2 = modelWrappers.UserKey.query(body.session);
 
   Promise.all([promise1, promise2]).then(function (data) {
     var cohortMap = {};

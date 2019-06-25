@@ -3,7 +3,7 @@
  * Manages restoring this volatile state after shutdown / startup by recomputing or loading it from the DB.
  */
 
-const modulesWrappers = require('../modules/modulesWrappers.js');
+const modulesWrappers = require('../models/modelWrappers.js');
 
 module.exports = function (JIFFWrapper) {
   // Load previously created sessions from DB into memory
