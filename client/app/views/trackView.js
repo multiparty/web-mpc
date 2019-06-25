@@ -1,4 +1,4 @@
-define(['jquery', 'controllers/analystController', 'table_template', 'Ladda',  'bootstrap'], function ($, analystController, tableTemplate, Ladda) {
+define(['jquery', 'controllers/analystController', 'table_template', 'Ladda', 'filesaver', 'alertify', 'bootstrap'], function ($, analystController, tableTemplate, Ladda, filesaver, alertify) {
 
   function trackView() {
     var SELF_SELECT = false;
@@ -16,7 +16,7 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda',  '
       password = $('#password').val();
 
       if (!session || !password) {
-        alert('Enter a valid Session Key and Password');
+        alertError('Enter a valid Session Key and Password');
         return;
       }
 
@@ -29,24 +29,28 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda',  '
         // Only logs in if both requests succeed
         var existingParticipants = results[0];
         var status = results[1];
-
+  
         // if self-selection, add participant agnostic link div
         if (Object.keys(tableTemplate).includes('cohort_selection') && tableTemplate['cohort_selection']) {
           SELF_SELECT = true;
-          $('#session-content-left').append(createLinkGeneration('0'));
+
+          var unassignedCohort = '0';
+
+          $('#session-content-left').append(createLinkGeneration(unassignedCohort));
 
           $('#cohort-0').removeClass('col-md-4');
           $('#cohort-0').addClass('card');
 
-          enableCohortSubmit('0');
+          enableCohortSubmit(unassignedCohort);
 
-        
           var $cohortArea = $('#cohort-area').addClass('col-sm-7 card col-md-offset-1');
           $historyTitle = document.createElement('h2');
           $historyTitle.setAttribute('class', 'text-center');
           $historyTitle.innerText = 'Submission History';
           $cohortArea.append($historyTitle);
           $('#session-content').append($cohortArea);
+
+          createAndEnableDownloadBtn(unassignedCohort);
 
         } else {
           $('#cohort-card').collapse();
@@ -72,8 +76,7 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda',  '
         $('#session-panel').collapse();
       }).catch(function (error) {
         la.stop();
-        alert(error);
-        alert(error.message);
+        alertError(error.message);
       });
     });
 
@@ -94,6 +97,35 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda',  '
         }
       });
     });
+
+    function alertError(msg) {
+      alertify.alert('<img src="/images/cancel.png" id="alerify-error" alt="Error">Error!', msg, function () {
+      });
+    }
+
+    function createAndEnableDownloadBtn(cohort) {
+      var btn = $('<div class="form-group"><button type="submit" id="participants-download-'+ cohort +'" class="btn btn-primary btn-block">Download Participant Links</button></div>');
+      $('#cohort-' + cohort).append(btn);
+      $('#participants-download-' + cohort).on('click', function (e) {
+        var allLinks = [];
+        var newLinks = $('#participants-new-' + cohort).text().split('\n');
+        
+        if (newLinks.length > 1 || (newLinks.length === 1 && newLinks[0].includes('session'))) {
+          allLinks = allLinks.concat(newLinks);        
+        }
+
+        var existingLinks = $('#participants-existing-' + cohort).text().split('\n');
+        if (existingLinks.length > 1 || (existingLinks.length === 1 && existingLinks[0].includes('session'))) {
+          allLinks = allLinks.concat(existingLinks);
+        }
+
+        if (allLinks.length > 0) {
+          filesaver.saveAs(new Blob([allLinks.join('\n')], {type: 'text/plain;charset=utf-8'}), 'Participant_Links' +  '.csv');
+        } else {
+          alertError('No participant links to download. Please enter new participants.');
+        }
+      });
+    }
 
     // Handle existing participants
     function handleExistingParticipants(existingParticipants) {
@@ -158,7 +190,6 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda',  '
       var previous = Date.now();
       analystController.getSubmissionHistory(session, password, timestamp)
         .then(function (res) {
-          console.log('res', res);
           if (res != null) {
             for (var cohort in res) {
               if (res.hasOwnProperty(cohort)) {
