@@ -365,27 +365,10 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
         callback(true);
       }
 
-      // API Calls
-      function getExistingCohorts(session, userkey) {
-        return $.ajax({
-          type: 'POST',
-          url: '/get_cohorts',
-          contentType: 'application/json',
-          data: JSON.stringify({session: session, userkey: userkey})
-        }).then(function (resp) {
-          return resp.cohorts;
-        }).catch(function (err) {
-          if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
-            alert(err.responseText);
-          }
-        });
-      }
-
       return {
         validate: validate,
         constructAndSend: constructAndSend,
-        validateSessionInput: validateSessionInput,
-        getExistingCohorts: getExistingCohorts
+        validateSessionInput: validateSessionInput
       };
     })();
 

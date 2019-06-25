@@ -6,12 +6,15 @@ const express = require('express');
 const path = require('path');
 
 const config = require('./config/config.js');
+const rendering = {
+  index: require('./rendering/index.js')
+};
 
 module.exports = function (app) {
   // serve static files in designated folders
   app.get('/', function (req, res) {
     // /client/index.html
-    res.render('index.html', config.client);
+    rendering['index'].render(app, req, res);
   });
 
   app.get('/create', function (req, res) {

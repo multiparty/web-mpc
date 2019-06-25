@@ -24,23 +24,27 @@ function userAuth(computation_id, msg, params) {
       if (!success) {
         reject(new Error(data));
       } else {
-        let cohortId = data.cohort;
+        var cohortId = data.cohort;  // for pre-assigned cohorts
+
         // Give party a consistent id (will remain the same when reconnecting / resubmitting)
         params.party_id = data.jiff_party_id;
+
         // handle cohort
         modulesWrappers.SessionInfo.get(computation_id).then(function (sessionInfo) {
-
           if (table_template.cohort_selection === true) {
-            for (var c of sessionInfo.cohort_mapping) {
-              if (msg.cohort === c.name) {
-                cohortId = c.id;
+            cohortId = parseInt(msg.cohort);
+
+            var cohortExists = false;
+            for (var cohort of sessionInfo.cohort_mapping) {
+              console.log(cohortId, typeof(cohortId), cohort.id, typeof(cohort.id));
+              if (cohortId.toString() === cohort.id.toString()) { // found cohort
+                cohortExists = true;
+                break;
               }
             }
 
-            console.log('cohort ID on submission',cohortId);
-            var c = parseInt(cohortId);
-
-            if (isNaN(c) || c <= 0) {
+            console.log('cohort ID on submission', cohortId);
+            if (!cohortExists) {
               reject(new Error('The selected cohort does not exist.'));
             }
           }

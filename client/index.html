@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width,initial-scale=1" name="viewport">
-  <title>{{ organization }}</title>
-  <link rel="icon" type="image" href="{{ logo }}" alt="{{ organization }} logo">
+  <title>{{ client.organization }}</title>
+  <link rel="icon" type="image" href="{{ client.logo }}" alt="{{ client.organization }} logo">
 
   <script type="text/javascript">
     var require = {
       paths: {
-        table_template: '{{ table_template }}'
+        table_template: '{{ client.table_template }}'
       }
     }
   </script>
@@ -46,11 +46,11 @@
 
 <header>
   <div class="container">
-    <h1>{{ organization }}<br/>
-      <small> {{ subtitle }}</small>
+    <h1>{{ client.organization }}<br/>
+      <small> {{ client.subtitle }}</small>
     </h1>
     <div id="logos">
-      <img src="{{ logo }}" alt="{{ organization}} Logo"/>
+      <img src="{{ client.logo }}" alt="{{ client.organization }} Logo"/>
       <img src="images/bu.gif" alt="BU Logo"/>
     </div>
   </div>
@@ -65,7 +65,7 @@
       <h2 class="text-center">Input your data</h2>
       <p class="text-center">Please make sure your session key and participation code match the ones provided in the
         email
-        sent to you by the {{ organization }}. Drag and drop your completed template file to encrypt and include your submission in
+        sent to you by the {{ client.organization }}. Drag and drop your completed template file to encrypt and include your submission in
         the
         aggregate data.</p>
       <hr/>
@@ -102,12 +102,17 @@
                     class="fail-custom help-block hidden"></span>
             </div>
           </form>
-          <div id="cohort-self-selection" class="form-group collapse">
-            <label for="cohortDrop">{{ cohort }} selection</label>
+          {% if cohorts %}
+          <div id="cohort-self-selection" class="form-group">
+            <label for="cohortDrop">{{ client.cohort }} selection</label>
             <select class="form-control" id="cohortDrop">
-              <option>-- Select option --</option>
+              <option value="-">-- Select option --</option>
+              {% for cohort in cohorts %}
+                <option value="{{ cohort.id }}">{{ cohort.name }}</option>
+              {% endfor %}
             </select>
           </div>
+          {% endif %}
         </div>
         <div class="col-md-6">
           <div id="drop-area">

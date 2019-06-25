@@ -1,32 +1,11 @@
 define(['jquery', 'controllers/clientController', 'controllers/tableController', 'controllers/usabilityController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify', 'table_template', 'bootstrap'],
   function ($, clientController, tableController, usabilityController, DropSheet, Spinner, Ladda, ResizeSensor, alertify, table_template) {
-
-    var SELF_SELECT = 'cohort_selection';
-    var cohort_mapping = null;
-
     function createQuestionText(text) {
       var p = document.createElement('p');
       p.classList.add('question-text');
-      p.classList.add('help-block')
+      p.classList.add('help-block');
       p.innerHTML = text;
       return p;
-    }
-
-    function cohortSelfSelect(cohorts) {
-      $('#cohortDrop option').each(function() {
-        if (!isNaN(parseInt($(this).val()))) {
-          $(this).remove();
-          return;
-        }
-      });
-
-      $('#cohort-self-selection').collapse();
-
-      const cohortDropDown = $('#cohortDrop');
-
-      for (var c of cohorts) {
-        $('<option />', {value: c.id, text: c.name}).appendTo(cohortDropDown)
-      }
     }
 
     function renderSurveyInputs(question, form) {
@@ -68,17 +47,6 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
       }
     }
 
-    function checkCohort(cohort) {
-       for (var i = 0; i < cohort_mapping.length; i++) {
-        if (cohort === cohort_mapping[i].name) {
-          return true;
-        }
-       }
-
-      alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', 'Your selection "' + cohort + '" does not exist. Please try again.', function () {});
-      return false;
-    }
-
     function addResizeSensors(tables) {
       for (var i = 0; i < table_template.tables.length; i++) {
         var elem = table_template.tables[i].element;
@@ -111,7 +79,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         var $session = $('#session');
         var $participationCode = $('#participation-code');
 
-        $('#choose-file').on('change', function(e) {
+        $('#choose-file').on('change', function (e) {
           var fileName = null;
           if (e.type === 'drop') {
             fileName = e.dataTransfer.files[0].name;
@@ -125,22 +93,11 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         $('#session, #participation-code').on('blur', function (e) {
           e.target.dataset['did_blur'] = true;
           clientController.validateSessionInput(e.target, true);
-
-          if (Object.keys(table_template).includes(SELF_SELECT) && table_template[SELF_SELECT]) {
-            clientController.getExistingCohorts($session.val(), $participationCode.val())
-            .then(function(cohorts) {
-              if (cohorts === undefined) {
-                return;
-              }
-              cohort_mapping = cohorts;
-              cohortSelfSelect(cohorts);
-            });
-          }
         });
 
         $('#session, #participation-code').on('input', function (e) {
           if (e.target.dataset['did_blur']) {
-            clientController.validateSessionInput(cohort, false);
+            clientController.validateSessionInput(e.target, false);
           }
           $verify.prop('checked', false);
         });
@@ -305,15 +262,16 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
               la.stop();
               addValidationErrors(msg);
             } else {
-              var cohort = '0';
-              if (Object.keys(table_template).includes(SELF_SELECT) && table_template[SELF_SELECT]) {
-                cohort = $('#cohortDrop option:selected').text();
-                if (!checkCohort(cohort)) {
+              var cohort = '0'; // means no self assigned cohort
+              if (table_template['cohort_selection'] === true) {
+                cohort = $('#cohortDrop').val();
+                if (cohort === '-') {
                   la.stop();
+                  alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', 'Your selection "' + cohort + '" does not exist. Please try again.', function () {});
                   return;
                 }
               }
-              
+
               clientController.constructAndSend(tables, cohort, la);
             }
           });

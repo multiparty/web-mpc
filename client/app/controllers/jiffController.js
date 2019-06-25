@@ -86,7 +86,6 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
   };
 
   // Client side stuff
-  // TODO: add cohort here
   var clientSubmit = function (sessionkey, userkey, dataSubmission, callback, cohort) {
     var ordering = mpc.consistentOrdering(table_template);
     var values = [];

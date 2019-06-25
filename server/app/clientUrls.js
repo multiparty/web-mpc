@@ -47,13 +47,13 @@ module.exports.createNewCohort = function (context, body, response, sessionInfoO
 };
 
 // Need to get cohorts from multiple locations
-module.exports.getCohorts = function(context, body, res) {
+module.exports.getCohorts = function (context, body, res) {
   var promise = modelWrappers.SessionInfo.get(body.session);
 
-  promise.then(function(data) {
+  promise.then(function (data) {
     res.json({cohorts: data.cohort_mapping});
 
-  }).catch(function(err) {
+  }).catch(function (err) {
     console.log('Error getting cohorts', err);
     res.status(500).send('Error getting cohorts.');
   });
@@ -123,7 +123,7 @@ module.exports.createClientUrls = function (context, body, response, sessionInfo
       // Generate URL and add dbObject
       i++;
       urls.push('?session=' + body.session + '&participationCode=' + userkey);
-      
+
       dbObjs.push({
         session: body.session,
         userkey: userkey,

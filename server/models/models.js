@@ -16,7 +16,7 @@ const mongoose = require('mongoose');
 
 const cohortMappingSchema = new mongoose.Schema({
   name: String,
-  id: String
+  id: Number
 });
 
 // Mongoose Model definitions
