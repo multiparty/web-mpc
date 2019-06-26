@@ -1,6 +1,5 @@
 /* eslint-env node, mocha */
 const { By, Condition } = require('selenium-webdriver');
-const readline = require('readline');
 const fs = require('fs');
 
 const helpers = require('../helpers.js');

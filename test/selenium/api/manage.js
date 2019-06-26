@@ -1,7 +1,6 @@
 const { By, until } = require('selenium-webdriver');
 const assert = require('assert');
 const helpers = require('../helpers.js');
-const fs = require('fs');
 
 const UNASSIGNED_COHORT = '0';
 
@@ -61,10 +60,23 @@ module.exports.generateLinksNoCohorts = async function (driver, count) {
   return links;
 };
 
-module.exports.checkHistory = async function(driver, cohort, numberOfParticipants) {
-  const history = await driver.findElements(By.xpath('// *[@id="table-'+ cohort +'"]/tbody/tr'));
-  console.log('Number of submissions in cohort ' + cohort + ': ', history.length, ', number expected: ' + numberOfParticipants)
-  assert.equal(history.length, numberOfParticipants, 'Incorrect submission history for cohort ' + cohort);
+module.exports.getExistingLinksNoCohorts = async function (driver) {
+  const existingLinksField = await driver.findElement(By.id('participants-existing-' + UNASSIGNED_COHORT));
+  await driver.wait(until.elementIsVisible(existingLinksField));
+
+  var links = await existingLinksField.getText();
+  links = links.trim().split('\n').map(link => link.trim());
+
+  return links;
+};
+
+module.exports.getHistory = async function (driver, cohortCount) {
+  const history = {};
+  for (let cohort = 1; cohort <= cohortCount; cohort++) {
+    const cohortHistory = await driver.findElements(By.xpath('// *[@id="table-' + cohort + '"]/tbody/tr'));
+    history[cohort] = cohortHistory.length;
+  }
+  return history;
 };
 
 module.exports.changeSessionStatus = async function (driver, status) {

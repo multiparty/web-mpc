@@ -13,7 +13,7 @@ const submission = require('./api/submission.js');
 const unmasking = require('./api/unmasking.js');
 
 const UPLOAD_FILE = '/test/selenium/files/bwwc.xlsx';
-const UNASSIGNED_COHORT = '0';
+// const UNASSIGNED_COHORT = '0';
 
 describe('BWWC Tests', function () {
   // Create the chrome driver before tests and close it after tests
@@ -41,18 +41,19 @@ describe('BWWC Tests', function () {
   //     await manage.login(driver, sessionKey, password); // Login to Session Management
   //     await manage.downloadLinks(driver, UNASSIGNED_COHORT, 0);
   //     links = await manage.generateLinksNoCohorts(driver, 1);
-  //     await manage.downloadLinks(driver, UNASSIGNED_COHORT, 1);      
+  //     await manage.downloadLinks(driver, UNASSIGNED_COHORT, 1);
   //     links = await manage.generateLinksNoCohorts(driver, CONTRIBUTOR_COUNT);
-  //     await manage.downloadLinks(driver, UNASSIGNED_COHORT, CONTRIBUTOR_COUNT);      
-  //   });    
+  //     await manage.downloadLinks(driver, UNASSIGNED_COHORT, CONTRIBUTOR_COUNT);
+  //   });
   // });
 
   // End-to-end Workflow
   describe('End-to-end Workflow', function () {
-    let sessionKey, password, links, driver, inputs;
+    let sessionKey, password, links, driver, inputs, clientCohortMap;
 
     const COHORT_COUNT = 7;
     const CONTRIBUTOR_COUNT = 20;
+    const RESUBMISSION_COUNT = 5;
 
     before(function () {
       driver = driverWrapper.getDriver();
@@ -79,6 +80,7 @@ describe('BWWC Tests', function () {
 
     // Submit
     it('Data Submissions', async function () {
+      clientCohortMap = {};
       for (let i = 0; i < links.length; i++) {
         const cohort = (i % COHORT_COUNT) + 1;
         const uploadFile = i % 3 === 0 ? UPLOAD_FILE : undefined;
@@ -93,13 +95,72 @@ describe('BWWC Tests', function () {
         cohortInputs.push(input);
         inputs[cohort] = cohortInputs;
         inputs['all'].push(input);
+
+        // Remember cohort
+        clientCohortMap[i] = { cohort: cohort, index: cohortInputs.length-1 };
       }
     });
 
-      // Stop session
+    // Resubmissions
+    it('Data Resubmissions', async function () {
+      for (let i = 0; i < RESUBMISSION_COUNT; i++) {
+        const submitter = Math.floor(Math.random() * links.length);
+        const link = links[submitter];
+
+        // change cohort randomly with probability 0.5
+        const randomCohort = Math.floor(Math.random() * (COHORT_COUNT - 1)) + 1;
+        const oldCohort = (submitter % COHORT_COUNT) + 1;
+        const cohort = Math.random() < 0.5 ? randomCohort : oldCohort;
+
+        // Randomly choose upload or manually (with equal likelihood)
+        const uploadFile = Math.random() < 0.5 ? UPLOAD_FILE : undefined;
+
+        // Logging message
+        const submissionID = '\tResubmission #: ' + (i+1) + '. Replacing: ' + (submitter+1)
+          + '. Old Cohort: ' + oldCohort + '. New Cohort: ' + cohort + '. '
+          + (uploadFile == null ? 'Manual' : 'Upload');
+
+        // Resubmit
+        console.time(submissionID);
+        const input = await submission.submitCohortSelf(driver, link, cohort, uploadFile);
+        console.timeEnd(submissionID);
+
+        // Add new input to inputs
+        const cohortInputs = inputs[cohort] || [];
+        cohortInputs.push(input);
+        inputs[cohort] = cohortInputs;
+        inputs['all'][submitter] = input; // replace old input
+
+        // Remove previous submission in cohort
+        var oldCohortIndex = clientCohortMap[submitter]['index'];
+        inputs[oldCohort][oldCohortIndex] = null;
+        clientCohortMap[submitter] = { cohort: cohort, index: cohortInputs.length-1 };
+      }
+
+      // remove nulls
+      for (let i = 0; i < COHORT_COUNT; i++) {
+        inputs[i+1] = inputs[i+1].filter(input => input != null);
+      }
+    });
+
+    // Stop session
     it('Stop Session', async function () {
       await manage.login(driver, sessionKey, password);
       await manage.changeSessionStatus(driver, 'stop');
+    });
+
+    // Verify History is correct with all resubmissions
+    it('Verify History', async function () {
+      const history = await manage.getHistory(driver, COHORT_COUNT);
+      for (let cohort = 1; cohort <= COHORT_COUNT; cohort++) {
+        assert.equal(history[cohort], inputs[cohort].length, 'Incorrect submission count in history for cohort ' + cohort);
+      }
+    });
+
+    // Verify participation link are *exactly* the same (including order)
+    it('Verify Participation Links', async function () {
+      const newLinks = await manage.getExistingLinksNoCohorts(driver);
+      assert.deepEqual(newLinks, links, 'Participation links have changed after submission and resubmission');
     });
 
     // Sleep to give server time to finish processing
@@ -144,44 +205,6 @@ describe('BWWC Tests', function () {
         const cohortDeviation = compute.computeDeviation(inputs[cohort]);
         assert.equal(deviations[cohort].count, inputs[cohort].length, 'CSV Deviation - Cohort ' + cohort + ' has incorrect # of participants');
         assert.deepEqual(deviations[cohort].values, cohortDeviation, 'CSV Deviation - Cohort ' + cohort + ' has incorrect # of participants');
-      }
-    });
-  });
-
-  describe('Resubmission', function () {
-    let sessionKey, password, links, driver, inputs;
-
-    const COHORT_COUNT = 2;
-    const CONTRIBUTOR_COUNT = 2;
-
-    before(function() {
-      driver = driverWrapper.getDriver();
-    });
-
-     // Create session
-    it('Session Creation', async function () {
-      let returned = await session.createSession(driver);
-      sessionKey = returned.sessionKey;
-      password = returned.password;
-    });
-
-        // Generate Participation Links
-    it('Generate Links', async function () {
-      await manage.login(driver, sessionKey, password); // Login to Session Management
-      links = await manage.generateLinksNoCohorts(driver, CONTRIBUTOR_COUNT);
-    });
-
-    // Start Session
-    it('Start Session', async function () {
-      await manage.changeSessionStatus(driver, 'start');
-    });
-
-    // Submit
-    it('Data Submissions', async function () {
-      for (var i = 1; i <= COHORT_COUNT; i++) {
-        inputs = await submission.submitCohort(driver, links, i, UPLOAD_FILE);
-        await manage.login(driver, sessionKey, password);
-        await manage.checkHistory(driver, i, CONTRIBUTOR_COUNT);
       }
     });
   });

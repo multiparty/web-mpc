@@ -42,26 +42,6 @@ async function enterRandomData(driver, maxElement=undefined) {
 }
 
 module.exports = {
-  submitCohort: async function(driver, links, cohort, filePath) {
-    var inputs = { all: [] };
-
-    for (let i = 0; i < links.length; i++) {
-      const uploadFile = i % 3 === 0 ? filePath : undefined;
-
-      const submissionID = '\tSubmission: ' + (i+1) + '. Cohort: ' + cohort + '. ' + (uploadFile == null ? 'Manual' : 'Upload');
-      console.time(submissionID);
-      const input = await this.submitCohortSelf(driver, links[i], cohort, uploadFile);
-      console.timeEnd(submissionID);
-
-      // Add input to inputs
-      const cohortInputs = inputs[cohort] || [];
-      cohortInputs.push(input);
-      inputs[cohort] = cohortInputs;
-      inputs['all'].push(input);
-    }
-    return inputs;
-  },
-
   submitCohortSelf: async function (driver, link, cohort, uploadFilePath=undefined, maxElement=undefined) {
     await driver.get(link);
 
