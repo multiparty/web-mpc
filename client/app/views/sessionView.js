@@ -4,6 +4,14 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
 
     $(document).ready(function () {
       $('#session-creation').collapse('show');
+    
+      $('#verify').on('click', function(e) {
+        if ($('#verify').is(":checked")) {
+          $('#submit').prop('disabled', false);
+        } else {
+          $('#submit').prop('disabled', true);          
+        }
+      });
     });
 
     $(function () {
@@ -13,7 +21,7 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
         var la = Ladda.create(document.getElementById('generate'));
         la.start();
 
-        var result = analystController.generateSession('infoDiv', 'sessionID', 'passwordID', 'pubkeyID', 'privkeyID', 'link-id', 'session-title', 'session-description');
+        var result = analystController.generateSession('infoDiv', 'sessionID', 'passwordID', 'privkeyID', 'link-id', 'session-title', 'session-description');
         if (result == null) {
           la.stop();
         } else {
