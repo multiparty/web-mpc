@@ -158,7 +158,6 @@ define(['filesaver', 'pki', 'alertHandler'], function (filesaver, pki, alertHand
         var rndSess = resp.sessionID;
         var password = resp.password;
         document.getElementById(privID).innerHTML = privateKey;
-        // document.getElementById(pubID).innerHTML = publicKey;
         document.getElementById(sessionID).innerHTML = rndSess;
         document.getElementById(passwordID).innerHTML = password;
         // TODO clean up how this workflow
@@ -174,14 +173,12 @@ define(['filesaver', 'pki', 'alertHandler'], function (filesaver, pki, alertHand
         var errmsg = 'ERROR!!!: failed to load public key to server, please try again';
         document.getElementById(sessionID).innerHTML = errmsg;
         document.getElementById(privID).innerHTML = errmsg;
-        // document.getElementById(pubID).innerHTML = errmsg;
         document.getElementById(passwordID).innerHTML = errmsg;
       });
     }).catch(function () {
       var errmsg = 'ERROR!!!: failed to load public key to server, please try again';
       document.getElementById(sessionID).innerHTML = errmsg;
       document.getElementById(privID).innerHTML = errmsg;
-      // document.getElementById(pubID).innerHTML = errmsg;
     });
   }
 
