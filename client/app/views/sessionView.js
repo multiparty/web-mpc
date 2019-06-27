@@ -1,7 +1,10 @@
-define(['jquery', 'controllers/analystController', 'Ladda'], function ($, analystController, Ladda) {
+define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], function ($, analystController, Ladda) {
 
   function sessionView() {
 
+    $(document).ready(function () {
+      $('#session-creation').collapse('show');
+    });
 
     $(function () {
       $('#generate').on('click', function (e) {
@@ -16,7 +19,8 @@ define(['jquery', 'controllers/analystController', 'Ladda'], function ($, analys
         } else {
           result.then(function () {
             la.stop();
-            $('#session-details').removeClass('hidden');
+            $('#session-creation').collapse('hide');
+            $('#session-details').collapse('show');
           });
         }
       });
