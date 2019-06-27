@@ -373,3 +373,7 @@ span.success {
   display: block;
   font-size: medium;
 }
+
+.lock-icon {
+  height: 20px;
+}
