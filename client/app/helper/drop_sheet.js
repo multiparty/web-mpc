@@ -1,5 +1,5 @@
 /* global XLSX, XLS */
-define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
+define(['alertHandler', 'XLSX'], function (alertHandler) {
 
   var DropSheet = function DropSheet(opts) {
     if (!opts) {
@@ -115,7 +115,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
             // subtract initial offset
             changes.push([i-s.r, j-s.c, ws[cell].v]);
           } else {
-            alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", "Spreadsheet format does not match original template, or there are empty cells, or non-numeric data. Please copy-and-paste or type data into the 'Number Of Employees' table manually.");
+            alertHandler.error("Spreadsheet format does not match original template, or there are empty cells, or non-numeric data. Please copy-and-paste or type data into the 'Number Of Employees' table manually.");
             return false;
           }
         }
@@ -151,7 +151,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
           throw 'Spreadsheet name does not match with format.'
         }
       }
-      alertify.alert('<img src="/images/accept.png" alt="Success">Success', 'The tables below have been populated. Please confirm that your data is accurate and scroll down to answer the multiple choice questions, verify, and submit your data');
+      alertHandler.success('The tables below have been populated. Please confirm that your data is accurate and scroll down to answer the multiple choice questions, verify, and submit your data');
     }
 
 
@@ -169,7 +169,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
 
         opts.handle_file(e);
       } else {
-        alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
+        alertHandler.error("Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
       }
 
     }
@@ -183,7 +183,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
         $('#drop-area').removeClass('dragdefault');
         $('#drop-area').addClass('dragenter');
       } else {
-        alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
+        alertHandler.error("Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
       }
     }
 
@@ -191,7 +191,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
       if (typeof jQuery !== 'undefined') {
         $('#drop-area').removeClass('dragenter');
       } else {
-        alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
+        alertHandler.error("Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
       }
     }
 
@@ -199,7 +199,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
       if (typeof jQuery !== 'undefined') {
         $('#choose-file').click();
       } else {
-        alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", "Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
+        alertHandler.error("Drag and drop not supported. Please use the 'Choose File' button or copy-and-paste data.");
       }
     }
 
@@ -226,7 +226,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
         // FileReader is supported.
         readFile(files);
       } else {
-        alertify.alert("<img src='/images/cancel.png' alt='Error'>Error!", 'FileReader is not supported in this browser.');
+        alertHandler.error('FileReader is not supported in this browser.');
       }
     }
 

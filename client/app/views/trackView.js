@@ -1,4 +1,4 @@
-define(['jquery', 'controllers/analystController', 'table_template', 'Ladda', 'filesaver', 'alertify', 'bootstrap'], function ($, analystController, tableTemplate, Ladda, filesaver, alertify) {
+define(['jquery', 'controllers/analystController', 'table_template', 'Ladda', 'filesaver', 'alertHandler', 'bootstrap'], function ($, analystController, tableTemplate, Ladda, filesaver, alertHandler) {
 
   function trackView() {
     var SELF_SELECT = false;
@@ -16,7 +16,7 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda', 'f
       password = $('#password').val();
 
       if (!session || !password) {
-        alertError('Enter a valid Session Key and Password');
+        alertHandler.error('Enter a valid Session Key and Password');
         return;
       }
 
@@ -76,7 +76,7 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda', 'f
         $('#session-panel').collapse();
       }).catch(function (error) {
         la.stop();
-        alertError(error.message);
+        alertHandler.error(error.message);
       });
     });
 
@@ -98,11 +98,6 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda', 'f
       });
     });
 
-    function alertError(msg) {
-      alertify.alert('<img src="/images/cancel.png" id="alerify-error" alt="Error">Error!', msg, function () {
-      });
-    }
-
     function createAndEnableDownloadBtn(cohort) {
       var btn = $('<div class="form-group"><button type="submit" id="participants-download-'+ cohort +'" class="btn btn-primary btn-block">Download Participant Links</button></div>');
       $('#cohort-' + cohort).append(btn);
@@ -122,7 +117,7 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda', 'f
         if (allLinks.length > 0) {
           filesaver.saveAs(new Blob([allLinks.join('\n')], {type: 'text/plain;charset=utf-8'}), 'Participant_Links' +  '.csv');
         } else {
-          alertError('No participant links to download. Please enter new participants.');
+          alertHandler.error('No participant links to download. Please enter new participants.');
         }
       });
     }

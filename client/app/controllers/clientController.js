@@ -1,6 +1,5 @@
-/* global alertify, $ */
-define(['jquery', 'controllers/tableController', 'controllers/jiffController', 'controllers/usabilityController', 'alertify', 'alertify_defaults', 'table_template'],
-  function ($, tableController, jiffController, usabilityController, alertify, _, table_template) {
+define(['jquery', 'controllers/tableController', 'controllers/jiffController', 'controllers/usabilityController', 'table_template', 'alertHandler'],
+  function ($, tableController, jiffController, usabilityController, table_template, alertHandler) {
     var client = (function () {
       /**
        * Displays the given submission as the last submission in
@@ -44,12 +43,7 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
       // TODO: create new view for alerts
       function error(msg) {
         appendSubmissionHistory(new Date(), false);
-        alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', msg);
-      }
-
-      function success(msg) {
-        appendSubmissionHistory(new Date(), true);
-        alertify.alert('<img src="/images/accept.png" alt="Success">Success!', '<div id="submission-success">' + msg + '</div>');
+        alertHandler.error('<img src="/images/cancel.png" alt="Error">Error!', msg);
       }
 
       /**
@@ -292,8 +286,10 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           if (err == null || err === 200) {
             response = JSON.parse(response);
             if (response.success) {
-              success(SUCCESS_MESSAGE);
+              appendSubmissionHistory(new Date(), true);
+              alertHandler.success('<div id="submission-success">' + SUCCESS_MESSAGE + '</div>');
             } else {
+              
               error(response.error);
             }
           } else if (err === 0 || err === 500) {

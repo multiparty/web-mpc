@@ -18,6 +18,7 @@ require.paths = Object.assign(require.paths, {
   forge: 'vendor/forge',
   Ladda: 'vendor/ladda',
   qtip: 'vendor/jquery_qtip',
+  alertHandler: 'helper/alertHandler',
   alertify: 'vendor/alertify',
   alertify_defaults: 'helper/alertify_defaults',
   DropSheet: 'helper/drop_sheet',

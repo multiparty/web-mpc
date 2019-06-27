@@ -6,7 +6,7 @@
  */
 /* global saveAs, Uint8Array */
 
-define(['filesaver', 'pki'], function (filesaver, pki) {
+define(['filesaver', 'pki', 'alertHandler'], function (filesaver, pki, alertHandler) {
 
   'use strict';
 
@@ -20,7 +20,7 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
       return res;
     }).catch(function (err) {
       if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
-        alert(err.responseText);
+        alertHandler.error(err.responseText);
       }
     });
   }
@@ -53,11 +53,11 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
         return resp.result;
       }).catch(function (err) {
         if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
-          alert(err.responseText);
+          alertHandler.error(err.responseText);
         }
       });
     } else {
-      alert('Error Not a valid Session Status');
+      alertHandler.error('Error Not a valid Session Status');
     }
   }
 
@@ -98,7 +98,7 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
       })
       .catch(function (err) {
         if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
-          alert(err.responseText);
+          alertHandler.error(err.responseText);
         }
       });
   }
@@ -113,7 +113,7 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
       return resp.cohorts;
     }).catch(function (err) {
       if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
-        alert(err.responseText);
+        alertHandler.error(err.responseText);
       }
     });
   }
@@ -138,7 +138,7 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
     var description = document.getElementById(descriptionID).value;
 
     if (title == null || description == null || title === '' || description === '') {
-      alert('Session title and description are required');
+      alertHandler.error('Session title and description are required');
       return null;
     }
 
@@ -197,7 +197,7 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
     })
     .catch(function (err) {
       if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
-        alert(err.responseText);
+        alertHandler.error(err.responseText);
       }
     });
   }
