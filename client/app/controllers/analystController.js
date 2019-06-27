@@ -133,7 +133,7 @@ define(['filesaver', 'pki', 'alertHandler'], function (filesaver, pki, alertHand
       });
   }
 
-  function generateSession(hiddenDiv, sessionID, passwordID, pubID, privID, linkID, titleID, descriptionID) {
+  function generateSession(hiddenDiv, sessionID, passwordID, privID, linkID, titleID, descriptionID) {
     var title = document.getElementById(titleID).value;
     var description = document.getElementById(descriptionID).value;
 
@@ -158,11 +158,10 @@ define(['filesaver', 'pki', 'alertHandler'], function (filesaver, pki, alertHand
         var rndSess = resp.sessionID;
         var password = resp.password;
         document.getElementById(privID).innerHTML = privateKey;
-        document.getElementById(pubID).innerHTML = publicKey;
         document.getElementById(sessionID).innerHTML = rndSess;
         document.getElementById(passwordID).innerHTML = password;
         // TODO clean up how this workflow
-        document.getElementById(linkID).innerHTML = 'manage page';
+        console.log('linkId', linkID)
         document.getElementById(linkID).href = '/manage?session=' + rndSess;
 
         filesaver.saveAs(priBlob, 'Session_' + rndSess + '_private_key.pem');
@@ -171,17 +170,15 @@ define(['filesaver', 'pki', 'alertHandler'], function (filesaver, pki, alertHand
         filesaver.saveAs(new Blob([text], {type: 'text/plain;charset=utf-8'}), 'Session_' + rndSess + '_password.txt');
       })
       .catch(function () {
-        var errmsg = 'ERROR!!!: failed to load public key to server, please try again';
+        var errmsg = 'ERROR: Error creating new session. Please refresh the page and try again.';
         document.getElementById(sessionID).innerHTML = errmsg;
         document.getElementById(privID).innerHTML = errmsg;
-        document.getElementById(pubID).innerHTML = errmsg;
         document.getElementById(passwordID).innerHTML = errmsg;
       });
     }).catch(function () {
-      var errmsg = 'ERROR!!!: failed to load public key to server, please try again';
+      var errmsg = 'ERROR: Error creating new session. Please refresh the page and try again.';
       document.getElementById(sessionID).innerHTML = errmsg;
       document.getElementById(privID).innerHTML = errmsg;
-      document.getElementById(pubID).innerHTML = errmsg;
     });
   }
 
@@ -221,6 +218,6 @@ define(['filesaver', 'pki', 'alertHandler'], function (filesaver, pki, alertHand
     addCohort: addCohort,
     START: 'START',
     PAUSE: 'PAUSE',
-    STOP: 'STOP'
+    STOP: 'STOP' 
   };
 });

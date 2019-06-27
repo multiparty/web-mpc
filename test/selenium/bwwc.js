@@ -24,6 +24,20 @@ describe('BWWC Tests', function () {
     driverWrapper.quit();
   });
 
+
+  describe('UI Tests', function () {
+    before(function () {
+      driver = driverWrapper.getDriver();
+      inputs = { all: [] };
+    });
+
+    describe('/create', function () {
+      it('Empty session information', async function() {
+        await session.createEmptySession(driver);
+      });
+    });
+  });
+  
   // describe('UI Test: /manage', function(){
   //   let sessionKey, password, links, driver, inputs;
   //   const CONTRIBUTOR_COUNT = 15;

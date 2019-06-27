@@ -6,6 +6,18 @@ const helpers = require('../helpers.js');
 
 module.exports = {};
 
+module.exports.createEmptySession = async function (driver) {
+  await driver.get('localhost:8080/create');
+  
+  const generateButton = await driver.findElement(By.id('generate'));
+  generateButton.click(); 
+
+  const alertifyError = await driver.wait(until.elementLocated(By.className('ajs-ok')));
+  await driver.wait(until.elementIsEnabled(alertifyError));
+  await driver.wait(until.elementIsVisible(alertifyError));
+  await alertifyError.click();
+}
+
 // create session
 module.exports.createSession = async function (driver, title='test session', description='testing') {
   await driver.get('localhost:8080/create');

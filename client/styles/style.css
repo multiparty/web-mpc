@@ -373,3 +373,7 @@ span.success {
   display: block;
   font-size: medium;
 }
+
+.font-weight-bold {
+  font-weight: bold;
+}

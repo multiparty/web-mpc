@@ -39,18 +39,9 @@
 <main id="content" class="container">
 
   <div class="row">
-    <section class="card col-md-10 col-md-offset-1">
+    <section id="session-creation" class="card col-md-10 col-md-offset-1 collapse in">
       <h2 class="text-center">Create a new session</h2>
-      <p class="text-center">After generating a secure session, please keep the private key files named <b>Session_#######_private_key.pem</b>
-        and <b>Session_#######_password.txt</b>.
-        All secured data will be lost if the private key is lost. Also, you will not be able to manage the session if
-        you
-        loose the password or session key.
-        Do <b>not</b> share your private key. Click on "Go To Live Data Page", enter the password, then generate and
-        email
-        links to the participants.
-        You can generate more links later. Once the data is collected from the participants, with your private key,
-        continue to the next step.</p>
+      <p class="text-center">
       <hr/>
       <form class="form-horizontal">
         <div class="form-group">
@@ -90,19 +81,32 @@
   </div>
 
   <div class="row">
-    <section id="session-details" class="card col-md-10 col-md-offset-1 hidden">
+    <section id="session-details" class="card col-md-10 col-md-offset-1 collapse">
       <h2 class="text-center">Session details</h2>
-      <p class="text-center">Please keep a copy of the information below. Visit the <a id="link-id" href="/manage">tracking
-        page</a> to generate URLs for participants.</p>
       <hr/>
-      <h3>Session Key (please email to participants)</h3>
+      <h3>Session Key </h3>
+      <p>The session key is a unique identifier for this session. It will be provided to participants as well. Please record this in order to manage the session and verify that participants are in the correct session.</p>
       <pre id="sessionID"></pre>
-      <h3>Session Password (Keep to yourself to unmask and manage session)</h3>
+      <h3>Session Password <span class='glyphicon glyphicon-lock'></span></h3>
+      <p>The session password is required in order to manage the session. This includes adding participants, changing the session status, and receiving results. <span class="font-weight-bold">Do not share your password with anyone.</p></p>
       <pre id="passwordID"></pre>
-      <h3>Public Key</h3>
-      <pre id="pubkeyID"></pre>
-      <h3>Private Key (do not share)</h3>
+      <h3>Private Key <span class='glyphicon glyphicon-lock'></span></h3>
+      <p>The private key is required to receive results. Without it, none of the data will be accessible. <span class="font-weight-bold">Do not share your private key with anyone.</p></p>
       <pre id="privkeyID"></pre>
+
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" id="verify" name="verify">I have saved the session key, session password, and private key in a secure location.
+        </label>
+      </div>
+
+      <div class="row">
+          <div class="col-md-12">
+            <a id="link-id" href="/manage"><button type="submit" id="submit" class="btn btn-primary ladda-button btn-lg btn-block" disabled>Proceed to Manage Session
+            </button></a>
+          </div>
+        </div>
+
     </section>
   </div>
 
