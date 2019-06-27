@@ -1,5 +1,5 @@
-define(['jquery', 'controllers/clientController', 'controllers/tableController', 'controllers/usabilityController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'alertify', 'table_template', 'bootstrap'],
-  function ($, clientController, tableController, usabilityController, DropSheet, Spinner, Ladda, ResizeSensor, alertify, table_template) {
+define(['jquery', 'controllers/clientController', 'controllers/tableController', 'controllers/usabilityController', 'helper/drop_sheet', 'spin', 'Ladda', 'ResizeSensor', 'table_template', 'alertHandler', 'bootstrap'],
+  function ($, clientController, tableController, usabilityController, DropSheet, Spinner, Ladda, ResizeSensor, table_template, alertHandler) {
     function createQuestionText(text) {
       var p = document.createElement('p');
       p.classList.add('question-text');
@@ -171,20 +171,20 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         };
 
         var _badfile = function () {
-          alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', 'This file does not appear to be a valid Excel file.', function () {
+          alertHandler.error('This file does not appear to be a valid Excel file.', function () {
           });
 
           spinner.stop();
         };
         var _pending = function () {
-          alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', 'Please wait until the current file is processed.', function () {
+          alertHandler.error('Please wait until the current file is processed.', function () {
           });
         };
         var _large = function (len, cb) {
-          alertify.confirm('<img src="/images/cancel.png" alt="Error">Error!', 'This file is ' + (len / (1024 * 1024)).toFixed(2) + ' MB and may take a few moments. Your browser may lock up during this process. Continue?', cb);
+          alertHandler.error('This file is ' + (len / (1024 * 1024)).toFixed(2) + ' MB and may take a few moments. Your browser may lock up during this process. Continue?', cb);
         };
         var _failed = function (e) {
-          alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', 'This format is not supported.', function () {
+          alertHandler.error('This format is not supported.', function () {
           });
           spinner.stop();
         };
@@ -267,7 +267,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
                 cohort = $('#cohortDrop').val();
                 if (cohort === '-') {
                   la.stop();
-                  alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', 'Your selection "' + cohort + '" does not exist. Please try again.', function () {});
+                  alertHandler.error('Your selection "' + cohort + '" does not exist. Please try again.', function () {});
                   return;
                 }
               }

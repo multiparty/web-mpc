@@ -1,9 +1,9 @@
 /*eslint no-console: ["error", { allow: ["warn", "error"] }] */
 
-define(['jquery', 'controllers/jiffController', 'controllers/tableController', 'controllers/analystController', 'helper/drop_sheet', 'alertify', 'table_template', 'spin'],
-  function ($, jiffController, tableController, analystController, DropSheet, alertify, table_template, Spinner) {
+define(['jquery', 'controllers/jiffController', 'controllers/tableController', 'controllers/analystController', 'helper/drop_sheet', 'alertHandler', 'table_template', 'spin'],
+  function ($, jiffController, tableController, analystController, DropSheet, alertHandler, table_template, Spinner) {
     function error(msg) {
-      alertify.alert('<img src="/images/cancel.png" alt="Error">Error!', msg);
+      alertHandler.error(msg);
     }
 
     function handle_file(event) {
