@@ -3,8 +3,6 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
   function sessionView() {
 
     $(document).ready(function () {
-      $('#session-creation').collapse('show');
-    
       $('#verify').on('click', function(e) {
         if ($('#verify').is(":checked")) {
           $('#submit').prop('disabled', false);
