@@ -221,8 +221,8 @@ define([], function () {
         'GENERIC_TABLE_ERR', 
         'SERVER_ERR', 
         'GENERIC_SUBMISSION_ERR',
-        'NAN_EMPTY_CELLS', 
-        'SEMANTIC_CELLS',
+        'EMPTY_CELL',
+        'INVALID_CELL',
         'CELL_ERROR'
         ]
       }
