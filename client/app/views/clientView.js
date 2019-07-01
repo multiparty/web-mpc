@@ -279,15 +279,15 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
       });
 
       /* global $buoop */
-      var $buoop = {
-        vs: {i: 10, f: -4, o: -4, s: 8, c: -4},
-        mobile: false,
-        api: 4,
-        noclose: true,
-        reminder: 0,
-        reminderClosed: 0,
-        text: '<strong>Your web browser {brow_name} is not supported.</strong> Please upgrade to a more modern browser to participate in the Pacesetters Data Submission.'
-      };
+      // var $buoop = {
+      //   vs: {i: 10, f: -4, o: -4, s: 8, c: -4},
+      //   mobile: false,
+      //   api: 4,
+      //   noclose: true,
+      //   reminder: 0,
+      //   reminderClosed: 0,
+      //   text: '<strong>Your web browser {brow_name} is not supported.</strong> Please upgrade to a more modern browser to participate in the Pacesetters Data Submission.'
+      // };
 
       function $buo_f() {
         var e = document.createElement('script');

@@ -61,7 +61,7 @@ define(['table_template'], function (table_template) {
 
   function saveBrowser() {
     // check Edge
-    var ua = navigator.userAgent, tem,
+    var ua = navigator.userAgent,
       M = ua.match(/(opera|chrome|safari|edge|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
     var browser = M[0].toLowerCase();
 

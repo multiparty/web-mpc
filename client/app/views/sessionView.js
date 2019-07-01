@@ -3,11 +3,11 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
   function sessionView() {
 
     $(document).ready(function () {
-      $('#verify').on('click', function(e) {
-        if ($('#verify').is(":checked")) {
+      $('#verify').on('click', function (e) {
+        if ($('#verify').is(':checked')) {
           $('#submit').prop('disabled', false);
         } else {
-          $('#submit').prop('disabled', true);          
+          $('#submit').prop('disabled', true);
         }
       });
     });

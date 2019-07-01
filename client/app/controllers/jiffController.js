@@ -63,7 +63,7 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
         }]
       },
       public_keys: {
-        's1': 's1'
+        s1: 's1'
       }
     };
     baseOptions = Object.assign(baseOptions, options);

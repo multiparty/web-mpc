@@ -29,7 +29,7 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda', 'f
         // Only logs in if both requests succeed
         var existingParticipants = results[0];
         var status = results[1];
-  
+
         // if self-selection, add participant agnostic link div
         if (Object.keys(tableTemplate).includes('cohort_selection') && tableTemplate['cohort_selection']) {
           SELF_SELECT = true;
@@ -44,7 +44,7 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda', 'f
           enableCohortSubmit(unassignedCohort);
 
           var $cohortArea = $('#cohort-area').addClass('col-sm-7 card col-md-offset-1');
-          $historyTitle = document.createElement('h2');
+          var $historyTitle = document.createElement('h2');
           $historyTitle.setAttribute('class', 'text-center');
           $historyTitle.innerText = 'Submission History';
           $cohortArea.append($historyTitle);
@@ -104,9 +104,9 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda', 'f
       $('#participants-download-' + cohort).on('click', function (e) {
         var allLinks = [];
         var newLinks = $('#participants-new-' + cohort).text().split('\n');
-        
+
         if (newLinks.length > 1 || (newLinks.length === 1 && newLinks[0].includes('session'))) {
-          allLinks = allLinks.concat(newLinks);        
+          allLinks = allLinks.concat(newLinks);
         }
 
         var existingLinks = $('#participants-existing-' + cohort).text().split('\n');
@@ -136,8 +136,8 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda', 'f
           continue;
         }
 
-        var urls = existingParticipants[cohortId];
-        var $existingParticipants = $('#participants-existing-' + cohortId);
+        urls = existingParticipants[cohortId];
+        $existingParticipants = $('#participants-existing-' + cohortId);
         $existingParticipants.html(urls.join('\n'));
       }
     }
