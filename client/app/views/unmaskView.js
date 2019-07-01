@@ -28,7 +28,7 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
           var privateKey = e.target.result;
 
           jiffController.analyst.computeAndFormat(sessionKey, sessionPass, privateKey, error, function (result) {
-            analystController.getExistingCohorts(sessionKey, sessionPass).then(function(cohortMapping) {
+            analystController.getExistingCohorts(sessionKey, sessionPass).then(function (cohortMapping) {
               tableController.saveTables(result['averages'], sessionKey, 'Averages', result['cohorts'], cohortMapping);
               tableController.saveTables(result['deviations'], sessionKey, 'Standard_Deviations', result['cohorts'], cohortMapping);
             });

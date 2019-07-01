@@ -36,8 +36,22 @@ describe('BWWC Tests', function () {
         await session.createEmptySession(driver);
       });
     });
+
+  //   describe('/manage', function () {
+  //     it('Download links', async function() {
+  //       let returned = await session.createSession(driver);
+  //       sessionKey = returned.sessionKey;
+  //       password = returned.password;
+  //       await manage.login(driver, sessionKey, password); // Login to Session Management
+  //       await manage.downloadLinks(driver, UNASSIGNED_COHORT, 0);
+  //       links = await manage.generateLinksNoCohorts(driver, 1);
+  //       await manage.downloadLinks(driver, UNASSIGNED_COHORT, 1);
+  //       links = await manage.generateLinksNoCohorts(driver, CONTRIBUTOR_COUNT);
+  //       await manage.downloadLinks(driver, UNASSIGNED_COHORT, CONTRIBUTOR_COUNT);    
+  //     });
+  //   });
   });
-  
+
   // describe('UI Test: /manage', function(){
   //   let sessionKey, password, links, driver, inputs;
   //   const CONTRIBUTOR_COUNT = 15;

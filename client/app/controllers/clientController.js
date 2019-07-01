@@ -289,7 +289,7 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
               appendSubmissionHistory(new Date(), true);
               alertHandler.success('<div id="submission-success">' + SUCCESS_MESSAGE + '</div>');
             } else {
-              
+
               error(response.error);
             }
           } else if (err === 0 || err === 500) {

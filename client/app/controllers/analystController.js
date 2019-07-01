@@ -78,11 +78,11 @@ define(['filesaver', 'pki', 'alertHandler'], function (filesaver, pki, alertHand
   }
 
   /**
-   * 
-   * @param {*} session 
-   * @param {*} password 
+   *
+   * @param {*} session
+   * @param {*} password
    * @param {*} count number of total links that should be generated
-   * @param {*} cohort 
+   * @param {*} cohort
    */
   function generateNewParticipationCodes(session, password, count, cohort) {
     return $.ajax({
@@ -218,6 +218,6 @@ define(['filesaver', 'pki', 'alertHandler'], function (filesaver, pki, alertHand
     addCohort: addCohort,
     START: 'START',
     PAUSE: 'PAUSE',
-    STOP: 'STOP' 
+    STOP: 'STOP'
   };
 });

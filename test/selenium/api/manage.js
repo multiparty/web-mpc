@@ -21,23 +21,23 @@ module.exports.login = async function (driver, sessionKey, password) {
   await helpers.conditionOrAlertError(driver, until.elementTextMatches(sessionStatusText, /^(STARTED)|(PAUSED)|(STOPPED)$/));
 };
 
-// module.exports.downloadLinks = async function(driver, cohort, count) {
-//   const downloadBtn = await driver.findElement(By.id('participants-download-' + cohort));
-//   downloadBtn.click();
+module.exports.downloadLinks = async function(driver, cohort, count) {
+  const downloadBtn = await driver.findElement(By.id('participants-download-' + cohort));
+  downloadBtn.click();
 
-//   if (count === 0) {
-//       // Close alertify dialog showing error
-//     const alertifyError = await driver.wait(until.elementLocated(By.className('ajs-ok')));
-//     await driver.wait(until.elementIsEnabled(alertifyError));
-//     await driver.wait(until.elementIsVisible(alertifyError));
-//     await alertifyError.click();
-//     return;
-//   }
+  if (count === 0) {
+      // Close alertify dialog showing error
+    const alertifyError = await driver.wait(until.elementLocated(By.className('ajs-ok')));
+    await driver.wait(until.elementIsEnabled(alertifyError));
+    await driver.wait(until.elementIsVisible(alertifyError));
+    await alertifyError.click();
+    return;
+  }
 
-//   const downloadsPath = helpers.getUserHome() + '/Downloads/' + 'Participant_Links.csv';
-//   content = fs.readFileSync(downloadsPath, 'utf8');
-//   assert.equal(content.split(',').length, count);
-// };
+  const downloadsPath = helpers.getUserHome() + '/Downloads/' + 'Participant_Links.csv';
+  content = fs.readFileSync(downloadsPath, 'utf8');
+  assert.equal(content.split(',').length, count);
+};
 
 module.exports.generateLinksNoCohorts = async function (driver, count) {
   const linksCountField = await driver.findElement(By.id('participants-count-' + UNASSIGNED_COHORT));

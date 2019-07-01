@@ -1033,7 +1033,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
   }
 
   function saveUsability(usability, session, counts) {
- 
+
     usability['num_participants'] = counts['all'].length;
     filesaver.saveAs(new Blob([JSON.stringify(usability)], {type: 'application/json'}), 'Usability_' + session + '.json');
   }

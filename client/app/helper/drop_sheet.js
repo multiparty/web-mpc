@@ -127,7 +127,7 @@ define(['alertHandler', 'XLSX'], function (alertHandler) {
     /**
      * Processes the uploaded spreadsheet
      * @param {excel-workbook} wb
-     * @returns void 
+     * @returns void
      */
     function processWB(wb) {
       var tableDef = opts.tables_def.tables;
@@ -139,7 +139,7 @@ define(['alertHandler', 'XLSX'], function (alertHandler) {
       for (var i = 0; i < tableDef.length; i++) {
         var table = tableDef[i];
         var processed = false;
-        wb.SheetNames.forEach(function(name) {
+        wb.SheetNames.forEach(function (name) {
           if (table.excel && table.excel[0] && table.excel[0].sheet === name) {
             if (processWS(wb.Sheets[name], opts.tables[i], table.excel[0].start, table.excel[0].end)) {
               processed = true;
