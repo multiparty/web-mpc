@@ -371,6 +371,7 @@ define([], function () {
             },
             "type":"currency",
             "min":0,
+            "max_warning":100000000,
             "empty":false,
             "validators":[
               "discrepancies"
@@ -575,6 +576,7 @@ define([], function () {
             },
             "type":"currency",
             "min":0,
+            "max_warning":100000000,
             "empty":false,
             "validators":[
               "discrepancies"
@@ -871,19 +873,19 @@ define([], function () {
       ]
     },
     'usability': [
-      'data_prefilled', 
+      'data_prefilled',
       {'time_spent': ['page', 'session-area', 'number-employees-hot', 'compensation-hot', 'performance-pay-hot', 'service-length-hot', 'review-and-submit']},
       {'browser': ['chrome', 'edge', 'msie', 'firefox', 'opera', 'other', 'safari']},
       {'validation_errors': [
-        'SESSION_KEY_ERROR', 
+        'SESSION_KEY_ERROR',
         'SESSION_INFO_ERROR',
-        'PARTICIPATION_CODE_ERROR', 
-        'SESSION_PARTICIPATION_CODE_SERVER_ERROR', 
-        'UNCHECKED_ERR', 
-        'GENERIC_TABLE_ERR', 
-        'SERVER_ERR', 
+        'PARTICIPATION_CODE_ERROR',
+        'SESSION_PARTICIPATION_CODE_SERVER_ERROR',
+        'UNCHECKED_ERR',
+        'GENERIC_TABLE_ERR',
+        'SERVER_ERR',
         'GENERIC_SUBMISSION_ERR',
-        'NAN_EMPTY_CELLS', 
+        'NAN_EMPTY_CELLS',
         'SEMANTIC_CELLS',
         'CELL_ERROR'
         ]
@@ -891,7 +893,7 @@ define([], function () {
     ],
     'cohort_selection': true,
     'cohorts': [
-      {name: 'Banking/Finance'}, 
+      {name: 'Banking/Finance'},
       {name: 'Professional, Scientific, and Tech Services'},
       {name: 'Information Services and Data'},
       {name: 'Education Services'},
