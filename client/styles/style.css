@@ -383,3 +383,9 @@ span.success {
 .font-weight-bold {
   font-weight: bold;
 }
+
+#definitions-table td {
+  font-size: 18px;
+  padding: 10px;
+  border: 1px solid;
+}
