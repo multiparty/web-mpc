@@ -1,6 +1,7 @@
 const { By, until } = require('selenium-webdriver');
 const assert = require('assert');
 const helpers = require('../helpers.js');
+const fs = require('fs');
 
 const UNASSIGNED_COHORT = '0';
 
@@ -34,9 +35,11 @@ module.exports.downloadLinks = async function(driver, cohort, count) {
     return;
   }
 
-  const downloadsPath = helpers.getUserHome() + '/Downloads/' + 'Participant_Links.csv';
+  // Sleep to ensure files were downloaded
+  await driver.sleep(5000);
+  const downloadsPath = helpers.getUserHome() + '/Downloads/' + 'Participant_Links_' + count + '.csv';
   content = fs.readFileSync(downloadsPath, 'utf8');
-  assert.equal(content.split(',').length, count);
+  assert.equal(content.split('\n').length, count);
 };
 
 module.exports.generateLinksNoCohorts = async function (driver, count) {
