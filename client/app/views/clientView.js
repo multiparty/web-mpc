@@ -56,6 +56,12 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
       }
     }
 
+    function addDefinitionLink() {
+      if (table_template.definitions) {
+        $("#cohort-drop-label").append(' <a href="/definitions"><span class="glyphicon glyphicon-question-sign"></span></a>');
+      }
+    }
+
     function clientControllerView() {
       $(document).ready(function () {
         // Hide by default
@@ -144,6 +150,9 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         };
 
         addResizeSensors(tables);
+
+        // Add link to definitions
+        addDefinitionLink();
 
         // Table accordion.
         $('#tables-area').hide();
