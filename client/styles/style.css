@@ -263,6 +263,12 @@ form .form-group-lg label {
   padding-right: 0.5em;
 }
 
+.htCommentTextArea{
+  font-size: 14px;
+  width: 250px;
+  height: 100px;
+}
+
 #errors {
   display: none;
 }
