@@ -19,7 +19,7 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
         var la = Ladda.create(document.getElementById('generate'));
         la.start();
 
-        var result = analystController.generateSession('infoDiv', 'sessionID', 'passwordID', 'privkeyID', 'link-id', 'session-title', 'session-description');
+        var result = analystController.generateSession('infoDiv', 'sessionKeyID', 'sessionID', 'passwordID', 'privkeyID', 'link-id', 'session-title', 'session-description');
         if (result == null) {
           la.stop();
         } else {

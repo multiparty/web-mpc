@@ -84,8 +84,8 @@
     <section id="session-details" class="card col-md-10 col-md-offset-1 collapse">
       <h2 class="text-center">Session details</h2>
       <hr/>
-      <h3>Session Key </h3>
-      <p>The session key is a unique identifier for this session. It will be provided to participants as well. Please record this in order to manage the session and verify that participants are in the correct session.</p>
+      <h3 id="sessionKeyID"> {{ session_key }} </h3>
+      <p>The {{ session_key }} is a unique identifier for this session. It will be provided to participants as well. Please record this in order to manage the session and verify that participants are in the correct session.</p>
       <pre id="sessionID"></pre>
       <h3>Session Password <span class='glyphicon glyphicon-lock'></span></h3>
       <p>The session password is required in order to manage the session. This includes adding participants, changing the session status, and receiving results. <span class="font-weight-bold">Do not share your password with anyone.</p></p>
@@ -96,7 +96,7 @@
 
       <div class="checkbox">
         <label>
-          <input type="checkbox" id="verify" name="verify">I have saved the session key, session password, and private key in a secure location.
+          <input type="checkbox" id="verify" name="verify">I have saved the {{ session_key }}, session password, and private key in a secure location.
         </label>
       </div>
 

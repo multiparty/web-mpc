@@ -65,11 +65,11 @@
               <span id="session-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
                     aria-hidden="true"></span>
               <span id="session-fail-help"
-                    class="fail-help help-block hidden">Please input the 26-character session key.</span>
+                    class="fail-help help-block hidden">Please input the 26-character {{ client.session_key }}.</span>
               <span id="session-fail-custom-help"
                     class="fail-custom help-block hidden"></span>
             </div>
-            <div class="form-group"> 
+            <div class="form-group">
               <label class="control-label" for="password">Session password</label>
               <input type="password" id="password" class="form-control" placeholder="Session password" autocomplete="off" required>
               <span id="password-success"

@@ -133,9 +133,13 @@ define(['filesaver', 'pki', 'alertHandler'], function (filesaver, pki, alertHand
       });
   }
 
-  function generateSession(hiddenDiv, sessionID, passwordID, privID, linkID, titleID, descriptionID) {
+  function generateSession(hiddenDiv, sessionKeyID, sessionID, passwordID, privID, linkID, titleID, descriptionID) {
     var title = document.getElementById(titleID).value;
     var description = document.getElementById(descriptionID).value;
+    var sessionKeyName = document.getElementById(sessionKeyID).innerHTML;
+    sessionKeyName = sessionKeyName.slice(1,-1); //Removing excess white space from handlebars rendering.
+    console.log(sessionKeyName[0]);
+    console.log(sessionKeyName.length);
 
     if (title == null || description == null || title === '' || description === '') {
       alertHandler.error('Session title and description are required');
@@ -161,12 +165,13 @@ define(['filesaver', 'pki', 'alertHandler'], function (filesaver, pki, alertHand
         document.getElementById(sessionID).innerHTML = rndSess;
         document.getElementById(passwordID).innerHTML = password;
         // TODO clean up how this workflow
-        console.log('linkId', linkID)
+        console.log('linkId', linkID);
         document.getElementById(linkID).href = '/manage?session=' + rndSess;
 
         filesaver.saveAs(priBlob, 'Session_' + rndSess + '_private_key.pem');
 
-        var text = 'Session Key:\n' + rndSess + '\nPassword:\n' + password;
+        var text = sessionKeyName + ':\n' + rndSess + '\nPassword:\n' + password;
+        console.log(text);
         filesaver.saveAs(new Blob([text], {type: 'text/plain;charset=utf-8'}), 'Session_' + rndSess + '_password.txt');
       })
       .catch(function () {
