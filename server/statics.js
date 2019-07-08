@@ -16,6 +16,10 @@ module.exports = function (app) {
     rendering['index'].render(app, req, res);
   });
 
+  app.get('/definitions', function (req, res) {
+    res.render('definitions.html', config.client);
+  });
+
   app.get('/create', function (req, res) {
     res.render('create.html', config.client);
   });
