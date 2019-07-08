@@ -1,0 +1,55 @@
+<title>{{ organization }}</title>
+<link rel="icon" type="image" href="{{ logo }}" alt="{{ organization }} logo">
+<script type="text/javascript">
+  var require = {
+    paths: {
+      table_template: '{{ table_template }}'
+    }
+  }
+</script>
+
+<script type="text/javascript" src="app/helper/object.assign-polyfill.js"></script>
+<script type="text/javascript" src="app/config/common.js"></script>
+<script data-main="app/definitions" src="app/vendor/require.js"></script>
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+      integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+      integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.0/ladda-themeless.min.css"
+      integrity="sha256-d7VZTlP9P3ZTCZ3Bkl8aGZ/+Vs4i+bpcOGNfibU7+LU=" crossorigin="anonymous"/>
+<link rel="stylesheet" type="text/css" href="styles/handsontable.full.min.css">
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.10.0/css/alertify.min.css"
+      integrity="sha256-bNEFYRlNlnu0CH4DIKCXv0F6JVl/DdA2M9XVZn317q0=" crossorigin="anonymous"/>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.10.0/css/themes/bootstrap.min.css"
+      integrity="sha256-vt37wNLVK8ICNWGrl+1MLb+pjq33sn6v37Q/7OPgkSU=" crossorigin="anonymous"/>
+
+<link rel="stylesheet" href="/styles/style.css">
+
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1>{{ organization }}<br/>
+      <small> {{ subtitle }}</small>
+    </h1>
+    <div id="logos">
+      <img src="{{ logo }}" alt="{{ organization }} Logo"/>
+      <img src="images/bu.gif" alt="BU Logo"/>
+    </div>
+  </div>
+</header>      
+<div id="shadow" class="ss-style-multitriangles"></div>
+<main id="content" class="container">
+    <div class="row">
+    <section id="definitions" class="card col-md-10 col-md-offset-1">
+      <table id="definitions-table" class="table">
+
+      </table>
+    </section>
+    </div>
+                  
+</main>
+</body>
+</html>
