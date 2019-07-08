@@ -138,8 +138,6 @@ define(['filesaver', 'pki', 'alertHandler'], function (filesaver, pki, alertHand
     var description = document.getElementById(descriptionID).value;
     var sessionKeyName = document.getElementById(sessionKeyID).innerHTML;
     sessionKeyName = sessionKeyName.slice(1,-1); //Removing excess white space from handlebars rendering.
-    console.log(sessionKeyName[0]);
-    console.log(sessionKeyName.length);
 
     if (title == null || description == null || title === '' || description === '') {
       alertHandler.error('Session title and description are required');
