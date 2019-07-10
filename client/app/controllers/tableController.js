@@ -973,6 +973,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
 
 
   function updateTableWidth(maxWidth) {
+    console.log('boop');
     var $instructions = $('#instructions');
     var $content = $('#content');
     $instructions.css('width', maxWidth);
@@ -983,21 +984,9 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
     var containerOffset = parseFloat($content.css('margin-left'));
     var offset = (documentWidth - containerWidth) / 2;
 
-    //If the whole expanded table is larger than the actual window, need to resize table
     if (containerWidth > documentWidth){
-
-      // Make instructions card as large as possible.
-      var cardWidth = documentWidth - 2*containerOffset; //Note this assumes that left and right margins are the same.
-      $instructions.css('width', cardWidth);
-
-      // Remove left and right margins for instruction card to maximize width
+      console.log($instructions.css('margin-left'));
       $instructions.css('margin-left', '0px');
-      $instructions.css('margin-right', '0px');
-
-      // Actual table should fit within the instructions card
-      var tableWidth = cardWidth - 2*parseFloat($instructions.css('padding-left'));
-      console.log(tableWidth);
-      $('.table-section').css('width', tableWidth);
     }
     else{
       offset = offset - containerOffset;

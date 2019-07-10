@@ -14,7 +14,7 @@ define([], function () {
         "hot_parameters":{
           "rowHeaderWidth":200,
           "height": tableHeight,
-          "width": '100%'
+          "width": tableWidth
         },
         "rows":[
           {
@@ -220,7 +220,7 @@ define([], function () {
         "hot_parameters":{
           "rowHeaderWidth":200,
           "height":850,
-          "width": '100%'
+          "width": tableWidth
         },
         "rows":[
           {
@@ -425,7 +425,7 @@ define([], function () {
         "hot_parameters":{
           "rowHeaderWidth":200,
           "height": tableHeight,
-          "width": '100%'
+          "width": tableWidth
         },
         "rows":[
           {
@@ -630,7 +630,7 @@ define([], function () {
         "hot_parameters":{
           "rowHeaderWidth":200,
           "height": tableHeight,
-          "width": '100%'
+          "width": tableWidth
         },
         "rows":[
           {
