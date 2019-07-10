@@ -1,6 +1,6 @@
 const { By, until } = require('selenium-webdriver');
 const assert = require('assert');
-const helpers = require('../helpers.js');
+const helpers = require('../helpers/helpers.js');
 const fs = require('fs');
 
 const UNASSIGNED_COHORT = '0';
