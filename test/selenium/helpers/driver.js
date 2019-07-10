@@ -18,6 +18,8 @@ module.exports = {
         'download.prompt_for_download': false
       }))
       .build();
+
+    return driver;
   },
   quit: function () {
     driver.quit();

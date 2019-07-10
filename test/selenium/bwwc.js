@@ -2,9 +2,10 @@
 const assert = require('assert');
 
 // Helpers
-const driverWrapper = require('./driver.js');
-const compute = require('./compute.js');
-const csv = require('./csv.js');
+const driverWrapper = require('./helpers/driver.js');
+const compute = require('./helpers/compute.js');
+const csv = require('./helpers/csv.js');
+
 
 // import test API
 const session = require('./api/session.js');
@@ -13,7 +14,6 @@ const submission = require('./api/submission.js');
 const unmasking = require('./api/unmasking.js');
 
 const UPLOAD_FILE = '/test/selenium/files/bwwc.xlsx';
-// const UNASSIGNED_COHORT = '0';
 
 describe('BWWC Tests', function () {
   // Create the chrome driver before tests and close it after tests
@@ -23,57 +23,6 @@ describe('BWWC Tests', function () {
   after(function () {
     driverWrapper.quit();
   });
-
-
-  describe('UI Tests', function () {
-    before(function () {
-      driver = driverWrapper.getDriver();
-      inputs = { all: [] };
-    });
-
-    describe('/create', function () {
-      it('Empty session information', async function() {
-        await session.createEmptySession(driver);
-      });
-    });
-
-  //   describe('/manage', function () {
-  //     it('Download links', async function() {
-  //       let returned = await session.createSession(driver);
-  //       sessionKey = returned.sessionKey;
-  //       password = returned.password;
-  //       await manage.login(driver, sessionKey, password); // Login to Session Management
-  //       await manage.downloadLinks(driver, UNASSIGNED_COHORT, 0);
-  //       links = await manage.generateLinksNoCohorts(driver, 1);
-  //       await manage.downloadLinks(driver, UNASSIGNED_COHORT, 1);
-  //       links = await manage.generateLinksNoCohorts(driver, CONTRIBUTOR_COUNT);
-  //       await manage.downloadLinks(driver, UNASSIGNED_COHORT, CONTRIBUTOR_COUNT);    
-  //     });
-  //   });
-  });
-
-  // describe('UI Test: /manage', function(){
-  //   let sessionKey, password, links, driver, inputs;
-  //   const CONTRIBUTOR_COUNT = 15;
-
-  //   before(function () {
-  //     driver = driverWrapper.getDriver();
-  //     inputs = { all: [] };
-  //   });
-
-  //   // Create session
-  //   it('Participant link download', async function () {
-  //     let returned = await session.createSession(driver);
-  //     sessionKey = returned.sessionKey;
-  //     password = returned.password;
-  //     await manage.login(driver, sessionKey, password); // Login to Session Management
-  //     await manage.downloadLinks(driver, UNASSIGNED_COHORT, 0);
-  //     links = await manage.generateLinksNoCohorts(driver, 1);
-  //     await manage.downloadLinks(driver, UNASSIGNED_COHORT, 1);
-  //     links = await manage.generateLinksNoCohorts(driver, CONTRIBUTOR_COUNT);
-  //     await manage.downloadLinks(driver, UNASSIGNED_COHORT, CONTRIBUTOR_COUNT);
-  //   });
-  // });
 
   // End-to-end Workflow
   describe('End-to-end Workflow', function () {
@@ -131,13 +80,16 @@ describe('BWWC Tests', function () {
 
     // Resubmissions
     it('Data Resubmissions', async function () {
-      for (let i = 0; i < RESUBMISSION_COUNT; i++) {
-        const submitter = Math.floor(Math.random() * links.length);
+      for (let i = 0; i < RESUBMISSION_COUNT + 3; i++) {
+        // force the first party to first resubmit 3 times to randomly chosen (possibly overlapping) cohorts
+        // just to test several resubmissions by the same party
+        // other resubmissions are chosen randomly
+        const submitter = i < 3 ? 0 : Math.floor(Math.random() * links.length);
         const link = links[submitter];
 
         // change cohort randomly with probability 0.5
         const randomCohort = Math.floor(Math.random() * (COHORT_COUNT - 1)) + 1;
-        const oldCohort = (submitter % COHORT_COUNT) + 1;
+        const oldCohort = clientCohortMap[submitter]['cohort'];
         const cohort = Math.random() < 0.5 ? randomCohort : oldCohort;
 
         // Randomly choose upload or manually (with equal likelihood)
@@ -234,6 +186,38 @@ describe('BWWC Tests', function () {
         assert.equal(deviations[cohort].count, inputs[cohort].length, 'CSV Deviation - Cohort ' + cohort + ' has incorrect # of participants');
         assert.deepEqual(deviations[cohort].values, cohortDeviation, 'CSV Deviation - Cohort ' + cohort + ' has incorrect # of participants');
       }
+    });
+  });
+
+  describe('UI Tests', function () {
+    const CONTRIBUTOR_COUNT = 100;
+    const UNASSIGNED_COHORT = '0';
+
+    let driver;
+
+    // Create the chrome driver before tests and close it after tests
+    before(function () {
+      driver = driverWrapper.getDriver();
+    });
+
+    // Test that creating a session with empty title/description gives errors
+    describe('/create', function () {
+      it('Empty session information', async function() {
+        await session.createEmptySession(driver);
+      });
+    });
+
+    // Test that we can download participation links properly
+    describe('/manage', function () {
+      it('Download links', async function() {
+        let returned = await session.createSession(driver);
+        sessionKey = returned.sessionKey;
+        password = returned.password;
+        await manage.login(driver, sessionKey, password); // Login to Session Management
+        await manage.downloadLinks(driver, UNASSIGNED_COHORT, 0);
+        links = await manage.generateLinksNoCohorts(driver, CONTRIBUTOR_COUNT);
+        await manage.downloadLinks(driver, UNASSIGNED_COHORT, CONTRIBUTOR_COUNT);
+      });
     });
   });
 });

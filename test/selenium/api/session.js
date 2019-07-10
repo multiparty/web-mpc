@@ -2,15 +2,15 @@
 const { By, until } = require('selenium-webdriver');
 const assert = require('assert');
 
-const helpers = require('../helpers.js');
+const helpers = require('../helpers/helpers.js');
 
 module.exports = {};
 
 module.exports.createEmptySession = async function (driver) {
   await driver.get('localhost:8080/create');
-  
+
   const generateButton = await driver.findElement(By.id('generate'));
-  generateButton.click(); 
+  generateButton.click();
 
   const alertifyError = await driver.wait(until.elementLocated(By.className('ajs-ok')));
   await driver.wait(until.elementIsEnabled(alertifyError));
