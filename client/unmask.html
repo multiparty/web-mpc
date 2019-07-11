@@ -56,21 +56,21 @@
   <div class="row">
     <section id="session-area" class="card col-md-10 col-md-offset-1">
       <h2 class="text-center">Unmask Aggregate Data</h2>
-      <p class="text-center">Please make sure you have the correct session key, session password, and private key</p>
+      <p class="text-center">Please make sure you have the correct {{ session_key }}, session password, and private key.</p>
       <hr/>
       <div class="row">
         <div class="col-md-6">
           <form>
             <div class="form-group">
-              <label class="control-label" for="session">Session Key</label>
-              <input type="text" id="session" class="form-control" placeholder="Session Key"
+              <label class="control-label" for="session">{{ session_key }}</label>
+              <input type="text" id="session" class="form-control" placeholder="{{ session_key }}"
                      pattern="^[a-zA-Z0-9]{26}$" autocomplete="off" required/>
               <span id="session-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
                     aria-hidden="true"></span>
               <span id="session-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
                     aria-hidden="true"></span>
               <span id="session-fail-help"
-                    class="fail-help help-block hidden">Please input the 26-character session key.</span>
+                    class="fail-help help-block hidden">Please input the 26-character {{ session_key }}.</span>
               <span id="session-fail-custom-help"
                     class="fail-custom help-block hidden"></span>
             </div>
@@ -98,9 +98,7 @@
           <input type="file" id="choose-file" accept=".pem">
         </div>
         <div class="col-md-6">
-          <div id="submit">
-            <!-- <button id="unmask-button" class="btn btn-primary">Unmask</button> -->
-          </div>
+          <div id="submit"></div>
         </div>
       </div>
     </section>
@@ -109,19 +107,11 @@
   <div class="row">
     <section id="instructions" class="card col-md-10 col-md-offset-1">
       <h2 class="text-center">Aggregate data</h2>
-      <p class="text-center">Your data will appear here after you submit the session key, password, and private key</p>
+      <p class="text-center">Your data will appear here after you submit the {{ session_key }}, password, and private key.</p>
       <span id="expand-table-button" class="arrow-down"></span>
 
       <div id="tables-area">
         <hr/>
-        <!-- <h3 id="number-of-mbes-name" class="head_element"></h3>
-        <div id="number-of-mbes" class="table-section"></div>
-
-        <h3 id="addressable-spend-name" class="head_element"></h3>
-        <div id="addressable-spend" class="table-section"></div>
-
-        <h3 id="amount-spent-with-mbes-name" class="head_element"></h3>
-        <div id="amount-spent-with-mbes" class="table-section"></div> -->
       </div>
 
     </section>
