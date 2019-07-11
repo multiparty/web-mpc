@@ -30,7 +30,7 @@ describe('BWWC Tests', function () {
 
     const COHORT_COUNT = 9;
     const CONTRIBUTOR_COUNT = 20;
-    const RESUBMISSION_COUNT = 3;
+    const RESUBMISSION_COUNT = 7;
 
     before(function () {
       driver = driverWrapper.getDriver();
