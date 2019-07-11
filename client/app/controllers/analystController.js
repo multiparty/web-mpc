@@ -6,7 +6,7 @@
  */
 /* global saveAs, Uint8Array */
 
-define(['filesaver', 'pki', 'alertHandler'], function (filesaver, pki, alertHandler) {
+define(['pki', 'alertHandler'], function (pki, alertHandler) {
 
   'use strict';
 
@@ -133,12 +133,7 @@ define(['filesaver', 'pki', 'alertHandler'], function (filesaver, pki, alertHand
       });
   }
 
-  function generateSession(hiddenDiv, sessionKeyID, sessionID, passwordID, privID, linkID, titleID, descriptionID) {
-    var title = document.getElementById(titleID).value;
-    var description = document.getElementById(descriptionID).value;
-    var sessionKeyName = document.getElementById(sessionKeyID).innerHTML;
-    sessionKeyName = sessionKeyName.slice(1,-1); //Removing excess white space from handlebars rendering.
-
+  function generateSession(title, description) {
     if (title == null || description == null || title === '' || description === '') {
       alertHandler.error('Session title and description are required');
       return null;
@@ -148,8 +143,6 @@ define(['filesaver', 'pki', 'alertHandler'], function (filesaver, pki, alertHand
       var privateKey = result.privateKey;
       var publicKey = result.publicKey;
 
-      var priBlob = new Blob([privateKey], {type: 'text/plain;charset=utf-8'});
-
       return $.ajax({
         type: 'POST',
         url: '/create_session',
@@ -157,31 +150,20 @@ define(['filesaver', 'pki', 'alertHandler'], function (filesaver, pki, alertHand
         data: JSON.stringify({publickey: publicKey, title: title, description: description})
       })
       .then(function (resp) {
-        var rndSess = resp.sessionID;
-        var password = resp.password;
-        document.getElementById(privID).innerHTML = privateKey;
-        document.getElementById(sessionID).innerHTML = rndSess;
-        document.getElementById(passwordID).innerHTML = password;
-        // TODO clean up how this workflow
-        console.log('linkId', linkID);
-        document.getElementById(linkID).href = '/manage?session=' + rndSess;
-
-        filesaver.saveAs(priBlob, 'Session_' + rndSess + '_private_key.pem');
-
-        var text = sessionKeyName + ':\n' + rndSess + '\nPassword:\n' + password;
-        console.log(text);
-        filesaver.saveAs(new Blob([text], {type: 'text/plain;charset=utf-8'}), 'Session_' + rndSess + '_password.txt');
+        return {
+          cohort_mapping: resp.cohort_mapping,
+          password: resp.password,
+          sessionID: resp.sessionID,
+          privateKey: privateKey
+        };
       })
       .catch(function () {
-        var errmsg = 'ERROR: Error creating new session. Please refresh the page and try again.';
-        document.getElementById(sessionID).innerHTML = errmsg;
-        document.getElementById(privID).innerHTML = errmsg;
-        document.getElementById(passwordID).innerHTML = errmsg;
+        alertHandler.error('ERROR: Error creating new session. Please refresh the page and try again.');
+        return null;
       });
     }).catch(function () {
-      var errmsg = 'ERROR: Error creating new session. Please refresh the page and try again.';
-      document.getElementById(sessionID).innerHTML = errmsg;
-      document.getElementById(privID).innerHTML = errmsg;
+      alertHandler.error('ERROR: Error creating new session. Please refresh the page and try again.');
+      return null;
     });
   }
 
