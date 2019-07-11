@@ -2,7 +2,7 @@
 const { By, Condition } = require('selenium-webdriver');
 const fs = require('fs');
 
-const helpers = require('../helpers.js');
+const helpers = require('../helpers/helpers.js');
 
 module.exports = {};
 module.exports.unmask = async function (driver, sessionKey, password, outputCount) {

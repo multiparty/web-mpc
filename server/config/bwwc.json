@@ -18,6 +18,9 @@
     "organization": "Boston Women's Workforce Council",
     "subtitle": "100% Talent Data Submission",
     "logo": "images/bwwc.png",
-    "cohort": "Industry"
+    "cohort": "Industry",
+    "session_key": "BWWC 2019 Submission ID",
+    "phone": "(617) 358-8517",
+    "email": "team@bostonwomensworkforcecouncil.org"
   }
 }

@@ -27,14 +27,20 @@ module.exports = {
     return process.env.HOME || process.env.USERPROFILE;
   },
   readTableDataAsArray: async function (driver) {
-    var formattedData = [];
-    var tableCount = await driver.executeScript('return window.__tables.length;');
-    for (var table = 0; table < tableCount; table++) {
-      const data = await driver.executeScript('return window.__tables[' + table + '].getData()');
-      formattedData = formattedData.concat(data.reduce((v1, v2) => v1.concat(v2)).map(v => new BigNumber(v).toFixed(2)));
-    }
-
-    return formattedData;
+    return await driver.wait(async function (driver) {
+      try {
+        var formattedData = [];
+        var tableCount = await driver.executeScript('return window.__tables.length;');
+        for (var table = 0; table < tableCount; table++) {
+          const data = await driver.executeScript('return window.__tables[' + table + '].getData()');
+          formattedData = formattedData.concat(data.reduce((v1, v2) => v1.concat(v2)).map(v => new BigNumber(v).toFixed(2)));
+        }
+        return formattedData;
+      } catch (err) {
+        console.log(err);
+        return false;
+      }
+    });
   },
   generateRandomData: function (rows, cols, maxElement=1000000) {
     var values = [];

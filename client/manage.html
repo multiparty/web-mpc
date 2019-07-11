@@ -53,19 +53,19 @@
           <hr/>
           <form>
             <div class="form-group">
-              <label class="control-label" for="session">Session key</label>
-              <input type="text" id="session" class="form-control" placeholder="Session key" pattern="^[a-zA-Z0-9]{26}$"
+              <label class="control-label" for="session">{{ session_key }}</label>
+              <input type="text" id="session" class="form-control" placeholder="{{ session_key }}" pattern="^[a-zA-Z0-9]{26}$"
               autocomplete="off" required/>
               <span id="session-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
                     aria-hidden="true"></span>
               <span id="session-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
                     aria-hidden="true"></span>
               <span id="session-fail-help"
-                    class="fail-help help-block hidden">Please input the 26-character session key.</span>
+                    class="fail-help help-block hidden">Please input the 26-character {{ session_key }}.</span>
               <span id="session-fail-custom-help"
                     class="fail-custom help-block hidden"></span>
             </div>
-            <div class="form-group"> 
+            <div class="form-group">
               <label class="control-label" for="password">Session password</label>
               <input type="password" id="password" class="form-control" placeholder="Session password" autocomplete="off" required>
               <span id="password-success"

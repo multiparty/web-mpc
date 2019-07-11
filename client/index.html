@@ -63,7 +63,7 @@
   <div class="row">
     <section id="session-area" class="card col-md-10 col-md-offset-1">
       <h2 class="text-center">Input your data</h2>
-      <p class="text-center">Please make sure your session key and participation code match the ones provided in the
+      <p class="text-center">Please make sure your {{ client.session_key }} and participation code match the ones provided in the
         email
         sent to you by the {{ client.organization }}. Drag and drop your completed template file to encrypt and include your submission in
         the
@@ -73,15 +73,15 @@
         <div class="col-md-6">
           <form>
             <div class="form-group">
-              <label class="control-label" for="session">Session key</label>
-              <input type="text" id="session" class="form-control" placeholder="Session key" pattern="^[a-zA-Z0-9]{26}$"
+              <label class="control-label" for="session">{{ client.session_key }}</label>
+              <input type="text" id="session" class="form-control" placeholder="{{ client.session_key }}" pattern="^[a-zA-Z0-9]{26}$"
                      autocomplete="off" required/>
               <span id="session-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
                     aria-hidden="true"></span>
               <span id="session-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
                     aria-hidden="true"></span>
               <span id="session-fail-help"
-                    class="fail-help help-block hidden">Please input the 26-character session key.</span>
+                    class="fail-help help-block hidden">Please input the 26-character {{ client.session_key }}.</span>
               <span id="session-fail-custom-help"
                     class="fail-custom help-block hidden"></span>
             </div>
@@ -138,9 +138,11 @@
       <div id="tables-area">
         <hr/>
         <h3>Entered Data</h3>
-        <p>Any red cells indicate an error - click on the cell to see the error message.</p>
-        <p>Yellow cells indicate the value might be outside of the expected range. Please double-check
-          to make sure the data is correct. You will still be able to submit your data.</p>
+
+        <span class="qtip-red">Red cells</span> <span>indicate an error - click on the cell to see the error message.</span>
+        <p></p>
+        <span class="qtip-yellow"> Yellow cells</span> <span> indicate the value might be outside of the expected range. Please double-check
+          to make sure the data is correct. You will still be able to submit your data.</span>
       </div>
     </section>
   </div>
@@ -205,5 +207,26 @@
   </div>
   <br/>
 </main>
+
+{% if client.phone or client.email %}
+<footer id="footer" class="shadow-top">
+  <div class="container">
+      <div class="row text-xs-center text-sm-left text-md-left">
+        <div class="col-xs-12 col-sm-5 col-md-5">
+          <p class="text-muted footer-text">Need Help?</p>
+          <ul class="list-unstyled text-muted footer-text">
+            {% if client.phone %}
+            <li><span class="glyphicon glyphicon-earphone"></span> {{ client.phone }}</li>
+            {% endif %}
+            {% if client.email %}
+            <li> <span class="glyphicon glyphicon-envelope"></span> {{ client.email }}</li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+  </div>
+</footer>
+{% endif %}
+
 </body>
 </html>

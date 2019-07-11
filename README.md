@@ -23,11 +23,14 @@ enabled=1" | sudo tee -a /etc/yum.repos.d/mongodb.repo
 ```
 yum install -y gcc-c++ mongodb-org-server mongodb-org-shell mongodb-org-tools`
 ```
-* Navigate to the `server/` directory, install the NPM dependencies, and install the global dependency:
+* Navigate to the `web-mpc/` directory, install the NPM dependencies, and install the global dependency:
+
 ```
 npm install
 npm install -g forever
 ```
+
+
 * Next, set up the database file and start the MongoDB server:
 ```
 mkdir -p /data/db
@@ -44,7 +47,7 @@ authbind --deep forever -o log.txt -e error.txt start index.js
 Instructions for setting up the environment on a Mac OS X or Linux local machine.
 
 * Make sure to have Node.js and MongoDB installed.
-* Navigate to the `server/` directory and install the NPM dependencies:
+* Navigate to the `web-mpc/` directory and install the NPM dependencies:
 ```
 npm install
 ```
@@ -52,6 +55,9 @@ npm install
 ```
 npm install -g forever
 ```
+* In order to install the global dependencies, you may need to run the `npm install -g forever` command 
+as `sudo npm install -g forever`.
+
 * Create the database file:
 ```
 mkdir -p /data/db
@@ -60,7 +66,7 @@ mkdir -p /data/db
 ```
 mongod
 ```
-* Open a new terminal tab or window and navigate back to the `server/` directory if you are not already there.
+* Open a new terminal tab or window and navigate back to the `web-mpc/` directory if you are not already there.
 
 * Initialize JIFF:
 ```
@@ -68,7 +74,8 @@ git submodule init
 git submodule update
 cd jiff && npm install
 ```
-
+* Note that the `npm install` within the `/jiff` directory is within the `web-mpc/jiff` directory, not the
+ `web-mpc/server/jiff` directory.
 #### Non-production testing
 
 * For testing, start the Node.js server with no environment variables:

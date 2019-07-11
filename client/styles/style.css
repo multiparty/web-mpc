@@ -191,9 +191,7 @@ form .form-group-lg label {
   transition: border-color 0.5s;
   text-align: center;
   display: block;
-  vertical-align: middle;
   font-size: 22px;
-  /*width: 100%;*/
 }
 
 #drop-area p {
@@ -261,6 +259,12 @@ form .form-group-lg label {
 
 .qtip-yellow img {
   padding-right: 0.5em;
+}
+
+.htCommentTextArea{
+  font-size: 14px;
+  width: 250px;
+  height: 100px;
 }
 
 #errors {
@@ -382,4 +386,15 @@ span.success {
   font-size: 18px;
   padding: 10px;
   border: 1px solid;
+}
+
+footer {
+  background-color: white;
+  padding-top: 20px;
+  padding-bottom: 10px;
+  font-size: 14px;
+}
+
+.shadow-top {
+  box-shadow: 0px -4px 3px rgba(170, 170, 170, .80);
 }
