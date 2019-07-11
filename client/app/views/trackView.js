@@ -115,7 +115,7 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda', 'f
         }
 
         if (allLinks.length > 0) {
-          filesaver.saveAs(new Blob([allLinks.join('\n')], {type: 'text/plain;charset=utf-8'}), 'Participant_Links' +  '.csv');
+          filesaver.saveAs(new Blob([allLinks.join('\n')], {type: 'text/plain;charset=utf-8'}), 'Participant_Links_' + allLinks.length +  '.csv');
         } else {
           alertHandler.error('No participant links to download. Please enter new participants.');
         }

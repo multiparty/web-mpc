@@ -83,72 +83,69 @@ define([], function () {
     return { tables: tables, questions: questions, usability:usability };
   };
 
-  // Compute the function over table data under MPC for a single cohort
-  var computeTable = function (jiff_instance, cohortIds, ordering) {
+  // Sum the shares of tables data belonging to the given parties
+  // The shares are summed cell-wise: each party shares a single value per cell per table
+  // Shares belonging to a single cell from all given parties are summed and the result is
+  // Opened and Returned according to the same format as the given ordering.
+  // NOTE: because of the way the <jiff>.share() functions are synchronized together
+  // calling this function several times on the same party ids will yield different result.
+  // The first time this is called for a party id, <jiff>.share() will sync up with the first
+  // half of the shares send by that party (in this case, shares belonging to the values in the tables)
+  // The second time this is called for that party id, <jiff>.share() will sync up with the second
+  // half of said shares, which correspond to the *squares* of each value in the tables.
+  // CAREFUL: If this function is called more times, the shares will fail to resolve, as they do not correspond to
+  // any actual shares sent out by the clients, the returned result promises will never resolve.
+  var sumTables = function (jiff_instance, partyIDs, ordering) {
+    // Precondition: partyIDs.length > 0
     var result = [];
     for (var k = 0; k < ordering.tables.length; k++) {
-      var subid = cohortIds[0];
+      var subid = partyIDs[0];
 
-      // Sum for averaging
-      var entry_sum = jiff_instance.share(null, null, [1, 's1'], [subid])[subid];
-      // Standard deviation is only computed under MPC for tables
-      var entry_squares_sum = jiff_instance.share(null, null, [1, 's1'], [subid])[subid];
+      // either the value corresponding to the cell matching ordering.tables[k]
+      // or the value of its square, depending on whether this is the first call
+      // to sumTables that include subid, or the second, respectively.
+      var sum = jiff_instance.share(null, null, [1, 's1'], [subid])[subid];
 
-      for (var p = 1; p < cohortIds.length; p++) {
-        subid = cohortIds[p];
-
-        // Sum entries
-        var single_share = jiff_instance.share(null, null, [1, 's1'], [subid])[subid];
-        entry_sum = entry_sum.sadd(single_share);
-
-        // Sum squares
-        single_share = jiff_instance.share(null, null, [1, 's1'], [subid])[subid];
-        entry_squares_sum = entry_squares_sum.sadd(single_share);
+      // Sum over all parties values for this cell
+      for (var p = 1; p < partyIDs.length; p++) {
+        subid = partyIDs[p];
+        var share = jiff_instance.share(null, null, [1, 's1'], [subid])[subid];
+        sum = sum.sadd(share);
       }
-      // For entries in the table, we return a promise to an object
-      //    { sum: <sum of inputs>, squaresSum: <sum of squared inputs> }
-      var promise1 = jiff_instance.open(entry_sum, [1]);
-      var promise2 = jiff_instance.open(entry_squares_sum, [1]);
+
+      // only open to the analyst
+      var promise = jiff_instance.open(sum, [1]);
       if (jiff_instance.id === 1) {
-        var promise = Promise.all([promise1, promise2]).then(function (results) {
-          return { sum: results[0], squaresSum: results[1]};
-        });
         result.push(promise);
       }
     }
 
-    return result;
+    return Promise.all(result);
   };
 
   // Compute the function over question data under MPC for a single cohort
-  var computeQuestions = function (jiff_instance, cohortIds, ordering) {
+  // similar to sumTable but for questions
+  var sumQuestions = function (jiff_instance, partyIDs, ordering) {
     var result = [];
     for (var k = ordering.tables.length; k < ordering.tables.length + ordering.questions.length; k++) {
-      var subid = cohortIds[0];
+      var subid = partyIDs[0];
 
-      // Sum for averaging
-      var entry_sum = jiff_instance.share(null, null, [1, 's1'], [subid])[subid];
-      for (var p = 1; p < cohortIds.length; p++) {
-        subid = cohortIds[p];
-
-        // Sum entries
-        var single_share = jiff_instance.share(null, null, [1, 's1'], [subid])[subid];
-        entry_sum = entry_sum.sadd(single_share);
+      // sum across parties for option k
+      var sum = jiff_instance.share(null, null, [1, 's1'], [subid])[subid];
+      for (var p = 1; p < partyIDs.length; p++) {
+        subid = partyIDs[p];
+        var share = jiff_instance.share(null, null, [1, 's1'], [subid])[subid];
+        sum = sum.sadd(share);
       }
 
-      // For entries in the table, we return a promise to an object
-      //    { sum: <sum of inputs>, squaresSum: <sum of squared inputs> }
-      var promise = jiff_instance.open(entry_sum, [1]);
-      result.push(promise);
+      // only open to analyst
+      var promise = jiff_instance.open(sum, [1]);
+      if (jiff_instance.id === 1) {
+        result.push(promise);
+      }
     }
 
-    return result;
-  };
-
-  // Compute MPC functions over table and questions data per cohort
-  var computeCohort = function (jiff_instance, cohortIds, ordering) {
-    var result = computeTable(jiff_instance, cohortIds, ordering);
-    return Promise.all(result.concat(computeQuestions(jiff_instance, cohortIds, ordering)));
+    return Promise.all(result);
   };
 
   // Compute MPC usability function over all cohorts
@@ -175,103 +172,139 @@ define([], function () {
     return Promise.all(result);
   };
 
+  // Perform MPC computation for averages, deviations, questions, and usability
   var compute = function (jiff_instance, submitters, ordering) {
-    var all_promises = [];
-    for (var i = 0; i < submitters['cohorts'].length; i++) {
-      var cohort = submitters['cohorts'][i];
-      all_promises.push(computeCohort(jiff_instance, submitters[cohort], ordering));
-    }
-    all_promises.push(computeUsability(jiff_instance, submitters['all'], ordering));
+    // Compute these entities in order
+    var sums, squaresSums, questions, usability;
 
-    // format
-    if (jiff_instance.id === 1) {
-      return Promise.all(all_promises).then(function (results) {
-        var formatted = {cohorts: {}};
-        for (var i = 0; i < submitters['cohorts'].length; i++) {
-          var cohort = submitters['cohorts'][i];
-          formatted['cohorts'][cohort] = results[i];
-        }
+    // temporary promises
+    var promises = [];
+    var promise, cohort, i;
 
-        formatted['usability'] = results[results.length - 1];
-        return formatted;
-      });
+    // Compute sums of values in table
+    sums = {};
+    for (i = 0; i < submitters['cohorts'].length; i++) {
+      cohort = submitters['cohorts'][i];
+      promise = sumTables(jiff_instance, submitters[cohort], ordering);
+      promises.push(promise.then(function (cohort, result) {
+        sums[cohort] = result;
+      }.bind(null, cohort)));
     }
+
+    // Sum all squares for ALL participants from all cohorts
+    promise = sumTables(jiff_instance, submitters['all'], ordering);
+    promises.push(promise.then(function (result) {
+      squaresSums = result;
+    }));
+
+    // Sum questions options per cohort
+    questions = {};
+    for (i = 0; i < submitters['cohorts'].length; i++) {
+      cohort = submitters['cohorts'][i];
+      promise = sumQuestions(jiff_instance, submitters[cohort], ordering);
+      promises.push(promise.then(function (cohort, result) {
+        questions[cohort] = result;
+      }.bind(null, cohort)));
+    }
+
+    // Compute usability
+    promise = computeUsability(jiff_instance, submitters['all'], ordering);
+    promises.push(promise.then(function (result) {
+      usability = result;
+    }));
+
+    // Put results in object
+    return Promise.all(promises).then(function () {
+      return {
+        sums: sums,
+        squaresSums: squaresSums,
+        questions: questions,
+        usability: usability
+      };
+    });
   };
 
-  // Return format
+  // Return format:
   // {
-  //   averages: { <cohort number>: { table row: { table col: average } }, ..., 'total': { same format but for all cohorts } }
-  //   deviations: { <cohort number>: { table row: { table col: deviation } }, ..., 'total': { same format but for all cohorts } }
+  //   averages: { <cohort number>: { table name: { table row: { table col: average } } }, ..., 'total': { same format but for all cohorts } }
+  //   deviations: { 'all': { table_name: { table row: { table col: deviation ... } ... } ... } }  no cohort, object has results for all cohorts
   //   questions: { <cohort number>: { question text: { questions option: count } }, ..., 'total': { same format but for all cohorts } }
   //   usability: { metrics_object ...  no cohorts, the object is immediate for all cohorts }
   // }
-  var format = function (results, submitters, ordering) {
+  // Params:
+  //    result: same result returned by compute()
+  //    submitters: maps cohort ids (and 'all') to corresponding party ids
+  //    ordering: result of consistentOrdering()
+  var format = function (result, submitters, ordering) {
     var averages = {};
-    var questions = {};
     var deviations = {};
+    var questions = {};
     var usability = {};
 
-    // format averages and deviations as [<cohort>][<table>][<row>][<col>] = avg or std dev
+    // Compute averages per cohort and for all parties
     for (var i = 0; i < ordering.tables.length; i++) {
-      var totalMean = 0;
-      var totalDev = 0;
+      var table = ordering.tables[i].table;
+      var row = ordering.tables[i].row;
+      var col = ordering.tables[i].col;
 
+      var totalMean = 0; // mean for cell for ALL cohorts
       for (var j = 0; j < submitters['cohorts'].length; j++) {
         var cohort = submitters['cohorts'][j];
 
-        var table = ordering.tables[i].table;
-        var row = ordering.tables[i].row;
-        var col = ordering.tables[i].col;
-
         // Compute mean/average
-        var mean = results['cohorts'][cohort][i].sum;
-        totalMean = mean.add(totalMean);
-        mean = mean.div(submitters[cohort].length);
+        var cohortMean = result.sums[cohort][i];
+        totalMean = cohortMean.add(totalMean);
+        cohortMean = cohortMean.div(submitters[cohort].length);
 
-        // Compute standard deviation
-        var deviation = results['cohorts'][cohort][i].squaresSum;
-        totalDev = deviation.add(totalDev);
-        deviation = deviation.div(submitters[cohort].length);
-        deviation = deviation.minus(mean.pow(2));
-        deviation = deviation.sqrt();
-
-        setOrAssign(averages, [cohort, table, row, col], mean.toFixed(2));
-        setOrAssign(deviations, [cohort, table, row, col], deviation.toFixed(2));
+        setOrAssign(averages, [cohort, table, row, col], cohortMean.toFixed(2));
       }
 
-      // Compute mean and average for total
       totalMean = totalMean.div(submitters['all'].length);
-      totalDev = totalDev.div(submitters['all'].length);
-      totalDev = totalDev.minus(totalMean.pow(2));
-      totalDev = totalDev.sqrt();
-
-      setOrAssign(averages, ['all', table, row, col], totalMean.toFixed(2));
-      setOrAssign(deviations, ['all', table, row, col], totalDev.toFixed(2));
+      setOrAssign(averages, ['all', table, row, col], totalMean);
     }
+
+    // Compute deviations for all parties together
+    for (i = 0; i < ordering.tables.length; i++) {
+      table = ordering.tables[i].table;
+      row = ordering.tables[i].row;
+      col = ordering.tables[i].col;
+
+      var totalDeviation = result.squaresSums[i];
+      totalMean = averages['all'][table][row][col];
+      averages['all'][table][row][col] = averages['all'][table][row][col].toFixed(2);
+
+      totalDeviation = totalDeviation.div(submitters['all'].length); // average of squares
+      totalDeviation = totalDeviation.minus(totalMean.pow(2)); // minus square of average
+      totalDeviation = totalDeviation.sqrt(); //sqrt
+
+      setOrAssign(deviations, [table, row, col], totalDeviation.toFixed(2));
+    }
+    deviations = {all: deviations};
 
     // format questions as questions[<cohort>][<question>][<option>] = count of parties that choose this option
     for (i = 0; i < ordering.questions.length; i++) {
-      var total = 0;
+      var question = ordering.questions[i].question; // question title
+      var label = ordering.questions[i].label; // option label/title
+
+      var totalOptionCount = 0;
       for (j = 0; j < submitters['cohorts'].length; j++) {
         cohort = submitters['cohorts'][j];
 
-        var question = ordering.questions[j].question;
-        var label = ordering.questions[j].label;
+        // Format option count and sum it across cohorts
+        var cohortOptionCount = result.questions[cohort][i];
+        totalOptionCount = cohortOptionCount.add(totalOptionCount);
 
-        var value = results['cohorts'][cohort][ordering.tables.length + j];
-        total = value.add(total);
-
-        setOrAssign(questions, [cohort, question, label], value.toString());
+        setOrAssign(questions, [cohort, question, label], cohortOptionCount.toString());
       }
-      setOrAssign(questions, ['all', question, label], total.toString());
+
+      setOrAssign(questions, ['all', question, label], totalOptionCount.toString());
     }
 
     // format usability as usability[<metric>][<field>] = value
     for (i = 0; i < ordering.usability.length; i++) {
       var metric = ordering.usability[i].metric;
       var field = ordering.usability[i].field;
-      value = results['usability'][i];
-
+      var value = result.usability[i];
       setOrAssign(usability, [metric, field], value.toString());
     }
 

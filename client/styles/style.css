@@ -383,3 +383,20 @@ span.success {
 .font-weight-bold {
   font-weight: bold;
 }
+
+#definitions-table td {
+  font-size: 18px;
+  padding: 10px;
+  border: 1px solid;
+}
+
+footer {
+  background-color: white;
+  padding-top: 20px;
+  padding-bottom: 10px;
+  font-size: 14px;
+}
+
+.shadow-top {
+  box-shadow: 0px -4px 3px rgba(170, 170, 170, .80);
+}
