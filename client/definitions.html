@@ -41,15 +41,32 @@
   </div>
 </header>      
 <div id="shadow" class="ss-style-multitriangles"></div>
-<main id="content" class="container">
-    <div class="row">
-    <section id="definitions" class="card col-md-10 col-md-offset-1">
-      <table id="definitions-table" class="table">
 
-      </table>
-    </section>
-    </div>
-                  
+<main id="content" class="container">
+  <div class="row">
+  <section id="definitions" class="card col-md-10 col-md-offset-1">
+    <table id="definitions-table" class="table"></table>
+  </section>
+  </div>           
 </main>
+{% if phone or email %}
+<footer id="footer" class="shadow-top">
+  <div class="container">
+    <div class="row text-xs-center text-sm-left text-md-left">
+      <div class="col-xs-12 col-sm-5 col-md-5">
+        <p class="text-muted footer-text">Need Help?</p>
+        <ul class="list-unstyled text-muted footer-text">
+          {% if phone %}
+          <li><span class="glyphicon glyphicon-earphone"></span> {{ phone }}</li>
+          {% endif %}
+          {% if email %}
+          <li> <span class="glyphicon glyphicon-envelope"></span> {{ email }}</li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>
+{% endif %}
 </body>
 </html>
