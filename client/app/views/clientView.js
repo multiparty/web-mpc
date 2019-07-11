@@ -58,7 +58,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
     function addDefinitionLink() {
       if (table_template.definitions) {
-        $("#cohort-drop-label").append(' <a href="/definitions"><span class="glyphicon glyphicon-question-sign"></span></a>');
+        $("#cohort-drop-label").append(' <a href="/definitions" target="_blank"><span class="glyphicon glyphicon-question-sign"></span></a>');
       }
     }
 

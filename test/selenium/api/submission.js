@@ -1,6 +1,6 @@
 /* eslint-env node, mocha */
 const { By, until } = require('selenium-webdriver');
-const helpers = require('../helpers.js');
+const helpers = require('../helpers/helpers.js');
 
 async function uploadFile(driver, uploadFilePath) {
   // Upload File

@@ -131,12 +131,17 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
         jiff.disconnect(false, false);
         callback.apply(null, arguments);
       };
-      for (var i = 0; i < values.length; i++) {
+      // first share table values
+      for (var i = 0; i < ordering.tables.length; i++) {
         jiff.share(values[i], null, [1, 's1'], [jiff.id]);
-        // Share the square of the input for standard deviation: only for tables, but not for questions
-        if (i < ordering.tables.length) {
-          jiff.share(new BigNumber(values[i]).pow(2), null, [1, 's1'], [jiff.id]);
-        }
+      }
+      // then share table values squared (for deviations)
+      for (i = 0; i < ordering.tables.length; i++) {
+        jiff.share(new BigNumber(values[i]).pow(2), null, [1, 's1'], [jiff.id]);
+      }
+      // then share the rest
+      for (i = ordering.tables.length; i < values.length; i++) {
+        jiff.share(values[i], null, [1, 's1'], [jiff.id]);
       }
       jiff.restFlush();
     });
