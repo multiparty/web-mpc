@@ -206,18 +206,25 @@
   <br/>
 </main>
 
+{% if client.phone or client.email %}
 <footer id="footer" class="shadow-top">
   <div class="container">
       <div class="row text-xs-center text-sm-left text-md-left">
         <div class="col-xs-12 col-sm-5 col-md-5">
           <p class="text-muted footer-text">Need Help?</p>
           <ul class="list-unstyled text-muted footer-text">
+            {% if client.phone %}
             <li><span class="glyphicon glyphicon-earphone"></span> {{ client.phone }}</li>
+            {% endif %}
+            {% if client.email %}
             <li> <span class="glyphicon glyphicon-envelope"></span> {{ client.email }}</li>
+            {% endif %}
           </ul>
         </div>
       </div>
   </div>
 </footer>
+{% endif %}
+
 </body>
 </html>
