@@ -28,9 +28,9 @@ describe('BWWC Tests', function () {
   describe('End-to-end Workflow', function () {
     let sessionKey, password, links, driver, inputs, clientCohortMap;
 
-    const COHORT_COUNT = 7;
+    const COHORT_COUNT = 9;
     const CONTRIBUTOR_COUNT = 20;
-    const RESUBMISSION_COUNT = 5;
+    const RESUBMISSION_COUNT = 7;
 
     before(function () {
       driver = driverWrapper.getDriver();
@@ -80,7 +80,7 @@ describe('BWWC Tests', function () {
 
     // Resubmissions
     it('Data Resubmissions', async function () {
-      for (let i = 0; i < RESUBMISSION_COUNT + 3; i++) {
+      for (let i = 0; i < RESUBMISSION_COUNT; i++) {
         // force the first party to first resubmit 3 times to randomly chosen (possibly overlapping) cohorts
         // just to test several resubmissions by the same party
         // other resubmissions are chosen randomly
@@ -119,7 +119,10 @@ describe('BWWC Tests', function () {
 
       // remove nulls
       for (let i = 0; i < COHORT_COUNT; i++) {
-        inputs[i+1] = inputs[i+1].filter(input => input != null);
+        if (inputs[i+1] == null) {
+          inputs[i + 1] = [];
+        }
+        inputs[i + 1] = inputs[i + 1].filter(input => input != null);
       }
     });
 
@@ -133,7 +136,7 @@ describe('BWWC Tests', function () {
     it('Verify History', async function () {
       const history = await manage.getHistory(driver, COHORT_COUNT);
       for (let cohort = 1; cohort <= COHORT_COUNT; cohort++) {
-        assert.equal(history[cohort], inputs[cohort].length, 'Incorrect submission count in history for cohort ' + cohort);
+        assert.equal(history[cohort], (inputs[cohort] || []).length, 'Incorrect submission count in history for cohort ' + cohort);
       }
     });
 
@@ -159,10 +162,10 @@ describe('BWWC Tests', function () {
       // Check cohorts are what we expected
       averagesCohorts.sort();
       deviationsCohorts.sort();
-      const cohorts = Object.keys(inputs).filter(i => (i !== 'all' && (inputs[i] || []).length > 0)).sort();
+      const cohorts = Object.keys(inputs).filter(i => (i !== 'all' && inputs[i].length > 0)).sort();
 
       assert.deepEqual(averagesCohorts, cohorts, 'Average CSV file does not have correct cohorts');
-      assert.deepEqual(deviationsCohorts, cohorts, 'Standard Deviation CSV file does not have correct cohorts');
+      assert.deepEqual(deviationsCohorts, [], 'Standard Deviation CSV file does not have correct cohorts (should have only "all")');
 
       // Verify results for UI
       const allAverage = compute.computeAverage(inputs['all']);
@@ -181,10 +184,6 @@ describe('BWWC Tests', function () {
         const cohortAverage = compute.computeAverage(inputs[cohort]);
         assert.equal(averages[cohort].count, inputs[cohort].length, 'CSV Average - Cohort ' + cohort + ' has incorrect # of participants');
         assert.deepEqual(averages[cohort].values, cohortAverage, 'CSV Average - Cohort ' + cohort + ' has incorrect # of participants');
-
-        const cohortDeviation = compute.computeDeviation(inputs[cohort]);
-        assert.equal(deviations[cohort].count, inputs[cohort].length, 'CSV Deviation - Cohort ' + cohort + ' has incorrect # of participants');
-        assert.deepEqual(deviations[cohort].values, cohortDeviation, 'CSV Deviation - Cohort ' + cohort + ' has incorrect # of participants');
       }
     });
   });
@@ -211,11 +210,11 @@ describe('BWWC Tests', function () {
     describe('/manage', function () {
       it('Download links', async function() {
         let returned = await session.createSession(driver);
-        sessionKey = returned.sessionKey;
-        password = returned.password;
+        const sessionKey = returned.sessionKey;
+        const password = returned.password;
         await manage.login(driver, sessionKey, password); // Login to Session Management
         await manage.downloadLinks(driver, UNASSIGNED_COHORT, 0);
-        links = await manage.generateLinksNoCohorts(driver, CONTRIBUTOR_COUNT);
+        await manage.generateLinksNoCohorts(driver, CONTRIBUTOR_COUNT);
         await manage.downloadLinks(driver, UNASSIGNED_COHORT, CONTRIBUTOR_COUNT);
       });
     });
