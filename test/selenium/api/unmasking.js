@@ -29,6 +29,7 @@ module.exports.unmask = async function (driver, sessionKey, password, outputCoun
       return elements;
     }
     if (elements.length > 0) {
+      return true;
       // Work around, force hands on table to resize, so that all tds are visible
       await driver.executeScript('window.__tables.forEach(hot => hot.updateSettings({width: 2000}));');
     }

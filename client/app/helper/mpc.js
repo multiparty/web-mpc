@@ -95,9 +95,10 @@ define([], function () {
   // half of said shares, which correspond to the *squares* of each value in the tables.
   // CAREFUL: If this function is called more times, the shares will fail to resolve, as they do not correspond to
   // any actual shares sent out by the clients, the returned result promises will never resolve.
-  var sumTables = function (jiff_instance, partyIDs, ordering) {
+  var sumTables = async function (jiff_instance, partyIDs, ordering, batch) {
     // Precondition: partyIDs.length > 0
     var result = [];
+    var promises = [];
     for (var k = 0; k < ordering.tables.length; k++) {
       var subid = partyIDs[0];
 
@@ -116,11 +117,24 @@ define([], function () {
       // only open to the analyst
       var promise = jiff_instance.open(sum, [1]);
       if (jiff_instance.id === 1) {
-        result.push(promise);
+        promise = promise.then(function (k, res) {
+          result[k] = res;
+        }.bind(null, k));
+        promises.push(promise);
+      }
+
+      if (k % batch === 0) {
+        await Promise.all(promises);
+        promises = [];
+        console.log(k, '/ 640');
       }
     }
 
-    return Promise.all(result);
+    if (promises.length > 0) {
+      await Promise.all(promises);
+    }
+
+    return result;
   };
 
   // Compute the function over question data under MPC for a single cohort
@@ -149,7 +163,7 @@ define([], function () {
   };
 
   // Compute MPC usability function over all cohorts
-  var computeUsability = function (jiff_instance, allIds, ordering) {
+  var computeUsability = async function (jiff_instance, allIds, ordering) {
     var result = [];
     for (var k = ordering.tables.length + ordering.questions.length; k < ordering.tables.length + ordering.questions.length + ordering.usability.length; k++) {
       var subid = allIds[0];
@@ -165,63 +179,53 @@ define([], function () {
         entry_sum = entry_sum.sadd(single_share);
       }
 
-      var promise = jiff_instance.open(entry_sum, [1]);
-      result.push(promise);
+      var opened = await jiff_instance.open(entry_sum, [1]);
+      if (jiff_instance.id === 1) {
+        result.push(opened);
+      }
     }
 
-    return Promise.all(result);
+    return result;
   };
 
   // Perform MPC computation for averages, deviations, questions, and usability
-  var compute = function (jiff_instance, submitters, ordering) {
+  var compute = async function (jiff_instance, submitters, ordering) {
+    console.time('STARTING');
     // Compute these entities in order
     var sums, squaresSums, questions, usability;
 
     // temporary promises
-    var promises = [];
-    var promise, cohort, i;
+    var cohort, i;
 
     // Compute sums of values in table
     sums = {};
     for (i = 0; i < submitters['cohorts'].length; i++) {
       cohort = submitters['cohorts'][i];
-      promise = sumTables(jiff_instance, submitters[cohort], ordering);
-      promises.push(promise.then(function (cohort, result) {
-        sums[cohort] = result;
-      }.bind(null, cohort)));
+      sums[cohort] = await sumTables(jiff_instance, submitters[cohort], ordering, 25);
+      console.log('cohort', cohort);
     }
 
     // Sum all squares for ALL participants from all cohorts
-    promise = sumTables(jiff_instance, submitters['all'], ordering);
-    promises.push(promise.then(function (result) {
-      squaresSums = result;
-    }));
+    squaresSums = await sumTables(jiff_instance, submitters['all'], ordering, 5);
 
     // Sum questions options per cohort
     questions = {};
     for (i = 0; i < submitters['cohorts'].length; i++) {
       cohort = submitters['cohorts'][i];
-      promise = sumQuestions(jiff_instance, submitters[cohort], ordering);
-      promises.push(promise.then(function (cohort, result) {
-        questions[cohort] = result;
-      }.bind(null, cohort)));
+      questions[cohort] = await sumQuestions(jiff_instance, submitters[cohort], ordering);
     }
 
     // Compute usability
-    promise = computeUsability(jiff_instance, submitters['all'], ordering);
-    promises.push(promise.then(function (result) {
-      usability = result;
-    }));
+    usability = await computeUsability(jiff_instance, submitters['all'], ordering);
+    console.timeEnd('STARTING');
 
     // Put results in object
-    return Promise.all(promises).then(function () {
-      return {
-        sums: sums,
-        squaresSums: squaresSums,
-        questions: questions,
-        usability: usability
-      };
-    });
+    return {
+      sums: sums,
+      squaresSums: squaresSums,
+      questions: questions,
+      usability: usability
+    };
   };
 
   // Return format:

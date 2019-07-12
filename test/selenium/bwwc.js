@@ -29,8 +29,8 @@ describe('BWWC Tests', function () {
     let sessionKey, password, links, driver, inputs, clientCohortMap;
 
     const COHORT_COUNT = 9;
-    const CONTRIBUTOR_COUNT = 20;
-    const RESUBMISSION_COUNT = 7;
+    const CONTRIBUTOR_COUNT = 250;
+    const RESUBMISSION_COUNT = 0;
 
     before(function () {
       driver = driverWrapper.getDriver();
@@ -147,8 +147,8 @@ describe('BWWC Tests', function () {
     });
 
     // Sleep to give server time to finish processing
-    it('Sleep 20 seconds', async function () {
-      await driver.sleep(20000);
+    it('Sleep 300 seconds', async function () {
+      await driver.sleep(300000);
     });
 
     // Unmask
@@ -188,6 +188,7 @@ describe('BWWC Tests', function () {
     });
   });
 
+  /*
   describe('UI Tests', function () {
     const CONTRIBUTOR_COUNT = 100;
     const UNASSIGNED_COHORT = '0';
@@ -219,5 +220,6 @@ describe('BWWC Tests', function () {
       });
     });
   });
+  */
 });
 
