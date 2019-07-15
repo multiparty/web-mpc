@@ -980,7 +980,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
     }
 
     // Bootstrap row has margin-left: -15px, add this back to offset to keep card centered
-    $('#instructions').css('margin-left', offset);
+    $('#instructions').css('margin-left', offset + 15);
   }
 
   function updateWidth(tables, reset) {
@@ -993,7 +993,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
     }
 
     var tableWidths = [];
-    for (var i = 0; i < tables.length - 1; i++) {
+    for (var i = 0; i < tables.length; i++) {
       var table = tables[i];
       var header_width = getWidth(table);
       tableWidths.push(parseFloat(header_width));
@@ -1005,7 +1005,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
       return;
     }
 
-    for (var j = 0; j < tables.length - 1; j++) {
+    for (var j = 0; j < tables.length; j++) {
       table = tables[j];
       table.updateSettings({
         width: tableWidths[j]
