@@ -51,7 +51,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
       for (var i = 0; i < table_template.tables.length; i++) {
         var elem = table_template.tables[i].element;
         new ResizeSensor($('#' + elem).find('.wtHider').first()[0], function () {
-          tableController.updateWidth(tables, true);
+          tableController.updateWidth(tables, false);
         });
       }
     }
@@ -161,7 +161,6 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
             if (!$('#tables-area').is(':hidden')) {
               tableController.updateWidth(tables);
             } else {
-              //ToDo: this should just be a call to updateWidth(tables,reset=TRUE).
               tableController.resetTableWidth();
             }
           });
