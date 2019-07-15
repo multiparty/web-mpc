@@ -704,12 +704,20 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
     return data;
   }
 
-  function resetTableWidth() {
-
+ function resetTableWidth() {
+    // Reset width of card with tables to the same width of all the other cards.
+    // Used when the tables are collapsed and hidden.
+    var $sessionArea = $('#session-area');
     var $instructions = $('#instructions');
-    $instructions.css('width', '');
-    $instructions.css('max-width', '');
-    $instructions.css('margin-left', '');
+
+    var collapsedWidth = $sessionArea.css('width');
+    var collapsedLeftPadding = $sessionArea.css('padding-left');
+    var collapsedLeftMargin = $sessionArea.css('margin-left');
+
+    $instructions.css('width', collapsedWidth);
+    $instructions.css('padding-left', collapsedLeftPadding);
+    $instructions.css('margin-left', collapsedLeftMargin);
+
     $('header, #shadow').css('right', 0);
   }
 
@@ -965,22 +973,26 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
 
 
   function updateTableWidth(maxWidth) {
-    $('#instructions').css('width', maxWidth);
-    $('#instructions').css('max-width', maxWidth);
+    console.log('boop');
+    var $instructions = $('#instructions');
+    var $content = $('#content');
+    $instructions.css('width', maxWidth);
+    $instructions.css('max-width', maxWidth);
+
     var documentWidth = $(window).width();
-    var containerWidth = parseFloat($('.container').first().width());
-    var offset = (containerWidth - maxWidth) / 2;
+    var containerWidth = $instructions.outerWidth();
+    var containerOffset = parseFloat($content.css('margin-left'));
+    var offset = (documentWidth - containerWidth) / 2;
 
-    if (offset < (containerWidth - documentWidth) / 2) {
-      offset = (containerWidth - documentWidth) / 2;
+    if (containerWidth > documentWidth){
+      console.log($instructions.css('margin-left'));
+      $instructions.css('margin-left', '0px');
+    }
+    else{
+      offset = offset - containerOffset;
+      $instructions.css('margin-left', offset);
     }
 
-    if (maxWidth > documentWidth) {
-      $('header, #shadow').css('right', documentWidth - maxWidth);
-    }
-
-    // Bootstrap row has margin-left: -15px, add this back to offset to keep card centered
-    $('#instructions').css('margin-left', offset);
   }
 
   function updateWidth(tables, reset) {
@@ -988,7 +1000,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
 
     if (reset) {
       resetTableWidth();
-      tableWidthsOld = [];
       return;
     }
 
@@ -1015,7 +1026,6 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
     var maxWidth = Math.max.apply(null, tableWidths);
 
     updateTableWidth(maxWidth);
-    tableWidthsOld = tableWidths.concat();
   }
 
   function getWidth(table) {
