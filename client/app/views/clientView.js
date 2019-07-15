@@ -150,8 +150,6 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
         };
 
         addResizeSensors(tables);
-
-        // Add link to definitions
         addDefinitionLink();
 
         // Table accordion.
@@ -161,7 +159,8 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
             if (!$('#tables-area').is(':hidden')) {
               tableController.updateWidth(tables);
             } else {
-              tableController.resetTableWidth();
+              // reset == true
+              tableController.updateWidth(tables, true);
             }
           });
           $(e.target).toggleClass('flip');

@@ -980,7 +980,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
     }
 
     // Bootstrap row has margin-left: -15px, add this back to offset to keep card centered
-    $('#instructions').css('margin-left', offset);
+    $('#instructions').css('margin-left', offset + 15);
   }
 
   function updateWidth(tables, reset) {
