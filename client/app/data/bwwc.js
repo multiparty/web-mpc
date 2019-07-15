@@ -3,7 +3,6 @@ if (typeof define !== 'function') {
 }
 
 var tableHeight = 750;
-var tableWidth = 1500;
 
 define([], function () {
   return {
@@ -13,8 +12,7 @@ define([], function () {
         "element":"number-employees-hot",
         "hot_parameters":{
           "rowHeaderWidth":200,
-          "height": tableHeight,
-          "width": tableWidth
+          "height": tableHeight
         },
         "rows":[
           {
@@ -219,8 +217,7 @@ define([], function () {
         "element":"compensation-hot",
         "hot_parameters":{
           "rowHeaderWidth":200,
-          "height":850,
-          "width": tableWidth
+          "height":850
         },
         "rows":[
           {
@@ -425,8 +422,7 @@ define([], function () {
         "element":"performance-pay-hot",
         "hot_parameters":{
           "rowHeaderWidth":200,
-          "height": tableHeight,
-          "width": tableWidth
+          "height": tableHeight
         },
         "rows":[
           {
@@ -631,8 +627,7 @@ define([], function () {
         "element":"service-length-hot",
         "hot_parameters":{
           "rowHeaderWidth":200,
-          "height": tableHeight,
-          "width": tableWidth
+          "height": tableHeight
         },
         "rows":[
           {
@@ -910,7 +905,7 @@ define([], function () {
     ],
     'definitions': {
       'headers': ['Industry', 'NAICS Code'],
-      'title': 'Which Industry Group Do I Choose?: Industries Mapped to NAICS Codes',
+      'title': 'Which Industry Group Do I Choose?: Industries Mapped to NAICS Codes', 
       'table':[
         ['"Hard Hat"\n(22) Utilities', '22, 2211, 221111, 221112, 221113, 221114, 221115, 221116, 221117, 221118, 221121, 221122, 2212, 221210, 2213, 221310, 221320, 221330'],
         ['"Hard Hat"\n(23) Construction', '23, 2361, 236115, 236116, 236117, 236118, 2362, 236210, 236220, 2371, 237110, 237120, 237130, 2372, 237210, 2373, 237310, 2379, 237990, 2381, 238110, 238120, 238130, 238140, 238150, 238160, 238170, 238190, 2382, 238210, 238220, 238290, 2383, 238210, 238320, 238330, 238340, 238350, 238390, 2389, 238910, 238990'],
