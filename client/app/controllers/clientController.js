@@ -318,7 +318,7 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
         var c = cell.col_index;
 
         // Ignore indices were there is some non-numerical value
-        for (var i = 0; i < tables.length - 1; i++) {
+        for (var i = 0; i < tables.length; i++) {
           var v = tables[i].getDataAtCell(r, c);
           if (typeof (v) !== 'number' || v < 0) {
             return callback(true);
@@ -329,7 +329,7 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
         if (name === bonus_table._sail_meta.name) {
           // bonus can only be non-zero if the other tables are non-zero.
           if (value > 0) {
-            for (var j = 0; j < tables.length - 1; j++) { // length-1 because of the totals table
+            for (var j = 0; j < tables.length; j++) {
               if (j === 2) {
                 continue;
               }
@@ -343,7 +343,7 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
 
           // the cell must be either zero in all tables, or non-zero in all tables
           var compare = value > 0;
-          for (i = 0; i < tables.length - 1; i++) { // length-1 because of the totals table
+          for (i = 0; i < tables.length; i++) {
             if (name === tables[i]._sail_meta.name) {
               continue;
             }

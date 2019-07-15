@@ -234,7 +234,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
         // Register when ready
         tables[0].addHook('afterChange', afterChange);
-        for (var i = 0; i < tables.length - 1; i++) {
+        for (var i = 0; i < tables.length; i++) {
           tables[i].addHook('afterChange', function (changes, sources) {
             if (changes !== null) {
               $verify.prop('checked', false);
