@@ -6,6 +6,7 @@ const driverWrapper = require('./helpers/driver.js');
 const compute = require('./helpers/compute.js');
 const csv = require('./helpers/csv.js');
 
+const tableTemplate = require('../../client/app/data/bwwc.js');
 
 // import test API
 const session = require('./api/session.js');
@@ -28,7 +29,7 @@ describe('BWWC Tests', function () {
   describe('End-to-end Workflow', function () {
     let sessionKey, password, links, driver, inputs, clientCohortMap;
 
-    const COHORT_COUNT = 9;
+    const COHORT_COUNT = tableTemplate.cohorts.length;
     const CONTRIBUTOR_COUNT = 20;
     const RESUBMISSION_COUNT = 7;
 
@@ -220,4 +221,3 @@ describe('BWWC Tests', function () {
     });
   });
 });
-

@@ -2,7 +2,8 @@ if (typeof define !== 'function') {
   var define = require('amdefine')(module);
 }
 
-var tableHeight = 750;
+var TABLE_HEIGHT = 750;
+var ROW_HEADER_WIDTH = 200;
 
 define([], function () {
   return {
@@ -11,8 +12,8 @@ define([], function () {
         "name":"Number Of Employees",
         "element":"number-employees-hot",
         "hot_parameters":{
-          "rowHeaderWidth":200,
-          "height": tableHeight
+          "rowHeaderWidth": ROW_HEADER_WIDTH,
+          "height": TABLE_HEIGHT
         },
         "rows":[
           {
@@ -216,8 +217,8 @@ define([], function () {
         "name":"Total Annual Compensation (Dollars)",
         "element":"compensation-hot",
         "hot_parameters":{
-          "rowHeaderWidth":200,
-          "height":850
+          "rowHeaderWidth": ROW_HEADER_WIDTH,
+          "height": TABLE_HEIGHT
         },
         "rows":[
           {
@@ -421,8 +422,8 @@ define([], function () {
         "name":"Total Annual Cash Performance Pay (Dollars)",
         "element":"performance-pay-hot",
         "hot_parameters":{
-          "rowHeaderWidth":200,
-          "height": tableHeight
+          "rowHeaderWidth": ROW_HEADER_WIDTH,
+          "height": TABLE_HEIGHT
         },
         "rows":[
           {
@@ -626,8 +627,8 @@ define([], function () {
         "name":"Total Length of Service (Months)",
         "element":"service-length-hot",
         "hot_parameters":{
-          "rowHeaderWidth":200,
-          "height": tableHeight
+          "rowHeaderWidth": ROW_HEADER_WIDTH,
+          "height": TABLE_HEIGHT
         },
         "rows":[
           {
@@ -900,7 +901,6 @@ define([], function () {
       {name: 'Administrative Services'},
       {name: 'Educational Services'},
       {name: 'Healthcare and Social Assistance'},
-      {name: 'Arts, Entertainment, and Recreation'},
       {name: 'Other Services (Except Public Administration)'}
     ],
     'definitions': {
