@@ -18,7 +18,9 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
       /**
        * Error messages definitions
        */
-      var SUCCESS_MESSAGE = 'Thank you for participating in the data submission! If you discover that there was an error in your submission, you may correct your data, revist this page, and submit your data again.';
+
+      var SUCCESS_MESSAGE = "Thank you for participating in the data submission! If you discover that there was an error " +
+        "in your submission, you may correct your data, revisit this page, and submit your data again.";
       var SESSION_KEY_ERROR = 'Invalid session number';
       var PARTICIPATION_CODE_ERROR = 'Invalid participation code';
 
