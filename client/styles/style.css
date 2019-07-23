@@ -181,6 +181,9 @@ form .form-group-lg label {
   padding-top: 50px;
 }
 
+.cohort-name {
+  visibility: hidden;
+}
 /* for drop area */
 
 #drop-area {
