@@ -104,6 +104,7 @@
           </form>
           {% if cohorts %}
           <div id="cohort-self-selection" class="form-group">
+            <div id="cohort-name">{{client.cohort}}</div>
             <label id="cohort-drop-label" for="cohortDrop">{{ client.cohort }} selection</label>
             <select class="form-control" id="cohortDrop">
               <option value="-">-- Select option --</option>

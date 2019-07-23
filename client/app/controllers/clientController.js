@@ -40,6 +40,9 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
         discrepancies: SEMANTIC_CELLS
       };
 
+      var cohort_name = (document.getElementById('cohort-name').innerHTML).toLowerCase();
+      var COHORT_ERR = 'You have not selected the ' + cohort_name + '. Please try again.';
+
       // TODO: create new view for alerts
       function error(msg) {
         appendSubmissionHistory(new Date(), false);
@@ -146,6 +149,16 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           if (!verifyChecked) {
             errors.push(UNCHECKED_ERR);
             usabilityController.addValidationError('UNCHECKED_ERR');
+          }
+
+          // Verify cohort was specified if there are cohorts
+          var cohort = '0'; // means no self assigned cohort
+          if (table_template['cohort_selection'] === true) {
+            cohort = $('#cohortDrop').val();
+            if (cohort === '-') {
+              errors.push(COHORT_ERR);
+              usabilityController.addValidationError('COHORT_ERR');
+            }
           }
 
           // Verify additional questions

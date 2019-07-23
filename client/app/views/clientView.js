@@ -272,13 +272,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
               var cohort = '0'; // means no self assigned cohort
               if (table_template['cohort_selection'] === true) {
                 cohort = $('#cohortDrop').val();
-                if (cohort === '-') {
-                  la.stop();
-                  alertHandler.error('Your selection "' + cohort + '" does not exist. Please try again.', function () {});
-                  return;
-                }
               }
-
               clientController.constructAndSend(tables, cohort, la);
             }
           });
