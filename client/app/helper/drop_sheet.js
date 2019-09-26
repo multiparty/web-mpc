@@ -115,7 +115,7 @@ define(['alertHandler', 'XLSX'], function (alertHandler) {
             // subtract initial offset
             changes.push([i-s.r, j-s.c, ws[cell].v]);
           } else {
-            alertHandler.error("Spreadsheet format does not match original template, or there are empty cells, or non-numeric data. Please copy-and-paste or type data into the 'Number Of Employees' table manually.");
+            alertHandler.error('Cell "' + cell + '" in sheet "' + table._sail_meta.name + '" is not valid. Please ensure the cell is not empty, or does not contain non-numeric data.');
             return false;
           }
         }

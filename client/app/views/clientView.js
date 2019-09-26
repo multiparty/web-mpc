@@ -193,8 +193,6 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
           alertHandler.error('This file is ' + (len / (1024 * 1024)).toFixed(2) + ' MB and may take a few moments. Your browser may lock up during this process. Continue?', cb);
         };
         var _failed = function (e) {
-          alertHandler.error('This format is not supported.', function () {
-          });
           spinner.stop();
         };
 
