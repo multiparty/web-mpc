@@ -182,7 +182,7 @@ define([], function () {
   var verifyThreshold = function (numberOfEmployees) {
     var positions = [];
     for (var i = 0; i < numberOfEmployees.length; i++) {
-      if (numberOfEmployees[i] < 3) {
+      if (numberOfEmployees[i].lt(3)) {
         positions.push(i);
       }
     }

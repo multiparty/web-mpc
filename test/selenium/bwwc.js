@@ -32,6 +32,7 @@ describe('BWWC Tests', function () {
     const COHORT_COUNT = tableTemplate.cohorts.length;
     const CONTRIBUTOR_COUNT = 20;
     const RESUBMISSION_COUNT = 7;
+    const EMPLOYEE_NUMBER_THRESHOLD = 3;
 
     before(function () {
       driver = driverWrapper.getDriver();
@@ -181,11 +182,17 @@ describe('BWWC Tests', function () {
       assert.deepEqual(deviations['all'].values, allDeviation, 'CSV Deviation over all cohorts is incorrect');
 
       // Check each cohort
+      let countBelowThreshold = 0;
+      let totalCount = 0;
       for (const cohort of cohorts) {
-        const cohortAverage = compute.computeAverage(inputs[cohort]);
+        const cohortAverage = compute.computeAverage(inputs[cohort], true, EMPLOYEE_NUMBER_THRESHOLD);
         assert.equal(averages[cohort].count, inputs[cohort].length, 'CSV Average - Cohort ' + cohort + ' has incorrect # of participants');
         assert.deepEqual(averages[cohort].values, cohortAverage, 'CSV Average - Cohort ' + cohort + ' has incorrect # of participants');
+
+        cohortAverage.map(v => countBelowThreshold += (v === '-' ? 1 : 0));
+        totalCount += cohortAverage.length;
       }
+      console.log('\tGenerated', countBelowThreshold, '/', totalCount, 'entries below threshold!');
     });
   });
 

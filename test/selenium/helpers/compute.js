@@ -6,10 +6,28 @@ module.exports = {
     return parsed.reduce((arr1, arr2) => arr1.map((v, i) => v.plus(arr2[i])));
   },
 
-  computeAverage: function (inputs) {
+  computeAverage: function (inputs, forCohort, threshold) {
     const count = inputs.length;
     const sum = module.exports.sumRows(inputs);
-    return sum.map(v => v.div(count).toFixed(2));
+    const result = sum.map(v => v.div(count).toFixed(2));
+
+    if (!forCohort) {
+      return result;
+    }
+
+    // set value to '-' for things that are less than threshold
+    const tableSize = sum.length / 4;
+    return result.map((v, i) => {
+      if (i < tableSize) {
+        return v;
+      }
+
+      if (sum[i % tableSize].lt(threshold)) {
+        return '-';
+      }
+
+      return v;
+    });
   },
 
   computeDeviation: function (inputs) {

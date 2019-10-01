@@ -42,11 +42,24 @@ module.exports = {
       }
     });
   },
-  generateRandomData: function (rows, cols, maxElement=1000000) {
+  generateRandomData: function (rows, cols, maxElement=1000000, tableIndex) {
+    // fine tune to get a decent ratio of '-' in output
+    var PROB_OF_SMALL = 0.5;
+    var BIAS = 1.2;
+
+    // if tableIndex is zero, this means we are working on the "employee numbers table"
+    // in that case, we would like to generate the inputs, such that some amount of
+    // cells will have a total of < 3 employees in a cohort, to test the threshold verification
+    // piece of the protocol
     var values = [];
     for (var i = 0; i < rows; i++) {
       values[i] = [];
       for (var j = 0; j < cols; j++) {
+        if (tableIndex === 0 && Math.random() < PROB_OF_SMALL) {
+          // we would like this cell to be < 3, we will put a number in it that is very small (either 0 or 1, more likely 0).
+          values[i][j] = Math.floor(Math.random() * BIAS).toString();
+          continue;
+        }
         values[i][j] = BigNumber.random().times(maxElement).floor().toString();
       }
     }

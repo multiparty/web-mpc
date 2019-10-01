@@ -31,7 +31,7 @@ async function enterRandomData(driver, maxElement=undefined) {
     var rowCount = await driver.executeScript('return window.__tables[' + table + '].countRows();');
     var colCount = await driver.executeScript('return window.__tables[' + table + '].countCols();');
 
-    var data = helpers.generateRandomData(rowCount, colCount, maxElement);
+    var data = helpers.generateRandomData(rowCount, colCount, maxElement, table);
     var strData = JSON.stringify(data);
 
     await driver.executeScript('window.__tables[' + table + '].updateSettings({data: JSON.parse(\'' + strData + '\')});');
