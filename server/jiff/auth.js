@@ -96,6 +96,11 @@ module.exports = {
         // and when submission is successful, track them as submitters.
         await jiff._wrapper.trackParty(computation_id, party_id, false);
       }
+
+      // First analyst message in an unmasking
+      if (party_id === 1 && msg['ack'] == null) {
+        jiff.mailbox_hooks.reset_counter(jiff, computation_id);
+      }
       return msg;
     }
   ],

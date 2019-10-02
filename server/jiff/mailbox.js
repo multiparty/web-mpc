@@ -1,6 +1,10 @@
 const modulesWrappers = require('../models/modelWrappers');
 
+const startIndex = {};
+const maxBatchSize = 1306 * 10; // 10 parties at a time
+
 module.exports = {
+  maxBatchSize: maxBatchSize,
   put_in_mailbox: function (jiff, label, msg, computation_id, to_id) {
     // computation_id: same as session key
     // msg JSON string
@@ -20,8 +24,13 @@ module.exports = {
 
   get_mailbox : function (jiff, computation_id, to_id) {
     // party_id: either 1 or s1
-    var promise = modulesWrappers.Mailbox.query(computation_id, to_id);
+    var skip, limit;
+    if (to_id === 1) {
+      skip = startIndex[computation_id];
+      limit = maxBatchSize + (skip && skip > 0 ? 0 : 1); // first ever request should get 1 extra message (public keys)
+    }
 
+    var promise = modulesWrappers.Mailbox.query(computation_id, to_id, skip, limit);
     return promise.then(function (data) {
       var result = [];
       for (var d of data) {
@@ -34,7 +43,16 @@ module.exports = {
     });
   },
 
+  // Logical slicing (without actual removing)
+  slice_mailbox: function (jiff, computation_id, party_id, length) {
+    startIndex[computation_id] = startIndex[computation_id] || 0;
+    startIndex[computation_id] += length;
+  },
+  // undo slicing
+  reset_counter: function (jiff, computation_id) {
+    startIndex[computation_id] = 0;
+  },
+
   // Do not remove anything from the mailbox/db ever
-  remove_from_mailbox: function () { },
-  slice_mailbox: function () { }
+  remove_from_mailbox: function () { }
 };
