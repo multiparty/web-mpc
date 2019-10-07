@@ -272,7 +272,7 @@ define([], function () {
         // Compute mean/average
         var cohortMean = result.sums[cohort][i];
         if (cohortMean !== '-') {
-          cohortMean = cohortMean.div(submitters[cohort].length).toFixed(2);
+          cohortMean = cohortMean.div(result.sums[cohort][i % EMPLOYEES_NUMBER_TABLE_SIZE]).toFixed(2);
         }
 
         setOrAssign(averages, [cohort, table, row, col], cohortMean);
@@ -287,11 +287,11 @@ define([], function () {
 
       // Compute for all parties
       var totalMean = result.sums['all'][i]; // mean for cell for ALL cohorts
-      totalMean = totalMean.div(submitters['all'].length);
+      totalMean = totalMean.div(result.sums['all'][i % EMPLOYEES_NUMBER_TABLE_SIZE]);
       setOrAssign(averages, ['all', table, row, col], totalMean.toFixed(2));
 
       var totalDeviation = result.squaresSums[i]; // deviation for cell for ALL cohorts
-      totalDeviation = totalDeviation.div(submitters['all'].length); // average of squares
+      totalDeviation = totalDeviation.div(result.sums['all'][i % EMPLOYEES_NUMBER_TABLE_SIZE]); // average of squares
       totalDeviation = totalDeviation.minus(totalMean.pow(2)); // minus square of average
       totalDeviation = totalDeviation.sqrt(); //sqrt
 
