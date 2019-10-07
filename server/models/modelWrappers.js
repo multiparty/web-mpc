@@ -191,8 +191,9 @@ var upsertMailbox = function (session_key, from_jiff_party_id, to_jiff_party_id,
 };
 
 // get entire mailbox for session key and user id
-var queryMailbox = function (session_key, to_jiff_party_id, skip, limit) {
+var queryMailbox = function (session_key, to_jiff_party_id, skip, limit, filter) {
   var obj = { session: session_key, to_id: to_jiff_party_id };
+  obj = Object.assign({}, filter, obj);
 
   return new Promise(function (resolve, reject) {
     var query = models.Mailbox.where(obj);

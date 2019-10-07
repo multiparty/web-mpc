@@ -45,7 +45,7 @@ options.hooks = Object.assign(options.hooks, mailbox_hooks, authentication_hooks
 function JIFFWrapper(server, app) {
   this.serverInstance = jiffServer.make_jiff(server, options);
   this.serverInstance.apply_extension(jiffServerBigNumber);
-  this.serverInstance.apply_extension(jiffServerRestAPI, { app: app, maxBatchSize: mailbox_hooks.maxBatchSize });
+  this.serverInstance.apply_extension(jiffServerRestAPI, { app: app, maxBatchSize: Infinity });
   this.serverInstance._wrapper = this;
   this.serverInstance.mailbox_hooks = mailbox_hooks;
 

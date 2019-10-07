@@ -1,10 +1,10 @@
 const modulesWrappers = require('../models/modelWrappers');
+const Chunker = require('./chunker.js');
 
-const startIndex = {};
-const maxBatchSize = 1306 * 10; // 10 parties at a time
+// manages chunking big mailbox of analyst into consistent and ordered chunks
+const chunkers = {};
 
 module.exports = {
-  maxBatchSize: maxBatchSize,
   put_in_mailbox: function (jiff, label, msg, computation_id, to_id) {
     // computation_id: same as session key
     // msg JSON string
@@ -22,35 +22,39 @@ module.exports = {
     });
   },
 
-  get_mailbox : function (jiff, computation_id, to_id) {
-    // party_id: either 1 or s1
-    var skip, limit;
-    if (to_id === 1) {
-      skip = startIndex[computation_id];
-      limit = maxBatchSize + (skip && skip > 0 ? 0 : 1); // first ever request should get 1 extra message (public keys)
-    }
+  get_mailbox : async function (jiff, computation_id, to_id) {
+    try {
+      var data;
+      if (to_id !== 1) {
+        // not the analyst, get all messages with no special filtering or ordering
+        data = await modulesWrappers.Mailbox.query(computation_id, to_id);
+      } else {
+        data = await chunkers[computation_id].chunk();
+      }
 
-    var promise = modulesWrappers.Mailbox.query(computation_id, to_id, skip, limit);
-    return promise.then(function (data) {
       var result = [];
       for (var d of data) {
-        result.push({ msg: d.message, label: d.label });
+        result.push({msg: d.message, label: d.label});
       }
       return result;
-    }).catch(function (err) {
+    } catch (err) {
       console.log('Error in getting mailbox', err);
       throw new Error('Error getting masks');
-    });
+    }
   },
 
   // Logical slicing (without actual removing)
   slice_mailbox: function (jiff, computation_id, party_id, length) {
-    startIndex[computation_id] = startIndex[computation_id] || 0;
-    startIndex[computation_id] += length;
+    if (party_id === 1) {
+      if (chunkers[computation_id]) {
+        chunkers[computation_id].slice();
+      }
+    }
   },
   // undo slicing
-  reset_counter: function (jiff, computation_id) {
-    startIndex[computation_id] = 0;
+  reset_counter: async function (jiff, computation_id) {
+    chunkers[computation_id] = new Chunker(computation_id);
+    await chunkers[computation_id].init(jiff);
   },
 
   // Do not remove anything from the mailbox/db ever

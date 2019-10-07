@@ -30,8 +30,8 @@ describe('BWWC Tests', function () {
     let sessionKey, password, links, driver, inputs, clientCohortMap;
 
     const COHORT_COUNT = tableTemplate.cohorts.length;
-    const CONTRIBUTOR_COUNT = 20;
-    const RESUBMISSION_COUNT = 7;
+    const CONTRIBUTOR_COUNT = 30;
+    const RESUBMISSION_COUNT = 5;
     const EMPLOYEE_NUMBER_THRESHOLD = 3;
 
     before(function () {
@@ -149,8 +149,8 @@ describe('BWWC Tests', function () {
     });
 
     // Sleep to give server time to finish processing
-    it('Sleep 20 seconds', async function () {
-      await driver.sleep(20000);
+    it('Sleep 10 seconds', async function () {
+      await driver.sleep(10000);
     });
 
     // Unmask

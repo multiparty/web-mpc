@@ -16,6 +16,9 @@ define([], function () {
     obj[keys[keys.length - 1]] = value;
   };
 
+  // the size of the first table cells
+  const EMPLOYEES_NUMBER_TABLE_SIZE = 160;
+
   // Order: consistent order on values as defined in the template.
   // The order will be the same on client, server, and analyst side.
   // Order:
@@ -83,59 +86,40 @@ define([], function () {
     return { tables: tables, questions: questions, usability: usability };
   };
 
-  // Sets up the shares that were received from the given parties
-  // and sums them cell-wise.
-  // This works the following way: we loop over every cell, for each cell
-  // we acquire the share sent by the first party, and use it as an accumulator,
-  // adding it with the share received from the next party, until all shares are summed.
-  // The final cell result is saved, and we move to the next cell.
-  // This is done in this order to reduce memory foot-print. The maximum number of shares
-  // kept in memory is $n$+1, where $n$ is the number of cells.
-  // The other obvious implementation where we loop over parties and then cells, may cause
-  // up to $n+p+1$ shares at one point if implemented *smartly* using in place accumulators,
-  // or even $n*p$ if implemented in a dumb way, where $p$ is the number of submitters.
-  var shareAndSum = function (jiff_instance, partyIDs, ordering) {
-    // Precondition: partyIDs.length > 0
-    var result = [];
-    for (var k = 0; k < ordering.tables.length; k++) {
-      var subid = partyIDs[0];
+  // Get all the shares that a party have shared
+  var getShares = function (jiff_instance, partyID, ordering) {
+    var result = {
+      shares: [],
+      squares: [],
+      questions: [],
+      usability: []
+    };
 
-      // either the value corresponding to the cell matching ordering.tables[k]
-      // or the value of its square, depending on whether this is the first call
-      // to sumTables that include subid, or the second, respectively.
-      var sum = jiff_instance.share(null, null, [1, 's1'], [subid])[subid];
-
-      // Sum over all parties values for this cell
-      for (var p = 1; p < partyIDs.length; p++) {
-        subid = partyIDs[p];
-        var share = jiff_instance.share(null, null, [1, 's1'], [subid])[subid];
-        sum = sum.sadd(share);
+    for (var k = 0; k < 2 * ordering.tables.length + ordering.questions.length + ordering.usability.length; k++) {
+      var share =  jiff_instance.share(null, null, [1, 's1'], [partyID])[partyID];
+      if (k < ordering.tables.length) {
+        result.shares.push(share);
+      } else if (k < 2 * ordering.tables.length) {
+        result.squares.push(share);
+      } else if (k < 2 * ordering.tables.length + ordering.questions.length) {
+        result.questions.push(share);
+      } else {
+        result.usability.push(share);
       }
-
-      result.push(sum);
     }
-
     return result;
   };
 
-  // Sums the results from two cohorts cell-wise, returns secret shares of the results
-  // In reality, this is used in a way similar to a .reduce() function
-  // Results from th first two cohorts are summed together, then the sum is added to the results from
-  // the third cohort, then forth, etc
-  // This is implemented pairwise as opposed to in one shot, because this has a lower memory footprint.
-  // At any stage, we need to keep $n$ shares for the accumulator and $n$ shares for the next cohort,
-  // where $n$ is the number of cells in the tables, instead of keeping $p*n$ shares when done in one
-  // shot where $p$ is the number of submitters.
-  var sumCohortPair = function (resultCohort1, resultCohort2) {
-    if (resultCohort2 == null) {
-      return resultCohort1;
+  // Sum the given two arrays of secret shares placing the result in the first array
+  var sumAndAccumulate = function (accumulator, shares) {
+    if (accumulator == null || accumulator.length === 0) {
+      return shares.slice();
     }
-    // Assertion: resultCohort1.length == result.Cohort2.length
-    var result = [];
-    for (var i = 0; i < resultCohort1.length; i++) {
-      result.push(resultCohort1[i].sadd(resultCohort2[i]));
+
+    for (var i = 0; i < accumulator.length; i++) {
+      accumulator[i] = accumulator[i].sadd(shares[i]);
     }
-    return result;
+    return accumulator;
   };
 
   // Opens the shares corresponding to the logical slice results[rangeStart:rangeEnd) to the specified parties.
@@ -160,14 +144,14 @@ define([], function () {
     var promises = [];
     var exceptionsIndex = 0; // keeps track of the next exception, fast way to check set membership since both set and values are sorted
     for (var i = rangeStart; i < rangeEnd; i++) {
-      if (i % 160 === 0) {
+      if (i % EMPLOYEES_NUMBER_TABLE_SIZE === 0) {
         // exceptions does not really have indices, but relative indices within a table, since we have 3 consecutive tables
         // this means relative index is not really sorted, but forms 3 consecutive sorted sequences.
         exceptionsIndex = 0;
       }
 
-      if (exceptions.length > 0 && exceptions[exceptionsIndex] === i % 160) {
-        promises.push('-'); // TODO: ensure Promise.all([<promise>, <value>, ...].then(function ([<value of promise>, <value>, ...])) is supported accross majority of browsers
+      if (exceptions.length > 0 && exceptions[exceptionsIndex] === i % EMPLOYEES_NUMBER_TABLE_SIZE) {
+        promises.push('-');
         exceptionsIndex++;
       } else {
         var promise = jiff_instance.open(results[i], parties);
@@ -189,153 +173,73 @@ define([], function () {
     return positions;
   };
 
-  // Executes the protocol for computing the tables sums for a single cohort
-  // For a single cohort, we do not compute any standard deviations (so as not to reveal too much information)
-  // We also check that every group (seniority level /\ gender /\ ethnicity) in this cohort has at least *threshold*
-  // many employees, otherwise, all non-employee-count information about that group is kept hidden and not opened.
-  var computeCohort = function (jiff_instance, partyIDs, ordering) {
-    // compute the sum for every cell in all 4 tables for this cohort without opening result.
-    var sums = shareAndSum(jiff_instance, partyIDs, ordering);
-
-    var promise = new Promise(function (resolve) {
-      // open the number of employees to both analyst and server.
-      var promise = openValues(jiff_instance, sums, [1, 's1'], 0, 160);
-      promise.then(function (numberOfEmployees) {
-        // find cells with lower number than threshold
-        var exceptions = verifyThreshold(numberOfEmployees);
-
-        // open everything except bad cells, but only to the analyst
-        var promise = openValues(jiff_instance, sums, [1], 160, sums.length, exceptions);
-        promise.then(function (remainingValues) {
-          var result = numberOfEmployees; // just an alias
-          // concat number of employees and the remaining values
-          for (var i = 0; i < remainingValues.length; i++) {
-            result.push(remainingValues[i]); // fast than .concat and less memory (in place)
-          }
-
-          // return final result
-          resolve(result);
-        });
-      });
-    });
-
-    return {
-      sumResults: promise,
-      // needed for other parts of the computation, cannot always rely on opened result because of exceptions/threshold
-      sumShares: sums
-    }
-  };
-
-  // Compute the function over question data under MPC for a single cohort
-  // similar to sumTable but for questions
-  var sumQuestions = function (jiff_instance, partyIDs, ordering) {
-    var result = [];
-    for (var k = ordering.tables.length; k < ordering.tables.length + ordering.questions.length; k++) {
-      var subid = partyIDs[0];
-
-      // sum across parties for option k
-      var sum = jiff_instance.share(null, null, [1, 's1'], [subid])[subid];
-      for (var p = 1; p < partyIDs.length; p++) {
-        subid = partyIDs[p];
-        var share = jiff_instance.share(null, null, [1, 's1'], [subid])[subid];
-        sum = sum.sadd(share);
-      }
-
-      // only open to analyst
-      var promise = jiff_instance.open(sum, [1]);
-      if (jiff_instance.id === 1) {
-        result.push(promise);
-      }
-    }
-
-    return Promise.all(result);
-  };
-
-  // Compute MPC usability function over all cohorts
-  var computeUsability = function (jiff_instance, allIds, ordering) {
-    var result = [];
-    for (var k = ordering.tables.length + ordering.questions.length; k < ordering.tables.length + ordering.questions.length + ordering.usability.length; k++) {
-      var subid = allIds[0];
-
-      var entry_sum = jiff_instance.share(null, null, [1, 's1'], [subid]);
-      entry_sum = entry_sum[subid];
-
-      for (var p = 1; p < allIds.length; p++) {
-        subid = allIds[p];
-
-        var single_share = jiff_instance.share(null, null, [1, 's1'], [subid]);
-        single_share = single_share[subid];
-        entry_sum = entry_sum.sadd(single_share);
-      }
-
-      var promise = jiff_instance.open(entry_sum, [1]);
-      result.push(promise);
-    }
-
-    return Promise.all(result);
-  };
-
   // Perform MPC computation for averages, deviations, questions, and usability
-  var compute = function (jiff_instance, submitters, ordering) {
+  var compute = async function (jiff_instance, submitters, ordering) {
     // Compute these entities in order
     var sums, squaresSums, questions, usability;
 
-    // temporary promises
-    var promises = [];
-    var promise, cohort, i;
-
-    // Compute sums of values in table
+    // Temporary variables
+    var cohort, i, p;
+    var promises = {};
     sums = {all: null}; // sums['all'] is for everyone, sums[<cohort>] is for <cohort> only
+
+    // Compute all the results: computation proceeds by party in order
     for (i = 0; i < submitters['cohorts'].length; i++) {
       cohort = submitters['cohorts'][i];
-      // Compute result per cohort, keep shares to accumulate to compute total ('all') result
-      var cohortResult = computeCohort(jiff_instance, submitters[cohort], ordering);
-      // accumulate total results
-      sums['all'] = sumCohortPair(cohortResult.sumShares, sums['all']);
-      // store per-cohort results
-      promises.push(cohortResult.sumResults.then(function (cohort, result) {
-        sums[cohort] = result;
-      }.bind(null, cohort)));
+
+      for (p = 0; p < submitters[cohort].length; p++) {
+        var partyID = submitters[cohort][p];
+
+        // Get all shares this party sent: values, squares of values, questions, and usability.
+        var shares = getShares(jiff_instance, partyID, ordering);
+
+        // Sum all things
+        sums[cohort] = sumAndAccumulate(sums[cohort], shares.shares);
+        sums['all'] = sumAndAccumulate(sums['all'], shares.shares);
+        squaresSums = sumAndAccumulate(squaresSums, shares.squares);
+        questions = sumAndAccumulate(questions, shares.questions);
+        usability = sumAndAccumulate(usability, shares.usability);
+
+        // garbage
+        shares = null;
+        await usability[usability.length - 1].promise;
+        console.log('Cohort', i, 'party', p); // todo: progress bar!
+      }
+
+      // sums[cohort] have been computed, but they need to be checked against the minimum threshold of employees per cells
+      promises[cohort] = openValues(jiff_instance, sums[cohort], [1, 's1'], 0, EMPLOYEES_NUMBER_TABLE_SIZE); // do not use await so that we do not block computation
+      sums[cohort] = sums[cohort].slice(EMPLOYEES_NUMBER_TABLE_SIZE); // get rid of shares that were open
     }
 
-    // Store total sums for all cohorts
-    promise = openValues(jiff_instance, sums['all'], [1]);
-    promises.push(promise.then(function (result) {
-      sums['all'] = result;
-    }));
-
-    // Sum all squares for ALL participants from all cohorts
-    var squaresSumsShares = shareAndSum(jiff_instance, submitters['all'], ordering);
-    promise = openValues(jiff_instance, squaresSumsShares, [1]);
-    promises.push(promise.then(function (result) {
-      squaresSums = result;
-    }));
-
-    // Sum questions options per cohort
-    questions = {};
+    // All sums have been computed, now time to open all results
+    // open each cohort's result, except for cells not meeting the threshold
     for (i = 0; i < submitters['cohorts'].length; i++) {
       cohort = submitters['cohorts'][i];
-      promise = sumQuestions(jiff_instance, submitters[cohort], ordering);
-      promises.push(promise.then(function (cohort, result) {
-        questions[cohort] = result;
-      }.bind(null, cohort)));
+
+      var numberOfEmployees = await promises[cohort];
+      var exceptions = verifyThreshold(numberOfEmployees); // marks which cells not to open
+      sums[cohort] = numberOfEmployees.concat(await openValues(jiff_instance, sums[cohort], [1], 0, sums[cohort].length, exceptions));
+
+      // garbage
+      numberOfEmployees = null;
+      exceptions = null;
     }
 
-    // Compute usability
-    promise = computeUsability(jiff_instance, submitters['all'], ordering);
-    promises.push(promise.then(function (result) {
-      usability = result;
-    }));
+    // Open all sums and sums of squares
+    sums['all'] = await openValues(jiff_instance, sums['all'], [1]);
+    squaresSums = await openValues(jiff_instance, squaresSums, [1]);
+
+    // Open questions and usability
+    questions = await openValues(jiff_instance, questions, [1]);
+    usability = await openValues(jiff_instance, usability, [1]);
 
     // Put results in object
-    return Promise.all(promises).then(function () {
-      return {
-        sums: sums,
-        squaresSums: squaresSums,
-        questions: questions,
-        usability: usability
-      };
-    });
+    return {
+      sums: sums,
+      squaresSums: squaresSums,
+      questions: questions,
+      usability: usability
+    };
   };
 
   // Return format:
