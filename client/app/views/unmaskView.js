@@ -26,8 +26,9 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
           var sessionKey = $('#session').val();
           var sessionPass = $('#session-password').val();
           var privateKey = e.target.result;
+          var progressBar = document.getElementById('unmask-progress-bar');
 
-          jiffController.analyst.computeAndFormat(sessionKey, sessionPass, privateKey, error, function (result) {
+          jiffController.analyst.computeAndFormat(sessionKey, sessionPass, privateKey, progressBar, error, function (result) {
             analystController.getExistingCohorts(sessionKey, sessionPass).then(function (cohortMapping) {
               tableController.saveTables(result['averages'], sessionKey, 'Averages', result['cohorts'], cohortMapping);
               tableController.saveTables(result['deviations'], sessionKey, 'Standard_Deviations', result['cohorts'], cohortMapping);

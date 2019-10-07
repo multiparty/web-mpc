@@ -151,7 +151,7 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
   };
 
   // Analyst side stuff
-  var computeAndFormat = function (sessionkey, password, secretkey, error, callback) {
+  var computeAndFormat = function (sessionkey, password, secretkey, progressBar, error, callback) {
     var options = {
       onError: error,
       secret_key: pki.parsePrivateKey(secretkey),
@@ -176,7 +176,7 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
       var submitters = JSON.parse(msg);
 
       // Compute and Format
-      var promise = mpc.compute(jiff, submitters, ordering);
+      var promise = mpc.compute(jiff, submitters, ordering, progressBar);
       promise.then(function (result) {
         jiff.disconnect(false, false);
         callback(mpc.format(result, submitters, ordering));

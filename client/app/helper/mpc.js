@@ -19,6 +19,14 @@ define([], function () {
   // the size of the first table cells
   const EMPLOYEES_NUMBER_TABLE_SIZE = 160;
 
+  var updateProgress = function (progressBar, percentage) {
+    if (progressBar) {
+      var percentageString = Math.floor(percentage * 100) + '%';
+      progressBar.style.width = percentageString;
+      progressBar.innerHTML = percentageString;
+    }
+  };
+
   // Order: consistent order on values as defined in the template.
   // The order will be the same on client, server, and analyst side.
   // Order:
@@ -174,7 +182,9 @@ define([], function () {
   };
 
   // Perform MPC computation for averages, deviations, questions, and usability
-  var compute = async function (jiff_instance, submitters, ordering) {
+  var compute = async function (jiff_instance, submitters, ordering, progressBar) {
+    updateProgress(progressBar, 0);
+
     // Compute these entities in order
     var sums, squaresSums, questions, usability;
 
@@ -184,6 +194,7 @@ define([], function () {
     sums = {all: null}; // sums['all'] is for everyone, sums[<cohort>] is for <cohort> only
 
     // Compute all the results: computation proceeds by party in order
+    var counter = 0;
     for (i = 0; i < submitters['cohorts'].length; i++) {
       cohort = submitters['cohorts'][i];
 
@@ -203,7 +214,10 @@ define([], function () {
         // garbage
         shares = null;
         await usability[usability.length - 1].promise;
-        console.log('Cohort', i, 'party', p); // todo: progress bar!
+
+        // progress
+        counter++;
+        updateProgress(progressBar, counter / submitters['all'].length - 0.15);
       }
 
       // sums[cohort] have been computed, but they need to be checked against the minimum threshold of employees per cells
@@ -223,15 +237,22 @@ define([], function () {
       // garbage
       numberOfEmployees = null;
       exceptions = null;
+
+      // progress
+      const percentage = (i+1) / submitters['cohorts'].length;
+      const scaled = percentage * 0.11 + 0.85;
+      updateProgress(progressBar, scaled);
     }
 
     // Open all sums and sums of squares
     sums['all'] = await openValues(jiff_instance, sums['all'], [1]);
     squaresSums = await openValues(jiff_instance, squaresSums, [1]);
+    updateProgress(progressBar, 0.98);
 
     // Open questions and usability
     questions = await openValues(jiff_instance, questions, [1]);
     usability = await openValues(jiff_instance, usability, [1]);
+    updateProgress(progressBar, 1);
 
     // Put results in object
     return {
