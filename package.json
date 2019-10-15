@@ -11,7 +11,6 @@
     "base32-encode": "^0.1.0",
     "bignumber.js": "^5.0.0",
     "body-parser": "^1.17.2",
-    "chromedriver": "^74.0.0",
     "compression": "^1.7.1",
     "cross-env": "^5.0.5",
     "express": "^4.15.3",
@@ -27,15 +26,16 @@
     "mongoose": "^4.11.1",
     "numeric": "^1.2.6",
     "nunjucks": "^3.1.7",
-    "selenium-webdriver": "^4.0.0-alpha.1",
     "spdy": "^3.4.7"
   },
   "devDependencies": {
     "chai": "^4.2.0",
+    "chromedriver": "^77.0.0",
     "eslint": "^3.19.0",
     "eslint-config-airbnb-base": "^11.2.0",
     "eslint-plugin-import": "^2.7.0",
-    "eslint-plugin-requirejs": "^3.1.1"
+    "eslint-plugin-requirejs": "^3.1.1",
+    "selenium-webdriver": "4.0.0-alpha.5"
   },
   "scripts": {
     "test": "mocha --timeout 2700000 test/selenium/bwwc.js"
