@@ -221,8 +221,12 @@ describe('BWWC Tests', function () {
         const sessionKey = returned.sessionKey;
         const password = returned.password;
         await manage.login(driver, sessionKey, password); // Login to Session Management
+        // Ensure UI transition has finished
+        await driver.sleep(500);
         await manage.downloadLinks(driver, UNASSIGNED_COHORT, 0);
+        await driver.sleep(500);
         await manage.generateLinksNoCohorts(driver, CONTRIBUTOR_COUNT);
+        await driver.sleep(500);
         await manage.downloadLinks(driver, UNASSIGNED_COHORT, CONTRIBUTOR_COUNT);
       });
     });
