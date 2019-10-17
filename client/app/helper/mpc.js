@@ -215,11 +215,32 @@ define([], function () {
     var sums, squaresSums = null, questions = null, usability = null;
 
     // Temporary variables
-    var cohort, i, p;
+    var cohort, i, p, shares;
+    var promises = [];
     sums = {all: null}; // sums['all'] is for everyone, sums[<cohort>] is for <cohort> only
 
-    // Compute all the results: computation proceeds by party in order
+    // Process shares from parties that do not belong to any cohort (their cohort has too few elements)
     var counter = 0;
+    for (i = 0; i < submitters['none'].length; i++) {
+      // Get all shares this party sent: values, squares of values, questions, and usability.
+      shares = getShares(jiff_instance, submitters['none'][i], ordering);
+
+      // Sum all things
+      sums['all'] = sumAndAccumulate(sums['all'], shares.shares);
+      squaresSums = sumAndAccumulate(squaresSums, shares.squares);
+      questions = sumAndAccumulate(questions, shares.questions);
+      usability = sumAndAccumulate(usability, shares.usability);
+
+      // garbage
+      shares = null;
+      await usability[usability.length - 1].promise;
+
+      // progress
+      counter++;
+      updateProgress(progressBar, counter / submitters['all'].length - 0.15);
+    }
+
+    // Compute all the results: computation proceeds by party in order
     for (i = 0; i < submitters['cohorts'].length; i++) {
       cohort = submitters['cohorts'][i];
 
@@ -227,7 +248,7 @@ define([], function () {
         var partyID = submitters[cohort][p];
 
         // Get all shares this party sent: values, squares of values, questions, and usability.
-        var shares = getShares(jiff_instance, partyID, ordering);
+        shares = getShares(jiff_instance, partyID, ordering);
 
         // Sum all things
         sums[cohort] = sumAndAccumulateCohort(sums[cohort], shares.shares, ordering);
@@ -245,8 +266,17 @@ define([], function () {
         updateProgress(progressBar, counter / submitters['all'].length - 0.15);
       }
 
-      // Cohort averages are done, open them
-      sums[cohort] = await openValues(jiff_instance, sums[cohort], [1]);
+      // Cohort averages are done, open them (do not use await so that we do not block the main thread)
+      var promise = openValues(jiff_instance, sums[cohort], [1]);
+      promises.push(promise);
+    }
+
+    // wait for cohort outputs
+    var cohortOutputs = await Promise.all(promises);
+    updateProgress(progressBar, 0.96);
+    for (i = 0; i < submitters['cohorts'].length; i++) {
+      console.log(i, submitters['cohorts'][i]);
+      sums[submitters['cohorts'][i]] = cohortOutputs[i];
     }
 
     // Open all sums and sums of squares

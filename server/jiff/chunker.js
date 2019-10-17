@@ -13,7 +13,7 @@ Chunker.prototype.init = async function (jiff) {
   this.submitters = await jiff._wrapper.getTrackerParties(this.computation_id);
 
   // linearize order of parties in an order matching the computation order
-  this.parties = [];
+  this.parties = this.submitters['none'].slice();
   for (var cohort of this.submitters['cohorts']) {
     this.parties = this.parties.concat(this.submitters[cohort]);
   }
