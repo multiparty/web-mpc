@@ -44,6 +44,8 @@ define([], function () {
     var tables = [];
     var questions = [];
     var usability = [];
+
+    var table_rows_count, table_cols_count;
     // order tables
     for (var i = 0; i < table_template.tables.length; i++) {
       var table_def = table_template.tables[i];
@@ -53,6 +55,8 @@ define([], function () {
 
       var rows = table_def.rows;
       var cols = table_def.cols[table_def.cols.length - 1];
+      table_rows_count = rows.length;
+      table_cols_count = cols.length;
       for (var r = 0; r < rows.length; r++) {
         for (var c = 0; c < cols.length; c++) {
           var row = rows[r].key;
@@ -91,7 +95,7 @@ define([], function () {
       }
     }
 
-    return { tables: tables, questions: questions, usability: usability };
+    return { tables: tables, questions: questions, usability: usability, table_rows_count: table_rows_count, table_cols_count: table_cols_count };
   };
 
   // Get all the shares that a party have shared
@@ -127,6 +131,28 @@ define([], function () {
     for (var i = 0; i < accumulator.length; i++) {
       accumulator[i] = accumulator[i].sadd(shares[i]);
     }
+    return accumulator;
+  };
+
+  // Sum the given two arrays of secret shares, placing the result in the first array
+  // This is for cohorts: the accumulator is only grouped by gender and level, while the input
+  // array has all groupings.
+  var sumAndAccumulateCohort = function (accumulator, shares, ordering) {
+    if (accumulator == null) {
+      accumulator = [];
+    }
+
+    for (var i = 0; i < shares.length; i++) {
+      var row = Math.floor(i / ordering.table_cols_count);
+      var colMod2 = (i % ordering.table_cols_count) % 2; // 0 => female, 1 => male
+      var index = 2*row + colMod2;
+      if (accumulator[index]) {
+        accumulator[index] = accumulator[index].sadd(shares[i]);
+      } else {
+        accumulator[index] = shares[i];
+      }
+    }
+
     return accumulator;
   };
 
@@ -171,7 +197,7 @@ define([], function () {
   };
 
   // Returns a *sorted* array containing indices of cells which have number of employees lower than threshold
-  var verifyThreshold = function (numberOfEmployees) {
+  var verifyThreshold = function (numberOfEmployees) { // unused
     var positions = [];
     for (var i = 0; i < numberOfEmployees.length; i++) {
       if (numberOfEmployees[i].lt(3)) {
@@ -186,11 +212,10 @@ define([], function () {
     updateProgress(progressBar, 0);
 
     // Compute these entities in order
-    var sums, squaresSums, questions, usability;
+    var sums, squaresSums = null, questions = null, usability = null;
 
     // Temporary variables
     var cohort, i, p;
-    var promises = {};
     sums = {all: null}; // sums['all'] is for everyone, sums[<cohort>] is for <cohort> only
 
     // Compute all the results: computation proceeds by party in order
@@ -205,7 +230,7 @@ define([], function () {
         var shares = getShares(jiff_instance, partyID, ordering);
 
         // Sum all things
-        sums[cohort] = sumAndAccumulate(sums[cohort], shares.shares);
+        sums[cohort] = sumAndAccumulateCohort(sums[cohort], shares.shares, ordering);
         sums['all'] = sumAndAccumulate(sums['all'], shares.shares);
         squaresSums = sumAndAccumulate(squaresSums, shares.squares);
         questions = sumAndAccumulate(questions, shares.questions);
@@ -220,28 +245,8 @@ define([], function () {
         updateProgress(progressBar, counter / submitters['all'].length - 0.15);
       }
 
-      // sums[cohort] have been computed, but they need to be checked against the minimum threshold of employees per cells
-      promises[cohort] = openValues(jiff_instance, sums[cohort], [1, 's1'], 0, EMPLOYEES_NUMBER_TABLE_SIZE); // do not use await so that we do not block computation
-      sums[cohort] = sums[cohort].slice(EMPLOYEES_NUMBER_TABLE_SIZE); // get rid of shares that were open
-    }
-
-    // All sums have been computed, now time to open all results
-    // open each cohort's result, except for cells not meeting the threshold
-    for (i = 0; i < submitters['cohorts'].length; i++) {
-      cohort = submitters['cohorts'][i];
-
-      var numberOfEmployees = await promises[cohort];
-      var exceptions = verifyThreshold(numberOfEmployees); // marks which cells not to open
-      sums[cohort] = numberOfEmployees.concat(await openValues(jiff_instance, sums[cohort], [1], 0, sums[cohort].length, exceptions));
-
-      // garbage
-      numberOfEmployees = null;
-      exceptions = null;
-
-      // progress
-      const percentage = (i+1) / submitters['cohorts'].length;
-      const scaled = percentage * 0.11 + 0.85;
-      updateProgress(progressBar, scaled);
+      // Cohort averages are done, open them
+      sums[cohort] = await openValues(jiff_instance, sums[cohort], [1]);
     }
 
     // Open all sums and sums of squares
@@ -281,22 +286,26 @@ define([], function () {
     var usability = {};
 
     // Compute averages per cohort
-    for (var i = 0; i < ordering.tables.length; i++) {
-      var table = ordering.tables[i].table;
-      var row = ordering.tables[i].row;
-      var col = ordering.tables[i].col;
+    var rows = ordering.table_rows_count;
+    var cols = ordering.table_cols_count;
+    const EMPLOYEES_NUMBER_COHORT_TABLE_SIZE = 2 * Math.floor(EMPLOYEES_NUMBER_TABLE_SIZE / cols);
+    for (var c = 0; c < submitters['cohorts'].length; c++) {
+      var cohort = submitters['cohorts'][c];
 
-      // Compute for each cohort
-      for (var j = 0; j < submitters['cohorts'].length; j++) {
-        var cohort = submitters['cohorts'][j];
+      for (var i = 0; i < result.sums[cohort].length; i++) {
+        var rowIndex = Math.floor(i / 2);
+        var table = ordering.tables[rowIndex * cols].table;
+        var row = ordering.tables[rowIndex * cols].row;
+        var col = (i % 2) === 0 ? 'Female' : 'Male';
 
-        // Compute mean/average
         var cohortMean = result.sums[cohort][i];
-        if (cohortMean !== '-') {
-          cohortMean = cohortMean.div(result.sums[cohort][i % EMPLOYEES_NUMBER_TABLE_SIZE]).toFixed(2);
+        if (i >= EMPLOYEES_NUMBER_COHORT_TABLE_SIZE) {
+          cohortMean = cohortMean.div(result.sums[cohort][i % EMPLOYEES_NUMBER_COHORT_TABLE_SIZE]);
+        } else {
+          cohortMean = cohortMean.div(submitters[cohort].length);
         }
 
-        setOrAssign(averages, [cohort, table, row, col], cohortMean);
+        setOrAssign(averages, [cohort, table, row, col], cohortMean.toFixed(2));
       }
     }
 
@@ -308,11 +317,20 @@ define([], function () {
 
       // Compute for all parties
       var totalMean = result.sums['all'][i]; // mean for cell for ALL cohorts
-      totalMean = totalMean.div(result.sums['all'][i % EMPLOYEES_NUMBER_TABLE_SIZE]);
+      if (i >= EMPLOYEES_NUMBER_TABLE_SIZE) {
+        totalMean = totalMean.div(result.sums['all'][i % EMPLOYEES_NUMBER_TABLE_SIZE]);
+      } else {
+        totalMean = totalMean.div(submitters['all'].length)
+      }
+
       setOrAssign(averages, ['all', table, row, col], totalMean.toFixed(2));
 
       var totalDeviation = result.squaresSums[i]; // deviation for cell for ALL cohorts
-      totalDeviation = totalDeviation.div(result.sums['all'][i % EMPLOYEES_NUMBER_TABLE_SIZE]); // average of squares
+      if (i >= EMPLOYEES_NUMBER_TABLE_SIZE) { // average of squares
+        totalDeviation = totalDeviation.div(result.sums['all'][i % EMPLOYEES_NUMBER_TABLE_SIZE])
+      } else {
+        totalDeviation = totalDeviation.div(submitters['all'].length);
+      }
       totalDeviation = totalDeviation.minus(totalMean.pow(2)); // minus square of average
       totalDeviation = totalDeviation.sqrt(); //sqrt
 
@@ -326,7 +344,7 @@ define([], function () {
       var label = ordering.questions[i].label; // option label/title
 
       var totalOptionCount = 0;
-      for (j = 0; j < submitters['cohorts'].length; j++) {
+      for (var j = 0; j < submitters['cohorts'].length; j++) {
         cohort = submitters['cohorts'][j];
 
         // Format option count and sum it across cohorts
