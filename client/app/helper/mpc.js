@@ -237,7 +237,7 @@ define([], function () {
 
       // progress
       counter++;
-      updateProgress(progressBar, counter / submitters['all'].length - 0.15);
+      updateProgress(progressBar, counter / submitters['all'].length - 0.6);
     }
 
     // Compute all the results: computation proceeds by party in order
@@ -263,7 +263,7 @@ define([], function () {
 
         // progress
         counter++;
-        updateProgress(progressBar, counter / submitters['all'].length - 0.15);
+        updateProgress(progressBar, counter / submitters['all'].length - 0.6);
       }
 
       // Cohort averages are done, open them (do not use await so that we do not block the main thread)
@@ -316,7 +316,6 @@ define([], function () {
     var usability = {};
 
     // Compute averages per cohort
-    var rows = ordering.table_rows_count;
     var cols = ordering.table_cols_count;
     const EMPLOYEES_NUMBER_COHORT_TABLE_SIZE = 2 * Math.floor(EMPLOYEES_NUMBER_TABLE_SIZE / cols);
     for (var c = 0; c < submitters['cohorts'].length; c++) {
@@ -331,8 +330,6 @@ define([], function () {
         var cohortMean = result.sums[cohort][i];
         if (i >= EMPLOYEES_NUMBER_COHORT_TABLE_SIZE) {
           cohortMean = cohortMean.div(result.sums[cohort][i % EMPLOYEES_NUMBER_COHORT_TABLE_SIZE]);
-        } else {
-          cohortMean = cohortMean.div(submitters[cohort].length);
         }
 
         setOrAssign(averages, [cohort, table, row, col], cohortMean.toFixed(2));
@@ -345,23 +342,23 @@ define([], function () {
       row = ordering.tables[i].row;
       col = ordering.tables[i].col;
 
-      // Compute for all parties
+      // Compute average
       var totalMean = result.sums['all'][i]; // mean for cell for ALL cohorts
       if (i >= EMPLOYEES_NUMBER_TABLE_SIZE) {
         totalMean = totalMean.div(result.sums['all'][i % EMPLOYEES_NUMBER_TABLE_SIZE]);
-      } else {
-        totalMean = totalMean.div(submitters['all'].length)
       }
 
       setOrAssign(averages, ['all', table, row, col], totalMean.toFixed(2));
 
-      var totalDeviation = result.squaresSums[i]; // deviation for cell for ALL cohorts
-      if (i >= EMPLOYEES_NUMBER_TABLE_SIZE) { // average of squares
-        totalDeviation = totalDeviation.div(result.sums['all'][i % EMPLOYEES_NUMBER_TABLE_SIZE])
-      } else {
-        totalDeviation = totalDeviation.div(submitters['all'].length);
-      }
-      totalDeviation = totalDeviation.minus(totalMean.pow(2)); // minus square of average
+      // Compute deviation for population of values presented by companies (not for individual employees)
+      // E[X^2]
+      var avgOfSquares = result.squaresSums[i];
+      avgOfSquares = avgOfSquares.div(submitters['all'].length);
+      // (E[X])^2
+      var squareOfAvg = result.sums['all'][i].div(submitters['all'].length);
+      squareOfAvg = squareOfAvg.pow(2);
+      // deviation formula: E[X^2] - (E[X])^2
+      var totalDeviation = avgOfSquares.minus(squareOfAvg);
       totalDeviation = totalDeviation.sqrt(); //sqrt
 
       setOrAssign(deviations, [table, row, col], totalDeviation.toFixed(2));

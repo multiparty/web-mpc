@@ -30,9 +30,9 @@ describe('BWWC Tests', function () {
     let sessionKey, password, links, driver, inputs, clientCohortMap;
 
     const COHORT_COUNT = tableTemplate.cohorts.length;
-    const CONTRIBUTOR_COUNT = 30;
-    const RESUBMISSION_COUNT = 5;
-    const EMPLOYEE_NUMBER_THRESHOLD = 3;
+    const CONTRIBUTOR_COUNT = 130;
+    const RESUBMISSION_COUNT = 10;
+    const COHORT_SIZE_THRESHOLD = 8;
 
     before(function () {
       driver = driverWrapper.getDriver();
@@ -61,7 +61,11 @@ describe('BWWC Tests', function () {
     it('Data Submissions', async function () {
       clientCohortMap = {};
       for (let i = 0; i < links.length; i++) {
-        const cohort = (i % COHORT_COUNT) + 1;
+        let cohort = (i % COHORT_COUNT) + 1;
+        if (cohort === Math.floor(COHORT_COUNT / 2) || cohort === COHORT_COUNT - 1) { // make sure a few cohorts do not have enough submissions
+          cohort = Math.random() < 0.75 ? 1 : cohort;
+        }
+
         const uploadFile = i % 3 === 0 ? UPLOAD_FILE : undefined;
 
         const submissionID = '\tSubmission: ' + (i+1) + '. Cohort: ' + cohort + '. ' + (uploadFile == null ? 'Manual' : 'Upload');
@@ -149,8 +153,8 @@ describe('BWWC Tests', function () {
     });
 
     // Sleep to give server time to finish processing
-    it('Sleep 10 seconds', async function () {
-      await driver.sleep(10000);
+    it('Sleep 60 seconds', async function () {
+      await driver.sleep(60000);
     });
 
     // Unmask
@@ -164,7 +168,8 @@ describe('BWWC Tests', function () {
       // Check cohorts are what we expected
       averagesCohorts.sort();
       deviationsCohorts.sort();
-      const cohorts = Object.keys(inputs).filter(i => (i !== 'all' && inputs[i].length > 0)).sort();
+      const cohorts = Object.keys(inputs).filter(i => (i !== 'all' && inputs[i].length >= COHORT_SIZE_THRESHOLD)).sort();
+      console.log('Cohorts:', cohorts, '/', COHORT_COUNT);
 
       assert.deepEqual(averagesCohorts, cohorts, 'Average CSV file does not have correct cohorts');
       assert.deepEqual(deviationsCohorts, [], 'Standard Deviation CSV file does not have correct cohorts (should have only "all")');
@@ -182,17 +187,11 @@ describe('BWWC Tests', function () {
       assert.deepEqual(deviations['all'].values, allDeviation, 'CSV Deviation over all cohorts is incorrect');
 
       // Check each cohort
-      let countBelowThreshold = 0;
-      let totalCount = 0;
       for (const cohort of cohorts) {
-        const cohortAverage = compute.computeAverage(inputs[cohort], true, EMPLOYEE_NUMBER_THRESHOLD);
+        const cohortAverage = compute.computeAverage(compute.reduceByGender(inputs[cohort]));
         assert.equal(averages[cohort].count, inputs[cohort].length, 'CSV Average - Cohort ' + cohort + ' has incorrect # of participants');
         assert.deepEqual(averages[cohort].values, cohortAverage, 'CSV Average - Cohort ' + cohort + ' has incorrect # of participants');
-
-        cohortAverage.map(v => countBelowThreshold += (v === '-' ? 1 : 0));
-        totalCount += cohortAverage.length;
       }
-      console.log('\tGenerated', countBelowThreshold, '/', totalCount, 'entries below threshold!');
     });
   });
 

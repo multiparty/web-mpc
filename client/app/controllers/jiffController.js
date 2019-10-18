@@ -76,7 +76,7 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
       maxBatchSize: 5000
     };
     if (role === 'analyst') {
-      restOptions['flushInterval'] = 5000; // 5 seconds
+      restOptions['flushInterval'] = 6000; // 6 seconds
     }
 
     var port = window.location.port === '8080' ? ':8080' : '';
