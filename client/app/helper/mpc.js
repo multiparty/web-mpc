@@ -237,7 +237,7 @@ define([], function () {
 
       // progress
       counter++;
-      updateProgress(progressBar, counter / submitters['all'].length - 0.6);
+      updateProgress(progressBar, (counter / submitters['all'].length) * 0.94);
     }
 
     // Compute all the results: computation proceeds by party in order
@@ -263,7 +263,7 @@ define([], function () {
 
         // progress
         counter++;
-        updateProgress(progressBar, counter / submitters['all'].length - 0.6);
+        updateProgress(progressBar, (counter / submitters['all'].length) * 0.94);
       }
 
       // Cohort averages are done, open them (do not use await so that we do not block the main thread)

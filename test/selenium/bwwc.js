@@ -153,8 +153,8 @@ describe('BWWC Tests', function () {
     });
 
     // Sleep to give server time to finish processing
-    it('Sleep 60 seconds', async function () {
-      await driver.sleep(60000);
+    it('Sleep 100 seconds', async function () {
+      await driver.sleep(100000);
     });
 
     // Unmask
