@@ -31,11 +31,12 @@
   },
   "devDependencies": {
     "chai": "^4.2.0",
-    "chromedriver": "^79.0.0",
+    "chromedriver": "^77.0.0",
     "eslint": "^3.19.0",
     "eslint-config-airbnb-base": "^11.2.0",
     "eslint-plugin-import": "^2.7.0",
-    "eslint-plugin-requirejs": "^3.1.1"
+    "eslint-plugin-requirejs": "^3.1.1",
+    "selenium-webdriver": "4.0.0-alpha.5"
   },
   "scripts": {
     "test": "mocha --timeout 2700000 test/selenium/bwwc.js"
