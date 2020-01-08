@@ -26,7 +26,6 @@
     "mongoose": "^4.11.1",
     "numeric": "^1.2.6",
     "nunjucks": "^3.1.7",
-    "selenium-webdriver": "^4.0.0-alpha.1",
     "spdy": "^3.4.7"
   },
   "devDependencies": {
@@ -35,7 +34,8 @@
     "eslint": "^3.19.0",
     "eslint-config-airbnb-base": "^11.2.0",
     "eslint-plugin-import": "^2.7.0",
-    "eslint-plugin-requirejs": "^3.1.1"
+    "eslint-plugin-requirejs": "^3.1.1",
+    "selenium-webdriver": "4.0.0-alpha.5"
   },
   "scripts": {
     "test": "mocha --timeout 2700000 test/selenium/bwwc.js"

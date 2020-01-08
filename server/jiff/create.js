@@ -25,7 +25,7 @@ const cryptoHooks =  {
 };
 
 // Options and Hooks
-const options = { logs: true, sodium: false, hooks: {} };
+const options = { logs: false, sodium: false, hooks: {} };
 const computeOptions = {
   sodium: false,
   Zp: '618970019642690137449562111',  // 2^89-1
@@ -45,8 +45,9 @@ options.hooks = Object.assign(options.hooks, mailbox_hooks, authentication_hooks
 function JIFFWrapper(server, app) {
   this.serverInstance = jiffServer.make_jiff(server, options);
   this.serverInstance.apply_extension(jiffServerBigNumber);
-  this.serverInstance.apply_extension(jiffServerRestAPI, { app: app });
+  this.serverInstance.apply_extension(jiffServerRestAPI, { app: app, maxBatchSize: Infinity });
   this.serverInstance._wrapper = this;
+  this.serverInstance.mailbox_hooks = mailbox_hooks;
 
   // Unsupported/insecure operations
   this.serverInstance.request_number_share = function () {

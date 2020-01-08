@@ -42,7 +42,7 @@ module.exports = {
       }
     });
   },
-  generateRandomData: function (rows, cols, maxElement=1000000) {
+  generateRandomData: function (rows, cols, maxElement='10000000000') {
     var values = [];
     for (var i = 0; i < rows; i++) {
       values[i] = [];

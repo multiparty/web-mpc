@@ -191,11 +191,21 @@ var upsertMailbox = function (session_key, from_jiff_party_id, to_jiff_party_id,
 };
 
 // get entire mailbox for session key and user id
-var queryMailbox = function (session_key, to_jiff_party_id) {
+var queryMailbox = function (session_key, to_jiff_party_id, skip, limit, filter) {
   var obj = { session: session_key, to_id: to_jiff_party_id };
+  obj = Object.assign({}, filter, obj);
 
   return new Promise(function (resolve, reject) {
-    models.Mailbox.where(obj).find(function (err, data) {
+    var query = models.Mailbox.where(obj);
+
+    if (skip) {
+      query = query.skip(skip);
+    }
+    if (limit) {
+      query = query.limit(limit);
+    }
+
+    query.find(function (err, data) {
       if (err) {
         reject(err);
       } else {

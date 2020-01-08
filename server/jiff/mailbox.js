@@ -1,4 +1,8 @@
 const modulesWrappers = require('../models/modelWrappers');
+const Chunker = require('./chunker.js');
+
+// manages chunking big mailbox of analyst into consistent and ordered chunks
+const chunkers = {};
 
 module.exports = {
   put_in_mailbox: function (jiff, label, msg, computation_id, to_id) {
@@ -18,23 +22,41 @@ module.exports = {
     });
   },
 
-  get_mailbox : function (jiff, computation_id, to_id) {
-    // party_id: either 1 or s1
-    var promise = modulesWrappers.Mailbox.query(computation_id, to_id);
+  get_mailbox : async function (jiff, computation_id, to_id) {
+    try {
+      var data;
+      if (to_id !== 1) {
+        // not the analyst, get all messages with no special filtering or ordering
+        data = await modulesWrappers.Mailbox.query(computation_id, to_id);
+      } else {
+        data = await chunkers[computation_id].chunk();
+      }
 
-    return promise.then(function (data) {
       var result = [];
       for (var d of data) {
-        result.push({ msg: d.message, label: d.label });
+        result.push({msg: d.message, label: d.label});
       }
       return result;
-    }).catch(function (err) {
+    } catch (err) {
       console.log('Error in getting mailbox', err);
       throw new Error('Error getting masks');
-    });
+    }
+  },
+
+  // Logical slicing (without actual removing)
+  slice_mailbox: function (jiff, computation_id, party_id, length) {
+    if (party_id === 1) {
+      if (chunkers[computation_id]) {
+        chunkers[computation_id].slice();
+      }
+    }
+  },
+  // undo slicing
+  reset_counter: async function (jiff, computation_id) {
+    chunkers[computation_id] = new Chunker(computation_id);
+    await chunkers[computation_id].init(jiff);
   },
 
   // Do not remove anything from the mailbox/db ever
-  remove_from_mailbox: function () { },
-  slice_mailbox: function () { }
+  remove_from_mailbox: function () { }
 };
