@@ -75,6 +75,9 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
       pollInterval: 0,
       maxBatchSize: 5000
     };
+    if (role === 'analyst') {
+      restOptions['flushInterval'] = 6000; // 6 seconds
+    }
 
     var port = window.location.port === '8080' ? ':8080' : '';
     var instance = jiff.make_jiff(window.location.protocol + '//' + window.location.hostname + port, session, baseOptions);
@@ -148,7 +151,7 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
   };
 
   // Analyst side stuff
-  var computeAndFormat = function (sessionkey, password, secretkey, error, callback) {
+  var computeAndFormat = function (sessionkey, password, secretkey, progressBar, error, callback) {
     var options = {
       onError: error,
       secret_key: pki.parsePrivateKey(secretkey),
@@ -162,6 +165,8 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
     var jiff = initialize(sessionkey, 'analyst', options);
     // Listen to the submitter ids from server
     jiff.listen('compute', function (party_id, msg) {
+      jiff.remove_listener('compute');
+
       if (party_id !== 's1') {
         return;
       }
@@ -171,7 +176,7 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
       var submitters = JSON.parse(msg);
 
       // Compute and Format
-      var promise = mpc.compute(jiff, submitters, ordering);
+      var promise = mpc.compute(jiff, submitters, ordering, progressBar);
       promise.then(function (result) {
         jiff.disconnect(false, false);
         callback(mpc.format(result, submitters, ordering));

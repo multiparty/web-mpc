@@ -26,7 +26,6 @@
     "mongoose": "^4.11.1",
     "numeric": "^1.2.6",
     "nunjucks": "^3.1.7",
-    "selenium-webdriver": "^4.0.0-alpha.1",
     "spdy": "^3.4.7"
   },
   "devDependencies": {

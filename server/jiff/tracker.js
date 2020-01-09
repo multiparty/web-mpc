@@ -1,5 +1,7 @@
 const modulesWrappers = require('../models/modelWrappers.js');
 
+const COHORT_THRESHOLD = 8;
+
 module.exports = function (JIFFWrapper) {
   // Keeps track of submitters IDs
   JIFFWrapper.prototype.trackParty = function (session_key, jiff_party_id, status) {
@@ -71,6 +73,22 @@ module.exports = function (JIFFWrapper) {
     all.sort(); // important: hides order of submission
     tracker['all'] = all;
     tracker['cohorts'] = cohorts;
-    return tracker;
+
+    // filter out cohorts with too few submissions
+    var filtered = {cohorts: [], all: [], none: []};
+    for (cohort of tracker['cohorts']) {
+      filtered['all'] = filtered['all'].concat(tracker[cohort]);
+      console.log(cohort, tracker[cohort]);
+      if (tracker[cohort].length < COHORT_THRESHOLD) {
+        filtered['none'] = filtered['none'].concat(tracker[cohort]);
+      } else {
+        filtered['cohorts'].push(cohort);
+        filtered[cohort] = tracker[cohort].slice();
+      }
+    }
+    filtered['all'].sort();
+    filtered['none'].sort();
+    filtered['cohorts'].sort();
+    return filtered;
   };
 };

@@ -36,7 +36,6 @@ function userAuth(computation_id, msg, params) {
 
             var cohortExists = false;
             for (var cohort of sessionInfo.cohort_mapping) {
-              console.log(cohortId, typeof(cohortId), cohort.id, typeof(cohort.id));
               if (cohortId.toString() === cohort.id.toString()) { // found cohort
                 cohortExists = true;
                 break;
@@ -95,6 +94,11 @@ module.exports = {
         // For submitters, track them as non-submitters on submission start (in case of failures)
         // and when submission is successful, track them as submitters.
         await jiff._wrapper.trackParty(computation_id, party_id, false);
+      }
+
+      // First analyst message in an unmasking
+      if (party_id === 1 && msg['initialization'] != null) {
+        await jiff.mailbox_hooks.reset_counter(jiff, computation_id);
       }
       return msg;
     }
