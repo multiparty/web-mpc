@@ -1,46 +1,84 @@
 # web-mpc
 [![DOI](https://zenodo.org/badge/84491506.svg)](https://zenodo.org/badge/latestdoi/84491506) [![Build Status](https://travis-ci.org/multiparty/web-mpc.svg?branch=master)](https://travis-ci.org/multiparty/web-mpc)
 
-Implementation of a web-based data collection and aggregation infrastructure that utilizes secure multi-party computation techniques to allow individual contributors to submit their data without revealing it to the other participants.
+Implementation of a web-based data collection and aggregation infrastructure that utilizes secure multi-party 
+computation techniques to allow individual contributors to submit their data without revealing it to the other participants.
 
 
 ## Environment
 
-It is expected that this application will operate on an Amazon Web Services EC2 instance running Amazon Linux under a security group that permits connections on port 80. The environment in which it runs is set up as follows.
+This procedure is for demonstration and development purposes only. For a true deployment, you will 
+need to have a registered domain, and install Nginx with Let's Encrypt as a reverse proxy for port 8080.
 
-* First, install Node.js, MongoDB, and necessary modules:
+It is expected that this application will operate on an Amazon Web Services EC2 instance running Amazon Linux under a 
+security group that permits connections on ports 22 with SSH and 8080 with a custom TCP rule. Store the .pem key file for the EC2 instance somewhere safe,
+SSH onto the instance following the instructions on the Amazon EC2 console, then set up the server environment as follows:
+
+* First, install the node version manager and activate it.
 ```
-yum -y update
-yum -y install nodejs npm --enablerepo=epel
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
+. ~/.nvm/nvm.sh
 ```
+
+* Next, install the latest version of Node.js. This also installs the Node package manager (npm). 
 ```
-echo "[MongoDB]
+nvm install node
+```
+* Install MongoDB:
+```
+echo "[mongodb-org-4.2]
 name=MongoDB Repository
-baseurl=http://downloads-distro.mongodb.org/repo/redhat/os/x86_64
-gpgcheck=0
-enabled=1" | sudo tee -a /etc/yum.repos.d/mongodb.repo
+baseurl=https://repo.mongodb.org/yum/amazon/2013.03/mongodb-org/4.2/	x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-4.2.asc" | sudo tee /etc/yum.repos.d/mongodb.repo
 ```
 ```
-yum install -y gcc-c++ mongodb-org-server mongodb-org-shell mongodb-org-tools`
+sudo yum -y update
+sudo yum install -y gcc-c++ mongodb-org-server mongodb-org-shell mongodb-org-tools
 ```
-* Navigate to the `web-mpc/` directory, install the NPM dependencies, and install the global dependency:
+* Clone into the web-mpc repository
+```
+sudo yum install git -y
+git clone https://github.com/multiparty/web-mpc.git
+```
+* Navigate to the `web-mpc/` directory and set up JIFF:
+```
+cd web-mpc/
+git submodule init
+git submodule update
+cd jiff && npm install
+```
+
+Navigate back to the `web-mpc/` directory, install the NPM dependencies, and install the global dependency:
 
 ```
 npm install
 npm install -g forever
 ```
 
-
+Install authbind:
+```
+sudo rpm -Uvh https://s3.amazonaws.com/aaronsilber/public/authbind-2.1.1-0.1.x86_64.rpm
+```
 * Next, set up the database file and start the MongoDB server:
 ```
-mkdir -p /data/db
-mongod
+sudo mkdir -p /data/db
+sudo mongod &
 ```
-* Finally, retrieve the application files and in the directory "server/" run:
+* Finally, navigate to the server directory, and run.
 ```
-export NODE_ENV=production
+cd server/
 authbind --deep forever -o log.txt -e error.txt start index.js
 ```
+
+If you don't have a domain set up for your server, you can navigate on your computer's browser to the EC2 instance's 
+public IP address (as listed on the ec2 console for the instance):
+
+``` 
+<ip address here>:8080
+```
+to view the web-page.
 
 ## Local machine installation
 
