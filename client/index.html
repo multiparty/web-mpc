@@ -45,6 +45,12 @@
 <body>
 
 <header>
+  {% if client.banner_text %}
+  <div class="banner">
+    <h1> {{client.banner_text}} </h1>
+  </div>
+  {% endif %}
+
   <div class="container">
     <h1>{{ client.organization }}<br/>
       <small> {{ client.subtitle }}</small>

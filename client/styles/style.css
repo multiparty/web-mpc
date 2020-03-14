@@ -85,11 +85,11 @@ h1 {
 
 header,
 #shadow {
-  position: absolute;
+  position: relative;
   top: 0;
   left: 0;
   right: 0;
-  height: 170px;
+  /*height: 200px;*/
   background: #fff;
   z-index: 2;
 }
@@ -114,7 +114,7 @@ header #logos img:not(:first-child) {
 }
 
 #content {
-  margin-top: 270px;
+  margin-top: 200px;
 }
 
 .card {
@@ -344,7 +344,21 @@ span.success {
   bottom: -25px;
   z-index: 1;
   background: inherit;
-  box-shadow: -50px 50px 0 #fff, 50px -50px 0 #fff, 2px 2px 4px 0 rgba(170, 170, 170, .80), -48px 52px 4px 0 rgba(170, 170, 170, .80), 52px -48px 4px 0 rgba(170, 170, 170, .80);
+  box-shadow: -50px 50px 0 #ffffff, 50px -50px 0 #fff, 2px 2px 4px 0 rgba(170, 170, 170, .80), -48px 52px 4px 0 rgba(170, 170, 170, .80), 52px -48px 4px 0 rgba(170, 170, 170, .80);
+}
+
+.banner {
+  /*position:absolute;*/
+  background-color: #cb1821;
+  width: 100%;
+  text-align: center;
+  padding: 50px;
+  margin-bottom: 35px;
+}
+
+.banner h1 {
+  text-shadow: 2px 2px #cb1821;
+  color: #FFFFFF
 }
 
 /* *** */
