@@ -9,7 +9,7 @@
       "www.100talent.org",
       "100talent.org"
     ],
-    "email": "fjansen@bu.edu",
+    "email": "pflock@bu.edu",
     "agreeTos": true
   },
 
@@ -19,8 +19,7 @@
     "subtitle": "100% Talent Data Submission",
     "logo": "images/bwwc.png",
     "cohort": "Industry",
-    "session_key": "BWWC 2019 Submission ID",
-    "phone": "(617) 358-8517",
-    "email": "team@bostonwomensworkforcecouncil.org"
+    "session_key": "BWWC 2021 Submission ID",
+    "email": "team@thebwwc.org"
   }
 }
