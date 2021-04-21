@@ -24,6 +24,7 @@ const HistoryModel = mongoose.model('History', new mongoose.Schema({
   // Keeps track of submission history
   session: String,
   jiff_party_id: Number,
+  participant_id: String,
   date: Number,
   success: Boolean
 }));

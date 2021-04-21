@@ -23,10 +23,12 @@ var queryHistory = function (session_key, last_fetch) {
 };
 
 // add to history of a given session
-var insertHistory = function (session_key, jiff_party_id, success) {
+var insertHistory = function (session_key, jiff_party_id, success, participant_id) {
+  console.log('trying to submit history')
   var history = new models.History({
     session: session_key,
     jiff_party_id: jiff_party_id,
+    participant_id: participant_id,
     date: Date.now(),
     success: success
   });

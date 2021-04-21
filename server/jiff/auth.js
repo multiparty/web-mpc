@@ -93,7 +93,8 @@ module.exports = {
       if (party_id !== 1 && party_id != null) {
         // For submitters, track them as non-submitters on submission start (in case of failures)
         // and when submission is successful, track them as submitters.
-        await jiff._wrapper.trackParty(computation_id, party_id, false);
+        var participant_id = msg['userkey'];
+        await jiff._wrapper.trackParty(computation_id, party_id, false, participant_id);
       }
 
       // First analyst message in an unmasking
@@ -114,7 +115,8 @@ module.exports = {
 
       // Do not add initializations to history, only submissions.
       if (msg['initialization'] == null) {
-        await jiff._wrapper.trackParty(computation_id, party_id, true);
+        var participant_id = msg['userkey'];
+        await jiff._wrapper.trackParty(computation_id, party_id, true, participant_id);
       }
       return msg;
     }
