@@ -4,12 +4,12 @@ const COHORT_THRESHOLD = 8;
 
 module.exports = function (JIFFWrapper) {
   // Keeps track of submitters IDs
-  JIFFWrapper.prototype.trackParty = function (session_key, jiff_party_id, status) {
+  JIFFWrapper.prototype.trackParty = function (session_key, jiff_party_id, status, participant_id) {
     if (jiff_party_id === 's1' || jiff_party_id === 1) {
       return;
     }
 
-    var promise = modulesWrappers.History.insert(session_key, jiff_party_id, status);
+    var promise = modulesWrappers.History.insert(session_key, jiff_party_id, status, participant_id);
     return promise.catch(function (err) {
       console.log('Failed to track party', err);
       throw new Error('Error writing submission to database');
