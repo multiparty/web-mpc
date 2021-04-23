@@ -135,7 +135,8 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
         $('#table-' + (cohort - 1) + ' tbody').append(
           $('<tr>')
             .append('<td>' + count + '</td>')
-            .append('<td>' + new Date(data[i]).toLocaleString() + '</td>')
+            .append('<td>' + data[i][1] + '</td>')
+            .append('<td>' + new Date(data[i][0]).toLocaleString() + '</td>')
         );
       }
 
@@ -204,7 +205,8 @@ define(['jquery', 'controllers/analystController', 'Ladda', 'bootstrap'], functi
         .append($('<tr>')
           .append('<th colspan="2">Total number of submissions: <i>0</i></th>')
         ).append($('<tr>')
-          .append('<th>ID</th>')
+          .append('<th>Submission #</th>')
+          .append('<th>Participant ID</th>')
           .append('<th>Timestamp</th>')
         );
 
