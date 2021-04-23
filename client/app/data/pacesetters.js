@@ -6,8 +6,8 @@ define([], function () {
   return {
     "tables": [
       {
-        "name": "Total Dollars Spent with Minority-Owned Business Enterprises ",
-        "element": "amount-spent", //TODO: what does this element do?
+        "name": "Total Number of Contracts with Minority-Owned Business Enterprises ",
+        "element": "number-of-contracts", //TODO: what does this element do?
         "hot_parameters": {
           "rowHeaderWidth": 480,
           "height": 230,
@@ -17,22 +17,89 @@ define([], function () {
         "rows": [
           {
             "key": "local",
-            "label": "Dollar Amount Spent with Local MBEs"
+            "label": "Number of Contracts with Local MBEs"
           },
           {
             "key": "state",
-            "label": "Dollar Amount Spent with State MBEs"
+            "label": "Number of Contracts with State MBEs"
           },
           {
             "key": "national",
-            "label": "Dollar Amount Spent with National MBEs"
+            "label": "Number of Contracts with National MBEs"
           }
         ],
         "cols": [
           [
             {
               "key": "value",
-              "label": "Value for FY20 in Thousands of Dollars"
+              "label": "# for CY20"
+            }
+          ]
+        ],
+        "types": [
+          {
+            "range": {
+              "row": "*",
+              "col": "*"
+            },
+            "type": "int",
+            "min": 0,
+            "max_warning": 10000000,
+            "empty": false
+          }
+        ],
+        "excel": [
+          {
+            "sheet": "1. Contracts with MBEs",
+            "start": "B2",
+            "end": "B4",
+            "firstrow": "Number of Contracts with Local MBEs"
+          }
+        ],
+        "tooltips": [
+          {
+            "range": {
+              "row": "*",
+              "col": "*"
+
+            },
+            "tooltip": {
+              "errorTitle": "Invalid Data Entry",
+              "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero.",
+              "warningTitle": "Warning: Data is too big",
+              "warning": "Are you sure this value is correct?"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Spend with MBEs",
+        "element": "spend",
+        "hot_parameters": {
+          "rowHeaderWidth": 480,
+          "height": 230,
+          "colWidths": [190],
+          "stretchH": "last"
+        },
+        "rows": [
+          {
+            "key": "local",
+            "label": "Value of Contracts with Local MBEs"
+          },
+          {
+            "key": "state",
+            "label": "Value of Contracts with State MBEs"
+          },
+          {
+            "key": "national",
+            "label": "Value of Contracts with National MBEs"
+          }
+        ],
+        "cols": [
+          [
+            {
+              "key": "value",
+              "label": "Value for CY20"
             }
           ]
         ],
@@ -50,10 +117,144 @@ define([], function () {
         ],
         "excel": [
           {
-            "sheet": "1. Amount Spent",
+            "sheet": "2. Spend with MBEs",
             "start": "B2",
             "end": "B4",
-            "firstrow": "Dollar Amount Spent with Local MBEs"
+            "firstrow": "Value of Contracts with Local MBEs"
+          }
+        ],
+        "tooltips": [
+          {
+            "range": {
+              "row": "*",
+              "col": "*"
+
+            },
+            "tooltip": {
+              "errorTitle": "Invalid Data Entry",
+              "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero.",
+              "warningTitle": "Warning: Data is too big",
+              "warning": "Are you sure this value is correct?"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Number of Unique MBEs Contracted with",
+        "element": "Unique-MBEs",
+        "hot_parameters": {
+          "rowHeaderWidth": 480,
+          "height": 230,
+          "colWidths": [190],
+          "stretchH": "last"
+        },
+        "rows": [
+          {
+            "key": "local",
+            "label": "Number of Unique Local MBEs Contracted with"
+          },
+          {
+            "key": "state",
+            "label": "Number of Unique State MBEs Contracted with"
+          },
+          {
+            "key": "national",
+            "label": "Number of Unique National MBEs Contracted with"
+          }
+        ],
+        "cols": [
+          [
+            {
+              "key": "value",
+              "label": "# for CY20"
+            }
+          ]
+        ],
+        "types": [
+          {
+            "range": {
+              "row": "*",
+              "col": "*"
+            },
+            "type": "int",
+            "min": 0,
+            "max_warning": 10000000,
+            "empty": false
+          }
+        ],
+        "excel": [
+          {
+            "sheet": "3. Unique MBEs",
+            "start": "B2",
+            "end": "B4",
+            "firstrow": "Number of Unique Local MBEs contracted with"
+          }
+        ],
+        "tooltips": [
+          {
+            "range": {
+              "row": "*",
+              "col": "*"
+
+            },
+            "tooltip": {
+              "errorTitle": "Invalid Data Entry",
+              "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero.",
+              "warningTitle": "Warning: Data is too big",
+              "warning": "Are you sure this value is correct?"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Contracts Addressable Spent",
+        "element": "contracts-addressable-spent",
+        "hot_parameters": {
+          "rowHeaderWidth": 480,
+          "height": 230,
+          "colWidths": [190],
+          "stretchH": "last"
+        },
+        "rows": [
+          {
+            "key": "local",
+            "label": "Number of Local Contracts in All Addressable Spent"
+          },
+          {
+            "key": "state",
+            "label": "Number of State Contracts in All Addressable Spent"
+          },
+          {
+            "key": "national",
+            "label": "Number of National Contracts in All Addressable Spent"
+          }
+        ],
+        "cols": [
+          [
+            {
+              "key": "value",
+              "label": "# for CY20"
+            }
+          ]
+        ],
+        "types": [
+          {
+            "range": {
+              "row": "*",
+              "col": "*"
+            },
+            "type": "int",
+            "min": 0,
+            "max_warning": 10000000,
+            "empty": false
+          }
+        ],
+        "excel": [
+          {
+            "sheet": "4. Contracts Addressable Spend",
+            "start": "B2",
+            "end": "B4",
+            "firstrow": "Number of Local Contracts in all addressable spent"
           }
         ],
         "tooltips": [
@@ -84,22 +285,22 @@ define([], function () {
         "rows": [
           {
             "key": "local",
-            "label": "Total Dollar Amount Spent Procuring All Goods and Services Locally"
+            "label": "Value of Local Contracts in addressable spent"
           },
           {
             "key": "state",
-            "label": "Total Dollar Amount Spent Procuring All Goods and Services at the State Level"
+            "label": "Value of State Contracts in addressable spent"
           },
           {
             "key": "national",
-            "label": "Total Dollar Amount Spent Procuring All Goods and Services in the United States"
+            "label": "Value of National Contracts in addressable spent"
           }
         ],
         "cols": [
           [
             {
               "key": "value",
-              "label": "Value for FY20 in Thousands of Dollars"
+              "label": "Value for CY20"
             }
           ]
         ],
@@ -117,10 +318,10 @@ define([], function () {
         ],
         "excel": [
           {
-            "sheet": "2. Addressable Spend",
+            "sheet": "5. Addressable Spend",
             "start": "B2",
             "end": "B4",
-            "firstrow": "Total Dollar Amount Spent Procuring All Goods and Services Locally"
+            "firstrow": "Value of local Contracts in addressable spent"
           }
         ],
         "tooltips": [
@@ -140,8 +341,8 @@ define([], function () {
         ]
       },
       {
-        "name": "Total of Contracts with MBEs",
-        "element": "Total-of-contract-MBEs",
+        "name": "Unique Contracts",
+        "element": "unique-contracts",
         "hot_parameters": {
           "rowHeaderWidth": 480,
           "height": 230,
@@ -151,22 +352,22 @@ define([], function () {
         "rows": [
           {
             "key": "local",
-            "label": "Total of Contracts with Local MBEs"
+            "label": "Number of Unique Local Companies in all addressable spent"
           },
           {
             "key": "state",
-            "label": "Total of Contracts with State MBEs"
+            "label": "Number of Unique State Companies in all addressable spent"
           },
           {
             "key": "national",
-            "label": "Total of Contracts with National MBEs"
+            "label": "Number of Unique National Companies in all addressable spent"
           }
         ],
         "cols": [
           [
             {
               "key": "value",
-              "label": "Value for FY20"
+              "label": "# for CY20"
             }
           ]
         ],
@@ -176,7 +377,7 @@ define([], function () {
               "row": "*",
               "col": "*"
             },
-            "type": "currency",
+            "type": "int",
             "min": 0,
             "max_warning": 10000000,
             "empty": false
@@ -184,77 +385,10 @@ define([], function () {
         ],
         "excel": [
           {
-            "sheet": "3. Total of Contracts",
+            "sheet": "6. Unique Companies",
             "start": "B2",
             "end": "B4",
-            "firstrow": "Total of Contracts with Local MBEs"
-          }
-        ],
-        "tooltips": [
-          {
-            "range": {
-              "row": "*",
-              "col": "*"
-
-            },
-            "tooltip": {
-              "errorTitle": "Invalid Data Entry",
-              "error": "Please do not input any text or leave any cells blank. If the value is zero, please input zero.",
-              "warningTitle": "Warning: Data is too big",
-              "warning": "Are you sure this value is correct?"
-            }
-          }
-        ]
-      },
-      {
-        "name": "Value of Contracts",
-        "element": "value-of-contracts",
-        "hot_parameters": {
-          "rowHeaderWidth": 480,
-          "height": 230,
-          "colWidths": [190],
-          "stretchH": "last"
-        },
-        "rows": [
-          {
-            "key": "local",
-            "label": "Dollars Spent with Local MBEs"
-          },
-          {
-            "key": "state",
-            "label": "Dollars Spent with State MBEs"
-          },
-          {
-            "key": "national",
-            "label": "Dollars Spent with National MBEs"
-          }
-        ],
-        "cols": [
-          [
-            {
-              "key": "value",
-              "label": "Value for FY20"
-            }
-          ]
-        ],
-        "types": [
-          {
-            "range": {
-              "row": "*",
-              "col": "*"
-            },
-            "type": "currency",
-            "min": 0,
-            "max_warning": 10000000,
-            "empty": false
-          }
-        ],
-        "excel": [
-          {
-            "sheet": "4. Value of Contracts",
-            "start": "B2",
-            "end": "B4",
-            "firstrow": "Dollars Spent with Local MBEs"
+            "firstrow": "Numbe of Unique Local Companies in all addressable spent"
           }
         ],
         "tooltips": [
