@@ -210,7 +210,8 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda', 'f
         $('#table-' + cohort + ' tbody').append(
           $('<tr>')
             .append('<td>' + count + '</td>')
-            .append('<td>' + new Date(data[i]).toLocaleString() + '</td>')
+	    .append('<td>' + data[i][1] + '</td>')
+            .append('<td>' + new Date(data[i][0]).toLocaleString() + '</td>')
         );
       }
 
@@ -257,6 +258,7 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda', 'f
       var $tbody = document.createElement('tbody');
       var $tr = document.createElement('tr');
       var $idCell = document.createElement('th');
+      var $participantIdCell = document.createElement('th');
       var $timeCell = document.createElement('th');
       var $header = document.createElement('div');
       var $title;
@@ -284,6 +286,7 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda', 'f
       $historyTable.appendChild($tbody);
 
       $tr.appendChild($idCell);
+      $tr.appendChild($participantIdCell);
       $tr.appendChild($timeCell);
       $thead.appendChild($tr);
 
@@ -292,6 +295,7 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda', 'f
       // $historyNum.innerHTML = 'Total number of submissions: <i>0</i>';
       $idCell.innerText = 'Submission #';
       $timeCell.innerText = 'Timestamp';
+      $participantIdCell.innerText = 'Participant ID';
 
       return $historySection
     }
