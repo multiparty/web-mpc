@@ -185,7 +185,6 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda', 'f
       var previous = Date.now();
       analystController.getSubmissionHistory(session, password, timestamp)
         .then(function (res) {
-          console.log('submission History query  result :', res);
           if (res != null) {
             for (var cohort in res) {
               if (res.hasOwnProperty(cohort)) {
@@ -202,7 +201,6 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda', 'f
     }
 
     function displaySubmissionHistory(cohort, data, resubmissionCount) {
-      console.log('history: ', data);
       var count = $('#table-' + cohort + ' tbody tr').length;
       for (var i = 0; i < data.length; i++) {
         count++;
@@ -210,7 +208,7 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda', 'f
         $('#table-' + cohort + ' tbody').append(
           $('<tr>')
             .append('<td>' + count + '</td>')
-	    .append('<td>' + data[i][1] + '</td>')
+            .append('<td>' + data[i][1] + '</td>')
             .append('<td>' + new Date(data[i][0]).toLocaleString() + '</td>')
         );
       }
