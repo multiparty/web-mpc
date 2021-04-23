@@ -54,8 +54,10 @@ module.exports.getSubmissionHistory = function (context, body, res) {
 
   Promise.all([promise1, promise2]).then(function (data) {
     var cohortMap = {};
+    var userKeyMap = {};
     for (var k of data[1]) {
       cohortMap[k.jiff_party_id] = k.cohort;
+      userKeyMap[k.jiff_party_id] = k.userkey;
     }
     var history = data[0];
 
@@ -71,7 +73,7 @@ module.exports.getSubmissionHistory = function (context, body, res) {
           arr = [];
         }
 
-        arr.push(d.date);
+        arr.push([d.date, userKeyMap[d.jiff_party_id]]);
         if (id_last_index[d.jiff_party_id] != null) {
           arr[id_last_index[d.jiff_party_id]] = null;
         }
