@@ -279,6 +279,13 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
         // Handle table data, tables are represented as 2D associative arrays
         // with the first index being the row key, and the second being the column key
         var tables_data = tableController.constructDataTables(tables);
+        /*
+         *console.log(tables_data);
+         *tables_data.forEach((table) => {
+         *  console.log(`tables_data: ${table}`);
+         *  console.log(table);
+         *});
+         */
         for (var i = 0; i < tables_data.length; i++) {
           data_submission[tables_data[i].name] = tables_data[i].data;
         }
