@@ -7,7 +7,7 @@ const helpers = require('../helpers/helpers.js');
 module.exports = {};
 
 module.exports.createEmptySession = async function (driver) {
-  await driver.get('localhost:8080/create');
+  await driver.get('http://localhost:8080/create');
 
   const generateButton = await driver.findElement(By.id('generate'));
   generateButton.click();
@@ -20,7 +20,7 @@ module.exports.createEmptySession = async function (driver) {
 
 // create session
 module.exports.createSession = async function (driver, title='test session', description='testing') {
-  await driver.get('localhost:8080/create');
+  await driver.get('http://localhost:8080/create');
 
   const titleField = await driver.findElement(By.id('session-title'));
   const descField = await driver.findElement(By.id('session-description'));

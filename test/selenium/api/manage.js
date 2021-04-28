@@ -8,7 +8,7 @@ const UNASSIGNED_COHORT = '0';
 module.exports = {};
 
 module.exports.login = async function (driver, sessionKey, password) {
-  await driver.get('localhost:8080/manage');
+  await driver.get('http://localhost:8080/manage');
 
   const sessionField = await driver.findElement(By.id('session'));
   const passwordField = await driver.findElement(By.id('password'));
