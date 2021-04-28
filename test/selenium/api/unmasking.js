@@ -9,7 +9,7 @@ module.exports.unmask = async function (driver, sessionKey, password, outputCoun
   const downloadsPath = helpers.getUserHome() + '/Downloads/';
   const pemFilePath = downloadsPath + 'Session_' + sessionKey + '_private_key.pem';
 
-  await driver.get('localhost:8080/unmask');
+  await driver.get('http://localhost:8080/unmask');
 
   // Enter sessionKey and password
   var sessionField = driver.findElement(By.id('session'));

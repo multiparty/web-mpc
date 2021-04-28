@@ -30,9 +30,9 @@ describe('BWWC Tests', function () {
     let sessionKey, password, links, driver, inputs, clientCohortMap;
 
     const COHORT_COUNT = tableTemplate.cohorts.length;
-    const CONTRIBUTOR_COUNT = 10;
+    const CONTRIBUTOR_COUNT = 25;
     const RESUBMISSION_COUNT = 10;
-    const COHORT_SIZE_THRESHOLD = 8;
+    const COHORT_SIZE_THRESHOLD = 3;
 
     before(function () {
       driver = driverWrapper.getDriver();
