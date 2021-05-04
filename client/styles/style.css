@@ -353,9 +353,6 @@ span.success {
 }
 
 #amount-spent td.htRight.htNumeric:after,
-#addressable-spend td.htRight.htNumeric:after{
-  content: 'K'
-}
 
 @media only screen and (max-width: 600px) {
   .handsontable th {
