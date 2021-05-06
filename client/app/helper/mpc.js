@@ -50,6 +50,21 @@ define([], function () {
         }
       }
     }
+    // hack in ratios for 2021 pacesetters deployment
+    for (var l = 0; l < 3; l++) {
+      var table_def =  table_template.tables[l];
+      var table_name = table_template.tables[l].name + ' : ' + table_template.tables[l+3].name;
+
+      var rows = table_def.rows;
+      var cols = table_def.cols[table_def.cols.length - 1];
+      for (var r = 0; r < rows.length; r++) {
+        for (var c = 0; c < cols.length; c++) {
+          var row = rows[r].key;
+          var col = cols[c].key;
+          tables.push({ table: table_name, row: row, col: col });
+        }
+      }
+    }
     // order questions
     if (table_template.survey != null) {
       for (var q = 0; q < table_template.survey.questions.length; q++) {
@@ -119,7 +134,6 @@ define([], function () {
 
     return result;
   };
-
   // Compute the function over question data under MPC for a single cohort
   var computeQuestions = function (jiff_instance, cohortIds, ordering) {
     var result = [];
@@ -184,18 +198,14 @@ define([], function () {
     }
     all_promises.push(computeUsability(jiff_instance, submitters['all'], ordering));
 
-    console.log("promises!", all_promises);
     // format
     if (jiff_instance.id === 1) {
-      console.log('trying to get results!')
       return Promise.all(all_promises).then(function (results) {
-        console.log('result: ', results)
         var formatted = {cohorts: {}};
         for (var i = 0; i < submitters['cohorts'].length; i++) {
           var cohort = submitters['cohorts'][i];
           formatted['cohorts'][cohort] = results[i];
         }
-
         formatted['usability'] = results[results.length - 1];
         return formatted;
       });
@@ -214,6 +224,7 @@ define([], function () {
     var questions = {};
     var deviations = {};
     var usability = {};
+
 
     // format averages and deviations as [<cohort>][<table>][<row>][<col>] = avg or std dev
     for (var i = 0; i < ordering.tables.length; i++) {

@@ -90,23 +90,11 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
     var ordering = mpc.consistentOrdering(table_template);
     var values = [];
 
-    console.log(ordering);
-    console.log(dataSubmission);
     // List values according to consistent ordering
     for (var i = 0; i < ordering.tables.length; i++) {
       var t = ordering.tables[i];
       values.push(Math.round(dataSubmission[t.table][t.row][t.col]));
     }
-    var new_data_length = ordering.tables.length + 9;
-    for (var k = 0; k < 9; k++) {
-      var data1 = values[k];
-      var data2 = values[k + 9];
-      var ratio = data1 / data2;
-      ratio = ratio * 1000;
-      ratio = Math.trunc(ratio);
-      values.push(ratio);
-    }
-    console.log(values);
     for (var j = 0; j < ordering.questions.length; j++) {
       var q = ordering.questions[j];
       values.push(dataSubmission['questions'][q.question][q.option]);
@@ -122,7 +110,6 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
         values.push(dataSubmission.usability[m]);
       }
     }
-    console.log(values);
 
     // Handle jiff errors returned from server
     var options = {
@@ -145,7 +132,7 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
       for (var i = 0; i < values.length; i++) {
         jiff.share(values[i], null, [1, 's1'], [jiff.id]);
         // Share the square of the input for standard deviation: only for tables, but not for questions
-        if (i < new_data_length) {
+        if (i < ordering.tables.length) {
           jiff.share(new BigNumber(values[i]).pow(2), null, [1, 's1'], [jiff.id]);
         }
       }

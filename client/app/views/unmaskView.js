@@ -42,9 +42,12 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
             if (result['hasQuestions'] === true) {
               tableController.saveQuestions(result['questions'], sessionKey, result['cohorts']);
             }
-            if (result['hasUsability'] === true) {
-              tableController.saveUsability(result['usability'], sessionKey, result['cohorts']);
-            }
+            //TODO remove usability download, once I fix the stats
+            /*
+             *if (result['hasUsability'] === true) {
+             *  tableController.saveUsability(result['usability'], sessionKey, result['cohorts']);
+             *}
+             */
 
             // Only display averages in the table
             tableController.createTableElems(table_template.tables, '#tables-area');

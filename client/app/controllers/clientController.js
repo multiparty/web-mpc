@@ -279,17 +279,25 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
         // Handle table data, tables are represented as 2D associative arrays
         // with the first index being the row key, and the second being the column key
         var tables_data = tableController.constructDataTables(tables);
-        /*
-         *console.log(tables_data);
-         *tables_data.forEach((table) => {
-         *  console.log(`tables_data: ${table}`);
-         *  console.log(table);
-         *});
-         */
         for (var i = 0; i < tables_data.length; i++) {
           data_submission[tables_data[i].name] = tables_data[i].data;
         }
-
+        /*
+         * Adding table with ratio 'MBE-value:total-value'
+         * WARNING: This is a hack...but it works
+         */
+        for (i = 0; i < 3; i++) {
+          var ratio_name = tables_data[i].name + ' : ' + tables_data[i+3].name;
+          // TODO: take out forEach to be compatible with non es6 browsers
+          data_submission[ratio_name] = {};
+          ['local','national','state'].forEach((geo_level) => {
+            data_submission[ratio_name][geo_level] = {};
+            var ratio = tables_data[i].data[geo_level].value / tables_data[i+3].data[geo_level].value;
+            ratio = ratio * 100;
+            ratio = Math.trunc(ratio);
+            data_submission[ratio_name][geo_level]['value'] = ratio;
+          });
+        }
         if (document.getElementById('choose-file').files.length > 0) {
           usabilityController.dataPrefilled();
         }
