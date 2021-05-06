@@ -73,7 +73,7 @@ define(['alertHandler', 'XLSX'], function (alertHandler) {
             }
           }
 
-          if (e.target.result.length > 500000) {
+          if (e.target.result.length > 5000000) {
             opts.errors.large(e.target.result.length, function (e) {
               if (e) {
                 doit();
