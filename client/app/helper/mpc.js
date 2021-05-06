@@ -240,19 +240,13 @@ define([], function () {
 
         // Compute mean/average
         var mean = results['cohorts'][cohort][i].sum;
-        // ratios are multiplied by a 1000 and truncated on the client side before submit
-        if (table.includes(':') && mean !== 0) {
-          console.log(mean);
-        }
+        // ratios of (MB : total) are multiplied by a 1000 and truncated on the client side before submit
         totalMean = mean.add(totalMean);
         mean = mean.div(submitters[cohort].length);
 
         // Compute standard deviation
         var deviation = results['cohorts'][cohort][i].squaresSum;
-        // ratios are multiplied by a 1000 and truncated on the client side before submit
-        if (table.includes(':') && deviation !== 0) {
-          console.log(deviation);
-        }
+        // ratios of (MB : total) are multiplied by a 1000 and truncated on the client side before submit
         totalDev = deviation.add(totalDev);
         deviation = deviation.div(submitters[cohort].length);
         deviation = deviation.minus(mean.pow(2));
