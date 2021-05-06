@@ -138,7 +138,7 @@ define(['alertify', 'alertify_defaults', 'XLSX'], function (alertify) {
         });
       });
 
-      alertify.alert('<img src="/images/accept.png" alt="Success">Success', 'The tables below have been populated. Please confirm that your data is accurate and scroll down to answer the multiple choice questions, verify, and submit your data');
+      alertify.alert('<img src="/images/accept.png" alt="Success">Success', 'The tables below have been populated. Please confirm that your data is accurate and scroll down to verify and submit your data');
 
       return true;
     }
