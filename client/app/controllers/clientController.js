@@ -293,7 +293,7 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           ['local','national','state'].forEach((geo_level) => {
             data_submission[ratio_name][geo_level] = {};
             var ratio = tables_data[i].data[geo_level].value / tables_data[i+3].data[geo_level].value;
-            ratio = ratio * 100;
+            ratio = ratio * 1000;
             ratio = Math.trunc(ratio);
             data_submission[ratio_name][geo_level]['value'] = ratio;
           });

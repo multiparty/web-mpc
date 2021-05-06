@@ -759,6 +759,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
   function displayReadTable(tables) {
     for (var name in tables) {
       var template = getTemplate(name, 'name');
+      console.log(template);
       var table = tables[name];
 
       var i = 0;
