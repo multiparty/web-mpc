@@ -909,5 +909,6 @@ define([], function () {
       {name: 'Biotech/Pharmaceuticals'},
       {name: 'Real Estate'}
     ],
+    'cohort_threshold': 8,
   }
 });

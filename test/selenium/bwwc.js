@@ -32,7 +32,7 @@ describe('BWWC Tests', function () {
     const COHORT_COUNT = tableTemplate.cohorts.length;
     const CONTRIBUTOR_COUNT = 25;
     const RESUBMISSION_COUNT = 10;
-    const COHORT_SIZE_THRESHOLD = 3;
+    const COHORT_SIZE_THRESHOLD = tableTemplate.cohort_threshold;
 
     before(function () {
       driver = driverWrapper.getDriver();
