@@ -1,6 +1,6 @@
+const config = require('../config/config.js');
+const tableTemplate = require('../../client/app/' + config.client.table_template + '.js');
 const modulesWrappers = require('../models/modelWrappers.js');
-
-const COHORT_THRESHOLD = 8;
 
 module.exports = function (JIFFWrapper) {
   // Keeps track of submitters IDs
@@ -79,7 +79,7 @@ module.exports = function (JIFFWrapper) {
     for (cohort of tracker['cohorts']) {
       filtered['all'] = filtered['all'].concat(tracker[cohort]);
       console.log(cohort, tracker[cohort]);
-      if (tracker[cohort].length < COHORT_THRESHOLD) {
+      if (tracker[cohort].length < tableTemplate.cohort_threshold) {
         filtered['none'] = filtered['none'].concat(tracker[cohort]);
       } else {
         filtered['cohorts'].push(cohort);
