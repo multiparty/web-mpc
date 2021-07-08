@@ -17,6 +17,8 @@ const unmasking = require('./api/unmasking.js');
 const UPLOAD_FILE = '/test/selenium/files/bwwc.xlsx';
 
 describe('BWWC Tests', function () {
+  this.timeout(2500000);
+
   // Create the chrome driver before tests and close it after tests
   before(function () {
     driverWrapper.create();
@@ -196,6 +198,7 @@ describe('BWWC Tests', function () {
   });
 
   describe('UI Tests', function () {
+    this.timeout(15000);
     const CONTRIBUTOR_COUNT = 100;
     const UNASSIGNED_COHORT = '0';
 

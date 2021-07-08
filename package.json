@@ -38,7 +38,8 @@
     "selenium-webdriver": "4.0.0-alpha.5"
   },
   "scripts": {
-    "test": "mocha --timeout 2700000 test/selenium/bwwc.js"
+    "start": "node server/index.js",
+    "test": "mocha test/selenium/*.js"
   },
   "repository": {
     "type": "git",
