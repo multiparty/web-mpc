@@ -32,7 +32,7 @@ describe('BWWC Tests', function () {
     let sessionKey, password, links, driver, inputs, clientCohortMap;
 
     const COHORT_COUNT = tableTemplate.cohorts.length;
-    const CONTRIBUTOR_COUNT = 25;
+    const CONTRIBUTOR_COUNT = 35;
     const RESUBMISSION_COUNT = 10;
     const COHORT_SIZE_THRESHOLD = tableTemplate.cohort_threshold;
 
