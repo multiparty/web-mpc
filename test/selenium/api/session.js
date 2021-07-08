@@ -9,6 +9,9 @@ module.exports = {};
 module.exports.createEmptySession = async function (driver) {
   await driver.get('http://localhost:8080/create');
 
+  // Wait for DOM to load
+  await driver.sleep(1000);
+
   const generateButton = await driver.findElement(By.id('generate'));
   generateButton.click();
 
@@ -21,6 +24,9 @@ module.exports.createEmptySession = async function (driver) {
 // create session
 module.exports.createSession = async function (driver, title='test session', description='testing') {
   await driver.get('http://localhost:8080/create');
+
+  // Wait for DOM to load
+  await driver.sleep(1000);
 
   const titleField = await driver.findElement(By.id('session-title'));
   const descField = await driver.findElement(By.id('session-description'));
