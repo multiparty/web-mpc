@@ -1,0 +1,76 @@
+# Circle CI configuration file
+# https://circleci.com/docs/
+
+version: 2.1
+
+orbs:
+  browser-tools: circleci/browser-tools@1.1.3
+
+commands:
+  restore-deps:
+    steps:
+      - restore_cache:
+          keys:
+            - deps-{{ checksum "package-lock.json" }}-{{ checksum "jiff/package-lock.json" }}
+            - deps-
+  cache-deps:
+    steps:
+      - save_cache:
+          key: deps-{{ checksum "package-lock.json" }}-{{ checksum "jiff/package-lock.json" }}
+          paths:
+            - node_modules
+            - jiff/node_modules
+  install-deps:
+    steps:
+      - run:
+          name: "Install dependencies"
+          command: |
+            npm install
+            cd jiff
+            npm install
+            cd ..
+  checkout-jiff:
+    steps:
+      - run:
+          name: "Checkout JIFF"
+          command: |
+            git submodule init
+            git submodule update
+  run-test:
+    steps:
+      - run:
+          name: "Run test"
+          command: npm run test
+  start-server:
+    steps:
+      - run:
+          name: "Start server"
+          command: npm run start
+          background: true
+  wait-for-server:
+    steps:
+      - run:
+          name: "Sleep 5 seconds"
+          command: sleep 5
+
+jobs:
+  test:
+    docker:
+      - image: cimg/node:current-browsers
+      - image: circleci/mongo:latest
+    steps:
+      - browser-tools/install-chrome
+      - browser-tools/install-chromedriver
+      - checkout
+      - checkout-jiff
+      - restore-deps
+      - install-deps
+      - cache-deps
+      - start-server
+      - wait-for-server
+      - run-test
+
+workflows:
+  test:
+    jobs:
+      - test
