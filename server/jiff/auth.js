@@ -122,7 +122,7 @@ module.exports = {
     }
   ],
   beforeInitialization: [
-    function (jiff, computation_id, msg, params) {
+    async function (jiff, computation_id, msg, params) {
       // Internal: no authentication
       if (params.party_id === 's1') {
         return params;
@@ -130,12 +130,12 @@ module.exports = {
 
       // Authenticate as analyst
       if (params.party_id === 1) {
-        return analystAuth(computation_id, msg, params);
+        return await analystAuth(computation_id, msg, params);
       }
 
       // Authenticate as data owner party
       if (params.party_id == null) {
-        return userAuth(computation_id, msg, params);
+        return await userAuth(computation_id, msg, params);
       }
 
       throw new Error('Party must either request to be the analyst (party_id = 1) or an non-specific party (party_id = null) with a userkey');

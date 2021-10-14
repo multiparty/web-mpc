@@ -1,5 +1,5 @@
 // Dependencies
-const jiffServer = require('../../jiff/lib/jiff-server.js');
+const JIFFServer = require('../../jiff/lib/jiff-server.js');
 const jiffServerBigNumber = require('../../jiff/lib/ext/jiff-server-bignumber.js');
 const jiffServerRestAPI = require('../../jiff/lib/ext/jiff-server-restful.js');
 
@@ -28,6 +28,7 @@ const cryptoHooks =  {
 const options = { logs: false, sodium: false, hooks: {} };
 const computeOptions = {
   sodium: false,
+  safemod: false,
   Zp: '618970019642690137449562111',  // 2^89-1
   hooks: {
     createSecretShare: [function (jiff, share) {
@@ -43,7 +44,7 @@ options.hooks = Object.assign(options.hooks, mailbox_hooks, authentication_hooks
 // In particular, load session keys and public keys, and use initializeSession below
 // to initialize the sessions.
 function JIFFWrapper(server, app) {
-  this.serverInstance = jiffServer.make_jiff(server, options);
+  this.serverInstance = new JIFFServer(server, options);
   this.serverInstance.apply_extension(jiffServerBigNumber);
   this.serverInstance.apply_extension(jiffServerRestAPI, { app: app, maxBatchSize: Infinity });
   this.serverInstance._wrapper = this;
@@ -69,7 +70,7 @@ require('./tracker.js')(JIFFWrapper);
 JIFFWrapper.prototype.initializeSession = async function (session_key, public_key, password) {
   // Initialize
   var msg = { public_key: public_key, party_id: 1, party_count: MAX_SIZE, password: password };
-  await this.serverInstance.initialize_party(session_key, 1, MAX_SIZE, msg);
+  await this.serverInstance.handlers.initializeParty(session_key, 1, MAX_SIZE, msg);
 };
 
 // Setting up a listener for the session, to start computing when analyst requests.
@@ -79,7 +80,7 @@ JIFFWrapper.prototype.computeSession = async function (session_key) {
   var copy = Object.assign({}, computeOptions);
   copy.hooks = Object.assign({}, computeOptions.hooks, cryptoHooks);
   const computationInstance = this.serverInstance.compute(session_key, computeOptions);
-  computationInstance.initialize_counters();
+  computationInstance.counters.reset();
   computationInstance.connect();
 
   // Send submitters ids to analyst
@@ -89,7 +90,7 @@ JIFFWrapper.prototype.computeSession = async function (session_key) {
   // Perform server-side MPC
   var table_template = require('../../client/app/' + config.client.table_template + '.js');
   var ordering = mpc.consistentOrdering(table_template);
-  mpc.compute(computationInstance, submitters, ordering);
+  await mpc.compute(computationInstance, submitters, ordering);
 };
 
 module.exports = JIFFWrapper;
