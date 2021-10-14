@@ -12,7 +12,7 @@ require.paths = Object.assign(require.paths, {
   BigNumber: '/../bignumber.js/bignumber.min',
   jiff: '/../jiff/jiff-client',
   jiff_bignumber: '/../jiff/ext/jiff-client-bignumber',
-  jiff_restAPI: '/../jiff/ext/jiff-client-restful'
+  jiff_client_restful: '/../jiff/ext/jiff-client-restful'
 });
 
 require.shim = Object.assign(require.shim, {
@@ -26,7 +26,7 @@ require.shim = Object.assign(require.shim, {
       this.jiff_bignumber.dependencies({ BigNumber: BigNumber });
     }
   },
-  jiff_restAPI: {
+  jiff_client_restful: {
     exports: 'jiff_restAPI'
   }
 });
