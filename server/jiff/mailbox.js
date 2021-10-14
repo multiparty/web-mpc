@@ -5,7 +5,7 @@ const Chunker = require('./chunker.js');
 const chunkers = {};
 
 module.exports = {
-  put_in_mailbox: function (jiff, label, msg, computation_id, to_id) {
+  putInMailbox: function (jiff, label, msg, computation_id, to_id) {
     // computation_id: same as session key
     // msg JSON string
     // label string: share / open / etc ..
@@ -22,7 +22,7 @@ module.exports = {
     });
   },
 
-  get_mailbox : async function (jiff, computation_id, to_id) {
+  getFromMailbox : async function (jiff, computation_id, to_id) {
     try {
       var data;
       if (to_id !== 1) {
@@ -44,7 +44,7 @@ module.exports = {
   },
 
   // Logical slicing (without actual removing)
-  slice_mailbox: function (jiff, computation_id, party_id, length) {
+  sliceMailbox: function (jiff, computation_id, party_id, length) {
     if (party_id === 1) {
       if (chunkers[computation_id]) {
         chunkers[computation_id].slice();
@@ -58,5 +58,5 @@ module.exports = {
   },
 
   // Do not remove anything from the mailbox/db ever
-  remove_from_mailbox: function () { }
+  removeFromMailbox: function () { }
 };
