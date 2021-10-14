@@ -34,7 +34,7 @@ module.exports = {
 
       var result = [];
       for (var d of data) {
-        result.push({msg: d.message, label: d.label});
+        result.push({msg: d.message, label: d.label, id: d._id});
       }
       return result;
     } catch (err) {
