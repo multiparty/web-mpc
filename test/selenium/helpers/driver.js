@@ -18,7 +18,8 @@ module.exports = {
         'profile.default_content_setting_values.automatic_downloads': 1,  // allow multiple file download chrome >46
         'profile.default_content_settings.multiple-automatic-downloads': 1,  // allow multiple file download chrome <46
         'download.prompt_for_download': false
-      }))
+      })
+      .addArguments('--remote-debugging-port=9222'))
       .build();
 
     return driver;
