@@ -1,25 +1,59 @@
-# web-mpc
+# WEB-MPC
+
 [![DOI](https://zenodo.org/badge/84491506.svg)](https://zenodo.org/badge/latestdoi/84491506) [![CircleCI Build Status](https://circleci.com/gh/multiparty/web-mpc.svg?style=shield)](https://app.circleci.com/pipelines/github/multiparty/web-mpc)
 
-Implementation of a web-based data collection and aggregation infrastructure that utilizes secure multi-party 
-computation techniques to allow individual contributors to submit their data without revealing it to the other participants.
+Implementation of a web-based data collection and aggregation infrastructure that utilizes secure multi-party computation techniques to allow individual contributors to submit their data without revealing it to the other participants.
 
+## Requirements
 
-## Environment
+* Node.js
+* MongoDB
+* [JIFF](https://github.com/multiparty/jiff/) (Bundled as a Git submodule)
 
-This procedure is for demonstration and development purposes only. For a true deployment, you will 
-need to have a registered domain, and install Nginx with Let's Encrypt as a reverse proxy for port 8080.
+## Quick Start Instructions
 
-It is expected that this application will operate on an Amazon Web Services EC2 instance running Amazon Linux under a 
-security group that permits connections on ports 22 with SSH and 8080 with a custom TCP rule. Store the .pem key file for the EC2 instance somewhere safe,
-SSH onto the instance following the instructions on the Amazon EC2 console, then set up the server environment as follows:
+These instructions are for demonstration and development purposes only. For a full, secure deployment, follow one of the two full instructions below.
 
-* First, install the node version manager and activate it.
+* Install and start MongoDB
+* Clone WEB-MPC
+```
+git clone https://github.com/multiparty/web-mpc.git
+cd web-mpc/
+```
+* Clone the JIFF submodule
+```
+git submodule init
+git submodule update
+```
+* Install WEB-MPC dependencies
+```
+npm install
+```
+* Install JIFF dependencies
+```
+cd jiff/
+npm install
+cd ../
+```
+Note that installing WEB-MPC dependencies will break JIFF's dependencies. Hence, JIFF dependencies **must** be installed at least once after each install of WEB-MPC dependencies.
+* Select the WEB-MPC deployment. See the [Deployments](#Deployments) section
+* Start the WEB-MPC server
+```
+npm start
+```
+* Navigate to the website at `https://localhost:8080`
+
+## EC2 Instructions
+These instructions were written for an AWS EC2 instance running Amazon Linux. The instance's security group should allow SSH on port 22 and TCP on port 8080.
+
+You will need to have a registered domain and will need to use Nginx with Let's Encrypt as a reverse proxy for port 8080.
+
+* SSH onto the EC2 instance
+* First, install the Node.js version manager and activate it
 ```
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
 . ~/.nvm/nvm.sh
 ```
-
 * Next, install the latest version of Node.js. This also installs the Node package manager (npm). 
 ```
 nvm install node
@@ -37,27 +71,33 @@ gpgkey=https://www.mongodb.org/static/pgp/server-4.2.asc" | sudo tee /etc/yum.re
 sudo yum -y update
 sudo yum install -y gcc-c++ mongodb-org-server mongodb-org-shell mongodb-org-tools
 ```
-* Clone into the web-mpc repository
+* Clone the WEB-MPC repository
 ```
 sudo yum install git -y
 git clone https://github.com/multiparty/web-mpc.git
-```
-* Navigate to the `web-mpc/` directory and set up JIFF:
-```
 cd web-mpc/
+```
+* Set up the JIFF submodule:
+```
 git submodule init
 git submodule update
-cd jiff && npm install
 ```
-
-Navigate back to the `web-mpc/` directory, install the NPM dependencies, and install the global dependency:
-
+* Install WEB-MPC dependencies
 ```
 npm install
+```
+* Install JIFF dependencies
+```
+cd jiff/
+npm install
+cd ../
+```
+Note that installing WEB-MPC dependencies will break JIFF's dependencies. Hence, JIFF dependencies **must** be installed at least once after each install of WEB-MPC dependencies.
+* Install the `forever` global dependency to ensure the server runs continuously
+```
 npm install -g forever
 ```
-
-Install authbind:
+* Install authbind:
 ```
 sudo rpm -Uvh https://s3.amazonaws.com/aaronsilber/public/authbind-2.1.1-0.1.x86_64.rpm
 ```
@@ -66,114 +106,105 @@ sudo rpm -Uvh https://s3.amazonaws.com/aaronsilber/public/authbind-2.1.1-0.1.x86
 sudo mkdir -p /data/db
 sudo mongod &
 ```
-* Finally, navigate to the server directory, and run.
+* Select the WEB-MPC deployment. See the [Deployments](#Deployments) section
+* Start the WEB-MPC server
 ```
 cd server/
 authbind --deep forever -o log.txt -e error.txt start index.js
 ```
+* Navigate to the domain or to the EC2 instance's public IP address to view the page
 
-If you don't have a domain set up for your server, you can navigate on your computer's browser to the EC2 instance's 
-public IP address (as listed on the ec2 console for the instance):
+## Local Machine Instructions
+These instructions describe steps to deploy WEB-MPC on a local machine.
 
-``` 
-<ip address here>:8080
+* Install and start MongoDB
+* Clone WEB-MPC
 ```
-to view the web-page.
-
-## Local machine installation
-
-Instructions for setting up the environment on a Mac OS X or Linux local machine.
-
-* Make sure to have Node.js and MongoDB installed.
-* Navigate to the `web-mpc/` directory and install the NPM dependencies:
+git clone https://github.com/multiparty/web-mpc.git
+cd web-mpc/
+```
+* Clone the JIFF submodule
+```
+git submodule init
+git submodule update
+```
+* Install WEB-MPC dependencies
 ```
 npm install
 ```
-* Now install the global dependency:
+* Install JIFF dependencies
 ```
-npm install -g forever
+cd jiff/
+npm install
+cd ../
 ```
-* In order to install the global dependencies, you may need to run the `npm install -g forever` command 
-as `sudo npm install -g forever`.
-
+Note that installing WEB-MPC dependencies will break JIFF's dependencies. Hence, JIFF dependencies **must** be installed at least once after each install of WEB-MPC dependencies.
+* Install the `forever` global dependency to ensure the server runs continuously
+```
+sudo npm install -g forever
+```
 * Create the database file:
 ```
 mkdir -p /data/db
 ```
-* Start the MongoDB server:
+* Start the MongoDB server
 ```
 mongod
 ```
-* Open a new terminal tab or window and navigate back to the `web-mpc/` directory if you are not already there.
-
-* Initialize JIFF:
-```
-git submodule init
-git submodule update
-cd jiff && npm install
-```
-* Note that the `npm install` within the `/jiff` directory is within the `web-mpc/jiff` directory, not the
- `web-mpc/server/jiff` directory.
-#### Non-production testing
-
-* For testing, start the Node.js server with no environment variables:
-```
-node server/index.js
-```
-
-#### Production release
-
-* For production, start the Node.js server with a production environment variable:
+* Set environment variables for a production deployment
 ```
 export NODE_ENV=production
-node server/index.js
+```
+* Select the WEB-MPC deployment. See the [Deployments](#Deployments) section
+* Start the WEB-MPC server
+```
+forever start server/index.js
 ```
 * Open up the browser and navigate to "localhost:8080"
 
-## Specifying a Deployment
+## Deployments
 
-This application can be used for a variety of deployments. Each deployment may have a different domain name 
-and https certificate settings, as well as a different data format/layout.
+WEB-MPC supports multiple deployments. A deployment refers to one particular data collection campaign. Each deployment may have different data formats, domain names, and HTTPS certificate settings.
 
-server/config contains configuration files for each deployment specifying its https parameters and its data template.
-Data templates are json files typically located in client/app/data/, they are used to automatically render HTML UI and
-handle data aggregation.
+The `server/config/` directory contains configuration files for each deployment specifying their respective HTTPS parameters and data templates.
 
-The deployment is set to pacesetters by default, to change it, set a deployment environment variable"
+Data templates are `.json` files that define the structure of the input data. The templates are also used to render the HTML UI. Paths to the each data template is defined in its respective `server/config` configuration file and are typically located in `client/app/data/`.
+
+### Specifying a Deployment
+
+The deployment is set to Pacesetters by default. To change it, set a deployment environment variable.
 ```bash
-export WEBMPC_DEPLOYMENT=deployment_name
+export WEBMPC_DEPLOYMENT=<deployment_name>
 ```
+If the deployment template file at `server/config/<deployment_name>.json` does not exist or is invalid, the server will fail to start.
 
-It is required that server/config/<deployment_name>.json is a valid configuration file. If the file is
-invalid, the server will fail on start.
+## Usage
 
-## Application usage
+The instructions below demonstrate how to operate the WEB-MPC application. All steps below are performed on the WEB-MPC web application in the browser.
 
-Instructions on how to operate the web-mpc application. All steps below are performed in the browser.
+### Generate session key
 
-#### Generate session key
+* Navigate to `localhost:8080/create`
+* Click on **Generate Session** and save the two given files, one contains the session key and password which are needed for managing the session. The other contains a secret key needed to unmask the results.
 
-* Navigate to `localhost:8080/create`.
-* Click on **Generate Session** and save the two given files, one contains the session key and password which are needed for managing the session. The other contains a secret key needed to unmask the aggregate.
+### Manage session
 
-#### Manage session
+* Navigate to `localhost:8080/manage`
+* Input your session key and password
+* Generate participation links
+* Start the session
 
-* Navigate to `localhost:8080/manage`.
-* Input your session key and password.
-* Generate participation links.
-* Start the session.
-
-#### Fill out data
+### Fill out data
 
 * All participants will open a unique participation link, and proceed to fill out the information. Once completed, click **Submit**.
 
-#### Retrieve the result
+### Retrieve the result
 
-* Stop the session in `localhost:8080/manage`.
-* Click the **unmask** link.
-* Paste the session key and password in its designated fields.
-* Click **Browse** and upload the private key file that was downloaded when generating the session key.
-* Click **Unmask Data** and view the result.
+* Stop the session in `localhost:8080/manage`
+* Click the **unmask** link
+* Paste the session key and password in its designated fields
+* Click **Browse** and upload the private key file that was downloaded when generating the session key
+* Click **Unmask Data** and view the result
 
 ## License
 Web-mpc is freely distributable under the terms of the [MIT license](https://github.com/multiparty/web-mpc/blob/master/LICENSE). This release supports Handsontable's "[Nested headers](https://docs.handsontable.com/pro/1.17.0/demo-nested-headers.html)", a Pro feature. A [valid license](https://handsontable.com/pricing) must be obtained when using this feature.
