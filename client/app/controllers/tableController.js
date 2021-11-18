@@ -365,6 +365,11 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'alertify', 'qt
       table_widths[result[t].rootElement.id] = get_width(result[t]);
     }
 
+    // TODO: hack for testing
+    if (!window.__tables) {
+      window.__tables = result;
+    }
+
     return result;
   }
 
