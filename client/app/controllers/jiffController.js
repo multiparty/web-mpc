@@ -1,5 +1,4 @@
-define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'table_template'], function (mpc, pki, BigNumber, jiff, jiff_bignumber, jiff_restAPI, table_template) {
-  jiff.dependencies({ io: jiff_restAPI.io });
+define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_client_restful', 'table_template'], function (mpc, pki, BigNumber, JIFFClient, jiff_bignumber, jiff_client_restful, table_template) {
 
   var cryptoHooks = {
     encryptSign: function (jiff, message, receiver_public_key) {
@@ -63,25 +62,28 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
         }]
       },
       public_keys: {
-        's1': 's1'
+        s1: 's1'
       }
     };
     baseOptions = Object.assign(baseOptions, options);
     baseOptions.hooks = Object.assign({}, baseOptions.hooks, cryptoHooks);
-    var bigNumberOptions = { Zp: '618970019642690137449562111' }; // 2^89-1
+    var bigNumberOptions = {
+      Zp: '618970019642690137449562111', // Must be set to a prime number! Currently 2^89-1
+      safemod: false
+    };
 
     var restOptions = {
       flushInterval: 0,
       pollInterval: 0,
-      maxBatchSize: 1000
+      maxBatchSize: 5000
     };
 
     var port = window.location.port === '8080' ? ':8080' : '';
-    var instance = jiff.make_jiff(window.location.protocol + '//' + window.location.hostname + port, session, baseOptions);
+    var instance = new JIFFClient(window.location.protocol + '//' + window.location.hostname + port, session, baseOptions);
     instance.apply_extension(jiff_bignumber, bigNumberOptions);
-    instance.apply_extension(jiff_restAPI, restOptions);
+    instance.apply_extension(jiff_client_restful, restOptions);
 
-    instance.connect(true);
+    instance.connect();
     return instance;
   };
 
@@ -117,8 +119,9 @@ define(['mpc', 'pki', 'BigNumber', 'jiff', 'jiff_bignumber', 'jiff_restAPI', 'ta
         callback(null, JSON.stringify({ status: false, error: errorString }));
       },
       initialization: {
-        userkey: userkey
-      }
+        userkey: userkey,
+      },
+      party_id: null
     };
 
     // Initialize and submit
