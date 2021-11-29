@@ -1,7 +1,7 @@
 const modulesWrappers = require('../modules/modulesWrappers.js');
 
 module.exports = {
-  put_in_mailbox: function (jiff, label, msg, computation_id, to_id) {
+  putInMailbox: function (jiff, label, msg, computation_id, to_id) {
     // computation_id: same as session key
     // msg JSON string
     // label string: share / open / etc ..
@@ -18,14 +18,14 @@ module.exports = {
     });
   },
 
-  get_mailbox : function (jiff, computation_id, to_id) {
+  getFromMailbox: function (jiff, computation_id, to_id) {
     // party_id: either 1 or s1
     var promise = modulesWrappers.Mailbox.query(computation_id, to_id);
 
     return promise.then(function (data) {
       var result = [];
       for (var d of data) {
-        result.push({ msg: d.message, label: d.label });
+        result.push({ msg: d.message, label: d.label, id: d._id });
       }
       return result;
     }).catch(function (err) {
@@ -35,6 +35,6 @@ module.exports = {
   },
 
   // Do not remove anything from the mailbox/db ever
-  remove_from_mailbox: function () { },
-  slice_mailbox: function () { }
+  removeFromMailbox: function () { },
+  sliceMailbox: function () { }
 };

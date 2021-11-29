@@ -40,7 +40,7 @@ module.exports = function (app) {
   });
 
   app.use(express.static(__dirname + '/../client'));
-  app.use('/jiff', express.static(__dirname + '/../jiff/lib'));
-  app.use('/jiff/ext', express.static(__dirname + '/../jiff/ext'));
+  app.use('/jiff', express.static(__dirname + '/../jiff/dist'));
+  app.use('/jiff/ext', express.static(__dirname + '/../jiff/lib/ext'));
   app.use('/bignumber.js', express.static(__dirname + '/../jiff/node_modules/bignumber.js'));
 };

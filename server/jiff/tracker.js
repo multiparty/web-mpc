@@ -2,7 +2,7 @@ const modulesWrappers = require('../modules/modulesWrappers.js');
 
 module.exports = function (JIFFWrapper) {
   // Keeps track of submitters IDs
-  JIFFWrapper.prototype.trackParty = function (session_key, jiff_party_id, status) {
+  JIFFWrapper.prototype.trackParty = async function (session_key, jiff_party_id, status) {
     if (jiff_party_id === 's1' || jiff_party_id === 1) {
       return;
     }
