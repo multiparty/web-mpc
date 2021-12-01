@@ -1,6 +1,6 @@
 const Promise = require('bluebird');
 const auth = require('../app/auth.js');
-const modulesWrappers = require('../modules/modulesWrappers.js');
+const modelWrappers = require('../models/modelWrappers.js');
 
 // Wrappers around ../app/auth.js
 function analystAuth(computation_id, msg, params) {
@@ -31,7 +31,7 @@ function userAuth(computation_id, msg, params) {
 
 // Helper that verifies the session status
 function verifyStatus(sessionKey, expectedStatus) {
-  var promise = modulesWrappers.SessionInfo.get(sessionKey);
+  var promise = modelWrappers.SessionInfo.get(sessionKey);
 
   return promise.catch(function (err) {
     console.log('Error verifying status', err);

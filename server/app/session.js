@@ -4,7 +4,7 @@
  */
 
 // DB Operation Wrappers
-const modulesWrappers = require('../modules/modulesWrappers.js');
+const modelWrappers = require('../models/modelWrappers.js');
 const helpers = require('./helpers.js');
 
 // Export route handlers
@@ -19,7 +19,7 @@ module.exports.createSession = function (context, body, res) {
   var title = body.title.split('<').join('&lt;').split('>').join('&gt;');
   var description = body.description.split('<').join('&lt;').split('>').join('&gt;');
 
-  var promise = modulesWrappers.SessionInfo.insert(sessionID, publickey, password, title, description);
+  var promise = modelWrappers.SessionInfo.insert(sessionID, publickey, password, title, description);
   promise.then(function () {
     console.log('Session generated for:', sessionID);
 
@@ -37,7 +37,7 @@ module.exports.createSession = function (context, body, res) {
 
 // endpoint for verifying user and session key and getting the session info.
 module.exports.getSessionInfo = function (context, body, response) {
-  var promise = modulesWrappers.SessionInfo.get(body.session);
+  var promise = modelWrappers.SessionInfo.get(body.session);
 
   promise.then(function (data) {
     if (data) {

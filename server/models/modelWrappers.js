@@ -1,5 +1,5 @@
 const Promise = require('bluebird');
-const modules = require('./modules.js');
+const models = require('./models.js');
 
 /**
  *  HISTORY MODULE
@@ -7,7 +7,7 @@ const modules = require('./modules.js');
 // find history for a given session
 var queryHistory = function (session_key, last_fetch) {
   return new Promise(function (resolve, reject) {
-    var query = modules.History.where({session: session_key});
+    var query = models.History.where({session: session_key});
     if (last_fetch != null) {
       query = query.gt('date', last_fetch);
     }
@@ -25,7 +25,7 @@ var queryHistory = function (session_key, last_fetch) {
 
 // add to history of a given session
 var insertHistory = function (session_key, jiff_party_id, success) {
-  var history = new modules.History({
+  var history = new models.History({
     session: session_key,
     jiff_party_id: jiff_party_id,
     date: Date.now(),
@@ -48,7 +48,7 @@ var insertHistory = function (session_key, jiff_party_id, success) {
  */
 // insert new session
 var insertSessionInfo = function (session_key, public_key, password, title, description) {
-  var sessionInfo = new modules.SessionInfo({
+  var sessionInfo = new models.SessionInfo({
     _id: session_key,
     session: session_key,
     pub_key: public_key,
@@ -86,7 +86,7 @@ var updateSessionInfo = function (sessionInfo) {
 // get all sessions
 var allSessionInfo = function () {
   return new Promise(function (resolve, reject) {
-    modules.SessionInfo.find({}, function (err, data) {
+    models.SessionInfo.find({}, function (err, data) {
       if (err) {
         reject(err);
       } else {
@@ -104,7 +104,7 @@ var getSessionInfo = function (session, password) {
   }
 
   return new Promise(function (resolve, reject) {
-    modules.SessionInfo.findOne(obj, function (err, data) {
+    models.SessionInfo.findOne(obj, function (err, data) {
       if (err) {
         reject(err);
       } else {
@@ -120,7 +120,7 @@ var getSessionInfo = function (session, password) {
 // find user by session key and user key
 var getUserKey = function (session_key, user_key) {
   return new Promise(function (resolve, reject) {
-    modules.UserKey.findOne({_id: session_key + user_key}, function (err, data) {
+    models.UserKey.findOne({_id: session_key + user_key}, function (err, data) {
       if (err) {
         reject(err);
       } else {
@@ -133,7 +133,7 @@ var getUserKey = function (session_key, user_key) {
 // find user keys by session key
 var queryUserKey = function (session_key) {
   return new Promise(function (resolve, reject) {
-    var query = modules.UserKey.where({ session: session_key});
+    var query = models.UserKey.where({ session: session_key});
     query.find(function (err, data) {
       if (err) {
         reject(err);
@@ -148,11 +148,11 @@ var queryUserKey = function (session_key) {
 var insertManyUserKey = function (array) {
   array = array.map(function (obj) {
     obj['_id'] = obj.session + obj.userkey;
-    return new modules.UserKey(obj);
+    return new models.UserKey(obj);
   });
 
   return new Promise(function (resolve, reject) {
-    modules.UserKey.insertMany(array, function (err) {
+    models.UserKey.insertMany(array, function (err) {
       if (err) {
         reject(err);
       } else {
@@ -170,7 +170,7 @@ var upsertMailbox = function (session_key, from_jiff_party_id, to_jiff_party_id,
   return new Promise(function (resolve, reject) {
     var id = session_key + ':' + from_jiff_party_id + ':' + to_jiff_party_id + ':' + op_id;
 
-    var obj = new modules.Mailbox({
+    var obj = new models.Mailbox({
       _id: id,
       session: session_key,
       from_id: from_jiff_party_id.toString(),
@@ -180,7 +180,7 @@ var upsertMailbox = function (session_key, from_jiff_party_id, to_jiff_party_id,
       message: msg
     });
 
-    modules.Mailbox.update({_id: id}, obj.toObject(), {upsert: true}, function (err) {
+    models.Mailbox.update({_id: id}, obj.toObject(), {upsert: true}, function (err) {
       if (err) {
         reject(err);
       } else {
@@ -195,7 +195,7 @@ var queryMailbox = function (session_key, to_jiff_party_id) {
   var obj = { session: session_key, to_id: to_jiff_party_id };
 
   return new Promise(function (resolve, reject) {
-    modules.Mailbox.where(obj).find(function (err, data) {
+    models.Mailbox.where(obj).find(function (err, data) {
       if (err) {
         reject(err);
       } else {

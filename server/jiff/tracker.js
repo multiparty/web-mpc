@@ -1,4 +1,4 @@
-const modulesWrappers = require('../modules/modulesWrappers.js');
+const modelWrappers = require('../models/modelWrappers.js');
 
 module.exports = function (JIFFWrapper) {
   // Keeps track of submitters IDs
@@ -7,7 +7,7 @@ module.exports = function (JIFFWrapper) {
       return;
     }
 
-    var promise = modulesWrappers.History.insert(session_key, jiff_party_id, status);
+    var promise = modelWrappers.History.insert(session_key, jiff_party_id, status);
     return promise.catch(function (err) {
       console.log('Failed to track party', err);
       throw new Error('Error writing submission to database');
@@ -18,8 +18,8 @@ module.exports = function (JIFFWrapper) {
     var submitters_ids = {};
 
     // Load history and user keys/codes for this session
-    var history = await modulesWrappers.History.query(session_key);
-    var codes = await modulesWrappers.UserKey.query(session_key);
+    var history = await modelWrappers.History.query(session_key);
+    var codes = await modelWrappers.UserKey.query(session_key);
 
     // Map every id to its cohort
     var id_to_cohort = {};

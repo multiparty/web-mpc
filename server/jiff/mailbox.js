@@ -1,4 +1,4 @@
-const modulesWrappers = require('../modules/modulesWrappers.js');
+const modelWrappers = require('../models/modelWrappers.js');
 
 module.exports = {
   putInMailbox: function (jiff, label, msg, computation_id, to_id) {
@@ -11,7 +11,7 @@ module.exports = {
       tmp['op_id'] = 'public_keys';
     }
 
-    var promise = modulesWrappers.Mailbox.upsert(computation_id, tmp['party_id'], to_id, tmp['op_id'], label, msg);
+    var promise = modelWrappers.Mailbox.upsert(computation_id, tmp['party_id'], to_id, tmp['op_id'], label, msg);
     return promise.catch(function (err) {
       console.log('Error in putting in mailbox', err);
       throw new Error('Unable to save aggregate, please try again.');
@@ -20,7 +20,7 @@ module.exports = {
 
   getFromMailbox: function (jiff, computation_id, to_id) {
     // party_id: either 1 or s1
-    var promise = modulesWrappers.Mailbox.query(computation_id, to_id);
+    var promise = modelWrappers.Mailbox.query(computation_id, to_id);
 
     return promise.then(function (data) {
       var result = [];
