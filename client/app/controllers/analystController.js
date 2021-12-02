@@ -6,7 +6,7 @@
  */
 /* global saveAs, Uint8Array */
 
-define(['filesaver', 'pki'], function (filesaver, pki) {
+define(['pki', 'alertHandler'], function (pki, alertHandler) {
 
   'use strict';
 
@@ -115,12 +115,9 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
       });
   }
 
-  function generateSession(hiddenDiv, sessionID, passwordID, pubID, privID, linkID, titleID, descriptionID) {
-    var title = document.getElementById(titleID).value;
-    var description = document.getElementById(descriptionID).value;
-
+  function generateSession(title, description) {
     if (title == null || description == null || title === '' || description === '') {
-      alert('Session title and description are required');
+      alertHandler.error('Session title and description are required');
       return null;
     }
 
@@ -128,42 +125,27 @@ define(['filesaver', 'pki'], function (filesaver, pki) {
       var privateKey = result.privateKey;
       var publicKey = result.publicKey;
 
-      var priBlob = new Blob([privateKey], {type: 'text/plain;charset=utf-8'});
-
       return $.ajax({
         type: 'POST',
         url: '/create_session',
         contentType: 'application/json',
         data: JSON.stringify({publickey: publicKey, title: title, description: description})
       })
-      .then(function (resp) {
-        var rndSess = resp.sessionID;
-        var password = resp.password;
-        document.getElementById(privID).innerHTML = privateKey;
-        document.getElementById(pubID).innerHTML = publicKey;
-        document.getElementById(sessionID).innerHTML = rndSess;
-        document.getElementById(passwordID).innerHTML = password;
-        // TODO clean up how this workflow
-        document.getElementById(linkID).innerHTML = 'tracking page';
-        document.getElementById(linkID).href = '/track?session=' + rndSess;
-
-        filesaver.saveAs(priBlob, 'Session_' + rndSess + '_private_key.pem');
-
-        var text = 'Session Key:\n' + rndSess + '\nPassword:\n' + password;
-        filesaver.saveAs(new Blob([text], {type: 'text/plain;charset=utf-8'}), 'Session_' + rndSess + '_password.txt');
-      })
-      .catch(function () {
-        var errmsg = 'ERROR!!!: failed to load public key to server, please try again';
-        document.getElementById(sessionID).innerHTML = errmsg;
-        document.getElementById(privID).innerHTML = errmsg;
-        document.getElementById(pubID).innerHTML = errmsg;
-        document.getElementById(passwordID).innerHTML = errmsg;
-      });
+        .then(function (resp) {
+          return {
+            cohort_mapping: resp.cohort_mapping,
+            password: resp.password,
+            sessionID: resp.sessionID,
+            privateKey: privateKey
+          };
+        })
+        .catch(function () {
+          alertHandler.error('ERROR: Error creating new session. Please refresh the page and try again.');
+          return null;
+        });
     }).catch(function () {
-      var errmsg = 'ERROR!!!: failed to load public key to server, please try again';
-      document.getElementById(sessionID).innerHTML = errmsg;
-      document.getElementById(privID).innerHTML = errmsg;
-      document.getElementById(pubID).innerHTML = errmsg;
+      alertHandler.error('ERROR: Error creating new session. Please refresh the page and try again.');
+      return null;
     });
   }
 
