@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>Trusted Party Secure Session Creator</title>
-  <link rel="icon" type="image" href="images/gbcc-small.png">
+  <link rel="icon" type="image" href="{{ logo }}" alt="{{ organization }} logo">
 
   <script type="text/javascript" src="app/helper/object.assign-polyfill.js"></script>
   <script type="text/javascript" src="app/config/common.js"></script>
@@ -15,6 +15,10 @@
         integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.0/ladda-themeless.min.css"
         integrity="sha256-d7VZTlP9P3ZTCZ3Bkl8aGZ/+Vs4i+bpcOGNfibU7+LU=" crossorigin="anonymous"/>
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.10.0/css/alertify.min.css"
+        integrity="sha256-bNEFYRlNlnu0CH4DIKCXv0F6JVl/DdA2M9XVZn317q0=" crossorigin="anonymous"/>
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.10.0/css/themes/bootstrap.min.css"
+        integrity="sha256-vt37wNLVK8ICNWGrl+1MLb+pjq33sn6v37Q/7OPgkSU=" crossorigin="anonymous"/>
 
   <link rel="stylesheet" href="/styles/style.css">
 
@@ -26,7 +30,7 @@
       <small>Secure Session Creator</small>
     </h1>
     <div id="logos">
-      <img src="images/gbcc.png" alt="gbcc Logo"/>
+      <img src="{{ logo }}" alt="{{ organization}} Logo"/>
       <img src="images/bu.gif" alt="BU Logo"/>
     </div>
   </div>
@@ -35,24 +39,15 @@
 <main id="content" class="container">
 
   <div class="row">
-    <section class="card col-md-10 col-md-offset-1">
+    <section id="session-creation" class="card col-md-10 col-md-offset-1 collapse in">
       <h2 class="text-center">Create a new session</h2>
-      <p class="text-center">After generating a secure session, please keep the private key files named <b>Session_#######_private_key.pem</b>
-        and <b>Session_#######_password.txt</b>.
-        All secured data will be lost if the private key is lost. Also, you will not be able to manage the session if
-        you
-        loose the password or session key.
-        Do <b>not</b> share your private key. Click on "Go To Live Data Page", enter the password, then generate and
-        email
-        links to the participants.
-        You can generate more links later. Once the data is collected from the participants, with your private key,
-        continue to the next step.</p>
+      <p class="text-center">
       <hr/>
       <form class="form-horizontal">
         <div class="form-group">
           <label class="col-sm-3 control-label" for="session-title">Session title</label>
           <div class="col-sm-9">
-            <input type="text" id="session-title" class="form-control" placeholder="Title"
+            <input type="text" id="session-title" class="form-control" placeholder="{{ organization }} Data Submission"
                    autocomplete="off" required/>
             <span id="title-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
                   aria-hidden="true"></span>
@@ -86,19 +81,32 @@
   </div>
 
   <div class="row">
-    <section id="session-details" class="card col-md-10 col-md-offset-1 hidden">
+    <section id="session-details" class="card col-md-10 col-md-offset-1 collapse">
       <h2 class="text-center">Session details</h2>
-      <p class="text-center">Please keep a copy of the information below. Visit the <a id="link-id" href="/track">tracking
-        page</a> to generate URLs for participants.</p>
       <hr/>
-      <h3>Session Key (please email to participants)</h3>
+      <h3 id="sessionKeyID"> {{ session_key }} </h3>
+      <p>The {{ session_key }} is a unique identifier for this session. It will be provided to participants as well. Please record this in order to manage the session and verify that participants are in the correct session.</p>
       <pre id="sessionID"></pre>
-      <h3>Session Password (Keep to yourself to unmask and manage session)</h3>
+      <h3>Session Password <span class='glyphicon glyphicon-lock'></span></h3>
+      <p>The session password is required in order to manage the session. This includes adding participants, changing the session status, and receiving results. <span class="font-weight-bold">Do not share your password with anyone.</span></p>
       <pre id="passwordID"></pre>
-      <h3>Public Key</h3>
-      <pre id="pubkeyID"></pre>
-      <h3>Private Key (do not share)</h3>
+      <h3>Private Key <span class='glyphicon glyphicon-lock'></span></h3>
+      <p>The private key is required to receive results. Without it, none of the data will be accessible. <span class="font-weight-bold">Do not share your private key with anyone.</span></p>
       <pre id="privkeyID"></pre>
+
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" id="verify" name="verify">I have saved the {{ session_key }}, session password, and private key in a secure location.
+        </label>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
+          <a id="link-id" href="/manage"><button type="submit" id="submit" class="btn btn-primary ladda-button btn-lg btn-block" disabled>Proceed to Manage Session
+          </button></a>
+        </div>
+      </div>
+
     </section>
   </div>
 

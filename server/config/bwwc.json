@@ -9,7 +9,7 @@
       "www.100talent.org",
       "100talent.org"
     ],
-    "email": "fjansen@bu.edu",
+    "email": "hicsail@bu.edu",
     "agreeTos": true
   },
 
@@ -17,6 +17,9 @@
     "table_template": "data/bwwc",
     "organization": "Boston Women's Workforce Council",
     "subtitle": "100% Talent Data Submission",
-    "logo": "images/bwwc.png"
+    "logo": "images/bwwc.png",
+    "cohort": "Industry",
+    "session_key": "BWWC 2021 Submission ID",
+    "email": "team@thebwwc.org"
   }
 }

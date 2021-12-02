@@ -3,40 +3,35 @@
  */
 
 const express = require('express');
-const path = require('path');
 
 const config = require('./config/config.js');
+const rendering = {
+  index: require('./rendering/index.js')
+};
 
 module.exports = function (app) {
   // serve static files in designated folders
   app.get('/', function (req, res) {
     // /client/index.html
-    res.render('index.html', config.client);
+    rendering['index'].render(app, req, res);
   });
 
-  app.get('/session', function (req, res) {
-    res.sendFile((path.join(__dirname + '/../client/create.html')));
+  app.get('/definitions', function (req, res) {
+    res.render('definitions.html', config.client);
   });
 
   app.get('/create', function (req, res) {
-    res.sendFile((path.join(__dirname + '/../client/create.html')));
-  });
-
-  app.get('/track', function (req, res) {
-    res.sendFile((path.join(__dirname + '/../client/manage.html')));
+    res.render('create.html', config.client);
   });
 
   app.get('/manage', function (req, res) {
-    res.sendFile((path.join(__dirname + '/../client/manage.html')));
+    // /client/manage.html
+    res.render('manage.html', config.client);
   });
 
   app.get('/unmask', function (req, res) {
     // /client/unmask.html
     res.render('unmask.html', config.client);
-  });
-
-  app.get('/definitions', function (req, res) {
-    res.sendFile((path.join(__dirname + '/../client/definitions.html')));
   });
 
   app.use(express.static(__dirname + '/../client'));

@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Trusted Party Data Unmasker</title>
-  <link rel="icon" type="image" href="images/gbcc-small.png">
+  <title>{{ organization }}</title>
+  <link rel="icon" type="image" href="{{ logo }}" alt="{{ organization }} logo">
 
   <script type="text/javascript">
     var require = {
@@ -45,7 +45,7 @@
       <small>Aggregate Data Unmasker</small>
     </h1>
     <div id="logos">
-      <img src="images/gbcc.png" alt="gbcc Logo"/>
+      <img src="{{ logo }}" alt="{{ organization}} Logo"/>
       <img src="images/bu.gif" alt="BU Logo"/>
     </div>
   </div>
@@ -56,21 +56,21 @@
   <div class="row">
     <section id="session-area" class="card col-md-10 col-md-offset-1">
       <h2 class="text-center">Unmask Aggregate Data</h2>
-      <p class="text-center">Please make sure you have the correct session key, session password, and private key</p>
+      <p class="text-center">Please make sure you have the correct {{ session_key }}, session password, and private key.</p>
       <hr/>
       <div class="row">
         <div class="col-md-6">
           <form>
             <div class="form-group">
-              <label class="control-label" for="session">Session Key</label>
-              <input type="text" id="session" class="form-control" placeholder="Session Key"
+              <label class="control-label" for="session">{{ session_key }}</label>
+              <input type="text" id="session" class="form-control" placeholder="{{ session_key }}"
                      pattern="^[a-zA-Z0-9]{26}$" autocomplete="off" required/>
               <span id="session-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
                     aria-hidden="true"></span>
               <span id="session-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
                     aria-hidden="true"></span>
               <span id="session-fail-help"
-                    class="fail-help help-block hidden">Please input the 26-character session key.</span>
+                    class="fail-help help-block hidden">Please input the 26-character {{ session_key }}.</span>
               <span id="session-fail-custom-help"
                     class="fail-custom help-block hidden"></span>
             </div>
@@ -108,7 +108,7 @@
   <div class="row">
     <section id="instructions" class="card col-md-10 col-md-offset-1">
       <h2 class="text-center">Aggregate data</h2>
-      <p class="text-center">Your data will be downloaded after you submit the session key, password, and private key</p>
+      <p class="text-center">Your data will be downloaded after you submit the {{ session_key }}, password, and private key.</p>
     </section>
   </div>
 </main>

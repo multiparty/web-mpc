@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width,initial-scale=1" name="viewport">
-  <title>{{ title }}</title>
-  <link rel="icon" type="image" href="images/gbcc-small.png">
+  <title>{{ client.organization }}</title>
+  <link rel="icon" type="image" href="{{ client.logo }}" alt="{{ client.organization }} logo">
 
   <script type="text/javascript">
     var require = {
       paths: {
-        table_template: '{{ table_template }}'
+        table_template: '{{ client.table_template }}'
       }
     }
   </script>
@@ -42,11 +42,11 @@
 
 <header>
   <div class="container">
-    <h1>{{ organization }}<br/>
-      <small> {{ subtitle }}</small>
+    <h1>{{ client.organization }}<br/>
+      <small> {{ client.subtitle }}</small>
     </h1>
     <div id="logos">
-      <img src="{{ logo }}" alt="{{ organization}} Logo"/>
+      <img src="{{ client.logo }}" alt="{{ client.organization }} Logo"/>
       <img src="images/bu.gif" alt="BU Logo"/>
     </div>
   </div>
@@ -59,9 +59,9 @@
   <div class="row">
     <section id="session-area" class="card col-md-10 col-md-offset-1">
       <h2 class="text-center">Input your data</h2>
-      <p class="text-center">Please make sure your session key and participation code match the ones provided in the
+      <p class="text-center">Please make sure your {{ client.session_key }} and participation code match the ones provided in the
         email
-        sent to you by the {{ organization }}. Drag and drop your completed template file to encrypt and include your submission in
+        sent to you by the {{ client.organization }}. Drag and drop your completed template file to encrypt and include your submission in
         the
         aggregate data.</p>
       <hr/>
@@ -69,15 +69,15 @@
         <div class="col-md-6">
           <form>
             <div class="form-group">
-              <label class="control-label" for="session">Session key</label>
-              <input type="text" id="session" class="form-control" placeholder="Session key" pattern="^[a-zA-Z0-9]{26}$"
+              <label class="control-label" for="session">{{ client.session_key }}</label>
+              <input type="text" id="session" class="form-control" placeholder="{{ client.session_key }}" pattern="^[a-zA-Z0-9]{26}$"
                      autocomplete="off" required/>
               <span id="session-success" class="success-icon glyphicon glyphicon-ok form-control-feedback hidden"
                     aria-hidden="true"></span>
               <span id="session-fail" class="fail-icon glyphicon glyphicon-remove form-control-feedback hidden"
                     aria-hidden="true"></span>
               <span id="session-fail-help"
-                    class="fail-help help-block hidden">Please input the 26-character session key.</span>
+                    class="fail-help help-block hidden">Please input the 26-character {{ client.session_key }}.</span>
               <span id="session-fail-custom-help"
                     class="fail-custom help-block hidden"></span>
             </div>
