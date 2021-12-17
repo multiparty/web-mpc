@@ -38,10 +38,15 @@ module.exports = {
     userkey: schemaTemplates.userKeySchema
   },
 
+  getUser: {
+    session: schemaTemplates.sessionKeySchema,
+    userkey: schemaTemplates.userKeySchema
+  },
+
   getCohortsManage: Object.assign({}, schemaTemplates.keyPasswordTemplate),
 
   createNewCohort: Object.assign({
-    cohort: joi.string().required(),
+    cohorts: joi.array().items(joi.string().allow(null)).required(),
   }, schemaTemplates.keyPasswordTemplate),
 
   getClientUrls: Object.assign({}, schemaTemplates.keyPasswordTemplate),

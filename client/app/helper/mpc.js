@@ -2,7 +2,13 @@ if (typeof define !== 'function') {
   var define = require('amdefine')(module);
 }
 
-define([], function () {
+define(['constants'], function (constants) {
+
+  const AVG = constants.AVG;
+  const STD = constants.STD;
+  const SELF = constants.SELF;
+  const ALL = 'ALL';
+
   var setOrAssign = function (obj, keys, value) {
     for (var i = 0; i < keys.length - 1; i++) {
       var key = keys[i];
@@ -15,9 +21,6 @@ define([], function () {
 
     obj[keys[keys.length - 1]] = value;
   };
-
-  // the size of the first table cells
-  const EMPLOYEES_NUMBER_TABLE_SIZE = 160;
 
   var updateProgress = function (progressBar, percentage) {
     if (progressBar) {
@@ -44,34 +47,68 @@ define([], function () {
     var tables = [];
     var questions = [];
     var usability = [];
+    var table_meta = {};
+
+    table_meta.cohort_group_by = table_template.cohort_group_by == null ? ALL : table_template.cohort_group_by;
 
     var table_rows_count, table_cols_count;
     // order tables
-    for (var i = 0; i < table_template.tables.length; i++) {
-      var table_def = table_template.tables[i];
+    for (let i = 0; i < table_template.tables.length; i++) {
+      let table_def = table_template.tables[i];
       if (table_def.submit === false) {
         continue;
       }
 
-      var rows = table_def.rows;
-      var cols = table_def.cols[table_def.cols.length - 1];
+      let rows = table_def.rows;
+      let cols = table_def.cols[table_def.cols.length - 1];
       table_rows_count = rows.length;
       table_cols_count = cols.length;
-      for (var r = 0; r < rows.length; r++) {
-        for (var c = 0; c < cols.length; c++) {
-          var row = rows[r].key;
-          var col = cols[c].key;
-          tables.push({ table: table_def.name, row: row, col: col });
+      let totalLength = table_rows_count * table_cols_count;
+      let cohortLength = totalLength;
+      if (table_meta.cohort_group_by !== ALL) {
+        cohortLength = table_meta.cohort_group_by.length * Math.floor(totalLength / table_cols_count);
+      }
+      table_meta[table_def.name] = {total: totalLength, cohort: cohortLength};
+      for (let r = 0; r < rows.length; r++) {
+        for (let c = 0; c < cols.length; c++) {
+          let row = rows[r].key;
+          let col = cols[c].key;
+          tables.push({ table: table_def.name, row: row, col: col, op: table_def.operations, cohortOp: table_def.cohortOperations });
         }
       }
     }
+
+    // put ratios in, if any
+    if (table_template.ratios != null) {
+      for (let ratio of table_template.ratios) {
+        let table_def =  table_template.tables[ratio[0]];
+        let table_name = table_template.tables[ratio[0]].name + ' : ' + table_template.tables[ratio[1]].name;
+
+        let rows = table_def.rows;
+        let cols = table_def.cols[table_def.cols.length - 1];
+        let totalLength = table_rows_count * table_cols_count;
+        let cohortLength = totalLength;
+        if (table_meta.cohort_group_by !== ALL) {
+          cohortLength = table_meta.cohort_group_by.length * Math.floor(totalLength / table_cols_count);
+        }
+        table_meta[table_name] = {total: totalLength, cohort: cohortLength};
+        for (let r = 0; r < rows.length; r++) {
+          for (let c = 0; c < cols.length; c++) {
+            let row = rows[r].key;
+            let col = cols[c].key;
+            tables.push({ table: table_name, row: row, col: col, op: table_def.operations, cohortOp: table_def.cohortOperations });
+          }
+        }
+      }
+    }
+
     // order questions
     if (table_template.survey != null) {
-      for (var q = 0; q < table_template.survey.questions.length; q++) {
-        var question = table_template.survey.questions[q];
-        for (var o = 0; o < question.inputs.length; o++) {
-          var option = question.inputs[o].value;
-          var label = question.inputs[o].label;
+      for (let q = 0; q < table_template.survey.questions.length; q++) {
+        let question = table_template.survey.questions[q];
+        for (let o = 0; o < question.inputs.length; o++) {
+          let option = question.inputs[o].value;
+          let label = question.inputs[o].label;
           questions.push({ question: question.question_text, option: option, label: label });
         }
       }
@@ -79,23 +116,23 @@ define([], function () {
 
     // order usability metrics
     if (table_template.usability != null) {
-      for (var m = 0; m < table_template.usability.length; m++) {
-        var metric = table_template.usability[m];
+      for (let m = 0; m < table_template.usability.length; m++) {
+        let metric = table_template.usability[m];
 
         if (typeof(metric) === 'string') {
           usability.push({metric: metric, field: ''});
         } else if (typeof(metric) === 'object') {
-          var key = Object.keys(metric)[0];
-          var arr = metric[key];
-          for (var f = 0; f < arr.length; f++) {
-            var field = arr[f];
+          let key = Object.keys(metric)[0];
+          let arr = metric[key];
+          for (let f = 0; f < arr.length; f++) {
+            let field = arr[f];
             usability.push({metric: key, field: field});
           }
         }
       }
     }
 
-    return { tables: tables, questions: questions, usability: usability, table_rows_count: table_rows_count, table_cols_count: table_cols_count };
+    return { tables, questions, usability, table_rows_count, table_cols_count, table_meta };
   };
 
   // Get all the shares that a party have shared
@@ -164,33 +201,19 @@ define([], function () {
   // if rangeStart and/or rangeEnd is not provided, they default to 0 and length respectively.
   // Exceptions is a sorted array of positions to ignore, these positions are not opened, and instead
   // a value of '-' is returned for them. Exceptions defaults to [] if not provided.
-  var openValues = function (jiff_instance, results, parties, rangeStart, rangeEnd, exceptions) {
+  var openValues = function (jiff_instance, results, parties, rangeStart, rangeEnd) {
     if (rangeStart == null) {
       rangeStart = 0;
     }
     if (rangeEnd == null) {
       rangeEnd = results.length;
     }
-    if (exceptions == null) {
-      exceptions = [];
-    }
 
     var promises = [];
-    var exceptionsIndex = 0; // keeps track of the next exception, fast way to check set membership since both set and values are sorted
+    // var exceptionsIndex = 0; // keeps track of the next exception, fast way to check set membership since both set and values are sorted
     for (var i = rangeStart; i < rangeEnd; i++) {
-      if (i % EMPLOYEES_NUMBER_TABLE_SIZE === 0) {
-        // exceptions does not really have indices, but relative indices within a table, since we have 3 consecutive tables
-        // this means relative index is not really sorted, but forms 3 consecutive sorted sequences.
-        exceptionsIndex = 0;
-      }
-
-      if (exceptions.length > 0 && exceptions[exceptionsIndex] === i % EMPLOYEES_NUMBER_TABLE_SIZE) {
-        promises.push('-');
-        exceptionsIndex++;
-      } else {
-        var promise = jiff_instance.open(results[i], parties);
-        promises.push(promise);
-      }
+      var promise = jiff_instance.open(results[i], parties);
+      promises.push(promise);
     }
 
     return Promise.all(promises);
@@ -212,12 +235,13 @@ define([], function () {
     updateProgress(progressBar, 0);
 
     // Compute these entities in order
-    var sums, squaresSums = null, questions = null, usability = null;
+    var sums, squaresSums, questions = null, usability = null;
 
     // Temporary variables
     var cohort, i, p, shares;
     var promises = [];
     sums = {all: null}; // sums['all'] is for everyone, sums[<cohort>] is for <cohort> only
+    squaresSums = {all: null};
 
     // Process shares from parties that do not belong to any cohort (their cohort has too few elements)
     var counter = 0;
@@ -227,7 +251,7 @@ define([], function () {
 
       // Sum all things
       sums['all'] = sumAndAccumulate(sums['all'], shares.shares);
-      squaresSums = sumAndAccumulate(squaresSums, shares.squares);
+      squaresSums['all'] = sumAndAccumulate(squaresSums['all'], shares.squares);
       questions = sumAndAccumulate(questions, shares.questions);
       usability = sumAndAccumulate(usability, shares.usability);
 
@@ -251,9 +275,15 @@ define([], function () {
         shares = getShares(jiff_instance, partyID, ordering);
 
         // Sum all things
-        sums[cohort] = sumAndAccumulateCohort(sums[cohort], shares.shares, ordering);
+        if (ordering.table_meta.cohort_group_by !== ALL) {
+          sums[cohort] = sumAndAccumulateCohort(sums[cohort], shares.shares, ordering);
+          squaresSums[cohort] = sumAndAccumulateCohort(squaresSums[cohort], shares.squares, ordering);
+        } else {
+          sums[cohort] = sumAndAccumulate(sums[cohort], shares.shares);
+          squaresSums[cohort] = sumAndAccumulate(squaresSums[cohort], shares.squares);
+        }
         sums['all'] = sumAndAccumulate(sums['all'], shares.shares);
-        squaresSums = sumAndAccumulate(squaresSums, shares.squares);
+        squaresSums['all'] = sumAndAccumulate(squaresSums['all'], shares.squares);
         questions = sumAndAccumulate(questions, shares.questions);
         usability = sumAndAccumulate(usability, shares.usability);
 
@@ -267,21 +297,28 @@ define([], function () {
       }
 
       // Cohort averages are done, open them (do not use await so that we do not block the main thread)
-      var promise = openValues(jiff_instance, sums[cohort], [1]);
-      promises.push(promise);
+      var avgPromise = openValues(jiff_instance, sums[cohort], [1]);
+      var squaresPromise = openValues(jiff_instance, squaresSums[cohort], [1]);
+      promises.push(...[avgPromise, squaresPromise]);
     }
 
     // wait for cohort outputs
     var cohortOutputs = await Promise.all(promises);
     updateProgress(progressBar, 0.96);
-    for (i = 0; i < submitters['cohorts'].length; i++) {
-      console.log(i, submitters['cohorts'][i]);
-      sums[submitters['cohorts'][i]] = cohortOutputs[i];
+    for (i = 0; i < submitters['cohorts'].length*2; i++) {
+      // every 2 outputs belongs to same cohort - evens are sums; odds are square sums
+      let idx = Math.floor(i / 2);
+      console.log(idx, submitters['cohorts'][idx]);
+      if (i%2 === 0) {
+        sums[submitters['cohorts'][idx]] = cohortOutputs[i];
+      } else {
+        squaresSums[submitters['cohorts'][idx]] = cohortOutputs[i];
+      }
     }
 
     // Open all sums and sums of squares
     sums['all'] = await openValues(jiff_instance, sums['all'], [1]);
-    squaresSums = await openValues(jiff_instance, squaresSums, [1]);
+    squaresSums['all'] = await openValues(jiff_instance, squaresSums['all'], [1]);
     updateProgress(progressBar, 0.98);
 
     // Open questions and usability
@@ -317,22 +354,46 @@ define([], function () {
 
     // Compute averages per cohort
     var cols = ordering.table_cols_count;
-    const EMPLOYEES_NUMBER_COHORT_TABLE_SIZE = 2 * Math.floor(EMPLOYEES_NUMBER_TABLE_SIZE / cols);
     for (var c = 0; c < submitters['cohorts'].length; c++) {
       var cohort = submitters['cohorts'][c];
 
       for (var i = 0; i < result.sums[cohort].length; i++) {
-        var rowIndex = Math.floor(i / 2);
+        var rowIndex = ordering.table_meta.cohort_group_by === ALL ? Math.floor(i / ordering.table_cols_count) : Math.floor(i / ordering.table_meta.cohort_group_by.length);
         var table = ordering.tables[rowIndex * cols].table;
         var row = ordering.tables[rowIndex * cols].row;
-        var col = (i % 2) === 0 ? 'Female' : 'Male';
+        var col = ordering.tables[rowIndex * cols].col;
+        if (ordering.table_meta.cohort_group_by !== ALL) {
+          col = ordering.table_meta.cohort_group_by[i % ordering.table_meta.cohort_group_by.length]; // get right col label if grouping
+        }
+        var cohortOp = ordering.tables[rowIndex * cols].cohortOp;
 
         var cohortMean = result.sums[cohort][i];
-        if (i >= EMPLOYEES_NUMBER_COHORT_TABLE_SIZE) {
-          cohortMean = cohortMean.div(result.sums[cohort][i % EMPLOYEES_NUMBER_COHORT_TABLE_SIZE]);
+        if (cohortOp[AVG] != null) {
+          if (cohortOp[AVG] === SELF) {
+            cohortMean = cohortMean.div(submitters[cohort].length);
+          } else {
+            let modVal = ordering.table_meta[cohortOp[AVG]].cohort;
+            cohortMean = cohortMean.div(result.sums[cohort][i % modVal]);
+          }
         }
 
         setOrAssign(averages, [cohort, table, row, col], cohortMean.toFixed(2));
+
+        if (cohortOp[STD] != null) {
+          // compute standard deviation among cohort
+          // E[X^2]
+          var avgOfSquares = result.squaresSums[cohort][i];
+          avgOfSquares = avgOfSquares.div(submitters[cohort].length);
+          // (E[X])^2
+          var squareOfAvg = result.sums[cohort][i].div(submitters[cohort].length);
+          squareOfAvg = squareOfAvg.pow(2);
+          // deviation formula: E[X^2] - (E[X])^2
+          var totalDeviation = avgOfSquares.minus(squareOfAvg);
+          totalDeviation = totalDeviation.sqrt(); //sqrt
+
+          setOrAssign(deviations, [cohort, table, row, col], totalDeviation.toFixed(2));
+
+        }
       }
     }
 
@@ -341,29 +402,34 @@ define([], function () {
       table = ordering.tables[i].table;
       row = ordering.tables[i].row;
       col = ordering.tables[i].col;
+      var op = ordering.tables[i].op;
 
       // Compute average
       var totalMean = result.sums['all'][i]; // mean for cell for ALL cohorts
-      if (i >= EMPLOYEES_NUMBER_TABLE_SIZE) {
-        totalMean = totalMean.div(result.sums['all'][i % EMPLOYEES_NUMBER_TABLE_SIZE]);
+      if (op[AVG] != null) {
+        if (op[AVG] === SELF) { // if we're just averaging over the number of submitters
+          totalMean = totalMean.div(submitters.all.length);
+        } else { // if we're averaging over values in a different table
+          let modVal = ordering.table_meta[op[AVG]].total;
+          totalMean = totalMean.div(result.sums['all'][i % modVal]);
+        }
       }
 
       setOrAssign(averages, ['all', table, row, col], totalMean.toFixed(2));
 
       // Compute deviation for population of values presented by companies (not for individual employees)
       // E[X^2]
-      var avgOfSquares = result.squaresSums[i];
+      avgOfSquares = result.squaresSums['all'][i];
       avgOfSquares = avgOfSquares.div(submitters['all'].length);
       // (E[X])^2
-      var squareOfAvg = result.sums['all'][i].div(submitters['all'].length);
+      squareOfAvg = result.sums['all'][i].div(submitters['all'].length);
       squareOfAvg = squareOfAvg.pow(2);
       // deviation formula: E[X^2] - (E[X])^2
-      var totalDeviation = avgOfSquares.minus(squareOfAvg);
+      totalDeviation = avgOfSquares.minus(squareOfAvg);
       totalDeviation = totalDeviation.sqrt(); //sqrt
 
-      setOrAssign(deviations, [table, row, col], totalDeviation.toFixed(2));
+      setOrAssign(deviations, ['all', table, row, col], totalDeviation.toFixed(2));
     }
-    deviations = {all: deviations};
 
     // format questions as questions[<cohort>][<question>][<option>] = count of parties that choose this option
     for (i = 0; i < ordering.questions.length; i++) {

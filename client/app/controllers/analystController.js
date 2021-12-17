@@ -10,12 +10,12 @@ define(['pki', 'alertHandler'], function (pki, alertHandler) {
 
   'use strict';
 
-  function addCohort(session, password, cohort) {
+  function addCohorts(session, password, cohorts) {
     return $.ajax({
       type: 'POST',
       url: '/add_cohort',
       contentType: 'application/json',
-      data: JSON.stringify({session: session, password: password, cohort: cohort})
+      data: JSON.stringify({session: session, password: password, cohorts: cohorts})
     }).then(function (res) {
       return res;
     }).catch(function (err) {
@@ -200,7 +200,7 @@ define(['pki', 'alertHandler'], function (pki, alertHandler) {
     getSubmissionHistory: getSubmissionHistory,
     generateSession: generateSession,
     getParameterByName: getParameterByName,
-    addCohort: addCohort,
+    addCohorts: addCohorts,
     START: 'START',
     PAUSE: 'PAUSE',
     STOP: 'STOP'

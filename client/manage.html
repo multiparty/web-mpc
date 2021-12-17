@@ -122,17 +122,18 @@
 
       <section id="cohort-card" class="card col-sm-7 col-md-offset-1 collapse">
         <div>
-            <h2 class="text-center">Create New {{ cohort }}</h2>
-            <hr/>
-            <form id="cohort-entry">
-              <div class="form-group">
-                <label class="control-label" for="cohort-number">Enter {{ cohort }} Name</label>
-                <input type="text" id="cohort-input" class="form-control" pattern="^[a-zA-Z0-9]{26}$" placeholder="{{ cohort }} name" autocomplete="off" required/>
-              </div>
-              <div class="form-group">
-                <button type="submit" id="cohort-generate" class="btn btn-block btn-primary">Generate</button>
-              </div>
-            </form>
+          <h2 class="text-center">Add More Cohorts</h2>
+          <hr/>
+          <form id="cohort-entry">
+            <div class="form-group">
+              <label class="control-label" for="cohort-number">Enter number of cohorts</label>
+              <input type="number" id="cohort-number" class="form-control" pattern="^[0-9]*$" placeholder="0" autocomplete="off" required/>
+            </div>
+            <div class="form-group">
+                <button type="submit" id="cohort-enumerate" class="btn btn-block btn-primary">Add</button>
+            </div>
+            <div id="cohort-naming"></div>
+          </form>
         </div>
       </section>
 

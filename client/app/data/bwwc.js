@@ -11,6 +11,8 @@ define([], function () {
       {
         "name":"Number Of Employees",
         "element":"number-employees-hot",
+        "operations": {SUM: true, STD: true},
+        "cohortOperations": {SUM: true},
         "hot_parameters":{
           "rowHeaderWidth": ROW_HEADER_WIDTH,
           "height": TABLE_HEIGHT
@@ -216,6 +218,8 @@ define([], function () {
       {
         "name":"Total Annual Compensation (Dollars)",
         "element":"compensation-hot",
+        "operations": {AVG: 'Number Of Employees', STD: true},
+        "cohortOperations": {AVG: 'Number Of Employees'},
         "hot_parameters":{
           "rowHeaderWidth": ROW_HEADER_WIDTH,
           "height": TABLE_HEIGHT
@@ -421,6 +425,8 @@ define([], function () {
       {
         "name":"Total Annual Cash Performance Pay (Dollars)",
         "element":"performance-pay-hot",
+        "operations": {AVG: 'Number Of Employees', STD: true},
+        "cohortOperations": {AVG: 'Number Of Employees'},
         "hot_parameters":{
           "rowHeaderWidth": ROW_HEADER_WIDTH,
           "height": TABLE_HEIGHT
@@ -626,6 +632,8 @@ define([], function () {
       {
         "name":"Total Length of Service (Months)",
         "element":"service-length-hot",
+        "operations": {AVG: 'Number Of Employees', STD: true},
+        "cohortOperations": {AVG: 'Number Of Employees'},
         "hot_parameters":{
           "rowHeaderWidth": ROW_HEADER_WIDTH,
           "height": TABLE_HEIGHT
@@ -893,6 +901,7 @@ define([], function () {
         ]
       }
     ],
+    'cohort_group_by': ['Female', 'Male'], // list all the groups to include in the cohort results
     'cohort_selection': true,
     'cohorts': [
       {name: '"Hard Hat" (Utilities, Construction, Manufacturing)'},
@@ -910,5 +919,6 @@ define([], function () {
       {name: 'Real Estate'}
     ],
     'cohort_threshold': 8,
+    'send_submitter_ids': true,
   }
 });

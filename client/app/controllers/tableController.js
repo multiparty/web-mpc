@@ -732,6 +732,9 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
 
       var i = 0;
       var data = [];
+      if (template.rows == null) { // ratios tables aren't in the table def
+        continue;
+      }
       template.rows.forEach(function (row) {
         data[i] = [];
         row = row.key;
@@ -1013,6 +1016,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
     }
 
     var maxWidth = Math.max.apply(null, tableWidths);
+    maxWidth = Math.max(maxWidth, tableWidthsOld);
 
     updateTableWidth(maxWidth);
     tableWidthsOld = tableWidths.concat();

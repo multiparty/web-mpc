@@ -42,19 +42,20 @@ async function enterRandomData(driver, maxElement=undefined) {
 }
 
 module.exports = {
-  submitCohortSelf: async function (driver, link, cohort, uploadFilePath=undefined, maxElement=undefined) {
+  submitInput: async function (driver, link, cohort, selfSelect, uploadFilePath=undefined, maxElement=undefined) {
     await driver.get(link);
 
     const participationCodeSuccessField = await driver.findElement(By.id('participation-code-success'));
-    const cohortSelectField = await driver.findElement(By.id('cohortDrop'));
-
-    // Wait for page to load
     await helpers.conditionOrAlertError(driver, until.elementIsVisible(participationCodeSuccessField));
-    await helpers.conditionOrAlertError(driver, until.elementIsVisible(cohortSelectField));
 
-    // Select Cohort
-    await cohortSelectField.click();
-    await cohortSelectField.findElement(By.css("option[value='" + cohort + "']")).click();
+    if (selfSelect) {
+      // Select Cohort
+      const cohortSelectField = await driver.findElement(By.id('cohortDrop'));
+      await helpers.conditionOrAlertError(driver, until.elementIsVisible(cohortSelectField));
+
+      await cohortSelectField.click();
+      await cohortSelectField.findElement(By.css("option[value='" + cohort + "']")).click();
+    }
 
     var data;
     if (uploadFilePath != null) {
