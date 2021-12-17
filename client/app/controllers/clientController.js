@@ -40,8 +40,15 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
         discrepancies: SEMANTIC_CELLS
       };
 
-      var cohort_name = (document.getElementById('cohort-name').innerHTML).toLowerCase();
-      var COHORT_ERR = 'You have not selected the ' + cohort_name + '. Please try again.';
+      var cohort_name = '';
+      var COHORT_ERR = '';
+
+      var SELF_SELECT = Object.keys(table_template).includes('cohort_selection') && table_template['cohort_selection'];
+
+      if (SELF_SELECT) {
+        cohort_name = (document.getElementById('cohort-name').innerHTML).toLowerCase();
+        COHORT_ERR = 'You have not selected the ' + cohort_name + '. Please try again.';
+      }
 
       // TODO: create new view for alerts
       function error(msg) {
@@ -75,6 +82,32 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           $parent.find('.fail-custom').removeClass('show').addClass('hidden');
           return false;
         }
+      }
+
+      function getUserCohort() {
+        if (SELF_SELECT) {
+          return '0';
+        }
+        var session = $('#session').val().trim().toLowerCase();
+        var participationCode = $('#participation-code').val().trim().toLowerCase();
+
+        if (session === '' || participationCode === '') {
+          return;
+        }
+
+        $.ajax({
+          type: 'POST',
+          url: '/sessioninfo',
+          contentType: 'application/json',
+          data: JSON.stringify({session: session, userkey: participationCode}),
+          dataType: 'text'
+        }).then(function (response) {
+          return response.cohort;
+        }).catch(function (err) {
+          if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
+            alertHandler.error(err.responseText);
+          }
+        });
       }
 
       function verifySessionServer(callback) {
@@ -152,8 +185,9 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           }
 
           // Verify cohort was specified if there are cohorts
-          var cohort = '0'; // means no self assigned cohort
-          if (table_template['cohort_selection'] === true) {
+          var cohort = getUserCohort(); // means no self assigned cohort
+          // var cohort = '0'; // means no self assigned cohort
+          if (SELF_SELECT) {
             cohort = $('#cohortDrop').val();
             if (cohort === '-') {
               errors.push(COHORT_ERR);
@@ -187,8 +221,8 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
             }
           }
 
-          // Pacesetters deployment does not use this validator in the template
-          // this will only affect BWWC
+          // TODO: Pacesetters deployment does not use this validator in the template
+          //  this will only affect BWWC
           tableController.registerValidator('discrepancies', function (table, cell, value, callback) {
             checkSemanticDiscrepancies(tables, table, cell, value, callback);
           });
@@ -289,6 +323,25 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
           data_submission[tables_data[i].name] = tables_data[i].data;
         }
 
+        // handle ratios
+        if (table_template.ratios != null) {
+          for (let ratio of table_template.ratios) {
+            var ratio_name = tables_data[ratio[0]].name + ' : ' + tables_data[ratio[1]].name;
+            data_submission[ratio_name] = {};
+            for (let row of Object.keys(tables_data[ratio[0]].data)) {
+              data_submission[ratio_name][row] = {};
+              var ratioFrac = 0;
+              var denominator = tables_data[ratio[1]].data[row].value;
+              if (denominator !== 0) {
+                ratioFrac = tables_data[ratio[0]].data[row].value / denominator;
+                ratioFrac = ratioFrac * 1000;
+                ratioFrac = Math.trunc(ratioFrac);
+              }
+              data_submission[ratio_name][row]['value'] = ratioFrac;
+            }
+          }
+        }
+
         if (document.getElementById('choose-file').files.length > 0) {
           usabilityController.dataPrefilled();
         }
@@ -375,6 +428,7 @@ define(['jquery', 'controllers/tableController', 'controllers/jiffController', '
       }
 
       return {
+        getUserCohort: getUserCohort,
         validate: validate,
         constructAndSend: constructAndSend,
         validateSessionInput: validateSessionInput

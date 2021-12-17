@@ -23,7 +23,7 @@ module.exports.unmask = async function (driver, sessionKey, password, outputCoun
   await fileUpload.sendKeys(pemFilePath);
 
   // Wait until done (detect done by the tables expanding)
-  const countCondition = new Condition('Ensure table elements count is 640', async function () {
+  const countCondition = new Condition('Ensure table elements count is same as number of averages', async function () {
     var elements = await driver.findElements(By.xpath('//td[@class="htDimmed"]'));
     if (elements.length === outputCount) {
       return elements;

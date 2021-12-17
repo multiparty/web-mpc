@@ -6,7 +6,7 @@ const driverWrapper = require('./helpers/driver.js');
 const compute = require('./helpers/compute.js');
 const csv = require('./helpers/csv.js');
 
-const tableTemplate = require('../../client/app/data/bwwc.js');
+const tableTemplate = require('../../client/app/data/pacesetters.js');
 
 // import test API
 const session = require('./api/session.js');
@@ -14,9 +14,9 @@ const manage = require('./api/manage.js');
 const submission = require('./api/submission.js');
 const unmasking = require('./api/unmasking.js');
 
-const UPLOAD_FILE = '/test/selenium/files/bwwc.xlsx';
+const UPLOAD_FILE = '/test/selenium/files/pace2.xlsx';
 
-describe('BWWC Tests', function () {
+describe('Pacesetters Tests', function () {
   this.timeout(2500000);
 
   // Create the chrome driver before tests and close it after tests
@@ -31,15 +31,15 @@ describe('BWWC Tests', function () {
   describe('End-to-end Workflow', function () {
     let sessionKey, password, links, driver, inputs, clientCohortMap;
 
-    const COHORT_COUNT = tableTemplate.cohorts.length;
+    const COHORT_COUNT = 5;
     const CONTRIBUTOR_COUNT = 35;
     const RESUBMISSION_COUNT = 10;
-    const COHORT_SIZE_THRESHOLD = tableTemplate.cohort_threshold;
 
     before(function () {
       driver = driverWrapper.getDriver();
       inputs = { all: [] };
     });
+    console.log(process.env.WEBMPC_DEPLOYMENT);
 
     // Create session
     it('Session Creation', async function () {
@@ -51,7 +51,8 @@ describe('BWWC Tests', function () {
     // Generate Participation Links
     it('Generate Links', async function () {
       await manage.login(driver, sessionKey, password); // Login to Session Management
-      links = await manage.generateLinksNoCohorts(driver, CONTRIBUTOR_COUNT);
+      await manage.createCohorts(driver, COHORT_COUNT);
+      links = await manage.generateLinksByCohort(driver, CONTRIBUTOR_COUNT, COHORT_COUNT);
     });
 
     // Start Session
@@ -62,66 +63,68 @@ describe('BWWC Tests', function () {
     // Submit
     it('Data Submissions', async function () {
       clientCohortMap = {};
-      for (let i = 0; i < links.length; i++) {
-        let cohort = (i % COHORT_COUNT) + 1;
-        if (cohort === Math.floor(COHORT_COUNT / 2) || cohort === COHORT_COUNT - 1) { // make sure a few cohorts do not have enough submissions
-          cohort = Math.random() < 0.75 ? 1 : cohort;
-        }
-
-        const uploadFile = i % 3 === 0 ? UPLOAD_FILE : undefined;
-
-        const submissionID = '\tSubmission: ' + (i+1) + '. Cohort: ' + cohort + '. ' + (uploadFile == null ? 'Manual' : 'Upload');
-        console.time(submissionID);
-        const input = await submission.submitInput(driver, links[i], cohort, true, uploadFile);
-        console.timeEnd(submissionID);
-
-        // Add input to inputs
+      let subNumber = 0;
+      for (let cohort = 1; cohort < COHORT_COUNT+1; cohort++) {
         const cohortInputs = inputs[cohort] || [];
-        cohortInputs.push(input);
-        inputs[cohort] = cohortInputs;
-        inputs['all'].push(input);
+        for (let i = 0; i < links[cohort].length; i++) {
+          subNumber += 1;
+          // const uploadFile = UPLOAD_FILE;
+          const uploadFile = (subNumber-1) % 3 === 0 ? UPLOAD_FILE : undefined;
 
-        // Remember cohort
-        clientCohortMap[i] = { cohort: cohort, index: cohortInputs.length-1 };
+          const submissionID = '\tSubmission: ' + subNumber + '. Cohort: ' + (cohort) + '. ' + (uploadFile == null ? 'Manual' : 'Upload');
+          console.time(submissionID);
+          const input = await submission.submitInput(driver, links[cohort][i], cohort, false, uploadFile);
+          console.timeEnd(submissionID);
+
+          // Add input to inputs
+          cohortInputs.push(input);
+          inputs['all'].push(input);
+
+          // Remember cohort
+          clientCohortMap[subNumber-1] = { cohort: cohort, index: cohortInputs.length-1 };
+        }
+        // console.log('after inner loop ', cohortInputs);
+        inputs[cohort] = cohortInputs;
       }
+      // console.log('links ', links);
+      // console.log('inputs ', inputs);
+      // console.log('clientCohortMap ', clientCohortMap);
     });
 
     // Resubmissions
     it('Data Resubmissions', async function () {
+      const numPerCohort = Math.floor(CONTRIBUTOR_COUNT/COHORT_COUNT);
       for (let i = 0; i < RESUBMISSION_COUNT; i++) {
         // force the first party to first resubmit 3 times to randomly chosen (possibly overlapping) cohorts
         // just to test several resubmissions by the same party
         // other resubmissions are chosen randomly
-        const submitter = i < 3 ? 0 : Math.floor(Math.random() * links.length);
-        const link = links[submitter];
-
-        // change cohort randomly with probability 0.5
-        const randomCohort = Math.floor(Math.random() * (COHORT_COUNT - 1)) + 1;
-        const oldCohort = clientCohortMap[submitter]['cohort'];
-        const cohort = Math.random() < 0.5 ? randomCohort : oldCohort;
+        // const submitter = Math.floor(Math.random() * Object.keys(clientCohortMap).length);
+        const submitter = i < 3 ? 0 : Math.floor(Math.random() * Object.keys(clientCohortMap).length);
+        const cohort = clientCohortMap[submitter]['cohort']; // zero-indexed cohort
+        const subNumWithinCohort = submitter % numPerCohort; // because links are a dictionary for Pacesetters
+        const link = links[cohort][subNumWithinCohort];
 
         // Randomly choose upload or manually (with equal likelihood)
         const uploadFile = Math.random() < 0.5 ? UPLOAD_FILE : undefined;
 
         // Logging message
         const submissionID = '\tResubmission #: ' + (i+1) + '. Replacing: ' + (submitter+1)
-          + '. Old Cohort: ' + oldCohort + '. New Cohort: ' + cohort + '. '
-          + (uploadFile == null ? 'Manual' : 'Upload');
+          + '. Cohort: ' + (cohort) + (uploadFile == null ? ' Manual' : ' Upload');
 
         // Resubmit
         console.time(submissionID);
-        const input = await submission.submitInput(driver, link, cohort, true, uploadFile);
+        const input = await submission.submitInput(driver, link, cohort, false, uploadFile);
         console.timeEnd(submissionID);
 
         // Add new input to inputs
-        const cohortInputs = inputs[cohort] || [];
+        const cohortInputs = inputs[cohort] || []; // for by-cohort inputs, the cohort number must be one-indexed
         cohortInputs.push(input);
         inputs[cohort] = cohortInputs;
         inputs['all'][submitter] = input; // replace old input
 
         // Remove previous submission in cohort
         var oldCohortIndex = clientCohortMap[submitter]['index'];
-        inputs[oldCohort][oldCohortIndex] = null;
+        inputs[cohort][oldCohortIndex] = null;
         clientCohortMap[submitter] = { cohort: cohort, index: cohortInputs.length-1 };
       }
 
@@ -132,6 +135,7 @@ describe('BWWC Tests', function () {
         }
         inputs[i + 1] = inputs[i + 1].filter(input => input != null);
       }
+      await driver.sleep(1000);
     });
 
     // Stop session
@@ -150,17 +154,19 @@ describe('BWWC Tests', function () {
 
     // Verify participation link are *exactly* the same (including order)
     it('Verify Participation Links', async function () {
-      const newLinks = await manage.getExistingLinksNoCohorts(driver);
+      const newLinks = await manage.getExistingLinksByCohorts(driver, COHORT_COUNT);
       assert.deepEqual(newLinks, links, 'Participation links have changed after submission and resubmission');
     });
 
     // Sleep to give server time to finish processing
-    it('Sleep 100 seconds', async function () {
-      await driver.sleep(100000);
+    it('Sleep 5 seconds', async function () {
+      await driver.sleep(5000); // Pacesetters math is faster, unmasking needs more sleep time
+      // await driver.sleep(100000);
     });
 
     // Unmask
     it('Unmasking', async function () {
+      // const { averagesContent, deviationsContent } = await unmasking.unmask(driver, sessionKey, password, inputs['all'][0].length);
       const { tablesContent, averagesContent, deviationsContent } = await unmasking.unmask(driver, sessionKey, password, inputs['all'][0].length);
 
       // Parse CSV and check results are correct
@@ -170,16 +176,17 @@ describe('BWWC Tests', function () {
       // Check cohorts are what we expected
       averagesCohorts.sort();
       deviationsCohorts.sort();
-      const cohorts = Object.keys(inputs).filter(i => (i !== 'all' && inputs[i].length >= COHORT_SIZE_THRESHOLD)).sort();
+      const cohorts = Object.keys(inputs).filter(i => (i !== 'all')).sort();
+      // const cohorts = Object.keys(inputs).filter(i => (i !== 'all' && inputs[i].length >= COHORT_SIZE_THRESHOLD)).sort();
       console.log('Cohorts:', cohorts, '/', COHORT_COUNT);
 
       assert.deepEqual(averagesCohorts, cohorts, 'Average CSV file does not have correct cohorts');
-      assert.deepEqual(deviationsCohorts, [], 'Standard Deviation CSV file does not have correct cohorts (should have only "all")');
+      assert.deepEqual(deviationsCohorts, cohorts, 'Standard Deviation CSV file does not have correct cohorts (should have only "all")');
+      // assert.deepEqual(deviationsCohorts, [], 'Standard Deviation CSV file does not have correct cohorts (should have only "all")');
 
-      // Verify results for UI
-      const allAverage = compute.computeAverageAgainstTable(inputs['all']);
-      const allDeviation = compute.computeDeviation(inputs['all']);
-      assert.deepEqual(tablesContent, allAverage, 'UI Average over all cohorts is incorrect');
+      // Manually compute stats with given inputs
+      const allAverage = compute.computeStandardAverage(inputs['all']);
+      const allDeviation = compute.computeDeviationWithRatios(inputs['all']);
 
       // Verify results from csv
       assert.equal(averages['all'].count, inputs['all'].length, 'CSV Average over all cohorts has incorrect # of participants');
@@ -190,47 +197,50 @@ describe('BWWC Tests', function () {
 
       // Check each cohort
       for (const cohort of cohorts) {
-        const cohortAverage = compute.computeAverageAgainstTable(compute.reduceByGender(inputs[cohort]));
+        const cohortAverage = compute.computeStandardAverage(inputs[cohort]);
         assert.equal(averages[cohort].count, inputs[cohort].length, 'CSV Average - Cohort ' + cohort + ' has incorrect # of participants');
         assert.deepEqual(averages[cohort].values, cohortAverage, 'CSV Average - Cohort ' + cohort + ' has incorrect # of participants');
       }
     });
   });
 
-// describe('UI Tests', function () {
-//   this.timeout(15000);
-//   const CONTRIBUTOR_COUNT = 100;
-//   const UNASSIGNED_COHORT = '0';
-//
-//   let driver;
-//
-//   // Create the chrome driver before tests and close it after tests
-//   before(function () {
-//     driver = driverWrapper.getDriver();
-//   });
-//
-//   // Test that creating a session with empty title/description gives errors
-//   describe('/create', function () {
-//     it('Empty session information', async function() {
-//       await session.createEmptySession(driver);
-//     });
-//   });
-//
-//   // Test that we can download participation links properly
-//   describe('/manage', function () {
-//     it('Download links', async function() {
-//       let returned = await session.createSession(driver);
-//       const sessionKey = returned.sessionKey;
-//       const password = returned.password;
-//       await manage.login(driver, sessionKey, password); // Login to Session Management
-//       // Ensure UI transition has finished
-//       await driver.sleep(500);
-//       await manage.downloadLinks(driver, UNASSIGNED_COHORT, 0);
-//       await driver.sleep(500);
-//       await manage.generateLinksNoCohorts(driver, CONTRIBUTOR_COUNT);
-//       await driver.sleep(500);
-//       await manage.downloadLinks(driver, UNASSIGNED_COHORT, CONTRIBUTOR_COUNT);
-//     });
-//   });
-// });
+  // describe('UI Tests', function () {
+  //   this.timeout(15000);
+  //   const CONTRIBUTOR_COUNT = 100;
+  //   const UNASSIGNED_COHORT = '0';
+  //
+  //   let driver;
+  //
+  //   // Create the chrome driver before tests and close it after tests
+  //   before(function () {
+  //     driver = driverWrapper.getDriver();
+  //   });
+  //
+  // TODO: figure out why empty session alert doesn't get read as the expected behavior
+  //
+  //   // Test that creating a session with empty title/description gives errors
+  //   describe('/create', function () {
+  //     it('Empty session information', async function () {
+  //       await session.createEmptySession(driver);
+  //     });
+  //   });
+  //
+  // NOTE: There is no option to download links in Pacesetters currently
+  //   // Test that we can download participation links properly
+  //   describe('/manage', function () {
+  //     it('Download links', async function() {
+  //       let returned = await session.createSession(driver);
+  //       const sessionKey = returned.sessionKey;
+  //       const password = returned.password;
+  //       await manage.login(driver, sessionKey, password); // Login to Session Management
+  //       // Ensure UI transition has finished
+  //       await driver.sleep(500);
+  //       await manage.downloadLinks(driver, UNASSIGNED_COHORT, 0);
+  //       await driver.sleep(500);
+  //       await manage.generateLinksNoCohorts(driver, CONTRIBUTOR_COUNT);
+  //       await driver.sleep(500);
+  //       await manage.downloadLinks(driver, UNASSIGNED_COHORT, CONTRIBUTOR_COUNT);
+  //     });
+  //   });
+  // });
 });

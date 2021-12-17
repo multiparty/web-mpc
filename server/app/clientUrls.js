@@ -21,31 +21,58 @@ module.exports.createNewCohort = function (context, body, response, sessionInfoO
     response.status(500).send('Session status is ' + sessionInfoObj.status);
     return;
   }
+  const oldCohortNum = sessionInfoObj.cohort_mapping.length;
   const cohortMapping = sessionInfoObj.cohort_mapping;
 
-  for (var c of cohortMapping) {
-    if (c.name === body.cohort) {
-      response.status(500).send('Cohort already exists.');
-      return;
-    }
+  const validateNames = module.exports.checkCohortNames(body.cohorts, cohortMapping);
+  if (!validateNames.valid) {
+    response.status(500).send(`Cohort "${validateNames.name}" already exists.`);
+    return;
   }
 
-  const cohortNum = cohortMapping.length;
-
+  const cohortNames = module.exports.createDefaultCohortNames(body.cohorts, cohortMapping);
+  const cohortNum = cohortMapping.length + cohortNames.length;
   // Do not need to verify since joi already did it
+  for (let i = 0; i < cohortNames.length; i++) {
+    sessionInfoObj.cohort_mapping.push({id: oldCohortNum+i+1, name: cohortNames[i]});
+  }
   sessionInfoObj.cohorts = cohortNum;
-  sessionInfoObj.cohort_mapping.push({id: cohortNum, name: body.cohort});
 
   // Update sessionInfo in database
   var promise = modelWrappers.SessionInfo.update(sessionInfoObj);
   promise.then(function () {
     console.log('Updated cohorts:', body.session, sessionInfoObj.cohorts);
-    response.json({cohortId: cohortNum, cohortMapping: sessionInfoObj.cohort_mapping});
+    response.json({oldCohortId: oldCohortNum, cohortId: cohortNum, cohortMapping: sessionInfoObj.cohort_mapping});
   }).catch(function (err) {
     console.log('Error creating new cohort', err);
     response.status(500).send('Error during session cohorts update.');
   });
 };
+
+module.exports.checkCohortNames = function (cohortNames, cohortMapping) {
+  for (let name of cohortNames) {
+    for (var c of cohortMapping) {
+      if (name != null && c.name === name) {
+        return {valid: false, name: name};
+      }
+    }
+  }
+  return {valid: true, name: ''}
+};
+
+module.exports.createDefaultCohortNames = function (cohortNames, cohortMapping) {
+  const currentLen = cohortMapping.length;
+  const newNames = [];
+  for (let i = 0; i < cohortNames.length; i++) {
+    if (cohortNames[i] == null) {
+      newNames.push(`${config.client.cohort} ${i+1+currentLen}`); // i.e. "Cohort 1" or "Industry 1"
+    } else {
+      newNames.push(cohortNames[i]);
+    }
+  }
+  return newNames;
+};
+
 
 // Need to get cohorts from multiple locations
 module.exports.getCohorts = function (context, body, res) {
@@ -57,6 +84,19 @@ module.exports.getCohorts = function (context, body, res) {
   }).catch(function (err) {
     console.log('Error getting cohorts', err);
     res.status(500).send('Error getting cohorts.');
+  });
+};
+
+// Need to get cohorts from multiple locations
+module.exports.getUser = function (context, body, res) {
+  var promise = modelWrappers.UserKey.get(body.session, body.userkey);
+
+  promise.then(function (data) {
+    res.json({session: data.session, userkey: data.userkey, cohort: data.cohort});
+
+  }).catch(function (err) {
+    console.log('Error getting user', err);
+    res.status(500).send('Error getting user.');
   });
 };
 

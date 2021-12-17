@@ -51,7 +51,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
       for (var i = 0; i < table_template.tables.length; i++) {
         var elem = table_template.tables[i].element;
         new ResizeSensor($('#' + elem).find('.wtHider').first()[0], function () {
-          tableController.updateWidth(tables, false);
+          tableController.resetTableWidth();
         });
       }
     }
@@ -269,7 +269,7 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
               la.stop();
               addValidationErrors(msg);
             } else {
-              var cohort = '0'; // means no self assigned cohort
+              var cohort = clientController.getUserCohort();
               if (table_template['cohort_selection'] === true) {
                 cohort = $('#cohortDrop').val();
               }

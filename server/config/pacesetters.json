@@ -9,7 +9,7 @@
       "www.pacesettersdata.org",
       "pacesettersdata.org"
     ],
-    "email": "pflock@bu.edu",
+    "email": "hicsail@bu.edu",
     "agreeTos": true
   },
 
@@ -18,6 +18,7 @@
     "organization": "Pacesetters",
     "subtitle": "Data Submission",
     "logo": "images/gbcc.png",
-    "cohort": "Cohort"
+    "cohort": "Cohort",
+    "session_key": "Pacesetters 2021 Submission ID"
   }
 }

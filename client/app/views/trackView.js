@@ -29,6 +29,7 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda', 'f
         // Only logs in if both requests succeed
         var existingParticipants = results[0];
         var status = results[1];
+        console.log('trackView, cohorts ', status.cohorts);
 
         // if self-selection, add participant agnostic link div
         if (Object.keys(tableTemplate).includes('cohort_selection') && tableTemplate['cohort_selection']) {
@@ -56,8 +57,10 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda', 'f
           $('#cohort-card').collapse();
         }
 
-        if (Object.keys(tableTemplate).includes('cohorts') && tableTemplate['cohorts'].length > 0) {
+        if (status.cohorts > 0) {
+        // if (Object.keys(tableTemplate).includes('cohorts') && tableTemplate['cohorts'].length > 0) {
           analystController.getExistingCohorts(session, password).then(function (cohorts) {
+            // console.log('trackView, cohorts ', cohorts);
             for (var c of cohorts) {
               createCohort(c.name, c.id);
               enableCohortSubmit(c.id);
@@ -80,23 +83,72 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda', 'f
       });
     });
 
-    $('#cohort-generate').on('click', function (e) {
+    $('#cohort-enumerate').on('click', function (e) {
       e.preventDefault();
+      let numCohorts = $('#cohort-number').val();
+      if (numCohorts <= 0) {
+        alertHandler.error('Invalid number of cohorts');
+        return;
+      }
 
-      var cohortName = $('#cohort-input').val();
-      analystController.addCohort(session, password, cohortName).then(function (res) {
-        if (res != null) {
-          var cohortId = res.cohortId.toString();
-          createCohort(cohortName, cohortId);
-          enableCohortSubmit(cohortId);
-
-          // scroll to correct cohort
-          $('html, body').animate({
-            scrollTop: $('#' + cohortId).offset().top
-          }, 500);
-        }
-      });
+      createNewCohortNamingSections(numCohorts);
     });
+
+    function createNewCohortNamingSections(num) {
+      $('#cohort-naming').empty();
+      let $nameForm = $('<div>', {class: 'form-group'});
+      for (let i = 0; i < num; i++) {
+        // create and append section for naming 1 cohort
+        $nameForm.append('<hr/>')
+          .append('<h4>New Cohort ' + (i+1) + ' </h4>')
+          .append('<label class="control-label" for="cohort-name-' + i + '">Enter Cohort Name (If not provided, number will be used)</label>')
+          .append('<input type="text" id="cohort-name-' + i + '" class="form-control" pattern="^[a-zA-Z0-9]{1,26}$" placeholder="Cohort name" autocomplete="off"/>');
+      }
+      $('#cohort-naming').append($nameForm)
+        .append('<div class="form-group">\n' +
+        '        <button type="submit" id="cohort-generate" class="btn btn-block btn-primary">Generate</button>\n' +
+        '        </div>');
+
+      // click handler done this way because 'cohort-generate' is now a dynamically added button
+      $(document).on('click', 'button[id=cohort-generate]', function (e) {
+        e.preventDefault();
+
+        let numCohorts = $('#cohort-number').val();
+        if (numCohorts <= 0) {
+          alertHandler.error('Invalid number of cohorts');
+          return;
+        }
+
+        // create a array of new cohorts' names (or fill with null)
+        const cohorts = [];
+        for (let i = 0; i < numCohorts; i++) {
+          let nameId = '#cohort-name-'+i;
+          let cohortName = $(nameId).val();
+          if (cohortName === '') {
+            cohorts.push(null);
+          } else {
+            cohorts.push(cohortName);
+          }
+        }
+
+        analystController.addCohorts(session, password, cohorts).then(function (res) {
+          if (res != null) {
+            for (let i = res.oldCohortId; i < res.cohortId; i++) {
+              let cohortId = res.cohortMapping[i].id;
+              let cohortName = res.cohortMapping[i].name;
+              createCohort(cohortName, cohortId);
+              enableCohortSubmit(cohortId);
+            }
+
+            // clear the add cohorts form
+            $('#cohort-naming').empty();
+            $('#cohort-number').val('');
+          } else {
+            alertHandler.error('Something went wrong when trying to add cohorts');
+          }
+        });
+      });
+    }
 
     function createAndEnableDownloadBtn(cohort) {
       var btn = $('<div class="form-group"><button type="submit" id="participants-download-'+ cohort +'" class="btn btn-primary btn-block">Download Participant Links</button></div>');
@@ -226,7 +278,7 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda', 'f
 
         var count = $('#participants-count-' + cohortId).val();
 
-        analystController.generateNewParticipationCodes(session, password, count, cohortId)
+        analystController.generateNewParticipationCodes(session, password, count, cohortId.toString())
           .then(function (res) {
 
             var $newParticipants = $('#participants-new-' + cohortId);
@@ -259,12 +311,11 @@ define(['jquery', 'controllers/analystController', 'table_template', 'Ladda', 'f
       var $participantIdCell = document.createElement('th');
       var $timeCell = document.createElement('th');
       var $header = document.createElement('div');
-      var $title;
+      var $title = document.createElement('h3');
       $header.setAttribute('class', 'text-center');
 
       if (SELF_SELECT) {
         $historyTable.style.marginBottom = '75px';
-        $title = document.createElement('h3');
         $title.setAttribute('class', 'historySubTitle');
         $title.innerText = cohortName;
         $header.appendChild($title);

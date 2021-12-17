@@ -48,7 +48,10 @@ const SessionInfoModel = mongoose.model('SessionInfo', new mongoose.Schema({
   status: String,
   cohorts: Number,
   cohort_mapping: [cohortMappingSchema]
-}));
+},
+  {
+    usePushEach: true
+  }));
 const UserKeyModel = mongoose.model('UserKey', new mongoose.Schema({
   _id: String, // concat of session + userkey.
   session: String,

@@ -31,6 +31,7 @@ module.exports = [
   { url: '/create_session', route: sessionRoutes.createSession, validation: validation.createSession },
   { url: '/sessioninfo', route: sessionRoutes.getSessionInfo, validation: validation.getSessionInfo, authentication: auth.userKey },
   { url: '/get_cohorts', route: clientURLsRoutes.getCohorts, validation: validation.getCohorts, authentication: auth.userKey},
+  { url: '/get_user', route: clientURLsRoutes.getUser, validation: validation.getCohorts, authentication: auth.userKey},
 
   // Session status and history routes
   { url: '/fetch_status', route: sessionStatusRoutes.getStatus, validation: validation.getStatus },

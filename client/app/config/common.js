@@ -11,6 +11,7 @@ if (require.shim == null) {
 require.paths = Object.assign(require.paths, {
   jquery: 'vendor/jquery',
   bootstrap: 'vendor/bootstrap.min',
+  constants: 'helper/constants',
   Handsontable: 'vendor/handsontable',
   filesaver: 'vendor/filesaver',
   XLSX: 'vendor/xlsx',
