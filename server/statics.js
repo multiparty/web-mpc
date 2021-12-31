@@ -4,7 +4,7 @@
 
 const express = require('express');
 
-const config = require('./config/config.js');
+const { config } = require('./config/config.js');
 const rendering = {
   index: require('./rendering/index.js')
 };

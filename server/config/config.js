@@ -3,4 +3,12 @@ if (deployment === null || deployment === undefined) {
   deployment = 'bwwc';
 }
 
-module.exports = require('./' + deployment + '.json');
+function setDeployment(deploymentName) {
+  deployment = deploymentName;
+  module.exports.config = require('./' + deployment + '.json');
+}
+
+module.exports = {
+  setDeployment: setDeployment,
+  config: require('./' + deployment + '.json')
+}
