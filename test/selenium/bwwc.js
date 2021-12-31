@@ -196,41 +196,4 @@ describe('BWWC Tests', function () {
       }
     });
   });
-
-// describe('UI Tests', function () {
-//   this.timeout(15000);
-//   const CONTRIBUTOR_COUNT = 100;
-//   const UNASSIGNED_COHORT = '0';
-//
-//   let driver;
-//
-//   // Create the chrome driver before tests and close it after tests
-//   before(function () {
-//     driver = driverWrapper.getDriver();
-//   });
-//
-//   // Test that creating a session with empty title/description gives errors
-//   describe('/create', function () {
-//     it('Empty session information', async function() {
-//       await session.createEmptySession(driver);
-//     });
-//   });
-//
-//   // Test that we can download participation links properly
-//   describe('/manage', function () {
-//     it('Download links', async function() {
-//       let returned = await session.createSession(driver);
-//       const sessionKey = returned.sessionKey;
-//       const password = returned.password;
-//       await manage.login(driver, sessionKey, password); // Login to Session Management
-//       // Ensure UI transition has finished
-//       await driver.sleep(500);
-//       await manage.downloadLinks(driver, UNASSIGNED_COHORT, 0);
-//       await driver.sleep(500);
-//       await manage.generateLinksNoCohorts(driver, CONTRIBUTOR_COUNT);
-//       await driver.sleep(500);
-//       await manage.downloadLinks(driver, UNASSIGNED_COHORT, CONTRIBUTOR_COUNT);
-//     });
-//   });
-// });
 });
