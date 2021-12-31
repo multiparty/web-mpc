@@ -67,13 +67,21 @@ describe('BWWC Tests', function () {
         if (cohort === Math.floor(COHORT_COUNT / 2) || cohort === COHORT_COUNT - 1) { // make sure a few cohorts do not have enough submissions
           cohort = Math.random() < 0.75 ? 1 : cohort;
         }
+        const resubmit = Math.random() < 0.2 ? true : false;
 
         const uploadFile = i % 3 === 0 ? UPLOAD_FILE : undefined;
 
         const submissionID = '\tSubmission: ' + (i+1) + '. Cohort: ' + cohort + '. ' + (uploadFile == null ? 'Manual' : 'Upload');
         console.time(submissionID);
-        const input = await submission.submitInput(driver, links[i], cohort, true, uploadFile);
+        let input = await submission.submitInput(driver, links[i], cohort, true, uploadFile);
         console.timeEnd(submissionID);
+
+        if (resubmit) {
+          const resubmissionID = '\tDouble submission: ' + (i+1) + '. Cohort: ' + cohort + '. ' + (uploadFile == null ? 'Manual' : 'Upload');
+          console.time(resubmissionID);
+          input = await submission.submitInput(driver, links[i], cohort, true, uploadFile);
+          console.timeEnd(resubmissionID);
+        }
 
         // Add input to inputs
         const cohortInputs = inputs[cohort] || [];
