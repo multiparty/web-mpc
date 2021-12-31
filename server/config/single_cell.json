@@ -1,0 +1,23 @@
+{
+    "template": "../client/app/data/single_cell",
+    "MAX_SIZE": 10000,
+  
+    "webRootPath": "/tmp/acme-challenges",
+    "approveDomainsPattern": "^([A-Za-z0-9]+.)?test.org$",
+    "approveDomainsOpts": {
+      "domains": [
+        "www.test.org"
+      ],
+      "email": "test@test.com",
+      "agreeTos": true
+    },
+  
+    "client": {
+      "table_template": "data/single_cell",
+      "organization": "Test Deployment",
+      "subtitle": "Lorem ipsum",
+      "logo": "images/bu.png",
+      "cohort": "Cohort",
+      "session_key": "Session ID"
+    }
+}
