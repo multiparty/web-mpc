@@ -70,11 +70,19 @@ describe('Pacesetters Tests', function () {
           subNumber += 1;
           // const uploadFile = UPLOAD_FILE;
           const uploadFile = (subNumber-1) % 3 === 0 ? UPLOAD_FILE : undefined;
+          const resubmit = Math.random() < 0.2 ? true : false;
 
           const submissionID = '\tSubmission: ' + subNumber + '. Cohort: ' + (cohort) + '. ' + (uploadFile == null ? 'Manual' : 'Upload');
           console.time(submissionID);
-          const input = await submission.submitInput(driver, links[cohort][i], cohort, false, uploadFile);
+          let input = await submission.submitInput(driver, links[cohort][i], cohort, false, uploadFile);
           console.timeEnd(submissionID);
+
+          if (resubmit) {
+            const resubmissionID = '\tDouble submission: ' + (i+1) + '. Cohort: ' + cohort + '. ' + (uploadFile == null ? 'Manual' : 'Upload');
+            console.time(resubmissionID);
+            input = await submission.submitInput(driver, links[i], cohort, false, uploadFile);
+            console.timeEnd(resubmissionID);
+          }
 
           // Add input to inputs
           cohortInputs.push(input);
