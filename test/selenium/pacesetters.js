@@ -2,6 +2,7 @@
 const assert = require('assert');
 
 // Helpers
+const server = require('./helpers/server.js');
 const driverWrapper = require('./helpers/driver.js');
 const compute = require('./helpers/compute.js');
 const csv = require('./helpers/csv.js');
@@ -17,29 +18,33 @@ const unmasking = require('./api/unmasking.js');
 const UPLOAD_FILE = '/test/selenium/files/pace2.xlsx';
 
 describe('Pacesetters Tests', function () {
+  let driver;
   this.timeout(2500000);
 
   // Create the chrome driver before tests and close it after tests
-  before(function () {
+  before(async function () {
+    server.create("pacesetters");
     driverWrapper.create();
+    driver = driverWrapper.getDriver();
+    await driver.sleep(10000);
   });
-  after(function () {
+  after(async function () {
     driverWrapper.quit();
+    server.quit();
+    await driver.sleep(1000);
   });
 
   // End-to-end Workflow
   describe('End-to-end Workflow', function () {
-    let sessionKey, password, links, driver, inputs, clientCohortMap;
+    let sessionKey, password, links, inputs, clientCohortMap;
 
     const COHORT_COUNT = 5;
     const CONTRIBUTOR_COUNT = 35;
     const RESUBMISSION_COUNT = 10;
 
     before(function () {
-      driver = driverWrapper.getDriver();
       inputs = { all: [] };
     });
-    console.log(process.env.WEBMPC_DEPLOYMENT);
 
     // Create session
     it('Session Creation', async function () {

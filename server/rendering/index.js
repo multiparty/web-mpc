@@ -1,5 +1,5 @@
 // Server-side Rendering for the client age (/index.html)
-const config = require('../config/config.js');
+const { config } = require('../config/config.js');
 const tableTemplate = require('../../client/app/' + config.client.table_template + '.js');
 
 exports.render = function (app, req, res) {

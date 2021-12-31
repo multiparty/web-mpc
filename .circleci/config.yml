@@ -41,17 +41,7 @@ commands:
       - run:
           name: "Run test"
           command: npm run test
-  start-server:
-    steps:
-      - run:
-          name: "Start server"
-          command: npm run start
-          background: true
-  wait-for-server:
-    steps:
-      - run:
-          name: "Sleep 5 seconds"
-          command: sleep 5
+          no_output_timeout: "2m"
 
 jobs:
   test:
@@ -67,8 +57,6 @@ jobs:
       - restore-deps
       - install-deps
       - cache-deps
-      - start-server
-      - wait-for-server
       - run-test
 
 workflows:

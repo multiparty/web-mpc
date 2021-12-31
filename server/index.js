@@ -14,6 +14,12 @@
 
 'use strict';
 
+// Set deployment
+let config = require('./config/config.js');
+if (process.argv[2]) {
+  config.setDeployment(process.argv[2]);
+}
+
 const production = require('./production.js');
 const jiff = require('./jiff/create.js');
 

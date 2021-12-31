@@ -2,6 +2,7 @@
 const assert = require('assert');
 
 // Helpers
+const server = require('./helpers/server.js');
 const driverWrapper = require('./helpers/driver.js');
 const compute = require('./helpers/compute.js');
 const csv = require('./helpers/csv.js');
@@ -17,19 +18,25 @@ const unmasking = require('./api/unmasking.js');
 const UPLOAD_FILE = '/test/selenium/files/single_cell.xlsx';
 
 describe('Single Cell Tests', function () {
+  let driver;
   this.timeout(2500000);
 
   // Create the chrome driver before tests and close it after tests
-  before(function () {
+  before(async function () {
+    server.create("single_cell");
     driverWrapper.create();
+    driver = driverWrapper.getDriver();
+    await driver.sleep(10000);
   });
-  after(function () {
+  after(async function () {
     driverWrapper.quit();
+    server.quit();
+    await driver.sleep(1000);
   });
 
   // End-to-end Workflow
   describe('End-to-end Workflow', function () {
-    let sessionKey, password, links, driver, inputs, clientCohortMap;
+    let sessionKey, password, links, inputs, clientCohortMap;
 
     const COHORT_COUNT = tableTemplate.cohorts.length;
     const CONTRIBUTOR_COUNT = 5;
@@ -37,7 +44,6 @@ describe('Single Cell Tests', function () {
     const COHORT_SIZE_THRESHOLD = tableTemplate.cohort_threshold;
 
     before(function () {
-      driver = driverWrapper.getDriver();
       inputs = { all: [] };
     });
 

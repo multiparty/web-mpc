@@ -6,7 +6,7 @@
 // DB Operation Wrappers
 const modelWrappers = require('../models/modelWrappers.js');
 const helpers = require('./helpers.js');
-const config = require('../config/config.js');
+const { config } = require('../config/config.js');
 var tableTemplate = require('../../client/app/' + config.client.table_template + '.js');
 
 // Export route handlers

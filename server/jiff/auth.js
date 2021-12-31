@@ -2,7 +2,7 @@ const auth = require('../app/auth.js');
 const modulesWrappers = require('../models/modelWrappers');
 
 // this should be a check within sessionInfo
-const config = require('../config/config.js');
+const { config } = require('../config/config.js');
 const table_template = require('../../client/app/' + config.client.table_template + '.js');
 
 // Wrappers around ../app/auth.js

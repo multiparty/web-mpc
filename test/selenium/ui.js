@@ -9,18 +9,22 @@ const session = require('./api/session.js');
 const manage = require('./api/manage.js');
 
 describe('UI Test', function () {
+  let driver;
   this.timeout(15000);
   const CONTRIBUTOR_COUNT = 100;
   const UNASSIGNED_COHORT = '0';
 
-  let driver;
   // Create the chrome driver before tests and close it after tests
-  before(function () {
+  before(async function () {
+    server.create("single_cell");
     driverWrapper.create();
     driver = driverWrapper.getDriver();
+    await driver.sleep(10000);
   });
-  after(function () {
+  after(async function () {
     driverWrapper.quit();
+    server.quit();
+    await driver.sleep(1000);
   });
 
   // Test that creating a session with empty title/description gives errors

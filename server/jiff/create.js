@@ -3,7 +3,7 @@ const JIFFServer = require('../../jiff/lib/jiff-server.js');
 const jiffServerBigNumber = require('../../jiff/lib/ext/jiff-server-bignumber.js');
 const jiffServerRestAPI = require('../../jiff/lib/ext/jiff-server-restful.js');
 
-const config = require('../config/config.js');
+const { config } = require('../config/config.js');
 const mpc = require('../../client/app/helper/mpc.js');
 
 const mailbox_hooks = require('./mailbox.js');
