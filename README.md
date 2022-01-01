@@ -206,5 +206,24 @@ The instructions below demonstrate how to operate the WEB-MPC application. All s
 * Click **Browse** and upload the private key file that was downloaded when generating the session key
 * Click **Unmask Data** and view the result
 
+## Testing
+
+WEB-MPC has end-to-end tests verifying each deployment. To run the full test suite on Linux or Mac OS, run the following command:
+```
+npm run test
+```
+The test automatically spawns the appropriate server and runs the end-to-end tests for each deployment, shutting down the previous server in between tests.
+
+Node.js is not able to kill the previous server on Windows. Hence, each test suite must be run separately.
+
+To run a specific test suite, run the following command:
+```
+mocha test/selenium/<deployment_name>.js
+```
+For example, to run the BWWC tests, run:
+```
+mocha test/selenium/bwwc.js
+```
+
 ## License
-Web-mpc is freely distributable under the terms of the [MIT license](https://github.com/multiparty/web-mpc/blob/master/LICENSE). This release supports Handsontable's "[Nested headers](https://docs.handsontable.com/pro/1.17.0/demo-nested-headers.html)", a Pro feature. A [valid license](https://handsontable.com/pricing) must be obtained when using this feature.
+WEB-MPC is freely distributable under the terms of the [MIT license](https://github.com/multiparty/web-mpc/blob/master/LICENSE). This release supports Handsontable's "[Nested headers](https://docs.handsontable.com/pro/1.17.0/demo-nested-headers.html)", a Pro feature. A [valid license](https://handsontable.com/pricing) must be obtained when using this feature.
