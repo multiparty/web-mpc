@@ -5,6 +5,7 @@ const assert = require('assert');
 const driverWrapper = require('./helpers/driver.js');
 
 // import test API
+const server = require('./helpers/server.js');
 const session = require('./api/session.js');
 const manage = require('./api/manage.js');
 
