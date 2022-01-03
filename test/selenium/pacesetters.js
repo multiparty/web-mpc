@@ -73,21 +73,13 @@ describe('Pacesetters Tests', function () {
         const cohortInputs = inputs[cohort] || [];
         for (let i = 0; i < links[cohort].length; i++) {
           subNumber += 1;
-          // const uploadFile = UPLOAD_FILE;
           const uploadFile = (subNumber-1) % 3 === 0 ? UPLOAD_FILE : undefined;
           const resubmit = Math.random() < 0.2 ? true : false;
 
-          const submissionID = '\tSubmission: ' + subNumber + '. Cohort: ' + (cohort) + '. ' + (uploadFile == null ? 'Manual' : 'Upload');
+          const submissionID = (resubmit ? '\tDouble Submission: ' : '\tSubmission: ') + subNumber + '. Cohort: ' + (cohort) + '. ' + (uploadFile == null ? 'Manual' : 'Upload');
           console.time(submissionID);
-          let input = await submission.submitInput(driver, links[cohort][i], cohort, false, uploadFile);
+          let input = await submission.submitInput(driver, links[cohort][i], cohort, false, uploadFile, resubmit);
           console.timeEnd(submissionID);
-
-          if (resubmit) {
-            const resubmissionID = '\tDouble submission: ' + (i+1) + '. Cohort: ' + cohort + '. ' + (uploadFile == null ? 'Manual' : 'Upload');
-            console.time(resubmissionID);
-            input = await submission.submitInput(driver, links[i], cohort, false, uploadFile);
-            console.timeEnd(resubmissionID);
-          }
 
           // Add input to inputs
           cohortInputs.push(input);
@@ -96,12 +88,8 @@ describe('Pacesetters Tests', function () {
           // Remember cohort
           clientCohortMap[subNumber-1] = { cohort: cohort, index: cohortInputs.length-1 };
         }
-        // console.log('after inner loop ', cohortInputs);
         inputs[cohort] = cohortInputs;
       }
-      // console.log('links ', links);
-      // console.log('inputs ', inputs);
-      // console.log('clientCohortMap ', clientCohortMap);
     });
 
     // Resubmissions
@@ -111,7 +99,6 @@ describe('Pacesetters Tests', function () {
         // force the first party to first resubmit 3 times to randomly chosen (possibly overlapping) cohorts
         // just to test several resubmissions by the same party
         // other resubmissions are chosen randomly
-        // const submitter = Math.floor(Math.random() * Object.keys(clientCohortMap).length);
         const submitter = i < 3 ? 0 : Math.floor(Math.random() * Object.keys(clientCohortMap).length);
         const cohort = clientCohortMap[submitter]['cohort']; // zero-indexed cohort
         const subNumWithinCohort = submitter % numPerCohort; // because links are a dictionary for Pacesetters
@@ -179,7 +166,6 @@ describe('Pacesetters Tests', function () {
 
     // Unmask
     it('Unmasking', async function () {
-      // const { averagesContent, deviationsContent } = await unmasking.unmask(driver, sessionKey, password, inputs['all'][0].length);
       const { tablesContent, averagesContent, deviationsContent } = await unmasking.unmask(driver, sessionKey, password, inputs['all'][0].length);
 
       // Parse CSV and check results are correct
@@ -190,12 +176,9 @@ describe('Pacesetters Tests', function () {
       averagesCohorts.sort();
       deviationsCohorts.sort();
       const cohorts = Object.keys(inputs).filter(i => (i !== 'all')).sort();
-      // const cohorts = Object.keys(inputs).filter(i => (i !== 'all' && inputs[i].length >= COHORT_SIZE_THRESHOLD)).sort();
-      console.log('Cohorts:', cohorts, '/', COHORT_COUNT);
 
       assert.deepEqual(averagesCohorts, cohorts, 'Average CSV file does not have correct cohorts');
       assert.deepEqual(deviationsCohorts, cohorts, 'Standard Deviation CSV file does not have correct cohorts (should have only "all")');
-      // assert.deepEqual(deviationsCohorts, [], 'Standard Deviation CSV file does not have correct cohorts (should have only "all")');
 
       // Manually compute stats with given inputs
       const allAverage = compute.computeStandardAverage(inputs['all']);
