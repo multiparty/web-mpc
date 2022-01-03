@@ -216,13 +216,19 @@ The test automatically spawns the appropriate server and runs the end-to-end tes
 
 Node.js is not able to kill the previous server on Windows. Hence, each test suite must be run separately.
 
-To run a specific test suite, run the following command:
+To run a specific test suite, run the specific suite with `mocha`:
 ```
 mocha test/selenium/<deployment_name>.js
 ```
-For example, to run the BWWC tests, run:
+or run the test with a filter:
+```
+npm run test -- --grep <test_suite_name>
+```
+
+For example, to run the BWWC tests, run one of the following:
 ```
 mocha test/selenium/bwwc.js
+npm run test -- --grep BWWC
 ```
 
 ## License

@@ -77,18 +77,10 @@ describe('Single Cell Tests', function () {
         const uploadFile = i % 3 === 0 ? UPLOAD_FILE : undefined;
         const resubmit = Math.random() < 0.2 ? true : false;
 
-        const submissionID = '\tSubmission: ' + (i+1) + '. Cohort: ' + cohort + '. ' + (uploadFile == null ? 'Manual' : 'Upload');
+        const submissionID = (resubmit ? '\tDouble Submission: ' : '\tSubmission: ') + (i+1) + '. Cohort: ' + cohort + '. ' + (uploadFile == null ? 'Manual' : 'Upload');
         console.time(submissionID);
-        let input = await submission.submitInput(driver, links[i], cohort, true, uploadFile);
+        let input = await submission.submitInput(driver, links[i], cohort, true, uploadFile, resubmit);
         console.timeEnd(submissionID);
-
-        if (resubmit) {
-          console.log("resubmit");
-          const resubmissionID = '\tDouble submission: ' + (i+1) + '. Cohort: ' + cohort + '. ' + (uploadFile == null ? 'Manual' : 'Upload');
-          console.time(resubmissionID);
-          input = await submission.submitInput(driver, links[i], cohort, true, uploadFile);
-          console.timeEnd(resubmissionID);
-        }
 
         // Add input to inputs
         const cohortInputs = inputs[cohort] || [];

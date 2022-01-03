@@ -42,7 +42,7 @@ async function enterRandomData(driver, maxElement=undefined) {
 }
 
 module.exports = {
-  submitInput: async function (driver, link, cohort, selfSelect, uploadFilePath=undefined, maxElement=undefined) {
+  submitInput: async function (driver, link, cohort, selfSelect, uploadFilePath=undefined, resubmit=false, maxElement=undefined) {
     await driver.get(link);
 
     const participationCodeSuccessField = await driver.findElement(By.id('participation-code-success'));
@@ -90,11 +90,25 @@ module.exports = {
     // Close alertify dialog
     const alertifyOk = await driver.wait(until.elementLocated(By.className('ajs-ok')));
     const alertifyModal = await driver.findElement(By.className('ajs-modal'));
-
     await driver.wait(until.elementIsEnabled(alertifyOk));
     await alertifyOk.click();
-
     await driver.wait(until.elementIsNotVisible(alertifyModal));
+
+    if (resubmit) {
+      await driver.wait(until.elementIsEnabled(submitButton));
+      await submitButton.click();
+
+      // Verify success
+      const successDialog = await helpers.conditionOrAlertError(driver, until.elementLocated(By.id('submission-success')));
+      await driver.wait(until.elementIsVisible(successDialog));
+
+      // Close alertify dialog
+      const alertifyOk = await driver.wait(until.elementLocated(By.className('ajs-ok')));
+      const alertifyModal = await driver.findElement(By.className('ajs-modal'));
+      await driver.wait(until.elementIsEnabled(alertifyOk));
+      await alertifyOk.click();
+      await driver.wait(until.elementIsNotVisible(alertifyModal));
+    }
 
     // return uploaded data
     return data;
