@@ -75,7 +75,7 @@ describe('Single Cell Tests', function () {
         }
 
         const uploadFile = i % 3 === 0 ? UPLOAD_FILE : undefined;
-        const resubmit = Math.random() < 0.2 ? true : false;
+        const resubmit = Math.random() < 0.5 ? true : false;
 
         const submissionID = (resubmit ? '\tDouble Submission: ' : '\tSubmission: ') + (i+1) + '. Cohort: ' + cohort + '. ' + (uploadFile == null ? 'Manual' : 'Upload');
         console.time(submissionID);
@@ -178,8 +178,7 @@ describe('Single Cell Tests', function () {
       averagesCohorts.sort();
       deviationsCohorts.sort();
       const cohorts = Object.keys(inputs).filter(i => (i !== 'all' && inputs[i].length >= COHORT_SIZE_THRESHOLD)).sort();
-      console.log('Cohorts:', cohorts, '/', COHORT_COUNT);
-
+      
       assert.deepEqual(averagesCohorts, cohorts, 'Average CSV file does not have correct cohorts');
       assert.deepEqual(deviationsCohorts, [], 'Standard Deviation CSV file does not have correct cohorts (should have only "all")');
 
