@@ -1,5 +1,5 @@
 /* eslint-env node, mocha */
-const { By, until } = require('selenium-webdriver');
+const { By, until, Key } = require('selenium-webdriver');
 const helpers = require('../helpers/helpers.js');
 
 async function uploadFile(driver, uploadFilePath) {
@@ -79,8 +79,8 @@ module.exports = {
         console.log(error);
       }
     } while (! await verifyButton.isSelected());
-
     await driver.wait(until.elementIsEnabled(submitButton));
+    await driver.sleep(500); // Sometimes submission doesn't trigger if button clicked too early 
     await submitButton.click();
 
     // Verify success
