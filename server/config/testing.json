@@ -1,0 +1,24 @@
+{
+  "template": "../client/app/data/pacesetters",
+  "MAX_SIZE": 10000,
+
+  "webRootPath": "/tmp/acme-challenges",
+  "approveDomainsPattern": "^([A-Za-z0-9]+.)?pacesetters.org$",
+  "approveDomainsOpts": {
+    "domains": [
+      "www.pacesettersdata.org",
+      "pacesettersdata.org"
+    ],
+    "email": "hicsail@bu.edu",
+    "agreeTos": true
+  },
+
+  "client": {
+    "table_template": "data/pacesetters",
+    "organization": "Ishii testing",
+    "subtitle": "Data Submission",
+    "logo": "images/hci.jpeg",
+    "cohort": "Cohort",
+    "session_key": "Ishii testing Submission ID"
+  }
+}

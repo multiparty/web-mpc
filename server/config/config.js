@@ -7,7 +7,6 @@ function setDeployment(deploymentName) {
   deployment = deploymentName;
   module.exports.config = require('./' + deployment + '.json');
 }
-
 module.exports = {
   setDeployment: setDeployment,
   config: require('./' + deployment + '.json')
