@@ -8,9 +8,10 @@ Implementation of a web-based data collection and aggregation infrastructure tha
 
 * Node.js
 * MongoDB
+* Docker
 * [JIFF](https://github.com/multiparty/jiff/) (Bundled as a Git submodule)
 
-## Quick Start Instructions
+## Local Machine Instructions
 
 These instructions are for demonstration and development purposes only. For a full, secure deployment, follow one of the two full instructions below.
 
@@ -20,28 +21,11 @@ These instructions are for demonstration and development purposes only. For a fu
 git clone https://github.com/multiparty/web-mpc.git
 cd web-mpc/
 ```
-* Clone the JIFF submodule
+* Build Docker Image and Compose Container
 ```
-git submodule init
-git submodule update
+docker-compose up -d --build #build and compose
 ```
-* Install WEB-MPC dependencies
-```
-npm install
-```
-* Install JIFF dependencies
-```
-cd jiff/
-npm install
-cd ../
-```
-Note that installing WEB-MPC dependencies will break JIFF's dependencies. Hence, JIFF dependencies **must** be installed at least once after each install of WEB-MPC dependencies.
-* Select the WEB-MPC deployment. See the [Deployments](#Deployments) section
-* Start the WEB-MPC server
-```
-npm start
-```
-* Navigate to the website at `https://localhost:8080`
+* Navigate to the website at `https://localhost:3000`
 
 ## EC2 Instructions
 These instructions were written for an AWS EC2 instance running Amazon Linux. The instance's security group should allow SSH on port 22 and TCP on port 8080.
@@ -114,54 +98,6 @@ authbind --deep forever -o log.txt -e error.txt start index.js
 ```
 * Navigate to the domain or to the EC2 instance's public IP address to view the page
 
-## Local Machine Instructions
-These instructions describe steps to deploy WEB-MPC on a local machine.
-
-* Install and start MongoDB
-* Clone WEB-MPC
-```
-git clone https://github.com/multiparty/web-mpc.git
-cd web-mpc/
-```
-* Clone the JIFF submodule
-```
-git submodule init
-git submodule update
-```
-* Install WEB-MPC dependencies
-```
-npm install
-```
-* Install JIFF dependencies
-```
-cd jiff/
-npm install
-cd ../
-```
-Note that installing WEB-MPC dependencies will break JIFF's dependencies. Hence, JIFF dependencies **must** be installed at least once after each install of WEB-MPC dependencies.
-* Install the `forever` global dependency to ensure the server runs continuously
-```
-sudo npm install -g forever
-```
-* Create the database file:
-```
-mkdir -p /data/db
-```
-* Start the MongoDB server
-```
-mongod
-```
-* Set environment variables for a production deployment
-```
-export NODE_ENV=production
-```
-* Select the WEB-MPC deployment. See the [Deployments](#Deployments) section
-* Start the WEB-MPC server
-```
-forever start server/index.js
-```
-* Open up the browser and navigate to "localhost:8080"
-
 ## Deployments
 
 WEB-MPC supports multiple deployments. A deployment refers to one particular data collection campaign. Each deployment may have different data formats, domain names, and HTTPS certificate settings.
@@ -184,12 +120,12 @@ The instructions below demonstrate how to operate the WEB-MPC application. All s
 
 ### Generate session key
 
-* Navigate to `localhost:8080/create`
+* Navigate to `localhost:3000/create`
 * Click on **Generate Session** and save the two given files, one contains the session key and password which are needed for managing the session. The other contains a secret key needed to unmask the results.
 
 ### Manage session
 
-* Navigate to `localhost:8080/manage`
+* Navigate to `localhost:3000/manage`
 * Input your session key and password
 * Generate participation links
 * Start the session
@@ -200,7 +136,7 @@ The instructions below demonstrate how to operate the WEB-MPC application. All s
 
 ### Retrieve the result
 
-* Stop the session in `localhost:8080/manage`
+* Stop the session in `localhost:3000/manage`
 * Click the **unmask** link
 * Paste the session key and password in its designated fields
 * Click **Browse** and upload the private key file that was downloaded when generating the session key
