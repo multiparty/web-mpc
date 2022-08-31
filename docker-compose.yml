@@ -2,6 +2,8 @@ version: '3'
 services:
   web-mpc:
     container_name: web-mpc
+    environment: 
+      - PORT=docker
     restart: always
     build: .
     ports:

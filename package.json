@@ -39,8 +39,7 @@
   },
   "scripts": {
     "start": "node server/index.js",
-    "test": "mocha test/selenium/*.js",
-    "local": "set PORT=mongodb://localhost:27017/aggregate&&node server/index.js"
+    "test": "mocha test/selenium/*.js"
   },
   "repository": {
     "type": "git",
