@@ -9,9 +9,8 @@ COPY . .
 RUN git submodule init jiff
 RUN git submodule update
 
-#Install app dependecies (wildcard ensures both package/package-loc.json are copied)
-RUN npm install
-# RUN npm ci --only=production for production
+#Install app dependecies (wildcard ensures both package/package-lock.json are copied)
+RUN npm ci
 
 RUN cd jiff
 RUN npm install

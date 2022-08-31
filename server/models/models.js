@@ -6,9 +6,12 @@
 
 const mongoose = require('mongoose');
 
+var env = process.env.PORT==null?'mongodb://mongo:27017/aggregate':'mongodb://localhost:27017/aggregate';
+
 (async function () {
   try {
-    await mongoose.connect('mongodb://mongo:27017/aggregate', { useMongoClient: true });
+    console.log(env);
+    await mongoose.connect('mongodb://localhost:27017/aggregate', { useMongoClient: true });
   } catch (err) {
     console.log('Could not connect to MongoDB server', err);
   }
