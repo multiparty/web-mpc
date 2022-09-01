@@ -8,9 +8,10 @@ Implementation of a web-based data collection and aggregation infrastructure tha
 
 * Node.js
 * MongoDB
+* Docker
 * [JIFF](https://github.com/multiparty/jiff/) (Bundled as a Git submodule)
 
-## Quick Start Instructions
+## Local Machine Instructions
 
 These instructions are for demonstration and development purposes only. For a full, secure deployment, follow one of the two full instructions below.
 
@@ -20,26 +21,9 @@ These instructions are for demonstration and development purposes only. For a fu
 git clone https://github.com/multiparty/web-mpc.git
 cd web-mpc/
 ```
-* Clone the JIFF submodule
+* Build Docker Image and Compose Container
 ```
-git submodule init
-git submodule update
-```
-* Install WEB-MPC dependencies
-```
-npm install
-```
-* Install JIFF dependencies
-```
-cd jiff/
-npm install
-cd ../
-```
-Note that installing WEB-MPC dependencies will break JIFF's dependencies. Hence, JIFF dependencies **must** be installed at least once after each install of WEB-MPC dependencies.
-* Select the WEB-MPC deployment. See the [Deployments](#Deployments) section
-* Start the WEB-MPC server
-```
-npm start
+docker-compose up -d --build #build and compose
 ```
 * Navigate to the website at `https://localhost:8080`
 
@@ -113,54 +97,6 @@ cd server/
 authbind --deep forever -o log.txt -e error.txt start index.js
 ```
 * Navigate to the domain or to the EC2 instance's public IP address to view the page
-
-## Local Machine Instructions
-These instructions describe steps to deploy WEB-MPC on a local machine.
-
-* Install and start MongoDB
-* Clone WEB-MPC
-```
-git clone https://github.com/multiparty/web-mpc.git
-cd web-mpc/
-```
-* Clone the JIFF submodule
-```
-git submodule init
-git submodule update
-```
-* Install WEB-MPC dependencies
-```
-npm install
-```
-* Install JIFF dependencies
-```
-cd jiff/
-npm install
-cd ../
-```
-Note that installing WEB-MPC dependencies will break JIFF's dependencies. Hence, JIFF dependencies **must** be installed at least once after each install of WEB-MPC dependencies.
-* Install the `forever` global dependency to ensure the server runs continuously
-```
-sudo npm install -g forever
-```
-* Create the database file:
-```
-mkdir -p /data/db
-```
-* Start the MongoDB server
-```
-mongod
-```
-* Set environment variables for a production deployment
-```
-export NODE_ENV=production
-```
-* Select the WEB-MPC deployment. See the [Deployments](#Deployments) section
-* Start the WEB-MPC server
-```
-forever start server/index.js
-```
-* Open up the browser and navigate to "localhost:8080"
 
 ## Deployments
 

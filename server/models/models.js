@@ -6,9 +6,11 @@
 
 const mongoose = require('mongoose');
 
+const mongohost = process.env.MONGOHOST|| 'mongodb://localhost:27017';
 (async function () {
   try {
-    await mongoose.connect('mongodb://localhost/aggregate', { useMongoClient: true });
+    await mongoose.connect(mongohost+'/aggregate', { useMongoClient: true });
+    console.log('You are connected to ',mongohost);
   } catch (err) {
     console.log('Could not connect to MongoDB server', err);
   }
@@ -28,6 +30,7 @@ const HistoryModel = mongoose.model('History', new mongoose.Schema({
   date: Number,
   success: Boolean
 }));
+
 const MailboxModel = mongoose.model('Mailbox', new mongoose.Schema({
   // Store messages/shares
   _id: String, // "session:from_id:to_id:op_id"
@@ -38,6 +41,7 @@ const MailboxModel = mongoose.model('Mailbox', new mongoose.Schema({
   label: String,
   message: String
 }));
+
 const SessionInfoModel = mongoose.model('SessionInfo', new mongoose.Schema({
   _id: String,
   session: String,
@@ -52,6 +56,7 @@ const SessionInfoModel = mongoose.model('SessionInfo', new mongoose.Schema({
   {
     usePushEach: true
   }));
+  
 const UserKeyModel = mongoose.model('UserKey', new mongoose.Schema({
   _id: String, // concat of session + userkey.
   session: String,
