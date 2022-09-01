@@ -12,9 +12,7 @@ RUN git submodule update
 #Install app dependecies (wildcard ensures both package/package-lock.json are copied)
 RUN npm ci
 
-RUN cd jiff
-RUN npm install
-RUN cd ..
+RUN cd jiff && npm ci
 
 EXPOSE 8080
 

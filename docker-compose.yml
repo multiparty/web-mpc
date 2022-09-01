@@ -3,7 +3,7 @@ services:
   web-mpc:
     container_name: web-mpc
     environment: 
-      - PORT=docker
+      - MONGOHOST=mongodb://mongo:27017
     restart: always
     build: .
     ports:
