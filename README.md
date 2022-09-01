@@ -25,7 +25,7 @@ cd web-mpc/
 ```
 docker-compose up -d --build #build and compose
 ```
-* Navigate to the website at `https://localhost:3000`
+* Navigate to the website at `https://localhost:8080`
 
 ## EC2 Instructions
 These instructions were written for an AWS EC2 instance running Amazon Linux. The instance's security group should allow SSH on port 22 and TCP on port 8080.
@@ -120,12 +120,12 @@ The instructions below demonstrate how to operate the WEB-MPC application. All s
 
 ### Generate session key
 
-* Navigate to `localhost:3000/create`
+* Navigate to `localhost:8080/create`
 * Click on **Generate Session** and save the two given files, one contains the session key and password which are needed for managing the session. The other contains a secret key needed to unmask the results.
 
 ### Manage session
 
-* Navigate to `localhost:3000/manage`
+* Navigate to `localhost:8080/manage`
 * Input your session key and password
 * Generate participation links
 * Start the session
@@ -136,7 +136,7 @@ The instructions below demonstrate how to operate the WEB-MPC application. All s
 
 ### Retrieve the result
 
-* Stop the session in `localhost:3000/manage`
+* Stop the session in `localhost:8080/manage`
 * Click the **unmask** link
 * Paste the session key and password in its designated fields
 * Click **Browse** and upload the private key file that was downloaded when generating the session key
