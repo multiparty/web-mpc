@@ -1,19 +1,35 @@
-FROM node:16
+name: Push Main
 
-# Define directory inside the container
-WORKDIR /usr/src/app
+on:
+  push:
+    branches: [ main, docker ]
 
-# Copying the local directory to the container directory(/usr/src/app)
-COPY . .
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    name: Build And Push to Docker Hub
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
 
-RUN git submodule init jiff
-RUN git submodule update
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-#Install app dependecies (wildcard ensures both package/package-lock.json are copied)
-RUN npm ci
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-RUN cd jiff && npm ci
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: hicsail/damplab-backend:unstable
 
-EXPOSE 8080
-
-CMD [ "npm", "start"]
+      - name: Push to Staging
+        uses: fjogeleit/http-request-action@v1
+        with:
+          method: 'POST'
+          url: ${{ secrets.PORTAINER_WEBHOOK }}
+          preventFailureOnNoResponse: true
