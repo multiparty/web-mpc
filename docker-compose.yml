@@ -1,22 +1,6 @@
 version: '3'
 services:
   web-mpc:
-    container_name: web-mpc
-    environment: 
-      - MONGOHOST=mongodb://mongo:27017
+    image: hicsail/web-mpc:unstable
     restart: always
-    build: .
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./:/code
-    depends_on:
-      - mongo
-
-  mongo:
-    container_name: mongo
-    image: mongo:3.4
-    ports:
-      - "27017:27017"
-    volumes:
-      - ./db:/data/db
+    ports: ["3004:3000"]
