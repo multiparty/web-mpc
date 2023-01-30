@@ -1,6 +1,11 @@
 version: '3'
 services:
+  mongo:
+    image: mongo
+    ports: ["27018:27017"]
+    volumes:
+      - web-mpc-staging:/data/db
   web-mpc:
-    image: hicsail/web-mpc:unstable
+    image: multiparty/web-mpc:unstable
     restart: always
     ports: ["3004:3000"]
