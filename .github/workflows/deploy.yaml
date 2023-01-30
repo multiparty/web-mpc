@@ -2,10 +2,10 @@ name: server
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
     branches:
-      - main
+      - master
 
 jobs:
   build:
@@ -17,25 +17,31 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - name: Install dependencies
-        run: npm install
-      - name: Check Linting
-        run: npm run lint
-      - name: Build
-        run: npm run build
+      - name: Init Jiff
+        run: git submodule init jiff
+      - name: Update
+        run: git submodule update
+      - name: Install
+        run: npm ci
+      - name: Move into JIff dir
+        run: cd jiff && npm ci
       - name: Verify Docker Image
         uses: docker/build-push-action@v3
       - name: Login to Docker Hub
         uses: docker/login-action@v2
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/master'
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Push Docker Build
         uses: docker/build-push-action@v3
+        if: github.ref == 'refs/heads/master'
+        with:
+          push: true
+          tags: multiparty/web-mpc:unstable
       - name: Push to Staging
         uses: fjogeleit/http-request-action@v1
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/master'
         with:
           method: "POST"
           url: ${{ secrets.PORTAINER_WEBHOOK }}
