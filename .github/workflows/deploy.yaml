@@ -17,8 +17,16 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - name: Install dependencies
-        run: npm install
+      - name: Init Jiff
+        run: git submodule init jiff
+      - name: Update
+        run: git submodule update
+      - name: Install
+        run: npm ci
+      - name: Move into JIff dir
+        run: cd jiff
+      - name: Install Jiff packages
+        run: npm ci
       - name: Verify Docker Image
         uses: docker/build-push-action@v3
       - name: Login to Docker Hub
