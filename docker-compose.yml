@@ -9,3 +9,7 @@ services:
     image: multiparty/web-mpc:unstable
     restart: always
     ports: ["3004:3000"]
+    env_file:
+      - ../stack.env
+volumes:
+  web-mpc: ~
