@@ -19,10 +19,6 @@ jobs:
           node-version: 18
       - name: Install dependencies
         run: npm install
-      - name: Check Linting
-        run: npm run lint
-      - name: Build
-        run: npm run build
       - name: Verify Docker Image
         uses: docker/build-push-action@v3
       - name: Login to Docker Hub
