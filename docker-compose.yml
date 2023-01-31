@@ -12,4 +12,4 @@ services:
     env_file:
       - ../stack.env
 volumes:
-  web-mpc: ~
+  web-mpc-staging: ~
