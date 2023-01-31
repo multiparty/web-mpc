@@ -10,6 +10,6 @@ services:
     restart: always
     ports: ["3004:3000"]
     env_file:
-      - ../stack.env
+      - ./stack.env
 volumes:
-  web-mpc: ~
+  web-mpc-staging: ~
