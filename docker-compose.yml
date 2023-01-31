@@ -1,14 +1,14 @@
 version: '3'
 services:
   mongo:
-    image: mongo
+    image: mongo:3.4
     ports: ["27020:27017"]
     volumes:
       - web-mpc-staging:/data/db
   web-mpc:
     image: multiparty/web-mpc:unstable
     restart: always
-    ports: ["3004:3000"]
+    ports: ["8080:8080"]
     env_file:
       - ./stack.env
 volumes:
