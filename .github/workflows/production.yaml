@@ -44,5 +44,5 @@ jobs:
         if: github.ref == 'refs/heads/master'
         with:
           method: "POST"
-          url: ${{ secrets.PORTAINER_WEBHOOK }}
+          url: ${{ secrets.PORTAINER_WEBHOOK_PROD }}
           preventFailureOnNoResponse: true
