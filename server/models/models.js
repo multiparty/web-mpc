@@ -6,7 +6,7 @@
 
 const mongoose = require('mongoose');
 
-const mongohost = process.env.MONGOHOST|| 'mongodb://localhost:27017';
+const mongohost = process.env.MONGOHOST|| 'mongodb://localhost:27020';
 (async function () {
   try {
     await mongoose.connect(mongohost+'/aggregate', { useMongoClient: true });

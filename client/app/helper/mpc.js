@@ -181,8 +181,8 @@ define(['constants'], function (constants) {
 
     for (var i = 0; i < shares.length; i++) {
       var row = Math.floor(i / ordering.table_cols_count);
-      var colMod2 = (i % ordering.table_cols_count) % 2; // 0 => female, 1 => male
-      var index = 2*row + colMod2;
+      var colMod3 = (i % ordering.table_cols_count) % 3; // 0 => female, 1 => male, 2 => non-binary
+      var index = 3 * row + colMod3;
       if (accumulator[index]) {
         accumulator[index] = accumulator[index].sadd(shares[i]);
       } else {
