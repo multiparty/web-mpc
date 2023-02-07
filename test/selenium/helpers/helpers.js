@@ -27,6 +27,7 @@ module.exports = {
     return process.env.HOME || process.env.USERPROFILE;
   },
   readTableDataAsArray: async function (driver) {
+    console.log("reading table data")
     return await driver.wait(async function (driver) {
       try {
         var formattedData = [];
