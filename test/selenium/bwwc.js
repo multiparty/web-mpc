@@ -163,11 +163,12 @@ describe('BWWC Tests', function () {
 
     // Sleep to give server time to finish processing
     it('Sleep 100 seconds', async function () {
-      await driver.sleep(100000);
+      await driver.sleep(50000);
     });
-
+    
     // Unmask
     it('Unmasking', async function () {
+      console.log('unmasking started')
       const { tablesContent, averagesContent, deviationsContent } = await unmasking.unmask(driver, sessionKey, password, inputs['all'][0].length);
 
       // Parse CSV and check results are correct
