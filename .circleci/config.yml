@@ -50,7 +50,7 @@ jobs:
       - image: circleci/mongo:latest
     steps:
       - browser-tools/install-chrome:
-          chrome-version: 94.0.4606.81
+          chrome-version: 109
       - browser-tools/install-chromedriver
       - checkout
       - checkout-jiff
