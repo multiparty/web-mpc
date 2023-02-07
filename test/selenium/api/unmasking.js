@@ -37,7 +37,7 @@ module.exports.unmask = async function (driver, sessionKey, password, outputCoun
   await helpers.conditionOrAlertError(driver, countCondition);
 
   // Sleep to ensure files were downloaded
-  await driver.sleep(5000);
+  await driver.sleep(100000);
 
   // Read data from UI / Tables
   const tablesContent = await helpers.readTableDataAsArray(driver);
