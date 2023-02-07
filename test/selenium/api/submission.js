@@ -80,7 +80,7 @@ module.exports = {
       }
     } while (! await verifyButton.isSelected());
     await driver.wait(until.elementIsEnabled(submitButton));
-    await driver.sleep(2500); // Sometimes submission doesn't trigger if button clicked too early 
+    await driver.sleep(5000); // Sometimes submission doesn't trigger if button clicked too early 
     await submitButton.click();
 
     // Verify success
