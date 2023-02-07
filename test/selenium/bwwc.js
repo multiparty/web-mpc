@@ -170,10 +170,12 @@ describe('BWWC Tests', function () {
     it('Unmasking', async function () {
       console.log('unmasking started')
       const { tablesContent, averagesContent, deviationsContent } = await unmasking.unmask(driver, sessionKey, password, inputs['all'][0].length);
+      console.log('table content aqcuired')
 
       // Parse CSV and check results are correct
       const { cohorts: averagesCohorts, parsed: averages } = csv.parseCSVCohorts(averagesContent);
       const { cohorts: deviationsCohorts, parsed: deviations } = csv.parseCSVCohorts(deviationsContent);
+      console.log('parsed table contents')
 
       // Check cohorts are what we expected
       averagesCohorts.sort();
