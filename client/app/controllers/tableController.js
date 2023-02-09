@@ -884,7 +884,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
 
     // Display a NaN in the totals Column if you need too.
     var totals = [sums[0], sums[1], sums[2], sums[0] + sums[1] + sums[2]];
-    if (NaNs[0] + NaNs[1] > 0) { // If there is at least one NaN, change every thing to Excel's NaN equivalent.
+    if (NaNs[0] + NaNs[1] + NaNs[2] > 0) { // If there is at least one NaN, change every thing to Excel's NaN equivalent.
       totals = ['#VALUE!', '#VALUE!', '#VALUE!', '#VALUE!'];
     }
 
