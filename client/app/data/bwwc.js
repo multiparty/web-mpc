@@ -4,7 +4,7 @@ if (typeof define !== 'function') {
 
 var TABLE_HEIGHT = 750;
 var ROW_HEADER_WIDTH = 200;
-const colspan=3
+const colspan = 3
 
 const rows = [
   {
@@ -85,99 +85,99 @@ const cols = [
   ],
   [
     {
-      "label": "Female",
+      "label": "F",
       "key": "hispF"
     },
     {
-      "label": "Male",
+      "label": "M",
       "key": "hispM"
     },
     {
-      "label": "NBinary",
+      "label": "NB",
       "key": "hispNB"
     },
     {
-      "label": "Female",
+      "label": "F",
       "key": "whiteF"
     },
     {
-      "label": "Male",
+      "label": "M",
       "key": "whiteM"
     },
     {
-      "label": "NBinary",
+      "label": "NB",
       "key": "whiteNB"
     },
     {
-      "label": "Female",
+      "label": "F",
       "key": "afrF"
     },
     {
-      "label": "Male",
+      "label": "M",
       "key": "afrM"
     },
     {
-      "label": "NBinary",
+      "label": "NB",
       "key": "afrNB"
     },
     {
-      "label": "Female",
+      "label": "F",
       "key": "hawaiiF"
     },
     {
-      "label": "Male",
+      "label": "M",
       "key": "hawaiiM"
     },
     {
-      "label": "NBinary",
+      "label": "NB",
       "key": "hawaiiNB"
     },
     {
-      "label": "Female",
+      "label": "F",
       "key": "asianF"
     },
     {
-      "label": "Male",
+      "label": "M",
       "key": "asianM"
     },
     {
-      "label": "NBinary",
+      "label": "NB",
       "key": "asianNB"
     },
     {
-      "label": "Female",
+      "label": "F",
       "key": "indF"
     },
     {
-      "label": "Male",
+      "label": "M",
       "key": "indM"
     },
     {
-      "label": "NBinary",
+      "label": "NB",
       "key": "indNB"
     },
     {
-      "label": "Female",
+      "label": "F",
       "key": "twoF"
     },
     {
-      "label": "Male",
+      "label": "M",
       "key": "twoM"
     },
     {
-      "label": "NBinary",
+      "label": "NB",
       "key": "twoNB"
     },
     {
-      "label": "Female",
+      "label": "F",
       "key": "unrF"
     },
     {
-      "label": "Male",
+      "label": "M",
       "key": "unrM"
     },
     {
-      "label": "NBinary",
+      "label": "NB",
       "key": "unrNB"
     },
   ]
@@ -521,7 +521,7 @@ define([], function () {
         [
           {
             "label": "Total Number of Employees",
-            "colspan": colspan+1
+            "colspan": colspan + 1
           }
         ],
         [
