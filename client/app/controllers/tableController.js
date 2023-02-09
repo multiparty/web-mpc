@@ -858,7 +858,8 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
       var val = change[3];
 
       var c = change[1];
-      var index = c % 2; // Even columns are for females, odd are for males.
+      var index = c % 3; // 1st subcol for females, 2nd subcol for males, and 3rd subcol for NBinary
+
 
       if (old === undefined) {
         old = null;
@@ -882,9 +883,9 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
     }
 
     // Display a NaN in the totals Column if you need too.
-    var totals = [sums[0], sums[1], sums[0] + sums[1]];
-    if (NaNs[0] + NaNs[1] > 0) { // If there is at least one NaN, change every thing to Excel's NaN equivalent.
-      totals = ['#VALUE!', '#VALUE!', '#VALUE!'];
+    var totals = [sums[0], sums[1], sums[2], sums[0] + sums[1] + sums[2]];
+    if (NaNs[0] + NaNs[1] + NaNs[2] > 0) { // If there is at least one NaN, change every thing to Excel's NaN equivalent.
+      totals = ['#VALUE!', '#VALUE!', '#VALUE!', '#VALUE!'];
     }
 
 

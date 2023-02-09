@@ -49,11 +49,11 @@ jobs:
       - image: cimg/node:current-browsers
       - image: circleci/mongo:latest
     steps:
-      - browser-tools/install-chrome:
-          chrome-version: 94.0.4606.81
-      - browser-tools/install-chromedriver
       - checkout
       - checkout-jiff
+      - browser-tools/install-chrome:
+          chrome-version: "latest"
+      - browser-tools/install-chromedriver
       - restore-deps
       - install-deps
       - cache-deps

@@ -18,23 +18,25 @@ module.exports = {
       // written very verbosely to avoid bugs
       const tableCount = 4;
       const tableSize = input.length / tableCount;
-      const colCount = 16;
+      const colCount = 24;
       const rowCount = tableSize / colCount;
 
       // loop over elements in the input one at a time in the same order
       for (let t = 0; t < tableCount; t++) {
         for (let r = 0; r < rowCount; r++) {
-          let female = 0, male = 0;
+          let female = 0, male = 0, nbinary=0;
           for (let c = 0; c < colCount; c++) {
             const i = t * tableSize + r * colCount + c;
             const num = new BigNumber(input[i]);
-            if (c % 2 === 0) {
+            if (c % 3 === 0) {
               female = num.plus(female);
-            } else {
+            } else if (c % 3 === 1){
               male = num.plus(male);
+            } else {
+              nbinary = num.plus(nbinary);
             }
           }
-          output.push(female, male);
+          output.push(female, male, nbinary);
         }
       }
 

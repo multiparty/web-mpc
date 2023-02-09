@@ -133,8 +133,8 @@ define(['jquery', 'controllers/clientController', 'controllers/tableController',
 
         window.scrollTo(0, 0);
 
-        var sums = [0, 0]; // Internal total of Non NaNs values.
-        var NaNs = [0, 0]; // Counts how many NaNs exist for every cell participating in a total.
+        var sums = [0, 0, 0]; // Internal total of Non NaNs values.
+        var NaNs = [0, 0, 0]; // Counts how many NaNs exist for every cell participating in a total.
 
         // Custom afterChange hook that computes the totals
         var afterChange = function (changes) {

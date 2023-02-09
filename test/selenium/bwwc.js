@@ -165,15 +165,15 @@ describe('BWWC Tests', function () {
     it('Sleep 100 seconds', async function () {
       await driver.sleep(100000);
     });
-
+    
     // Unmask
     it('Unmasking', async function () {
       const { tablesContent, averagesContent, deviationsContent } = await unmasking.unmask(driver, sessionKey, password, inputs['all'][0].length);
-
+      
       // Parse CSV and check results are correct
       const { cohorts: averagesCohorts, parsed: averages } = csv.parseCSVCohorts(averagesContent);
       const { cohorts: deviationsCohorts, parsed: deviations } = csv.parseCSVCohorts(deviationsContent);
-
+      
       // Check cohorts are what we expected
       averagesCohorts.sort();
       deviationsCohorts.sort();
