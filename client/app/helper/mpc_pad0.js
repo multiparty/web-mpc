@@ -381,6 +381,7 @@ define(['constants'], function (constants) {
       // Cohort averages are done, open them (do not use await so that we do not block the main thread)
       var avgPromise = openLimitedValues(jiff_instance, sums[cohort], [1], idx_toignore_cohort, size_of_cohort_table);
       var squaresPromise = openLimitedValues(jiff_instance, squaresSums[cohort], [1], idx_toignore_cohort, size_of_cohort_table);
+      
       promises.push(...[avgPromise, squaresPromise]);
     }
 

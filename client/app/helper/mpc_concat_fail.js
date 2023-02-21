@@ -219,9 +219,6 @@ define(['constants'], function (constants) {
     return Promise.all(promises);
   };
 
-  /* Since changing SecretShare values disrupt the whole data for some reason,
-     this method ignores idx below threshold and pad0 inserts 0 to those idx ignored
-  */
   var openLimitedValues = async function (jiff_instance, results, parties, idx_toignore, size_of_table, rangeStart, rangeEnd) {
     if (rangeStart == null) {
       rangeStart = 0;
@@ -241,34 +238,40 @@ define(['constants'], function (constants) {
       */
 
       const idx=i%size_of_table; 
+
       
-      if (i>=size_of_table&idx_toignore.has(idx)){
-        continue;
-      }else{
-        // The value is opened only if the cell value meets the threshold 
-        var promise = jiff_instance.open(results[i], parties);
-        promises.push(promise);
+      // if (!idx_toignore.has(idx)){
+      //   // The value is opened only if the cell value meets the threshold 
+      //   console.log(i)
+      //   var promise = jiff_instance.open(results[i], parties);
+      //   promises.push(promise);
+      // }
+      
+      if (i>=size_of_table){ 
+        if (idx_toignore.has(idx)){
+          results[i]= await results[i].cmult(0) // masking the cell which does not meet the threshold 
+        }
       }
+      
+      var promise = jiff_instance.open(results[i], parties);
+      promises.push(promise);
     }
 
     return Promise.all(promises);
   };
 
-  /* Since changing SecretShare values disrupt the whole data for some reason,
-     this method, instead, pads 0 to idx ignored in openLimitedValues
-  */
   var pad0 = function(results, idx_toignore, size_of_table, n_table){
     
     var value =0
     
-    for(let i=1; i<n_table;i++){
-        for (const idx_ignr of idx_toignore) {
-            var idx = size_of_table * i + idx_ignr
+    for(let i=0; i<n_table;i++){
+        for(let j=0; j<idx_toignore.length; j++){
+            var idx = size_of_table * i + idx_toignore[j]
             results.splice(idx, 0, value)
         }
     }
     return results
-} 
+  }
 
   // Returns a set containing indices of cells which have number of employees lower than threshold
   var verifyThreshold = function (objCompare, threshold) {
@@ -283,14 +286,24 @@ define(['constants'], function (constants) {
     return idx_toignore;
   };
 
-  var get_idx_toignore = async function (jiff_instance, results, parties, threshold, rangeStart, rangeEnd){
+  // var get_idx_toignore = async function (jiff_instance, results, parties, threshold, rangeStart, rangeEnd){
 
-      // a) Open the Employee count (in case of BWWC)
-      const objCompare = await openValues(jiff_instance, results, parties, rangeStart, rangeEnd)
+  //     // a) Open the Employee count (in case of BWWC)
+  //     const objCompare = await openValues(jiff_instance, results, parties, rangeStart, rangeEnd)
         
-      // b) verifyThreshold () to obtain indexes that does not meet the threshold 
-      return verifyThreshold(objCompare, threshold)
-  }
+  //     // b) verifyThreshold () to obtain indexes that does not meet the threshold 
+  //     return verifyThreshold(objCompare, threshold)
+  // }
+
+  var get_idx_toignore = async function (jiff_instance, results, parties, threshold, rangeStart, rangeEnd){
+    // a) Open the Employee count (in case of BWWC)
+    const objCompare = await openValues(jiff_instance, results, parties, rangeStart, rangeEnd)
+      
+    // b) verifyThreshold () to obtain indexes that does not meet the threshold 
+    const ignore_idx = verifyThreshold(objCompare, threshold)
+    const temp_holder = [ignore_idx, objCompare]
+    return temp_holder
+}
 
   // Perform MPC computation for averages, deviations, questions, and usability
   var compute = async function (jiff_instance, submitters, ordering, progressBar) {
@@ -381,6 +394,9 @@ define(['constants'], function (constants) {
       // Cohort averages are done, open them (do not use await so that we do not block the main thread)
       var avgPromise = openLimitedValues(jiff_instance, sums[cohort], [1], idx_toignore_cohort, size_of_cohort_table);
       var squaresPromise = openLimitedValues(jiff_instance, squaresSums[cohort], [1], idx_toignore_cohort, size_of_cohort_table);
+      
+      // var avgPromise = openValues(jiff_instance, sums[cohort], [1]);
+      // var squaresPromise = openValues(jiff_instance, squaresSums[cohort], [1]);
       promises.push(...[avgPromise, squaresPromise]);
     }
 
@@ -406,20 +422,19 @@ define(['constants'], function (constants) {
     var rangeStart= 0 //Todo: Consider if we can assume the employee count is always at the beginning of the table
     const size_of_table=  sums['all'].length/n_table
     var rangeEnd = size_of_table
-    const idx_toignore = await get_idx_toignore(jiff_instance, sums['all'], [1], threshold, rangeStart, rangeEnd)
+    // const idx_toignore = await get_idx_toignore(jiff_instance, sums['all'], [1], threshold, rangeStart, rangeEnd)
+    const temp_holder = await get_idx_toignore(jiff_instance, sums['all'], [1], threshold, rangeStart, rangeEnd)
+    const idx_toignore = temp_holder[0]
     
     /*
       Step2)
         Open all sums and sums of squares
         Set the value to 0 if index matches, so that values that does not meet the threshold are not revealed
     */
-    sums['all'] = await openLimitedValues(jiff_instance, sums['all'], [1], idx_toignore, size_of_table);
+    const t2 = await openLimitedValues(jiff_instance, sums['all'], [1], idx_toignore, size_of_table, rangeEnd);
+    sums['all'] = temp_holder[1].concat(t2)
     squaresSums['all'] = await openLimitedValues(jiff_instance, squaresSums['all'], [1], idx_toignore, size_of_table);
     updateProgress(progressBar, 0.98);
-    sums['all'] = await pad0(sums['all'], idx_toignore, size_of_table, n_table)
-    console.log("post pad sum", sums['all'])
-    squaresSums['all'] = await pad0(squaresSums['all'], idx_toignore, size_of_table, n_table)
-    console.log("post pad sqr", squaresSums['all'])
 
     // Open questions and usability
     questions = await openValues(jiff_instance, questions, [1]);
@@ -506,25 +521,12 @@ define(['constants'], function (constants) {
 
       // Compute average
       var totalMean = result.sums['all'][i]; // mean for cell for ALL cohorts
-      console.log("numerator", totalMean.toFixed(2))
       if (op[AVG] != null) {
         if (op[AVG] === SELF) { // if we're just averaging over the number of submitters
-          if(Number.isInteger(totalMean)){
-            totalMean = totalMean/submitters.all.length
-          }
-          else{
-            totalMean = totalMean.div(submitters.all.length);
-          }
+          totalMean = totalMean.div(submitters.all.length);
         } else { // if we're averaging over values in a different table
           let modVal = ordering.table_meta[op[AVG]].total;
-          console.log("modVal", modVal, "i % modVal", i % modVal)
-          console.log("denominator", result.sums['all'][i % modVal])
-          if(Number.isInteger(totalMean)){
-            totalMean = totalMean/result.sums['all'][i % modVal]
-          }
-          else{
-            totalMean = totalMean.div(result.sums['all'][i % modVal]);
-          }
+          totalMean = totalMean.div(result.sums['all'][i % modVal]);
         }
       }
 
@@ -533,36 +535,13 @@ define(['constants'], function (constants) {
       // Compute deviation for population of values presented by companies (not for individual employees)
       // E[X^2]
       avgOfSquares = result.squaresSums['all'][i];
-      if(Number.isInteger(avgOfSquares)){
-        avgOfSquares = avgOfSquares/submitters['all'].length;
-      }
-      else{
-        avgOfSquares = avgOfSquares.div(submitters['all'].length);
-      }
-
+      avgOfSquares = avgOfSquares.div(submitters['all'].length);
       // (E[X])^2
-      if(Number.isInteger(result.sums['all'][i])){
-        squareOfAvg = result.sums['all'][i]/(submitters['all'].length);
-      }
-      else{
-        squareOfAvg = result.sums['all'][i].div(submitters['all'].length);
-      }
-      if(Number.isInteger(squareOfAvg)){
-        squareOfAvg = squareOfAvg*squareOfAvg
-      }
-      else{
-        squareOfAvg = squareOfAvg.pow(2);
-      }
-
+      squareOfAvg = result.sums['all'][i].div(submitters['all'].length);
+      squareOfAvg = squareOfAvg.pow(2);
       // deviation formula: E[X^2] - (E[X])^2
-      if(Number.isInteger(avgOfSquares)){
-        totalDeviation = avgOfSquares - squareOfAvg;
-        totalDeviation = Math.sqrt(totalDeviation); //sqrt
-      }
-      else{
-        totalDeviation = avgOfSquares.minus(squareOfAvg);
-        totalDeviation = totalDeviation.sqrt(); //sqrt
-      }
+      totalDeviation = avgOfSquares.minus(squareOfAvg);
+      totalDeviation = totalDeviation.sqrt(); //sqrt
 
       setOrAssign(deviations, ['all', table, row, col], totalDeviation.toFixed(2));
     }
