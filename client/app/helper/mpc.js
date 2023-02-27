@@ -222,7 +222,8 @@ define(['constants'], function (constants) {
   /* Since changing SecretShare values disrupt the whole data for some reason,
      this method ignores idx below threshold and pad0 inserts 0 to those idx ignored
   */
-  var openLimitedValues = async function (jiff_instance, results, parties, idx_toignore, size_of_table, rangeStart, rangeEnd) {
+
+  var openLimitedValues = function (jiff_instance, results, parties, idx_toignore, size_of_table, rangeStart, rangeEnd) {
     if (rangeStart == null) {
       rangeStart = 0;
     }
@@ -242,9 +243,11 @@ define(['constants'], function (constants) {
 
       const idx=i%size_of_table; 
       
-      if (i>=size_of_table&idx_toignore.has(idx)){
+      if (i>=size_of_table && idx_toignore.has(idx)){
+        promises.push(Promise.resolve(0));
         continue;
-      }else{
+      }
+      else{
         // The value is opened only if the cell value meets the threshold 
         var promise = jiff_instance.open(results[i], parties);
         promises.push(promise);
@@ -254,27 +257,11 @@ define(['constants'], function (constants) {
     return Promise.all(promises);
   };
 
-  /* Since changing SecretShare values disrupt the whole data for some reason,
-     this method, instead, pads 0 to idx ignored in openLimitedValues
-  */
-  var pad0 = function(results, idx_toignore, size_of_table, n_table){
-    
-    var value =0
-    
-    for(let i=1; i<n_table;i++){
-        for (const idx_ignr of idx_toignore) {
-            var idx = size_of_table * i + idx_ignr
-            results.splice(idx, 0, value)
-        }
-    }
-    return results
-} 
-
   // Returns a set containing indices of cells which have number of employees lower than threshold
-  var verifyThreshold = function (objCompare, threshold) {
+  var verifyThreshold = async function (objCompare, threshold) {
 
     let idx_toignore = new Set();
-    
+
     for (var i = 0; i < objCompare.length; i++) {
       if (objCompare[i]<threshold) {
         idx_toignore.add(i);
@@ -289,7 +276,7 @@ define(['constants'], function (constants) {
       const objCompare = await openValues(jiff_instance, results, parties, rangeStart, rangeEnd)
         
       // b) verifyThreshold () to obtain indexes that does not meet the threshold 
-      return verifyThreshold(objCompare, threshold)
+      return await verifyThreshold(objCompare, threshold)
   }
 
   // Perform MPC computation for averages, deviations, questions, and usability
@@ -360,11 +347,11 @@ define(['constants'], function (constants) {
         // progress
         counter++;
         updateProgress(progressBar, (counter / submitters['all'].length) * 0.94);
-      } 
+      }
 
       // Computing sums of each cohort(position) to display
       /* 
-        Step1) 
+        Step1)
         Configuring parameters to check if each entry meets the threshold
       */
       const rangeStart= 0 //Todo: Consider if we can assume the employee count is always at the beginning of the table
@@ -372,15 +359,15 @@ define(['constants'], function (constants) {
       const rangeEnd = size_of_cohort_table
       var idx_toignore_cohort = await get_idx_toignore(jiff_instance, sums[cohort], [1], threshold, rangeStart, rangeEnd)
       
-      /* 
-        Step2) 
+      /*
+        Step2)
         Open all sums and sums of squares
         Set the value to 0 if index matches, so that values that does not meet the threshold are not revealed
       */
 
       // Cohort averages are done, open them (do not use await so that we do not block the main thread)
-      var avgPromise = openLimitedValues(jiff_instance, sums[cohort], [1], idx_toignore_cohort, size_of_cohort_table);
-      var squaresPromise = openLimitedValues(jiff_instance, squaresSums[cohort], [1], idx_toignore_cohort, size_of_cohort_table);
+      var avgPromise = await openLimitedValues(jiff_instance, sums[cohort], [1], idx_toignore_cohort, size_of_cohort_table);
+      var squaresPromise = await openLimitedValues(jiff_instance, squaresSums[cohort], [1], idx_toignore_cohort, size_of_cohort_table);
       promises.push(...[avgPromise, squaresPromise]);
     }
 
@@ -390,7 +377,6 @@ define(['constants'], function (constants) {
     for (i = 0; i < submitters['cohorts'].length*2; i++) {
       // every 2 outputs belongs to same cohort - evens are sums; odds are square sums
       let idx = Math.floor(i / 2);
-      console.log(idx, submitters['cohorts'][idx]);
       if (i%2 === 0) {
         sums[submitters['cohorts'][idx]] = cohortOutputs[i];
       } else {
@@ -406,20 +392,20 @@ define(['constants'], function (constants) {
     var rangeStart= 0 //Todo: Consider if we can assume the employee count is always at the beginning of the table
     const size_of_table=  sums['all'].length/n_table
     var rangeEnd = size_of_table
-    const idx_toignore = await get_idx_toignore(jiff_instance, sums['all'], [1], threshold, rangeStart, rangeEnd)
+    var idx_toignore = await get_idx_toignore(jiff_instance, sums['all'], [1], threshold, rangeStart, rangeEnd)
+    // let idx_toignore = new Set([0,1]);
+    updateProgress(progressBar, 0.97);
     
     /*
       Step2)
         Open all sums and sums of squares
         Set the value to 0 if index matches, so that values that does not meet the threshold are not revealed
     */
+   
     sums['all'] = await openLimitedValues(jiff_instance, sums['all'], [1], idx_toignore, size_of_table);
     squaresSums['all'] = await openLimitedValues(jiff_instance, squaresSums['all'], [1], idx_toignore, size_of_table);
     updateProgress(progressBar, 0.98);
-    sums['all'] = await pad0(sums['all'], idx_toignore, size_of_table, n_table)
-    console.log("post pad sum", sums['all'])
-    squaresSums['all'] = await pad0(squaresSums['all'], idx_toignore, size_of_table, n_table)
-    console.log("post pad sqr", squaresSums['all'])
+    
 
     // Open questions and usability
     questions = await openValues(jiff_instance, questions, [1]);
@@ -506,7 +492,6 @@ define(['constants'], function (constants) {
 
       // Compute average
       var totalMean = result.sums['all'][i]; // mean for cell for ALL cohorts
-      console.log("numerator", totalMean.toFixed(2))
       if (op[AVG] != null) {
         if (op[AVG] === SELF) { // if we're just averaging over the number of submitters
           if(Number.isInteger(totalMean)){
@@ -517,8 +502,6 @@ define(['constants'], function (constants) {
           }
         } else { // if we're averaging over values in a different table
           let modVal = ordering.table_meta[op[AVG]].total;
-          console.log("modVal", modVal, "i % modVal", i % modVal)
-          console.log("denominator", result.sums['all'][i % modVal])
           if(Number.isInteger(totalMean)){
             totalMean = totalMean/result.sums['all'][i % modVal]
           }
