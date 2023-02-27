@@ -245,22 +245,22 @@ define(['constants'], function (constants) {
       
       if (i>=size_of_table && idx_toignore.has(idx)){
         promises.push(Promise.resolve(0));
-        continue;
       }
       else{
         // The value is opened only if the cell value meets the threshold 
         var promise = jiff_instance.open(results[i], parties);
         promises.push(promise);
       }
+      console.log("currently at:", i)
     }
 
     return Promise.all(promises);
   };
 
   // Returns a set containing indices of cells which have number of employees lower than threshold
-  var verifyThreshold = async function (objCompare, threshold) {
+  var verifyThreshold = function (objCompare, threshold) {
 
-    let idx_toignore = new Set();
+    var idx_toignore = new Set();
 
     for (var i = 0; i < objCompare.length; i++) {
       if (objCompare[i]<threshold) {
@@ -273,10 +273,10 @@ define(['constants'], function (constants) {
   var get_idx_toignore = async function (jiff_instance, results, parties, threshold, rangeStart, rangeEnd){
 
       // a) Open the Employee count (in case of BWWC)
-      const objCompare = await openValues(jiff_instance, results, parties, rangeStart, rangeEnd)
+      var objCompare = await openValues(jiff_instance, results, parties, rangeStart, rangeEnd)
         
       // b) verifyThreshold () to obtain indexes that does not meet the threshold 
-      return await verifyThreshold(objCompare, threshold)
+      return verifyThreshold(objCompare, threshold)
   }
 
   // Perform MPC computation for averages, deviations, questions, and usability
@@ -393,6 +393,7 @@ define(['constants'], function (constants) {
     const size_of_table=  sums['all'].length/n_table
     var rangeEnd = size_of_table
     var idx_toignore = await get_idx_toignore(jiff_instance, sums['all'], [1], threshold, rangeStart, rangeEnd)
+    
     // let idx_toignore = new Set([0,1]);
     updateProgress(progressBar, 0.97);
     
@@ -403,8 +404,9 @@ define(['constants'], function (constants) {
     */
    
     sums['all'] = await openLimitedValues(jiff_instance, sums['all'], [1], idx_toignore, size_of_table);
-    squaresSums['all'] = await openLimitedValues(jiff_instance, squaresSums['all'], [1], idx_toignore, size_of_table);
     updateProgress(progressBar, 0.98);
+    squaresSums['all'] = await openLimitedValues(jiff_instance, squaresSums['all'], [1], idx_toignore, size_of_table);
+    updateProgress(progressBar, 0.99);
     
 
     // Open questions and usability
