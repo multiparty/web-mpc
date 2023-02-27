@@ -29,7 +29,11 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
           var progressBar = document.getElementById('unmask-progress-bar');
 
           jiffController.analyst.computeAndFormat(sessionKey, sessionPass, privateKey, progressBar, error, function (result) {
+            console.log('Here is the result:')
+            console.log(result)
             analystController.getExistingCohorts(sessionKey, sessionPass).then(function (cohortMapping) {
+              console.log('Here is the cohortMapping:')
+              console.log(cohortMapping)
               tableController.saveTables(result['averages'], sessionKey, 'Averages', result['cohorts'], cohortMapping);
               tableController.saveTables(result['deviations'], sessionKey, 'Standard_Deviations', result['cohorts'], cohortMapping);
             });

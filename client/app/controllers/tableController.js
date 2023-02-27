@@ -897,37 +897,63 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
     return {sums: sums, NaNs: NaNs}
   }
 
+  // cohorts is an object of objects. The key is 'all' with a value of object, which has
+  // keys of table names and values of rows as objects
+  // row objects are keyed as the row name (job title) and value of cell values as objects
+  // cell values are keyed as the column name and value of the cell value
   function saveTables(cohorts, session, title, counts) {
     var cohorts_csv = [];
 
+    // cohorts (plural) {'all': 'Number of employees', ...}
+    // cohort (singular) 'all'
     for (var cohort in cohorts) {
       var tables_csv = [];
 
+      // table is assigned object of roles
+      // e.g. table is the key {"Number of Employees": {"Adminis": {"afrf": 200.00}}, "Craft":...,}
       var tables = cohorts[cohort];
+
+      // sheet is "Number of Employees"
       for (var sheet in tables) {
         var cols = [];
         var sheet_csv = [];
 
         sheet_csv.push([sheet]);
+
+        // row is "Adminis", ...
         for (var row in tables[sheet]) {
+          // if a new sheet, then create the column headers
           if (sheet_csv.length === 1) {
             cols.push('row');
+
+            // col is "afrf", ...
             for (var col in tables[sheet][row]) {
               cols.push(col);
             }
+
+            // push the list of headers to the first row of the sheet
             sheet_csv.push(cols.join(','));
           }
 
           var row_csv = []
+
+          // set the row name
           row_csv.push(row);
+
+          // then populate the rest of the row with values
           for (var c = 1; c < cols.length; c++) {
             row_csv.push(tables[sheet][row][cols[c]]);
           }
+
+          // push the list to the next row of the sheet
           sheet_csv.push(row_csv.join(','));
         }
+
+        // push the sheet to the list of sheets
         tables_csv.push(sheet_csv.join('\n'));
       }
 
+      // combine the sheets into a csv with string concatenation
       var count = 'Number of participants ' + counts[cohort].length;
       if (cohort === 'all') {
         cohorts_csv[0] = 'All Cohorts -- ' + count + '\n\n' + tables_csv.join('\n\n');
