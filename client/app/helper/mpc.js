@@ -244,75 +244,75 @@ define(['constants'], function (constants) {
   //   return Promise.all(promises);
   // };
 
-  // var openLimitedValues = function (jiff_instance, results, parties, idx_toignore, size_of_table, rangeStart, rangeEnd) {
-  //   const chunkSize =2
-  //       if (rangeStart == null) {
-  //         rangeStart = 0;
-  //       }
-  //       if (rangeEnd == null) {
-  //         rangeEnd = results.length;
-  //       }
-    
-  //       var promises = [];
-  //       for (var i = rangeStart; i < rangeEnd; i += chunkSize) {
-  //         // Split results into chunks
-  //         var chunk = results.slice(i, i + chunkSize);
-    
-  //         // Open shares for each chunk
-  //         var chunkPromises = chunk.map(function (share, idx) {
-  //           var globalIndex = i + idx;
-  //           const shareIndex = globalIndex % size_of_table;
-    
-  //           if (globalIndex >= size_of_table && idx_toignore.has(shareIndex)) {
-  //             return Promise.resolve(0);
-  //           } else {
-  //             return jiff_instance.open(share, parties);
-  //           }
-  //         });
-    
-  //         promises = promises.concat(chunkPromises);
-  //       }
-    
-  //       return Promise.all(promises);
-  //   };
-
   var openLimitedValues = function (jiff_instance, results, parties, idx_toignore, size_of_table, rangeStart, rangeEnd) {
-    if (rangeStart == null) {
-      rangeStart = 0;
-    }
-    if (rangeEnd == null) {
-      rangeEnd = results.length;
-    }
-
-    var promises = [];
-    // var exceptionsIndex = 0; // keeps track of the next exception, fast way to check set membership since both set and values are sorted
-    for (var i = rangeStart; i < rangeEnd; i += 10) {
-      var batchPromises = [];
-      for (var j = i; j < Math.min(i + 10, rangeEnd); j++) {
-        /* 
-        This multiplication is necessary only for 2nd table onwards 
-        because the first table should show the actual number of employees to make sense that
-        some values set to 0 despite the presence of some employees are due to unsatisfying the threshold
-        */
-
-        const idx = j % size_of_table;
-        if (j >= size_of_table && idx_toignore.has(idx)) {
-          console.log("idx_toignore.has(idx)", idx_toignore.has(idx))
-          batchPromises.push(Promise.resolve(0));
-        } else {
-          // The value is opened only if the cell value meets the threshold 
-          var promise = jiff_instance.open(results[j], parties);
-          batchPromises.push(promise);
+    const chunkSize =2
+        if (rangeStart == null) {
+          rangeStart = 0;
         }
-      }
-      promises.push(Promise.all(batchPromises));
-    }
+        if (rangeEnd == null) {
+          rangeEnd = results.length;
+        }
+    
+        var promises = [];
+        for (var i = rangeStart; i < rangeEnd; i += chunkSize) {
+          // Split results into chunks
+          var chunk = results.slice(i, i + chunkSize);
+    
+          // Open shares for each chunk
+          var chunkPromises = chunk.map(function (share, idx) {
+            var globalIndex = i + idx;
+            const shareIndex = globalIndex % size_of_table;
+    
+            if (globalIndex >= size_of_table && idx_toignore.has(shareIndex)) {
+              return Promise.resolve(0);
+            } else {
+              return jiff_instance.open(share, parties);
+            }
+          });
+    
+          promises = promises.concat(chunkPromises);
+        }
+    
+        return Promise.all(promises);
+    };
 
-    return Promise.all(promises).then(function (results) {
-      var flattenedResults = [].concat.apply([], results);
-      return flattenedResults;
-    });
-  };
+  // var openLimitedValues = function (jiff_instance, results, parties, idx_toignore, size_of_table, rangeStart, rangeEnd) {
+  //   if (rangeStart == null) {
+  //     rangeStart = 0;
+  //   }
+  //   if (rangeEnd == null) {
+  //     rangeEnd = results.length;
+  //   }
+
+  //   var promises = [];
+  //   // var exceptionsIndex = 0; // keeps track of the next exception, fast way to check set membership since both set and values are sorted
+  //   for (var i = rangeStart; i < rangeEnd; i += 10) {
+  //     var batchPromises = [];
+  //     for (var j = i; j < Math.min(i + 10, rangeEnd); j++) {
+  //       /* 
+  //       This multiplication is necessary only for 2nd table onwards 
+  //       because the first table should show the actual number of employees to make sense that
+  //       some values set to 0 despite the presence of some employees are due to unsatisfying the threshold
+  //       */
+
+  //       const idx = j % size_of_table;
+  //       if (j >= size_of_table && idx_toignore.has(idx)) {
+  //         console.log("idx_toignore.has(idx)", idx_toignore.has(idx))
+  //         batchPromises.push(Promise.resolve(0));
+  //       } else {
+  //         // The value is opened only if the cell value meets the threshold 
+  //         var promise = jiff_instance.open(results[j], parties);
+  //         batchPromises.push(promise);
+  //       }
+  //     }
+  //     promises.push(Promise.all(batchPromises));
+  //   }
+
+  //   return Promise.all(promises).then(function (results) {
+  //     var flattenedResults = [].concat.apply([], results);
+  //     return flattenedResults;
+  //   });
+  // };
 
   // Returns a set containing indices of cells which have number of employees lower than threshold
   var get_idx_toignore = async function (jiff_instance, results, parties, threshold, rangeStart, rangeEnd){
