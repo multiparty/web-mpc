@@ -219,9 +219,62 @@ define(['constants'], function (constants) {
     return Promise.all(promises);
   };
 
-  /* Since changing SecretShare values disrupt the whole data for some reason,
-     this method ignores idx below threshold and pad0 inserts 0 to those idx ignored
-  */
+  // var openLimitedValues = function (jiff_instance, results, parties, idx_toignore, size_of_table, rangeStart, rangeEnd) {
+  //   if (rangeStart == null) {
+  //     rangeStart = 0;
+  //   }
+  //   if (rangeEnd == null) {
+  //     rangeEnd = results.length;
+  //   }
+
+  //   var promises = [];
+  //   for (var i = rangeStart; i < rangeEnd; i++) {       
+
+  //     const idx=i%size_of_table; 
+  //     if (i>=size_of_table && idx_toignore.has(idx)){
+  //       console.log("idx_toignore.has(idx)", idx_toignore.has(idx))
+  //       promises.push(Promise.resolve(0));
+  //     }
+  //     else{
+  //       // The value is opened only if the cell value meets the threshold 
+  //       var promise = jiff_instance.open(results[i], parties);
+  //       promises.push(promise);
+  //     }
+  //   }
+  //   return Promise.all(promises);
+  // };
+
+  // var openLimitedValues = function (jiff_instance, results, parties, idx_toignore, size_of_table, rangeStart, rangeEnd) {
+  //   const chunkSize =2
+  //       if (rangeStart == null) {
+  //         rangeStart = 0;
+  //       }
+  //       if (rangeEnd == null) {
+  //         rangeEnd = results.length;
+  //       }
+    
+  //       var promises = [];
+  //       for (var i = rangeStart; i < rangeEnd; i += chunkSize) {
+  //         // Split results into chunks
+  //         var chunk = results.slice(i, i + chunkSize);
+    
+  //         // Open shares for each chunk
+  //         var chunkPromises = chunk.map(function (share, idx) {
+  //           var globalIndex = i + idx;
+  //           const shareIndex = globalIndex % size_of_table;
+    
+  //           if (globalIndex >= size_of_table && idx_toignore.has(shareIndex)) {
+  //             return Promise.resolve(0);
+  //           } else {
+  //             return jiff_instance.open(share, parties);
+  //           }
+  //         });
+    
+  //         promises = promises.concat(chunkPromises);
+  //       }
+    
+  //       return Promise.all(promises);
+  //   };
 
   var openLimitedValues = function (jiff_instance, results, parties, idx_toignore, size_of_table, rangeStart, rangeEnd) {
     if (rangeStart == null) {
@@ -233,28 +286,32 @@ define(['constants'], function (constants) {
 
     var promises = [];
     // var exceptionsIndex = 0; // keeps track of the next exception, fast way to check set membership since both set and values are sorted
-    for (var i = rangeStart; i < rangeEnd; i++) {
-       
-      /* 
+    for (var i = rangeStart; i < rangeEnd; i += 10) {
+      var batchPromises = [];
+      for (var j = i; j < Math.min(i + 10, rangeEnd); j++) {
+        /* 
         This multiplication is necessary only for 2nd table onwards 
         because the first table should show the actual number of employees to make sense that
         some values set to 0 despite the presence of some employees are due to unsatisfying the threshold
-      */
+        */
 
-      const idx=i%size_of_table; 
-      
-      if (i>=size_of_table && idx_toignore.has(idx)){
-        promises.push(Promise.resolve(0));
+        const idx = j % size_of_table;
+        if (j >= size_of_table && idx_toignore.has(idx)) {
+          console.log("idx_toignore.has(idx)", idx_toignore.has(idx))
+          batchPromises.push(Promise.resolve(0));
+        } else {
+          // The value is opened only if the cell value meets the threshold 
+          var promise = jiff_instance.open(results[j], parties);
+          batchPromises.push(promise);
+        }
       }
-      else{
-        // The value is opened only if the cell value meets the threshold 
-        var promise = jiff_instance.open(results[i], parties);
-        promises.push(promise);
-      }
-      console.log("currently at:", i)
+      promises.push(Promise.all(batchPromises));
     }
 
-    return Promise.all(promises);
+    return Promise.all(promises).then(function (results) {
+      var flattenedResults = [].concat.apply([], results);
+      return flattenedResults;
+    });
   };
 
   // Returns a set containing indices of cells which have number of employees lower than threshold
@@ -279,6 +336,15 @@ define(['constants'], function (constants) {
       }
     }
     return idx_toignore;
+  }
+
+  function sleep(milliseconds) {
+    var start = new Date().getTime();
+    for (var i = 0; i < 1e7; i++) {
+      if ((new Date().getTime() - start) > milliseconds){
+        break;
+      }
+    }
   }
 
   // Perform MPC computation for averages, deviations, questions, and usability
@@ -396,7 +462,7 @@ define(['constants'], function (constants) {
     var rangeEnd = size_of_table
     var idx_toignore = await get_idx_toignore(jiff_instance, sums['all'], [1], threshold, rangeStart, rangeEnd)
     console.log("idx_toignore", idx_toignore)
-    var idx_toignore = new Set([0,1])
+    // var idx_toignore = new Set([0,1])
     updateProgress(progressBar, 0.97);
     
     /*
@@ -404,41 +470,46 @@ define(['constants'], function (constants) {
         Open all sums and sums of squares
         Set the value to 0 if index matches, so that values that does not meet the threshold are not revealed
     */
-   
-    // sums['all'] = await openLimitedValues(jiff_instance, sums['all'], [1], idx_toignore, size_of_table);
-    // updateProgress(progressBar, 0.98);
-    // squaresSums['all'] = await openLimitedValues(jiff_instance, squaresSums['all'], [1], idx_toignore, size_of_table);
-    // updateProgress(progressBar, 0.99);
+    
+    sums['all'] = await openLimitedValues(jiff_instance, sums['all'], [1], idx_toignore, size_of_table);
+    
+    updateProgress(progressBar, 0.98);
+    console.log(sums['all'])
+
+    squaresSums['all'] = await openLimitedValues(jiff_instance, squaresSums['all'], [1], idx_toignore, size_of_table);
+    
+    // squaresSums['all'] = await openValues(jiff_instance, squaresSums['all'], [1]);
+    updateProgress(progressBar, 0.99);
     
 
-    // // Open questions and usability
-    // questions = await openValues(jiff_instance, questions, [1]);
-    // usability = await openValues(jiff_instance, usability, [1]);
-    // updateProgress(progressBar, 1);
+    // Open questions and usability
+    questions = await openValues(jiff_instance, questions, [1]);
+    usability = await openValues(jiff_instance, usability, [1]);
+    updateProgress(progressBar, 1);
 
-    // // Put results in object
-    // return {
-    //   sums: sums,
-    //   squaresSums: squaresSums,
-    //   questions: questions,
-    //   usability: usability
-    // };
+    // Put results in object
+    return {
+      sums: sums,
+      squaresSums: squaresSums,
+      questions: questions,
+      usability: usability
+    };
 
     // compute 'all' values in parallel using Promise.all
-    const [sumsAll, squaresSumsAll, questionsAll, usabilityAll] = await Promise.all([
-      openLimitedValues(jiff_instance, sums['all'], [1], idx_toignore, size_of_table),
-      openLimitedValues(jiff_instance, squaresSums['all'], [1], idx_toignore, size_of_table),
-      openValues(jiff_instance, questions, [1]),
-      openValues(jiff_instance, usability, [1])
-    ]);
+    // const [sumsAll, squaresSumsAll, questionsAll, usabilityAll] = await Promise.all([
+    //   openLimitedValues(jiff_instance, sums['all'], [1], idx_toignore, size_of_table),
+    //   openLimitedValues(jiff_instance, squaresSums['all'], [1], idx_toignore, size_of_table),
+    //   openValues(jiff_instance, questions, [1]),
+    //   openValues(jiff_instance, usability, [1])
+    // ]);
 
-    // Push 'all' results into object
-    return {
-      sums: { ...sums, all: sumsAll },
-      squaresSums: { ...squaresSums, all: squaresSumsAll },
-      questions: questionsAll,
-      usability: usabilityAll
-    };
+    // // Push 'all' results into object
+    // return {
+    //   sums: { ...sums, all: sumsAll },
+    //   squaresSums: { ...squaresSums, all: squaresSumsAll },
+    //   questions: questionsAll,
+    //   usability: usabilityAll
+    // };
   };
 
   // Return format:
