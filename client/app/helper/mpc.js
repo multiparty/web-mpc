@@ -311,7 +311,6 @@ define(['constants'], function (constants) {
         updateProgress(progressBar, (counter / submitters['all'].length) * 0.94);
       }
 
-      // Computing sums of each cohort(position) to display
       // Cohort averages are done, open them (do not use await so that we do not block the main thread)
       var avgPromise = openValues(jiff_instance, sums[cohort], [1]);
       var squaresPromise = openValues(jiff_instance, squaresSums[cohort], [1]);
@@ -331,6 +330,7 @@ define(['constants'], function (constants) {
       }
     }
 
+    // Open all sums and sums of squares
     sums['all'] = await openValues(jiff_instance, sums['all'], [1]);
     squaresSums['all'] = await openValues(jiff_instance, squaresSums['all'], [1]);
     updateProgress(progressBar, 0.98);
