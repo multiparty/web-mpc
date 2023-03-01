@@ -219,132 +219,30 @@ define(['constants'], function (constants) {
     return Promise.all(promises);
   };
 
-  // var openLimitedValues = function (jiff_instance, results, parties, idx_toignore, size_of_table, rangeStart, rangeEnd) {
-  //   if (rangeStart == null) {
-  //     rangeStart = 0;
-  //   }
-  //   if (rangeEnd == null) {
-  //     rangeEnd = results.length;
-  //   }
+  var get_idx_toignore = function (results, threshold){
 
-  //   var promises = [];
-  //   for (var i = rangeStart; i < rangeEnd; i++) {       
+    var idx_toignore= new Set()
 
-  //     const idx=i%size_of_table; 
-  //     if (i>=size_of_table && idx_toignore.has(idx)){
-  //       console.log("idx_toignore.has(idx)", idx_toignore.has(idx))
-  //       promises.push(Promise.resolve(0));
-  //     }
-  //     else{
-  //       // The value is opened only if the cell value meets the threshold 
-  //       var promise = jiff_instance.open(results[i], parties);
-  //       promises.push(promise);
-  //     }
-  //   }
-  //   return Promise.all(promises);
-  // };
+    for(var i=0; i<results.length; i++){
 
-  var openLimitedValues = function (jiff_instance, results, parties, idx_toignore, size_of_table, rangeStart, rangeEnd) {
-    const chunkSize =2
-        if (rangeStart == null) {
-          rangeStart = 0;
-        }
-        if (rangeEnd == null) {
-          rangeEnd = results.length;
-        }
-    
-        var promises = [];
-        for (var i = rangeStart; i < rangeEnd; i += chunkSize) {
-          // Split results into chunks
-          var chunk = results.slice(i, i + chunkSize);
-    
-          // Open shares for each chunk
-          var chunkPromises = chunk.map(function (share, idx) {
-            var globalIndex = i + idx;
-            const shareIndex = globalIndex % size_of_table;
-    
-            if (globalIndex >= size_of_table && idx_toignore.has(shareIndex)) {
-              return Promise.resolve(0);
-            } else {
-              return jiff_instance.open(share, parties);
-            }
-          });
-    
-          promises = promises.concat(chunkPromises);
-        }
-    
-        return Promise.all(promises);
-    };
-
-  // var openLimitedValues = function (jiff_instance, results, parties, idx_toignore, size_of_table, rangeStart, rangeEnd) {
-  //   if (rangeStart == null) {
-  //     rangeStart = 0;
-  //   }
-  //   if (rangeEnd == null) {
-  //     rangeEnd = results.length;
-  //   }
-
-  //   var promises = [];
-  //   // var exceptionsIndex = 0; // keeps track of the next exception, fast way to check set membership since both set and values are sorted
-  //   for (var i = rangeStart; i < rangeEnd; i += 10) {
-  //     var batchPromises = [];
-  //     for (var j = i; j < Math.min(i + 10, rangeEnd); j++) {
-  //       /* 
-  //       This multiplication is necessary only for 2nd table onwards 
-  //       because the first table should show the actual number of employees to make sense that
-  //       some values set to 0 despite the presence of some employees are due to unsatisfying the threshold
-  //       */
-
-  //       const idx = j % size_of_table;
-  //       if (j >= size_of_table && idx_toignore.has(idx)) {
-  //         console.log("idx_toignore.has(idx)", idx_toignore.has(idx))
-  //         batchPromises.push(Promise.resolve(0));
-  //       } else {
-  //         // The value is opened only if the cell value meets the threshold 
-  //         var promise = jiff_instance.open(results[j], parties);
-  //         batchPromises.push(promise);
-  //       }
-  //     }
-  //     promises.push(Promise.all(batchPromises));
-  //   }
-
-  //   return Promise.all(promises).then(function (results) {
-  //     var flattenedResults = [].concat.apply([], results);
-  //     return flattenedResults;
-  //   });
-  // };
-
-  // Returns a set containing indices of cells which have number of employees lower than threshold
-  var get_idx_toignore = async function (jiff_instance, results, parties, threshold, rangeStart, rangeEnd){
-
-    if (rangeStart == null) {
-      rangeStart = 0;
-    }
-    if (rangeEnd == null) {
-      rangeEnd = results.length;
-    }
-
-    // a) Open the Employee count (in case of BWWC)
-    var objCompare = await openValues(jiff_instance, results, parties, rangeStart, rangeEnd)
-    
-    // b) Obtain indexes that does not meet the threshold 
-    var idx_toignore = new Set();
-
-    for (var i = 0; i < objCompare.length; i++) {
-      if (objCompare[i]<threshold) {
-        idx_toignore.add(i);
+      if(results[i]<threshold){
+        idx_toignore.add(i)
       }
     }
-    return idx_toignore;
+    
+    return idx_toignore
+  
   }
 
-  function sleep(milliseconds) {
-    var start = new Date().getTime();
-    for (var i = 0; i < 1e7; i++) {
-      if ((new Date().getTime() - start) > milliseconds){
-        break;
+  var maskBelowThreshold = function (results, idx_toignore, table_size){
+
+    for(var i =0; i<results.length; i++){
+      var idx = i%table_size
+      if (idx_toignore.has(idx)) {
+        results[i]=0
       }
     }
+    return results
   }
 
   // Perform MPC computation for averages, deviations, questions, and usability
@@ -353,10 +251,6 @@ define(['constants'], function (constants) {
 
     // Compute these entities in order
     var sums, squaresSums, questions = null, usability = null;
-
-    // Parameters to determine that each entry meets the threshold Todo: Change to the dybamic parameters
-    const n_table = 4 
-    const threshold = 8
 
     // Temporary variables
     var cohort, i, p, shares;
@@ -418,24 +312,9 @@ define(['constants'], function (constants) {
       }
 
       // Computing sums of each cohort(position) to display
-      /* 
-        Step1)
-        Configuring parameters to check if each entry meets the threshold
-      */
-      const rangeStart= 0 //Todo: Consider if we can assume the employee count is always at the beginning of the table
-      const size_of_cohort_table =  24
-      const rangeEnd = size_of_cohort_table
-      var idx_toignore_cohort = await get_idx_toignore(jiff_instance, sums[cohort], [1], threshold, rangeStart, rangeEnd)
-      
-      /*
-        Step2)
-        Open all sums and sums of squares
-        Set the value to 0 if index matches, so that values that does not meet the threshold are not revealed
-      */
-
       // Cohort averages are done, open them (do not use await so that we do not block the main thread)
-      var avgPromise = await openLimitedValues(jiff_instance, sums[cohort], [1], idx_toignore_cohort, size_of_cohort_table);
-      var squaresPromise = await openLimitedValues(jiff_instance, squaresSums[cohort], [1], idx_toignore_cohort, size_of_cohort_table);
+      var avgPromise = openValues(jiff_instance, sums[cohort], [1]);
+      var squaresPromise = openValues(jiff_instance, squaresSums[cohort], [1]);
       promises.push(...[avgPromise, squaresPromise]);
     }
 
@@ -452,39 +331,25 @@ define(['constants'], function (constants) {
       }
     }
 
-    // Computing sums of all cohorts to display
-    /* 
-      Step1) 
-      Configuring parameters to check if each entry meets the threshold
-    */
-    var rangeStart= 0 //Todo: Consider if we can assume the employee count is always at the beginning of the table
-    const size_of_table=  sums['all'].length/n_table
-    var rangeEnd = size_of_table
-    var idx_toignore = await get_idx_toignore(jiff_instance, sums['all'], [1], threshold, rangeStart, rangeEnd)
-    console.log("idx_toignore", idx_toignore)
-    // var idx_toignore = new Set([0,1])
-    updateProgress(progressBar, 0.97);
-    
-    /*
-      Step2)
-        Open all sums and sums of squares
-        Set the value to 0 if index matches, so that values that does not meet the threshold are not revealed
-    */
-    
-    sums['all'] = await openLimitedValues(jiff_instance, sums['all'], [1], idx_toignore, size_of_table);
-    
+    sums['all'] = await openValues(jiff_instance, sums['all'], [1]);
+    squaresSums['all'] = await openValues(jiff_instance, squaresSums['all'], [1]);
     updateProgress(progressBar, 0.98);
-    console.log(sums['all'])
-
-    squaresSums['all'] = await openLimitedValues(jiff_instance, squaresSums['all'], [1], idx_toignore, size_of_table);
-    
-    // squaresSums['all'] = await openValues(jiff_instance, squaresSums['all'], [1]);
-    updateProgress(progressBar, 0.99);
-    
 
     // Open questions and usability
     questions = await openValues(jiff_instance, questions, [1]);
     usability = await openValues(jiff_instance, usability, [1]);
+    updateProgress(progressBar, 0.99);
+
+    const n_table = 4 
+    const threshold = 8
+    const table_size=  sums['all'].length/n_table
+    var idx_toignore = get_idx_toignore(sums['all'].slice(0,table_size), threshold)
+    
+    console.log("idx_toignore", idx_toignore)
+    
+    sums['all'] = await maskBelowThreshold(sums['all'], idx_toignore, table_size)
+    squaresSums['all'] = await maskBelowThreshold(squaresSums['all'], idx_toignore, table_size)
+      
     updateProgress(progressBar, 1);
 
     // Put results in object
@@ -494,22 +359,6 @@ define(['constants'], function (constants) {
       questions: questions,
       usability: usability
     };
-
-    // compute 'all' values in parallel using Promise.all
-    // const [sumsAll, squaresSumsAll, questionsAll, usabilityAll] = await Promise.all([
-    //   openLimitedValues(jiff_instance, sums['all'], [1], idx_toignore, size_of_table),
-    //   openLimitedValues(jiff_instance, squaresSums['all'], [1], idx_toignore, size_of_table),
-    //   openValues(jiff_instance, questions, [1]),
-    //   openValues(jiff_instance, usability, [1])
-    // ]);
-
-    // // Push 'all' results into object
-    // return {
-    //   sums: { ...sums, all: sumsAll },
-    //   squaresSums: { ...squaresSums, all: squaresSumsAll },
-    //   questions: questionsAll,
-    //   usability: usabilityAll
-    // };
   };
 
   // Return format:
