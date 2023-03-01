@@ -48,7 +48,8 @@ define(['constants'], function (constants) {
     var questions = [];
     var usability = [];
     var table_meta = {};
-
+    const threshold=table_template.cohort_threshold
+    
     table_meta.cohort_group_by = table_template.cohort_group_by == null ? ALL : table_template.cohort_group_by;
 
     var table_rows_count, table_cols_count;
@@ -132,7 +133,7 @@ define(['constants'], function (constants) {
       }
     }
 
-    return { tables, questions, usability, table_rows_count, table_cols_count, table_meta };
+    return { tables, questions, usability, table_rows_count, table_cols_count, table_meta, threshold };
   };
 
   // Get all the shares that a party have shared
@@ -339,17 +340,13 @@ define(['constants'], function (constants) {
     questions = await openValues(jiff_instance, questions, [1]);
     usability = await openValues(jiff_instance, usability, [1]);
     updateProgress(progressBar, 0.99);
-
-    const n_table = 4 
-    const threshold = 8
-    const table_size=  sums['all'].length/n_table
+    
+    // Mask cell values below threshold
+    const table_size=  ordering.table_cols_count*ordering.table_rows_count
+    const threshold = ordering.threshold
     var idx_toignore = get_idx_toignore(sums['all'].slice(0,table_size), threshold)
-    
-    console.log("idx_toignore", idx_toignore)
-    
     sums['all'] = await maskBelowThreshold(sums['all'], idx_toignore, table_size)
     squaresSums['all'] = await maskBelowThreshold(squaresSums['all'], idx_toignore, table_size)
-      
     updateProgress(progressBar, 1);
 
     // Put results in object
