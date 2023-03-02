@@ -220,30 +220,50 @@ define(['constants'], function (constants) {
     return Promise.all(promises);
   };
 
-  var get_idx_toignore = function (results, threshold){
+  var openLimitedValues = function (jiff_instance, results, parties, idx_toignore, table_size, rangeStart, rangeEnd) {
+    if (rangeStart == null) {
+      rangeStart = 0;
+    }
+    if (rangeEnd == null) {
+      rangeEnd = results.length;
+    }
 
-    var idx_toignore= new Set()
+    var promises = [];
+    for (var i = rangeStart; i < rangeEnd; i++) {       
 
-    for(var i=0; i<results.length; i++){
-
-      if(results[i]<threshold){
-        idx_toignore.add(i)
+      const idx=i%table_size; 
+      if (i>=table_size && idx_toignore.has(idx)){
+        promises.push(Promise.resolve(0));
+      }
+      else{
+        // The value is opened only if the cell value meets the threshold 
+        var promise = jiff_instance.open(results[i], parties);
+        promises.push(promise);
       }
     }
-    
-    return idx_toignore
-  
-  }
+    return Promise.all(promises);
+  };
 
-  var maskBelowThreshold = function (results, idx_toignore, table_size){
+  var get_idx_toignore = async function (jiff_instance, results, parties, threshold, rangeStart, rangeEnd, progressBar){
 
-    for(var i =0; i<results.length; i++){
-      var idx = i%table_size
-      if (idx_toignore.has(idx)) {
-        results[i]=0
+    if (rangeStart == null) {
+      rangeStart = 0;
+    }
+    if (rangeEnd == null) {
+      rangeEnd = results.length;
+    }
+
+    var idx_toignore = new Set();
+
+    for (var i = rangeStart; i < rangeEnd; i++) {
+      updateProgress(progressBar, 0.70+(i/rangeEnd)*0.1);
+      var promise = await jiff_instance.open(results[i], parties);
+      if (promise<threshold) {
+        idx_toignore.add(i);
       }
     }
-    return results
+
+    return idx_toignore;
   }
 
   // Perform MPC computation for averages, deviations, questions, and usability
@@ -277,7 +297,7 @@ define(['constants'], function (constants) {
 
       // progress
       counter++;
-      updateProgress(progressBar, (counter / submitters['all'].length) * 0.94);
+      updateProgress(progressBar, (counter / submitters['all'].length) * 0.60);
     }
 
     // Compute all the results: computation proceeds by party in order
@@ -309,7 +329,7 @@ define(['constants'], function (constants) {
 
         // progress
         counter++;
-        updateProgress(progressBar, (counter / submitters['all'].length) * 0.94);
+        updateProgress(progressBar, (counter / submitters['all'].length) * 0.60);
       }
 
       // Cohort averages are done, open them (do not use await so that we do not block the main thread)
@@ -320,7 +340,7 @@ define(['constants'], function (constants) {
 
     // wait for cohort outputs
     var cohortOutputs = await Promise.all(promises);
-    updateProgress(progressBar, 0.96);
+    updateProgress(progressBar, 0.70);
     for (i = 0; i < submitters['cohorts'].length*2; i++) {
       // every 2 outputs belongs to same cohort - evens are sums; odds are square sums
       let idx = Math.floor(i / 2);
@@ -331,22 +351,26 @@ define(['constants'], function (constants) {
       }
     }
 
+    // Mask cell values below threshold
+    const table_size=  ordering.table_cols_count*ordering.table_rows_count
+    const threshold = ordering.threshold
+    /* Parties for get_idx_toignore must be [1, 's1'] because the server and 
+       the browser must have access to the same idx_toignore to open shares in the same manner
+       If [1] instead is given, then the server will open all shares and the browser opens only those with above threshold values,
+       which leads to the discrepancy between two parties and the computation will stall at that point
+    */
+    var idx_toignore = await get_idx_toignore(jiff_instance, sums['all'], [1, 's1'], threshold, 0, table_size, progressBar)
+    updateProgress(progressBar, 0.95);
+    
     // Open all sums and sums of squares
-    sums['all'] = await openValues(jiff_instance, sums['all'], [1]);
-    squaresSums['all'] = await openValues(jiff_instance, squaresSums['all'], [1]);
-    updateProgress(progressBar, 0.98);
+    sums['all'] = await openLimitedValues(jiff_instance, sums['all'], [1], idx_toignore, table_size);
+    squaresSums['all'] = await openLimitedValues(jiff_instance, squaresSums['all'], [1], idx_toignore, table_size);
+    updateProgress(progressBar, 0.99);
 
     // Open questions and usability
     questions = await openValues(jiff_instance, questions, [1]);
     usability = await openValues(jiff_instance, usability, [1]);
-    updateProgress(progressBar, 0.99);
     
-    // Mask cell values below threshold
-    const table_size=  ordering.table_cols_count*ordering.table_rows_count
-    const threshold = ordering.threshold
-    var idx_toignore = get_idx_toignore(sums['all'].slice(0,table_size), threshold)
-    sums['all'] = await maskBelowThreshold(sums['all'], idx_toignore, table_size)
-    squaresSums['all'] = await maskBelowThreshold(squaresSums['all'], idx_toignore, table_size)
     updateProgress(progressBar, 1);
 
     // Put results in object
