@@ -48,7 +48,7 @@ define(['constants'], function (constants) {
     var questions = [];
     var usability = [];
     var table_meta = {};
-    const cellwise_threshold=table_template.cellwise_threshold
+    const cellwise_threshold = table_template.cellwise_threshold
     
     table_meta.cohort_group_by = table_template.cohort_group_by == null ? ALL : table_template.cohort_group_by;
 
@@ -231,8 +231,8 @@ define(['constants'], function (constants) {
     var promises = [];
     for (var i = rangeStart; i < rangeEnd; i++) {       
 
-      const idx=i%table_size; 
-      if (i>=table_size && idx_toignore.has(idx)){
+      const idx = i%table_size; 
+      if (i >= table_size && idx_toignore.has(idx)){
         promises.push(Promise.resolve(0));
       }
       else{
@@ -249,7 +249,7 @@ define(['constants'], function (constants) {
     if (rangeStart == null||rangeStart < 0) {
       rangeStart = 0;
     }
-    if (rangeEnd == null||rangeEnd>results.length) {
+    if (rangeEnd == null||rangeEnd > results.length) {
       rangeEnd = results.length;
     }
 
@@ -257,11 +257,11 @@ define(['constants'], function (constants) {
 
     for (var i = rangeStart; i < rangeEnd; i++) {
       var promise = await jiff_instance.open(results[i], parties);
-      if (promise<cellwise_threshold) {
+      if (promise < cellwise_threshold) {
         idx_toignore.add(i);
       }
       if(progressBar){
-        updateProgress(progressBar, 0.70+(i/rangeEnd)*0.1);
+        updateProgress(progressBar, 0.70 + (i/rangeEnd) * 0.1);
       }
     }
 
@@ -275,7 +275,7 @@ define(['constants'], function (constants) {
     // Compute these entities in order
     var sums, squaresSums, questions = null, usability = null;
     const cellwise_threshold = ordering.cellwise_threshold
-    const table_size=  ordering.table_cols_count*ordering.table_rows_count
+    const table_size = ordering.table_cols_count*ordering.table_rows_count
     const cohort_size = ordering.table_rows_count*ordering.table_meta.cohort_group_by.length
     const cohort_output_size = ordering.table_rows_count*ordering.table_meta.cohort_group_by.length
 
