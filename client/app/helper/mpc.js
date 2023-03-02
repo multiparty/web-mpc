@@ -457,17 +457,12 @@ define(['constants'], function (constants) {
           // (E[X])^2
           if(Number.isInteger(result.sums[cohort][i])){
             var squareOfAvg = result.sums[cohort][i]/(submitters[cohort].length);
-          }
-          else{
-            var squareOfAvg = result.sums[cohort][i].div(submitters[cohort].length);
-          }
-          if(Number.isInteger(squareOfAvg)){
             squareOfAvg = squareOfAvg*squareOfAvg
           }
           else{
+            var squareOfAvg = result.sums[cohort][i].div(submitters[cohort].length);
             squareOfAvg = squareOfAvg.pow(2);
           }
-
           // deviation formula: E[X^2] - (E[X])^2
           if(Number.isInteger(avgOfSquares)){
             var totalDeviation = avgOfSquares - squareOfAvg;
@@ -527,14 +522,10 @@ define(['constants'], function (constants) {
       // (E[X])^2
       if(Number.isInteger(result.sums['all'][i])){
         squareOfAvg = result.sums['all'][i]/(submitters['all'].length);
-      }
-      else{
-        squareOfAvg = result.sums['all'][i].div(submitters['all'].length);
-      }
-      if(Number.isInteger(squareOfAvg)){
         squareOfAvg = squareOfAvg*squareOfAvg
       }
       else{
+        squareOfAvg = result.sums['all'][i].div(submitters['all'].length);
         squareOfAvg = squareOfAvg.pow(2);
       }
 
