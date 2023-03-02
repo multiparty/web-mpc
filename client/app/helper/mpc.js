@@ -48,7 +48,7 @@ define(['constants'], function (constants) {
     var questions = [];
     var usability = [];
     var table_meta = {};
-    const threshold=table_template.cohort_threshold
+    const cellwise_threshold=table_template.cellwise_threshold
     
     table_meta.cohort_group_by = table_template.cohort_group_by == null ? ALL : table_template.cohort_group_by;
 
@@ -133,7 +133,7 @@ define(['constants'], function (constants) {
       }
     }
 
-    return { tables, questions, usability, table_rows_count, table_cols_count, table_meta, threshold };
+    return { tables, questions, usability, table_rows_count, table_cols_count, table_meta, cellwise_threshold };
   };
 
   // Get all the shares that a party have shared
@@ -244,22 +244,24 @@ define(['constants'], function (constants) {
     return Promise.all(promises);
   };
 
-  var get_idx_toignore = async function (jiff_instance, results, parties, threshold, rangeStart, rangeEnd, progressBar){
+  var get_idx_toignore = async function (jiff_instance, results, parties, cellwise_threshold, rangeStart, rangeEnd, progressBar){
 
-    if (rangeStart == null) {
+    if (rangeStart == null||rangeStart < 0) {
       rangeStart = 0;
     }
-    if (rangeEnd == null) {
+    if (rangeEnd == null||rangeEnd>results.length) {
       rangeEnd = results.length;
     }
 
     var idx_toignore = new Set();
 
     for (var i = rangeStart; i < rangeEnd; i++) {
-      updateProgress(progressBar, 0.70+(i/rangeEnd)*0.1);
       var promise = await jiff_instance.open(results[i], parties);
-      if (promise<threshold) {
+      if (promise<cellwise_threshold) {
         idx_toignore.add(i);
+      }
+      if(progressBar){
+        updateProgress(progressBar, 0.70+(i/rangeEnd)*0.1);
       }
     }
 
@@ -272,6 +274,10 @@ define(['constants'], function (constants) {
 
     // Compute these entities in order
     var sums, squaresSums, questions = null, usability = null;
+    const cellwise_threshold = ordering.cellwise_threshold
+    const table_size=  ordering.table_cols_count*ordering.table_rows_count
+    const cohort_size = ordering.table_rows_count*ordering.table_meta.cohort_group_by.length
+    const cohort_output_size = ordering.table_rows_count*ordering.table_meta.cohort_group_by.length
 
     // Temporary variables
     var cohort, i, p, shares;
@@ -333,8 +339,11 @@ define(['constants'], function (constants) {
       }
 
       // Cohort averages are done, open them (do not use await so that we do not block the main thread)
-      var avgPromise = openValues(jiff_instance, sums[cohort], [1]);
-      var squaresPromise = openValues(jiff_instance, squaresSums[cohort], [1]);
+      var idx_toignore = await get_idx_toignore(jiff_instance, sums[cohort], [1, 's1'], cellwise_threshold, 0, cohort_size)
+      
+      // Open all sums and sums of squares
+      var avgPromise = openLimitedValues(jiff_instance, sums[cohort], [1], idx_toignore, cohort_output_size);
+      var squaresPromise = openLimitedValues(jiff_instance, squaresSums[cohort], [1], idx_toignore, cohort_output_size);
       promises.push(...[avgPromise, squaresPromise]);
     }
 
@@ -352,14 +361,12 @@ define(['constants'], function (constants) {
     }
 
     // Mask cell values below threshold
-    const table_size=  ordering.table_cols_count*ordering.table_rows_count
-    const threshold = ordering.threshold
     /* Parties for get_idx_toignore must be [1, 's1'] because the server and 
        the browser must have access to the same idx_toignore to open shares in the same manner
        If [1] instead is given, then the server will open all shares and the browser opens only those with above threshold values,
        which leads to the discrepancy between two parties and the computation will stall at that point
     */
-    var idx_toignore = await get_idx_toignore(jiff_instance, sums['all'], [1, 's1'], threshold, 0, table_size, progressBar)
+    var idx_toignore = await get_idx_toignore(jiff_instance, sums['all'], [1, 's1'], cellwise_threshold, 0, table_size, progressBar)
     updateProgress(progressBar, 0.95);
     
     // Open all sums and sums of squares
@@ -417,10 +424,21 @@ define(['constants'], function (constants) {
         var cohortMean = result.sums[cohort][i];
         if (cohortOp[AVG] != null) {
           if (cohortOp[AVG] === SELF) {
-            cohortMean = cohortMean.div(submitters[cohort].length);
+            if(Number.isInteger(cohortMean)){
+              cohortMean = cohortMean/submitters[cohort].length
+            }
+            else{
+              cohortMean = cohortMean.div(submitters[cohort].length);
+            }
+            
           } else {
             let modVal = ordering.table_meta[cohortOp[AVG]].cohort;
-            cohortMean = cohortMean.div(result.sums[cohort][i % modVal]);
+            if(Number.isInteger(cohortMean)){
+              cohortMean = cohortMean/result.sums[cohort][i % modVal]
+            }
+            else{
+              cohortMean = cohortMean.div(result.sums[cohort][i % modVal]);
+            }
           }
         }
 
@@ -430,13 +448,35 @@ define(['constants'], function (constants) {
           // compute standard deviation among cohort
           // E[X^2]
           var avgOfSquares = result.squaresSums[cohort][i];
-          avgOfSquares = avgOfSquares.div(submitters[cohort].length);
+          if(Number.isInteger(avgOfSquares)){
+            avgOfSquares = avgOfSquares/submitters[cohort].length
+          }
+          else{
+            avgOfSquares = avgOfSquares.div(submitters[cohort].length);
+          }
           // (E[X])^2
-          var squareOfAvg = result.sums[cohort][i].div(submitters[cohort].length);
-          squareOfAvg = squareOfAvg.pow(2);
+          if(Number.isInteger(result.sums[cohort][i])){
+            var squareOfAvg = result.sums[cohort][i]/(submitters[cohort].length);
+          }
+          else{
+            var squareOfAvg = result.sums[cohort][i].div(submitters[cohort].length);
+          }
+          if(Number.isInteger(squareOfAvg)){
+            squareOfAvg = squareOfAvg*squareOfAvg
+          }
+          else{
+            squareOfAvg = squareOfAvg.pow(2);
+          }
+
           // deviation formula: E[X^2] - (E[X])^2
-          var totalDeviation = avgOfSquares.minus(squareOfAvg);
-          totalDeviation = totalDeviation.sqrt(); //sqrt
+          if(Number.isInteger(avgOfSquares)){
+            var totalDeviation = avgOfSquares - squareOfAvg;
+            totalDeviation = Math.sqrt(totalDeviation); //sqrt
+          }
+          else{
+            var totalDeviation = avgOfSquares.minus(squareOfAvg);
+            totalDeviation = totalDeviation.sqrt(); //sqrt
+          }
 
           setOrAssign(deviations, [cohort, table, row, col], totalDeviation.toFixed(2));
 

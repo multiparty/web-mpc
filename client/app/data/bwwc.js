@@ -592,6 +592,7 @@ define([], function () {
       { name: 'Real Estate' }
     ],
     'cohort_threshold': 8,
+    'cellwise_threshold': 8,
     'send_submitter_ids': true,
   }
 });
