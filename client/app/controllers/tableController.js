@@ -770,7 +770,12 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
     headers.forEach(function (row) {
       h[i] = [];
       row.forEach(function (col) {
-        h[i].push(col.label);
+        if(col.colspan){
+          h[i].push(col);
+        }
+        else{
+          h[i].push(col.label);
+        }
       });
       i++;
     });

@@ -48,7 +48,8 @@ define(['constants'], function (constants) {
     var questions = [];
     var usability = [];
     var table_meta = {};
-
+    const cellwise_threshold = table_template.cellwise_threshold
+    
     table_meta.cohort_group_by = table_template.cohort_group_by == null ? ALL : table_template.cohort_group_by;
 
     var table_rows_count, table_cols_count;
@@ -132,7 +133,7 @@ define(['constants'], function (constants) {
       }
     }
 
-    return { tables, questions, usability, table_rows_count, table_cols_count, table_meta };
+    return { tables, questions, usability, table_rows_count, table_cols_count, table_meta, cellwise_threshold };
   };
 
   // Get all the shares that a party have shared
@@ -219,16 +220,53 @@ define(['constants'], function (constants) {
     return Promise.all(promises);
   };
 
-  // Returns a *sorted* array containing indices of cells which have number of employees lower than threshold
-  var verifyThreshold = function (numberOfEmployees) { // unused
-    var positions = [];
-    for (var i = 0; i < numberOfEmployees.length; i++) {
-      if (numberOfEmployees[i].lt(3)) {
-        positions.push(i);
+  var openLimitedValues = function (jiff_instance, results, parties, idx_toignore, table_size, rangeStart, rangeEnd) {
+    if (rangeStart == null) {
+      rangeStart = 0;
+    }
+    if (rangeEnd == null) {
+      rangeEnd = results.length;
+    }
+
+    var promises = [];
+    for (var i = rangeStart; i < rangeEnd; i++) {       
+
+      const idx = i%table_size; 
+      if (i >= table_size && idx_toignore.has(idx)){
+        promises.push(Promise.resolve(0));
+      }
+      else{
+        // The value is opened only if the cell value meets the threshold 
+        var promise = jiff_instance.open(results[i], parties);
+        promises.push(promise);
       }
     }
-    return positions;
+    return Promise.all(promises);
   };
+
+  var get_idx_toignore = async function (jiff_instance, results, parties, cellwise_threshold, rangeStart, rangeEnd, progressBar){
+
+    if (rangeStart == null||rangeStart < 0) {
+      rangeStart = 0;
+    }
+    if (rangeEnd == null||rangeEnd > results.length) {
+      rangeEnd = results.length;
+    }
+
+    var idx_toignore = new Set();
+
+    for (var i = rangeStart; i < rangeEnd; i++) {
+      var promise = await jiff_instance.open(results[i], parties);
+      if (promise < cellwise_threshold) {
+        idx_toignore.add(i);
+      }
+      if(progressBar){
+        updateProgress(progressBar, 0.70 + (i/rangeEnd) * 0.1);
+      }
+    }
+
+    return idx_toignore;
+  }
 
   // Perform MPC computation for averages, deviations, questions, and usability
   var compute = async function (jiff_instance, submitters, ordering, progressBar) {
@@ -236,6 +274,10 @@ define(['constants'], function (constants) {
 
     // Compute these entities in order
     var sums, squaresSums, questions = null, usability = null;
+    const cellwise_threshold = ordering.cellwise_threshold
+    const table_size = ordering.table_cols_count*ordering.table_rows_count
+    const cohort_size = ordering.table_rows_count*ordering.table_meta.cohort_group_by.length
+    const cohort_output_size = ordering.table_rows_count*ordering.table_meta.cohort_group_by.length
 
     // Temporary variables
     var cohort, i, p, shares;
@@ -261,7 +303,7 @@ define(['constants'], function (constants) {
 
       // progress
       counter++;
-      updateProgress(progressBar, (counter / submitters['all'].length) * 0.94);
+      updateProgress(progressBar, (counter / submitters['all'].length) * 0.60);
     }
 
     // Compute all the results: computation proceeds by party in order
@@ -293,22 +335,24 @@ define(['constants'], function (constants) {
 
         // progress
         counter++;
-        updateProgress(progressBar, (counter / submitters['all'].length) * 0.94);
+        updateProgress(progressBar, (counter / submitters['all'].length) * 0.60);
       }
 
       // Cohort averages are done, open them (do not use await so that we do not block the main thread)
-      var avgPromise = openValues(jiff_instance, sums[cohort], [1]);
-      var squaresPromise = openValues(jiff_instance, squaresSums[cohort], [1]);
+      var idx_toignore = await get_idx_toignore(jiff_instance, sums[cohort], [1, 's1'], cellwise_threshold, 0, cohort_size)
+      
+      // Open all sums and sums of squares
+      var avgPromise = openLimitedValues(jiff_instance, sums[cohort], [1], idx_toignore, cohort_output_size);
+      var squaresPromise = openLimitedValues(jiff_instance, squaresSums[cohort], [1], idx_toignore, cohort_output_size);
       promises.push(...[avgPromise, squaresPromise]);
     }
 
     // wait for cohort outputs
     var cohortOutputs = await Promise.all(promises);
-    updateProgress(progressBar, 0.96);
+    updateProgress(progressBar, 0.70);
     for (i = 0; i < submitters['cohorts'].length*2; i++) {
       // every 2 outputs belongs to same cohort - evens are sums; odds are square sums
       let idx = Math.floor(i / 2);
-      console.log(idx, submitters['cohorts'][idx]);
       if (i%2 === 0) {
         sums[submitters['cohorts'][idx]] = cohortOutputs[i];
       } else {
@@ -316,14 +360,24 @@ define(['constants'], function (constants) {
       }
     }
 
+    // Mask cell values below threshold
+    /* Parties for get_idx_toignore must be [1, 's1'] because the server and 
+       the browser must have access to the same idx_toignore to open shares in the same manner
+       If [1] instead is given, then the server will open all shares and the browser opens only those with above threshold values,
+       which leads to the discrepancy between two parties and the computation will stall at that point
+    */
+    var idx_toignore = await get_idx_toignore(jiff_instance, sums['all'], [1, 's1'], cellwise_threshold, 0, table_size, progressBar)
+    updateProgress(progressBar, 0.95);
+    
     // Open all sums and sums of squares
-    sums['all'] = await openValues(jiff_instance, sums['all'], [1]);
-    squaresSums['all'] = await openValues(jiff_instance, squaresSums['all'], [1]);
-    updateProgress(progressBar, 0.98);
+    sums['all'] = await openLimitedValues(jiff_instance, sums['all'], [1], idx_toignore, table_size);
+    squaresSums['all'] = await openLimitedValues(jiff_instance, squaresSums['all'], [1], idx_toignore, table_size);
+    updateProgress(progressBar, 0.99);
 
     // Open questions and usability
     questions = await openValues(jiff_instance, questions, [1]);
     usability = await openValues(jiff_instance, usability, [1]);
+    
     updateProgress(progressBar, 1);
 
     // Put results in object
@@ -352,7 +406,7 @@ define(['constants'], function (constants) {
     var questions = {};
     var usability = {};
 
-    // Compute averages per cohort
+    // Compute averages per cohort for respective genders
     var cols = ordering.table_cols_count;
     for (var c = 0; c < submitters['cohorts'].length; c++) {
       var cohort = submitters['cohorts'][c];
@@ -370,10 +424,21 @@ define(['constants'], function (constants) {
         var cohortMean = result.sums[cohort][i];
         if (cohortOp[AVG] != null) {
           if (cohortOp[AVG] === SELF) {
-            cohortMean = cohortMean.div(submitters[cohort].length);
+            if(Number.isInteger(cohortMean)){
+              cohortMean = cohortMean/submitters[cohort].length
+            }
+            else{
+              cohortMean = cohortMean.div(submitters[cohort].length);
+            }
+            
           } else {
             let modVal = ordering.table_meta[cohortOp[AVG]].cohort;
-            cohortMean = cohortMean.div(result.sums[cohort][i % modVal]);
+            if(Number.isInteger(cohortMean)){
+              cohortMean = cohortMean/result.sums[cohort][i % modVal]
+            }
+            else{
+              cohortMean = cohortMean.div(result.sums[cohort][i % modVal]);
+            }
           }
         }
 
@@ -383,13 +448,30 @@ define(['constants'], function (constants) {
           // compute standard deviation among cohort
           // E[X^2]
           var avgOfSquares = result.squaresSums[cohort][i];
-          avgOfSquares = avgOfSquares.div(submitters[cohort].length);
+          if(Number.isInteger(avgOfSquares)){
+            avgOfSquares = avgOfSquares/submitters[cohort].length
+          }
+          else{
+            avgOfSquares = avgOfSquares.div(submitters[cohort].length);
+          }
           // (E[X])^2
-          var squareOfAvg = result.sums[cohort][i].div(submitters[cohort].length);
-          squareOfAvg = squareOfAvg.pow(2);
+          if(Number.isInteger(result.sums[cohort][i])){
+            var squareOfAvg = result.sums[cohort][i]/(submitters[cohort].length);
+            squareOfAvg = squareOfAvg*squareOfAvg
+          }
+          else{
+            var squareOfAvg = result.sums[cohort][i].div(submitters[cohort].length);
+            squareOfAvg = squareOfAvg.pow(2);
+          }
           // deviation formula: E[X^2] - (E[X])^2
-          var totalDeviation = avgOfSquares.minus(squareOfAvg);
-          totalDeviation = totalDeviation.sqrt(); //sqrt
+          if(Number.isInteger(avgOfSquares)){
+            var totalDeviation = avgOfSquares - squareOfAvg;
+            totalDeviation = Math.sqrt(totalDeviation); //sqrt
+          }
+          else{
+            var totalDeviation = avgOfSquares.minus(squareOfAvg);
+            totalDeviation = totalDeviation.sqrt(); //sqrt
+          }
 
           setOrAssign(deviations, [cohort, table, row, col], totalDeviation.toFixed(2));
 
@@ -408,10 +490,20 @@ define(['constants'], function (constants) {
       var totalMean = result.sums['all'][i]; // mean for cell for ALL cohorts
       if (op[AVG] != null) {
         if (op[AVG] === SELF) { // if we're just averaging over the number of submitters
-          totalMean = totalMean.div(submitters.all.length);
+          if(Number.isInteger(totalMean)){
+            totalMean = totalMean/submitters.all.length
+          }
+          else{
+            totalMean = totalMean.div(submitters.all.length);
+          }
         } else { // if we're averaging over values in a different table
           let modVal = ordering.table_meta[op[AVG]].total;
-          totalMean = totalMean.div(result.sums['all'][i % modVal]);
+          if(Number.isInteger(totalMean)){
+            totalMean = totalMean/result.sums['all'][i % modVal]
+          }
+          else{
+            totalMean = totalMean.div(result.sums['all'][i % modVal]);
+          }
         }
       }
 
@@ -420,13 +512,32 @@ define(['constants'], function (constants) {
       // Compute deviation for population of values presented by companies (not for individual employees)
       // E[X^2]
       avgOfSquares = result.squaresSums['all'][i];
-      avgOfSquares = avgOfSquares.div(submitters['all'].length);
+      if(Number.isInteger(avgOfSquares)){
+        avgOfSquares = avgOfSquares/submitters['all'].length;
+      }
+      else{
+        avgOfSquares = avgOfSquares.div(submitters['all'].length);
+      }
+
       // (E[X])^2
-      squareOfAvg = result.sums['all'][i].div(submitters['all'].length);
-      squareOfAvg = squareOfAvg.pow(2);
+      if(Number.isInteger(result.sums['all'][i])){
+        squareOfAvg = result.sums['all'][i]/(submitters['all'].length);
+        squareOfAvg = squareOfAvg*squareOfAvg
+      }
+      else{
+        squareOfAvg = result.sums['all'][i].div(submitters['all'].length);
+        squareOfAvg = squareOfAvg.pow(2);
+      }
+
       // deviation formula: E[X^2] - (E[X])^2
-      totalDeviation = avgOfSquares.minus(squareOfAvg);
-      totalDeviation = totalDeviation.sqrt(); //sqrt
+      if(Number.isInteger(avgOfSquares)){
+        totalDeviation = avgOfSquares - squareOfAvg;
+        totalDeviation = Math.sqrt(totalDeviation); //sqrt
+      }
+      else{
+        totalDeviation = avgOfSquares.minus(squareOfAvg);
+        totalDeviation = totalDeviation.sqrt(); //sqrt
+      }
 
       setOrAssign(deviations, ['all', table, row, col], totalDeviation.toFixed(2));
     }
