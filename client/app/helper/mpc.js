@@ -278,6 +278,7 @@ define(['constants'], function (constants) {
     const table_size = ordering.table_cols_count*ordering.table_rows_count
     const cohort_size = ordering.table_rows_count*ordering.table_meta.cohort_group_by.length
     const cohort_output_size = ordering.table_rows_count*ordering.table_meta.cohort_group_by.length
+    const data_size = ordering.tables.length
 
     // Temporary variables
     var cohort, i, p, shares;
@@ -369,15 +370,22 @@ define(['constants'], function (constants) {
     var idx_toignore = await get_idx_toignore(jiff_instance, sums['all'], [1, 's1'], cellwise_threshold, 0, table_size, progressBar)
     updateProgress(progressBar, 0.95);
     
-    // Open all sums and sums of squares
-    sums['all'] = await openLimitedValues(jiff_instance, sums['all'], [1], idx_toignore, table_size);
-    squaresSums['all'] = await openLimitedValues(jiff_instance, squaresSums['all'], [1], idx_toignore, table_size);
-    updateProgress(progressBar, 0.99);
+    // Open all sums and sums of squares if sum['all'] exists, i.e., the overall submission counts > threshold
+    if(sums['all']){
+      sums['all'] = await openLimitedValues(jiff_instance, sums['all'], [1], idx_toignore, table_size);
+      squaresSums['all'] = await openLimitedValues(jiff_instance, squaresSums['all'], [1], idx_toignore, table_size);
+      // Open questions and usability
+      questions = await openValues(jiff_instance, questions, [1]);
+      usability = await openValues(jiff_instance, usability, [1]);
+    }
+    else{
+      const fillzeros=new Array(data_size).fill(0)
+      sums['all'] = fillzeros
+      squaresSums['all'] = fillzeros
+      questions = []
+      usability = fillzeros
+    }
 
-    // Open questions and usability
-    questions = await openValues(jiff_instance, questions, [1]);
-    usability = await openValues(jiff_instance, usability, [1]);
-    
     updateProgress(progressBar, 1);
 
     // Put results in object
@@ -491,7 +499,18 @@ define(['constants'], function (constants) {
       if (op[AVG] != null) {
         if (op[AVG] === SELF) { // if we're just averaging over the number of submitters
           if(Number.isInteger(totalMean)){
-            totalMean = totalMean/submitters.all.length
+
+            /*
+              If the overal submission count is less than the threshold defined a template, submitters gets 0 due to the getTrackerParties in server/jiff/tracker.js
+              To avoid null value in divisions, assigning 0 to totalMean value 
+            */ 
+
+            if(submitters.all.length==0){
+              totalMean = 0
+            }
+            else{
+              totalMean = totalMean/submitters.all.length
+            }
           }
           else{
             totalMean = totalMean.div(submitters.all.length);
@@ -499,7 +518,18 @@ define(['constants'], function (constants) {
         } else { // if we're averaging over values in a different table
           let modVal = ordering.table_meta[op[AVG]].total;
           if(Number.isInteger(totalMean)){
-            totalMean = totalMean/result.sums['all'][i % modVal]
+
+            /* 
+              If the overal submission count is less than the threshold defined a template, submitters gets 0 due to the getTrackerParties in server/jiff/tracker.js
+              To avoid null value in divisions, assigning 0 to totalMean value 
+            */ 
+
+            if(result.sums['all'][i % modVal]==0){
+              totalMean=0
+            }
+            else{
+              totalMean = totalMean/result.sums['all'][i % modVal]
+            }
           }
           else{
             totalMean = totalMean.div(result.sums['all'][i % modVal]);
@@ -513,7 +543,18 @@ define(['constants'], function (constants) {
       // E[X^2]
       avgOfSquares = result.squaresSums['all'][i];
       if(Number.isInteger(avgOfSquares)){
-        avgOfSquares = avgOfSquares/submitters['all'].length;
+
+        /* 
+          If the overal submission count is less than the threshold defined a template, submitters gets 0 due to the getTrackerParties in server/jiff/tracker.js
+          To avoid null value in divisions, assigning 0 to totalMean value 
+        */ 
+
+        if(submitters['all'].length==0){
+          avgOfSquares=0
+        }
+        else{
+          avgOfSquares = avgOfSquares/submitters['all'].length;
+        }
       }
       else{
         avgOfSquares = avgOfSquares.div(submitters['all'].length);
@@ -521,8 +562,19 @@ define(['constants'], function (constants) {
 
       // (E[X])^2
       if(Number.isInteger(result.sums['all'][i])){
-        squareOfAvg = result.sums['all'][i]/(submitters['all'].length);
-        squareOfAvg = squareOfAvg*squareOfAvg
+
+        /* 
+          If the overal submission count is less than the threshold defined a template, submitters gets 0 due to the getTrackerParties in server/jiff/tracker.js
+          To avoid null value in divisions, assigning 0 to totalMean value 
+        */ 
+
+        if(submitters['all'].length==0){
+          squareOfAvg=0
+        }
+        else{
+          squareOfAvg = result.sums['all'][i]/(submitters['all'].length);
+          squareOfAvg = squareOfAvg*squareOfAvg
+        }
       }
       else{
         squareOfAvg = result.sums['all'][i].div(submitters['all'].length);

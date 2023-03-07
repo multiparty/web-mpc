@@ -89,6 +89,18 @@ module.exports = function (JIFFWrapper) {
     filtered['all'].sort();
     filtered['none'].sort();
     filtered['cohorts'].sort();
+
+    /*
+      If the overall submission count is less than the threshold defined in the template
+      The submitter ids are set to null(removed)
+      This makes the submitter = [] in mpc.js on the client side, which results in setting means/stds 0
+    */
+
+      if(filtered['all'].length<tableTemplate.cohort_threshold){
+      filtered['all']=[]
+      filtered['none']=[]
+    }
+    
     return filtered;
   };
 };
