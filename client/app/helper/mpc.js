@@ -549,7 +549,7 @@ define(['constants'], function (constants) {
           To avoid null value in divisions, assigning 0 to totalMean value 
         */ 
 
-        if(submitters['all'].length==0){
+        if(submitters['all'].length == 0){
           avgOfSquares = 0
         }
         else{
