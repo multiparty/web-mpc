@@ -525,7 +525,7 @@ define(['constants'], function (constants) {
             */ 
 
             if(result.sums['all'][i % modVal]==0){
-              totalMean=0
+              totalMean = 0
             }
             else{
               totalMean = totalMean/result.sums['all'][i % modVal]
@@ -550,7 +550,7 @@ define(['constants'], function (constants) {
         */ 
 
         if(submitters['all'].length==0){
-          avgOfSquares=0
+          avgOfSquares = 0
         }
         else{
           avgOfSquares = avgOfSquares/submitters['all'].length;
@@ -568,8 +568,8 @@ define(['constants'], function (constants) {
           To avoid null value in divisions, assigning 0 to totalMean value 
         */ 
 
-        if(submitters['all'].length==0){
-          squareOfAvg=0
+        if(submitters['all'].length == 0){
+          squareOfAvg = 0
         }
         else{
           squareOfAvg = result.sums['all'][i]/(submitters['all'].length);

@@ -96,9 +96,9 @@ module.exports = function (JIFFWrapper) {
       This makes the submitter = [] in mpc.js on the client side, which results in setting means/stds 0
     */
 
-      if(filtered['all'].length<tableTemplate.cohort_threshold){
-      filtered['all']=[]
-      filtered['none']=[]
+      if(filtered['all'].length < tableTemplate.cohort_threshold){
+      filtered['all'] = []
+      filtered['none'] = []
     }
     
     return filtered;
