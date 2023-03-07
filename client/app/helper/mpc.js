@@ -505,7 +505,7 @@ define(['constants'], function (constants) {
               To avoid null value in divisions, assigning 0 to totalMean value 
             */ 
 
-            if(submitters.all.length==0){
+            if(submitters.all.length == 0){
               totalMean = 0
             }
             else{
@@ -524,7 +524,7 @@ define(['constants'], function (constants) {
               To avoid null value in divisions, assigning 0 to totalMean value 
             */ 
 
-            if(result.sums['all'][i % modVal]==0){
+            if(result.sums['all'][i % modVal] == 0){
               totalMean = 0
             }
             else{
