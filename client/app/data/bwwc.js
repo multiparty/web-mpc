@@ -592,7 +592,6 @@ define([], function () {
       { name: 'Public Sector' }
     ],
     'cohort_threshold': 8,
-    'cellwise_threshold': 8,
     'send_submitter_ids': true,
   }
 });
