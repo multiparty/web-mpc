@@ -245,6 +245,9 @@ define(['constants'], function (constants) {
   };
 
   var get_idx_toignore = async function (jiff_instance, results, parties, cellwise_threshold, rangeStart, rangeEnd, progressBar){
+    if(!results){
+      return
+    }
 
     if (rangeStart == null||rangeStart < 0) {
       rangeStart = 0;
