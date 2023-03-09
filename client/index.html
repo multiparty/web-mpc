@@ -82,7 +82,7 @@
                     class="fail-custom help-block hidden"></span>
             </div>
             <div class="form-group">
-              <label class="control-label" for="participation-code">Participation code</label>
+              <label class="control-label" for="participation-code">Participation Code</label>
               <input type="text" id="participation-code" class="form-control" placeholder="Participation code"
                      pattern="^[a-zA-Z0-9]{26}$"
                      autocomplete="off" required>
@@ -110,6 +110,20 @@
             </select>
           </div>
           {% endif %}
+
+          {% if compsizes %}
+          <div id="compsize-self-selection" class="form-group">
+            <div id="company-size">{{client.compsize}}</div>
+            <label id="compsize-drop-label" for="compsizeDrop">{{ client.compsize }} Selection</label>
+            <select class="form-control" id="compsizeDrop">
+              <option value="-">-- Select option --</option>
+              {% for compsize in compsizes %}
+                <option value="{{ compsize.id }}">{{ compsize.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          {% endif %}
+
         </div>
         <div class="col-md-6">
           <div id="drop-area">

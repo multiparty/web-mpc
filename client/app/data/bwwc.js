@@ -574,6 +574,11 @@ define([], function () {
         ]
       }
     ],
+    'compsizes': [
+      { name: 'Small'},
+      { name: 'Medium'}, 
+      { name: 'Large'}
+    ],
     'cohort_group_by': ['Female', 'Male', 'NBinary'], // list all the groups to include in the cohort results
     'cohort_selection': true,
     'cohorts': [
