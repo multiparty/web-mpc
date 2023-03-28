@@ -6,11 +6,14 @@
 
 const mongoose = require('mongoose');
 
-const mongohost = process.env.MONGOHOST|| 'mongodb://localhost:27017';
+const mongo_host = process.env.MONGO_HOST || 'localhost';
+const mongo_port = process.env.MONGO_PORT || '27017';
+
+const mongo_connection_string = 'mongodb://'+ mongo_host  + ':' + mongo_port;
 (async function () {
   try {
-    await mongoose.connect(mongohost+'/aggregate', { useMongoClient: true });
-    console.log('You are connected to ',mongohost);
+    await mongoose.connect(mongo_connection_string+'/aggregate', { useMongoClient: true });
+    console.log('You are connected to ',mongo_connection_string);
   } catch (err) {
     console.log('Could not connect to MongoDB server', err);
   }
@@ -56,7 +59,7 @@ const SessionInfoModel = mongoose.model('SessionInfo', new mongoose.Schema({
   {
     usePushEach: true
   }));
-  
+
 const UserKeyModel = mongoose.model('UserKey', new mongoose.Schema({
   _id: String, // concat of session + userkey.
   session: String,
