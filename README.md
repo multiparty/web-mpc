@@ -18,7 +18,7 @@ These instructions are for demonstration and development purposes only. For a fu
 * Install and start MongoDB
 * Clone WEB-MPC
 ```
-git clone https://github.com/multiparty/web-mpc.git
+git clone --recurse-submodules -j8  https://github.com/multiparty/web-mpc/
 cd web-mpc/
 ```
 * Build Docker Image and Compose Container
